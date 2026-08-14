@@ -901,9 +901,11 @@ npm test             # 组件测试（vitest，建议本机运行）
 
 ### 15.2 部署到 Cloudflare Pages
 
-1. **直接上传**：Workers & Pages → Pages → 创建项目 → 直接上传 → 拖入 `v2\dist` 整个文件夹 → 部署 → 得到 `https://<项目名>.pages.dev`
-2. **Git 集成**：Pages → 创建项目 → 连接 Git 仓库 → 构建配置：构建命令 `npm run build`、输出目录 `dist`（根目录需包含 v2 工程，或用子目录构建——见 15.3）
-3. 如需数据 API（云端同步），沿用 v1 的 `_worker.js`（§13.0 合体模式）——将 `_worker.js` 与 `dist` 内容一起上传/构建输出
+> ⚠️ **build 脚本已内置 `_worker.js` 复制**（`npm run build` 自动把根目录 `_worker.js` 复制进 `dist/`）——这是 Pages 合体模式（网站 + API 一体）的前提；若缺少此步，`/api/*` 会返回 405。
+
+1. **直接上传**：Workers & Pages → Pages → 创建项目 → 直接上传 → 拖入 `dist` 整个文件夹 → 部署 → 得到 `https://<项目名>.pages.dev`
+2. **Git 集成**：Pages → 创建项目 → 连接 Git 仓库 → 构建配置：根目录 `/`、构建命令 `npm run build`、输出目录 `dist`（§15.3）
+3. 部署后绑定 KV（`BERYL_KV → beryl-kv`）并重新部署一次，`/api/data` 返回 `unauthorized` 即 API 生效
 
 ### 15.3 Git 集成说明（2026-08-15 起项目已单一起源）
 
