@@ -1,0 +1,7 @@
+name = "beryl"                      # 与 Cloudflare 上的项目名保持一致
+main = "worker.js"                  # 入口文件路径，若放在 src/ 下就改成 src/worker.js
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "BERYL_KV"
+id = "2121a2b632f04932b73de2e90f6a2847"

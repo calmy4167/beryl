@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+.npmcache/
+_v1-backup/
