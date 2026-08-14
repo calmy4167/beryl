@@ -28,15 +28,18 @@
 ## 2. 文件清单
 
 ```
-D:\dsharness\
-├── index.html          ← 单文件应用（全部功能与样式）
-├── DESIGN_README.md    ← 本文档（设计规范 + 维护日志）
-├── worker.js           ← Cloudflare Worker 后端（云端同步 API，部署见 §13）
-├── .gitignore          ← 排除测试脚手架（已随 GitHub 仓库提交）
-└── .testdeps\          ← 测试脚手架（jsdom 冒烟测试，可删除后按 §9 命令重建）
-    ├── run-test.js     ← 冒烟测试脚本（130 项断言）
-    └── node_modules\   ← jsdom 依赖
+D:\dsharness\            ← 项目根（git 仓库，v2 工程已上移为单一项目）
+├── index.html           ← Vite 入口
+├── src\                 ← 源码（core 逻辑 / views / components / styles）
+├── test\node\           ← 核心逻辑测试（node:test，15 项，npm run test:node）
+├── src\__tests__\       ← 组件测试（vitest，本机 npm test）
+├── _worker.js           ← 云端 API 后端（Pages 合体模式，部署见 §13/§15）
+├── DESIGN_README.md     ← 本文档（设计规范 + 维护日志）
+├── package.json         ← 依赖与脚本（dev/build/test/test:node）
+└── wrangler.toml        ← Cloudflare Worker 配置（如适用）
 ```
+
+> v1（单文件 index.html）已移除（备份于 `_v1-backup\`，确认无误后可删）；git 历史已重置，v2 为全新仓库。
 
 ---
 
@@ -902,11 +905,12 @@ npm test             # 组件测试（vitest，建议本机运行）
 2. **Git 集成**：Pages → 创建项目 → 连接 Git 仓库 → 构建配置：构建命令 `npm run build`、输出目录 `dist`（根目录需包含 v2 工程，或用子目录构建——见 15.3）
 3. 如需数据 API（云端同步），沿用 v1 的 `_worker.js`（§13.0 合体模式）——将 `_worker.js` 与 `dist` 内容一起上传/构建输出
 
-### 15.3 Git 集成子目录说明
+### 15.3 Git 集成说明（2026-08-15 起项目已单一起源）
 
-仓库根目录同时含 v1（index.html）与 v2（v2/ 子目录）。Pages 构建配置：
-- 根目录（Root directory）：`v2`；构建命令 `npm run build`；输出目录 `dist`
-- 这样 v1 与 v2 各自独立部署，互不干扰
+> v2 工程已上移为仓库根目录（v1 已移除），Git 集成直接指向根目录即可：
+> - 根目录（Root directory）：`/`（项目根）
+> - 构建命令：`npm run build`；输出目录：`dist`
+> - `_worker.js` 位于根目录 → Pages 自动合体（网站 + API 一体），云端同步可用
 
 ### 15.4 与 v1 的关系
 
