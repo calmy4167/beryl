@@ -87,12 +87,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
   <div class="shell">
     <!-- 桌面侧边栏（可折叠，一级/二级菜单） -->
     <aside v-if="wide" class="side" :class="{ collapsed }">
-      <div class="side-head">
-        <span class="brand-badge font-title">B</span>
-        <div class="side-brand">
-          <span class="font-title brand-name">beryl</span>
-          <span class="scene-tag" :style="{ color: scene.color, borderColor: scene.color + '66', background: scene.color + '1a' }">{{ scene.icon }} {{ scene.name }}</span>
-        </div>
+      <div class="side-head side-head-mini">
         <button class="collapse-btn" :title="collapsed ? '展开侧边栏' : '折叠侧边栏'" @click="toggleCollapse">{{ collapsed ? '»' : '«' }}</button>
       </div>
 
@@ -263,7 +258,8 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 }
 .side-open-btn:hover { color: var(--scene); border-color: var(--scene-border); box-shadow: 0 2px 14px var(--scene-soft); }
 
-.side-head { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px; }
+.side-head { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px; } /* 抽屉头部（品牌区） */
+.side-head-mini { justify-content: flex-end; gap: 0; padding: 10px 10px 4px; } /* 桌面侧栏：只留折叠按钮 */
 .side-brand { display: flex; flex-direction: column; gap: 3px; overflow: hidden; white-space: nowrap; flex: 1; min-width: 0; }
 .brand-badge {
   width: 32px; height: 32px; border-radius: 9px;
