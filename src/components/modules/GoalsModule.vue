@@ -5,7 +5,8 @@ import { store, nextId } from '@/core/storage'
 
 interface Goal { id: string; title: string; done: boolean }
 const input = ref('')
-const items = ref<Goal[]>(store.get('goals', []))
+const items = ref<Goal[]>([])
+refresh() // 首次进入即清洗脏数据（无 id / 空标题）
 
 function refresh() {
   // 自动清洗脏数据：无 id 或空标题的条目移除并写回

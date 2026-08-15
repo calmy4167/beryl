@@ -10,7 +10,9 @@ const router = useRouter()
 const scene = ref(SCENES[currentSceneId()])
 const avatar = ref('U')
 const dark = ref(document.documentElement.classList.contains('dark'))
-const wide = ref(window.innerWidth >= 768)
+/* 触屏设备（手机/平板）一律使用移动布局（顶栏 + 抽屉），避免侧边栏占屏 */
+const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+const wide = ref(window.innerWidth >= 768 && !isTouch)
 const drawer = ref(false)
 const collapsed = ref(false)
 
@@ -61,7 +63,7 @@ function go(path: string) {
   router.push(path)
 }
 function onResize() {
-  wide.value = window.innerWidth >= 768
+  wide.value = window.innerWidth >= 768 && !isTouch
 }
 
 onMounted(() => {
