@@ -109,6 +109,21 @@ const s3Dlg = ref(false)
 const s3Cfg = ref({ endpoint: '', bucket: '', region: '', ak: '', sk: '' })
 const connecting = ref(false)
 
+/* 打开对话框时回填已保存的配置（不再每次重新填写） */
+function openCloudDlg() {
+  if (sync.saved.cloud) {
+    cloudUrl.value = sync.saved.cloud.url
+    cloudKey.value = sync.saved.cloud.key || ''
+  }
+  cloudDlg.value = true
+}
+function openS3Dlg() {
+  if (sync.saved.s3) {
+    s3Cfg.value = { ...sync.saved.s3 }
+  }
+  s3Dlg.value = true
+}
+
 const syncStatus = computed(() => {
   if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `☁️ 已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
   if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `🗄️ 已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
@@ -214,8 +229,8 @@ onMounted(() => applySceneTheme(scene.value))
           <el-button type="danger" plain @click="doDisconnect">断开连接</el-button>
         </template>
         <template v-else>
-          <el-button @click="cloudDlg = true">☁️ Cloudflare</el-button>
-          <el-button @click="s3Dlg = true">🗄️ 国内云(S3)</el-button>
+          <el-button @click="openCloudDlg">☁️ Cloudflare</el-button>
+          <el-button @click="openS3Dlg">🗄️ 国内云(S3)</el-button>
           <el-button v-if="fsOk" @click="doFileConnect">📂 本地文件</el-button>
         </template>
       </div>

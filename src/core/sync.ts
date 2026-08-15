@@ -659,9 +659,14 @@ export async function restoreSync() {
       applySyncData(r2.data || {})
       ElMessage.success('✅ 已自动同步最新数据')
       return
-    } catch {
+    } catch (e) {
       sync.cloud = null
-      ElMessage.warning('⚠️ 云端自动同步失败：请检查网络或重新配置')
+      const msg = e instanceof Error ? e.message : ''
+      if (msg === 'unauthorized') {
+        ElMessage.warning('⚠️ 云端同步失败：同步密码不匹配（若为新部署，需先在 Worker 上执行一次 /api/setup 设置同步密码）')
+      } else {
+        ElMessage.warning('⚠️ 云端自动同步失败：' + (msg || '网络错误'))
+      }
     }
   }
   const s3cfg = safeParse<S3Input>(lsGet('b_s3'))

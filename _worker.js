@@ -96,7 +96,18 @@ async function migrateFromKv(env) {
 async function getAuthHash(env) {
   await ensureSchema(env);
   const row = await env.BERYL_D1.prepare('SELECT hash FROM auth WHERE id = 1').first();
-  return row ? row.hash : null;
+  if (row) return row.hash;
+  // D1 无密码：回退旧 KV 中的密码哈希（并顺手迁移进 D1，兼容升级期）
+  if (env.BERYL_KV) {
+    try {
+      const kvAuth = await env.BERYL_KV.get('auth');
+      if (kvAuth) {
+        await env.BERYL_D1.prepare('INSERT OR IGNORE INTO auth (id, hash) VALUES (1, ?)').bind(kvAuth).run();
+        return kvAuth;
+      }
+    } catch (e) { /* ignore */ }
+  }
+  return null;
 }
 
 async function authorized(request, env) {
