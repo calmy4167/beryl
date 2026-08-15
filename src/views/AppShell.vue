@@ -231,9 +231,13 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 }
 .side-static { position: static; height: 100%; width: 100%; border-right: none; transition: none; }
 
-/* 折叠态：完全收起（不占空间，内容区全宽），左上角悬浮按钮展开 */
+/* 折叠态：完全收起（不占空间，内容区全宽），左上角悬浮按钮展开。
+   注意：flex 子元素默认 min-width:auto 会把 width:0 撑回内容宽度，
+   必须同时重置 min-width 与 flex-basis，否则会残留一条空白窄条。 */
 .side.collapsed {
   width: 0;
+  min-width: 0;
+  flex-basis: 0;
   overflow: hidden;
   padding: 0;
   border-right: none;

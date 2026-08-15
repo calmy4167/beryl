@@ -5,9 +5,13 @@ import { store, nextId, fmtDate } from '@/core/storage'
 
 interface InboxItem { id: string; text: string; date: string }
 const input = ref('')
-const items = ref<InboxItem[]>(store.get('inbox', []))
+const items = ref<InboxItem[]>([])
+refresh() // 显示层过滤：隐藏空文本条目（不删除数据，避免误删）
 
-function refresh() { items.value = store.get<InboxItem[]>('inbox', []) }
+function refresh() {
+  // 显示层过滤：空文本（含无 text 字段的历史数据）不显示，但数据本身保留
+  items.value = store.get<InboxItem[]>('inbox', []).filter(x => x && String(x.text || '').trim() !== '')
+}
 function add() {
   const v = input.value.trim()
   if (!v) return
