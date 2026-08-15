@@ -1,36 +1,50 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 
 interface InboxItem { id: string; text: string; date: string }
 const input = ref('')
 const items = ref<InboxItem[]>([])
-refresh() // 显示层过滤：隐藏空文本条目（不删除数据，避免误删）
 
 function refresh() {
-  // 显示层过滤：空文本（含无 text 字段的历史数据）不显示，但数据本身保留
-  items.value = store.get<InboxItem[]>('inbox', []).filter(x => x && String(x.text || '').trim() !== '')
+  try {
+    const list = store.get<InboxItem[]>('inbox', [])
+    if (!Array.isArray(list)) return
+    // 显示层过滤：空文本（含无 text 字段的历史数据）不显示，但数据本身保留
+    items.value = list.filter(x => x && x.text != null && String(x.text).trim() !== '')
+  } catch {
+    items.value = []
+  }
 }
 function add() {
   const v = input.value.trim()
-  if (!v) return
-  const list = store.get<InboxItem[]>('inbox', [])
-  list.unshift({ id: nextId(), text: v, date: fmtDate(Date.now()) })
-  store.set('inbox', list)
-  input.value = ''
-  refresh()
-  ElMessage.success('已收入收件箱')
+  if (!v) { ElMessage.warning('写点什么再添加吧'); return }
+  try {
+    const list = store.get<InboxItem[]>('inbox', [])
+    list.unshift({ id: nextId(), text: v, date: fmtDate(Date.now()) })
+    const ok = store.set('inbox', list)
+    if (!ok) { ElMessage.error('存储失败：空间不足或浏览器限制'); return }
+    input.value = ''
+    refresh()
+    ElMessage.success('已收入收件箱')
+  } catch {
+    ElMessage.error('添加失败，请重试')
+  }
 }
 /* 按索引删除：任何条目（含缺 id 的历史数据）都能删，绝不误删其他条目 */
 function del(index: number) {
-  const list = store.get<InboxItem[]>('inbox', [])
-  if (index >= 0 && index < list.length) {
-    list.splice(index, 1)
-    store.set('inbox', list)
-  }
-  refresh()
+  try {
+    const list = store.get<InboxItem[]>('inbox', [])
+    if (index >= 0 && index < list.length) {
+      list.splice(index, 1)
+      store.set('inbox', list)
+    }
+    refresh()
+  } catch { /* ignore */ }
 }
+
+onMounted(refresh)
 </script>
 
 <template>
