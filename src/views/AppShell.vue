@@ -141,20 +141,8 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
     <!-- 折叠后的悬浮展开按钮（不占布局空间） -->
     <button v-if="wide && collapsed" class="side-open-btn" title="展开侧边栏" @click="toggleCollapse">☰</button>
 
-    <!-- 移动端顶栏 -->
-    <header v-else class="topbar">
-      <div class="inner">
-        <div class="left">
-          <el-button circle text @click="drawer = true" title="打开导航">☰</el-button>
-          <span class="brand-badge font-title">B</span>
-          <span class="font-title brand-name">beryl</span>
-        </div>
-        <div class="right">
-          <el-button circle text @click="toggleTheme" :title="dark ? '切换到浅色' : '切换到深色'">{{ dark ? '☀️' : '🌙' }}</el-button>
-          <span class="avatar">{{ avatar }}</span>
-        </div>
-      </div>
-    </header>
+    <!-- 移动端：无常驻顶栏，收起状态不占任何空间；悬浮 ☰ 按钮打开导航 -->
+    <button v-if="!wide" class="mobile-open-btn" title="打开导航" @click="drawer = true">☰</button>
 
     <main class="page-container">
       <RouterView />
@@ -169,6 +157,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
             <span class="font-title brand-name">beryl</span>
             <span class="scene-tag" :style="{ color: scene.color, borderColor: scene.color + '66', background: scene.color + '1a' }">{{ scene.icon }} {{ scene.name }}</span>
           </div>
+          <span class="avatar">{{ avatar }}</span>
         </div>
         <nav class="side-nav">
           <button class="nav-item lv1" :class="{ on: activeId === 'home' }" @click="go('/app/home')">
@@ -257,6 +246,28 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
   transition: all .15s ease;
 }
 .side-open-btn:hover { color: var(--scene); border-color: var(--scene-border); box-shadow: 0 2px 14px var(--scene-soft); }
+
+/* 移动端悬浮导航按钮（无常驻顶栏，收起状态零占用） */
+.mobile-open-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 50;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border-soft);
+  background: var(--c-card);
+  color: var(--c-text-2);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+  transition: all .15s ease;
+}
+.mobile-open-btn:hover { color: var(--scene); border-color: var(--scene-border); }
 
 .side-head { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px; } /* 抽屉头部（品牌区） */
 .side-head-mini { justify-content: flex-end; gap: 0; padding: 10px 10px 4px; } /* 桌面侧栏：只留折叠按钮 */
@@ -356,21 +367,11 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 .side-foot { border-top: 1px solid var(--c-border-soft); padding: 8px; }
 .side-version { margin: 8px 10px 4px; font-size: 9px; color: var(--c-text-3); text-align: center; user-select: none; }
 
-/* ---- 移动端顶栏 ---- */
-.topbar {
-  position: sticky; top: 0; z-index: 40;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: var(--c-topbar);
-  border-bottom: 1px solid var(--c-border-soft);
-}
-.inner { max-width: 960px; margin: 0 auto; padding: 0 12px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
-.left { display: flex; align-items: center; gap: 8px; }
-.right { display: flex; align-items: center; gap: 6px; }
 .avatar {
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 13px;
   color: var(--scene); background: var(--scene-soft); border: 1px solid var(--scene-border-strong);
+  flex-shrink: 0;
 }
 </style>
