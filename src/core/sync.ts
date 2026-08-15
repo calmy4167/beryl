@@ -141,6 +141,28 @@ const setLocalTs = (v: number) => lsSet('b_sync_ts', String(v))
 
 interface PullRecord { key: string; value: unknown; ts: number; device?: string; deleted?: boolean }
 
+/**
+ * 增量合并（LWW）：只取 ts 大于本地时间线的记录（自己推的跳过），
+ * 解密后返回应写入本地的键值。纯函数（依赖 crypto 解密），可单测。
+ */
+export async function applyIncremental(
+  records: PullRecord[],
+  password: string,
+  lts: number
+): Promise<Record<string, string>> {
+  const incoming: Record<string, string> = {}
+  for (const rec of records) {
+    if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
+    if (rec.ts <= lts) continue // 自己推的 / 不比自己新的，跳过（不覆盖本地新数据）
+    if (typeof rec.value === 'string') incoming[rec.key] = rec.value
+    else {
+      const plain = await decryptValue(password, rec.value)
+      if (plain !== null) incoming[rec.key] = plain
+    }
+  }
+  return incoming
+}
+
 /** 增量拉取；404 → 旧 Worker（返回 null，调用方回退） */
 async function cloudPull(since: number): Promise<{ records: PullRecord[]; maxTs: number } | null> {
   if (!sync.cloud) throw new Error('not-connected')
@@ -360,14 +382,7 @@ export async function pollCheck() {
           ElMessage.success('已同步云端更新 ☁️')
         }
       } else if (r.records.length) {
-        const lts = localTs()
-        const incoming: Record<string, string> = {}
-        for (const rec of r.records) {
-          if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
-          if (rec.ts <= lts) continue // 自己推的
-          if (typeof rec.value === 'string') incoming[rec.key] = rec.value
-          else { const plain = await decryptValue(sync.cloud.key, rec.value); if (plain !== null) incoming[rec.key] = plain }
-        }
+        const incoming = await applyIncremental(r.records, sync.cloud.key, localTs())
         if (r.maxTs > pullCursor()) setPullCursor(r.maxTs)
         if (Object.keys(incoming).length) {
           applySyncData({ ...buildLocalData(), ...incoming })
@@ -400,14 +415,8 @@ export async function syncNow() {
       const r = await cloudPull(0)
       if (r !== null) {
         const lts = localTs()
-        const incoming: Record<string, string> = {}
-        let remoteNew = false
-        for (const rec of r.records) {
-          if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
-          if (rec.ts > lts) remoteNew = true
-          if (typeof rec.value === 'string') incoming[rec.key] = rec.value
-          else { const plain = await decryptValue(sync.cloud.key, rec.value); if (plain !== null) incoming[rec.key] = plain }
-        }
+        const incoming = await applyIncremental(r.records, sync.cloud.key, lts)
+        const remoteNew = Object.keys(incoming).length > 0
         if (remoteNew && sync.dirty) {
           try {
             await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
@@ -630,10 +639,18 @@ export async function restoreSync() {
     try {
       const r = await cloudPull(0)
       if (r !== null) {
-        const data = await decryptRecords(r.records, cfg.key)
-        setPullCursor(r.maxTs)
-        setLocalTs(r.maxTs)
-        applySyncData(data)
+        // 刷新自动重连：增量 LWW 合并，绝不覆盖本地更新的数据
+        const incoming = await applyIncremental(r.records, cfg.key, localTs())
+        if (r.maxTs > pullCursor()) setPullCursor(r.maxTs)
+        if (Object.keys(incoming).length) {
+          applySyncData({ ...buildLocalData(), ...incoming })
+        }
+        // 把本地新数据推上云端（首次连接 / 上次未推成功的增量）
+        if (Object.keys(buildLocalData()).length) {
+          sync.fileData = buildLocalData()
+          sync.dirty = true
+          scheduleWrite()
+        }
         ElMessage.success('✅ 已自动同步最新数据')
         return
       }

@@ -80,3 +80,57 @@ describe('数据版本迁移（阶段 2）', async () => {
     expect(localStorage.getItem('b_version')).toBe('4')
   })
 })
+
+describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新数据）', async () => {
+  const { applyIncremental } = await import('@/core/sync')
+
+  it('ts 不大于本地时间线的记录全部跳过（本地新数据不被云端旧数据覆盖）', async () => {
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: '["cloud-old"]', ts: 100 },
+      { key: 'b_tasks', value: '[]', ts: 200 }
+    ], 'p', 200)
+    expect(out['b_inbox']).toBeUndefined()
+    expect(out['b_tasks']).toBeUndefined()
+  })
+
+  it('云端更新的记录被应用（ts 大于本地时间线）', async () => {
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: '["cloud-new"]', ts: 300 }
+    ], 'p', 200)
+    expect(out['b_inbox']).toBe('["cloud-new"]')
+  })
+
+  it('密文记录正确解密后应用', async () => {
+    const { encryptValue } = await import('@/core/crypto')
+    const enc = await encryptValue('sync-pass', '["secret"]')
+    expect(enc).not.toBeNull()
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: enc, ts: 300 }
+    ], 'sync-pass', 200)
+    expect(out['b_inbox']).toBe('["secret"]')
+  })
+
+  it('deleted 记录与非 b_ 前缀键跳过', async () => {
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: 'x', ts: 300, deleted: true },
+      { key: 'b_scene', value: '"personal"', ts: 300 },
+      { key: 'other-key', value: 'y', ts: 300 }
+    ], 'p', 0)
+    expect(Object.keys(out)).toEqual(['b_scene'])
+  })
+})
+
+describe('坏值防御（添加/刷新不因非数组存储值崩溃）', () => {
+  it('存储值为 "null" 时按非数组处理', () => {
+    localStorage.setItem('b_inbox', 'null')
+    const parsed = JSON.parse(localStorage.getItem('b_inbox')!)
+    expect(parsed).toBeNull()
+    expect(Array.isArray(parsed)).toBe(false)
+  })
+  it('存储值合法时正常解析为数组', () => {
+    localStorage.setItem('b_tasks', '[{"id":"a","title":"t"}]')
+    const parsed = JSON.parse(localStorage.getItem('b_tasks')!)
+    expect(Array.isArray(parsed)).toBe(true)
+    expect(parsed.length).toBe(1)
+  })
+})
