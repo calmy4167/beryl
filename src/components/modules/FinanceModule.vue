@@ -80,8 +80,8 @@ function del(id: string) {
 .form { padding: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
 .type-btns { width: 100%; }
 .type-btns :deep(.el-radio-button__inner) { width: 100%; }
-.row { display: flex; gap: 8px; }
-.row > * { flex: 1; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 140px; }
 .list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
 .item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
 .date { font-size: 10px; color: var(--c-text-2); width: 96px; flex-shrink: 0; }

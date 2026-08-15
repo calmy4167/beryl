@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS, catsFor } from '@/core/modules'
@@ -24,6 +24,28 @@ const activeId = computed(() => {
   return ''
 })
 
+/* ---- 二级菜单展开状态（持久化 b_nav_open） ---- */
+const openGroups = ref<Record<string, boolean>>({})
+try {
+  Object.assign(openGroups.value, JSON.parse(localStorage.getItem('b_nav_open') || '{}'))
+} catch { /* ignore */ }
+
+function persistOpen() {
+  try { localStorage.setItem('b_nav_open', JSON.stringify(openGroups.value)) } catch { /* ignore */ }
+}
+function toggleGroup(id: string) {
+  openGroups.value[id] = !openGroups.value[id]
+  persistOpen()
+}
+/** 当前激活模块所属分类自动展开（保证激活项可见） */
+watch(activeId, (id) => {
+  const cat = cats.value.find(c => c.mods.includes(id))
+  if (cat && !openGroups.value[cat.id]) {
+    openGroups.value[cat.id] = true
+    persistOpen()
+  }
+})
+
 function toggleTheme() {
   dark.value = !dark.value
   document.documentElement.classList.toggle('dark', dark.value)
@@ -46,13 +68,19 @@ onMounted(() => {
   const s = readSession()
   if (s) avatar.value = (s.u[0] || 'U').toUpperCase()
   window.addEventListener('resize', onResize)
+  // 初始：激活模块所在分类自动展开
+  const cat = cats.value.find(c => c.mods.includes(activeId.value))
+  if (cat && !openGroups.value[cat.id]) { openGroups.value[cat.id] = true; persistOpen() }
 })
 onUnmounted(() => window.removeEventListener('resize', onResize))
+
+const visibleMods = (catId: string) => cats.value.find(c => c.id === catId)?.mods.filter(m => scene.value.mods.includes(m)) || []
+const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 </script>
 
 <template>
   <div class="shell">
-    <!-- 桌面侧边栏（可折叠） -->
+    <!-- 桌面侧边栏（可折叠，一级/二级菜单） -->
     <aside v-if="wide" class="side" :class="{ collapsed }">
       <div class="side-head">
         <span class="brand-badge font-title">B</span>
@@ -60,42 +88,50 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
           <span class="font-title brand-name">beryl</span>
           <span class="scene-tag" :style="{ color: scene.color, borderColor: scene.color + '66', background: scene.color + '1a' }">{{ scene.icon }} {{ scene.name }}</span>
         </div>
-        <button
-          class="collapse-btn"
-          :title="collapsed ? '展开侧边栏' : '折叠侧边栏'"
-          @click="toggleCollapse"
-        >{{ collapsed ? '»' : '«' }}</button>
+        <button class="collapse-btn" :title="collapsed ? '展开侧边栏' : '折叠侧边栏'" @click="toggleCollapse">{{ collapsed ? '»' : '«' }}</button>
       </div>
 
       <nav class="side-nav">
-        <button class="nav-item" :class="{ on: activeId === 'home' }" @click="go('/app/home')" title="首页">
+        <!-- 一级：首页 -->
+        <button class="nav-item lv1" :class="{ on: activeId === 'home' }" @click="go('/app/home')" title="首页">
           <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
         </button>
+
+        <!-- 一级：十神分类（可展开）→ 二级：模块 -->
         <div v-for="c in cats" :key="c.id" class="nav-group">
-          <p class="nav-group-title">{{ c.icon }} {{ c.name }}</p>
-          <button
-            v-for="m in c.mods.filter(x => scene.mods.includes(x))"
-            :key="m"
-            class="nav-item"
-            :class="{ on: activeId === m }"
-            :title="MODS[m].name"
-            @click="go('/app/module/' + m)"
-          >
-            <span class="nav-dot" :style="{ background: MODS[m].color }" />
-            <span class="nav-icon">{{ MODS[m].icon }}</span>
-            <span class="nav-label">{{ MODS[m].name }}</span>
+          <button class="nav-item lv1" :class="{ open: isOpen(c.id) }" @click="toggleGroup(c.id)" :title="c.name">
+            <span class="caret" :class="{ open: isOpen(c.id) }">▸</span>
+            <span class="nav-icon">{{ c.icon }}</span>
+            <span class="nav-label">{{ c.name }}</span>
+            <span class="lv1-count">{{ visibleMods(c.id).length }}</span>
           </button>
+          <div class="nav-sub" :class="{ open: isOpen(c.id) }">
+            <div class="nav-sub-inner">
+              <button
+                v-for="m in visibleMods(c.id)"
+                :key="m"
+                class="nav-item lv2"
+                :class="{ on: activeId === m }"
+                :title="MODS[m].name"
+                @click="go('/app/module/' + m)"
+              >
+                <span class="nav-dot" :style="{ background: MODS[m].color }" />
+                <span class="nav-icon">{{ MODS[m].icon }}</span>
+                <span class="nav-label">{{ MODS[m].name }}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </nav>
 
       <div class="side-foot">
-        <button class="nav-item" :class="{ on: activeId === 'admin' }" @click="go('/app/admin')" title="后台管理">
+        <button class="nav-item lv1" :class="{ on: activeId === 'admin' }" @click="go('/app/admin')" title="后台管理">
           <span class="nav-icon">⚙️</span><span class="nav-label">后台管理</span>
         </button>
-        <button class="nav-item" @click="go('/scene')" title="切换场景">
+        <button class="nav-item lv1" @click="go('/scene')" title="切换场景">
           <span class="nav-icon">🎭</span><span class="nav-label">切换场景</span>
         </button>
-        <button class="nav-item" @click="toggleTheme" :title="dark ? '切换到浅色' : '切换到深色'">
+        <button class="nav-item lv1" @click="toggleTheme" :title="dark ? '切换到浅色' : '切换到深色'">
           <span class="nav-icon">{{ dark ? '☀️' : '🌙' }}</span><span class="nav-label">{{ dark ? '浅色模式' : '深色模式' }}</span>
         </button>
       </div>
@@ -120,8 +156,8 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
       <RouterView />
     </main>
 
-    <!-- 移动端导航抽屉 -->
-    <el-drawer v-model="drawer" direction="ltr" size="260px" :with-header="false">
+    <!-- 移动端导航抽屉（同层级结构） -->
+    <el-drawer v-model="drawer" direction="ltr" size="min(82vw, 280px)" :with-header="false">
       <div class="side side-static">
         <div class="side-head">
           <span class="brand-badge font-title">B</span>
@@ -131,28 +167,37 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
           </div>
         </div>
         <nav class="side-nav">
-          <button class="nav-item" :class="{ on: activeId === 'home' }" @click="go('/app/home')">
+          <button class="nav-item lv1" :class="{ on: activeId === 'home' }" @click="go('/app/home')">
             <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
           </button>
           <div v-for="c in cats" :key="c.id" class="nav-group">
-            <p class="nav-group-title">{{ c.icon }} {{ c.name }}</p>
-            <button
-              v-for="m in c.mods.filter(x => scene.mods.includes(x))"
-              :key="m"
-              class="nav-item"
-              :class="{ on: activeId === m }"
-              @click="go('/app/module/' + m)"
-            >
-              <span class="nav-dot" :style="{ background: MODS[m].color }" />
-              <span class="nav-icon">{{ MODS[m].icon }}</span>
-              <span class="nav-label">{{ MODS[m].name }}</span>
+            <button class="nav-item lv1" :class="{ open: openGroups[c.id] }" @click="toggleGroup(c.id)">
+              <span class="caret" :class="{ open: openGroups[c.id] }">▸</span>
+              <span class="nav-icon">{{ c.icon }}</span>
+              <span class="nav-label">{{ c.name }}</span>
+              <span class="lv1-count">{{ visibleMods(c.id).length }}</span>
             </button>
+            <div class="nav-sub" :class="{ open: openGroups[c.id] }">
+              <div class="nav-sub-inner">
+                <button
+                  v-for="m in visibleMods(c.id)"
+                  :key="m"
+                  class="nav-item lv2"
+                  :class="{ on: activeId === m }"
+                  @click="go('/app/module/' + m)"
+                >
+                  <span class="nav-dot" :style="{ background: MODS[m].color }" />
+                  <span class="nav-icon">{{ MODS[m].icon }}</span>
+                  <span class="nav-label">{{ MODS[m].name }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </nav>
         <div class="side-foot">
-          <button class="nav-item" @click="go('/app/admin')"><span class="nav-icon">⚙️</span><span class="nav-label">后台管理</span></button>
-          <button class="nav-item" @click="go('/scene')"><span class="nav-icon">🎭</span><span class="nav-label">切换场景</span></button>
-          <button class="nav-item" @click="toggleTheme"><span class="nav-icon">{{ dark ? '☀️' : '🌙' }}</span><span class="nav-label">{{ dark ? '浅色模式' : '深色模式' }}</span></button>
+          <button class="nav-item lv1" @click="go('/app/admin')"><span class="nav-icon">⚙️</span><span class="nav-label">后台管理</span></button>
+          <button class="nav-item lv1" @click="go('/scene')"><span class="nav-icon">🎭</span><span class="nav-label">切换场景</span></button>
+          <button class="nav-item lv1" @click="toggleTheme"><span class="nav-icon">{{ dark ? '☀️' : '🌙' }}</span><span class="nav-label">{{ dark ? '浅色模式' : '深色模式' }}</span></button>
         </div>
       </div>
     </el-drawer>
@@ -177,17 +222,29 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
 }
 .side-static { position: static; height: 100%; width: 100%; border-right: none; transition: none; }
 
-/* 折叠态：窄栏只留图标 */
+/* 折叠态：窄栏只留图标，二级直接平铺图标 */
 .side.collapsed { width: 64px; }
 .side.collapsed .side-head { flex-direction: column; gap: 8px; padding: 16px 0 10px; }
 .side.collapsed .side-brand,
-.side.collapsed .nav-group-title,
-.side.collapsed .nav-label { display: none; }
+.side.collapsed .nav-label,
+.side.collapsed .lv1-count,
+.side.collapsed .caret { display: none; }
 .side.collapsed .nav-item { justify-content: center; padding: 9px 0; }
 .side.collapsed .nav-dot { display: none; }
+.side.collapsed .nav-sub { grid-template-rows: 1fr; margin-left: 0; padding-left: 0; border-left: none; }
+.side.collapsed .nav-sub-inner { padding: 0; }
 
 .side-head { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px; }
 .side-brand { display: flex; flex-direction: column; gap: 3px; overflow: hidden; white-space: nowrap; flex: 1; min-width: 0; }
+.brand-badge {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--scene); background: var(--scene-soft); border: 1px solid var(--scene-border);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.brand-name { font-weight: 700; letter-spacing: 0.05em; font-size: 15px; line-height: 1; }
+.scene-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; width: fit-content; }
 .collapse-btn {
   width: 28px; height: 28px;
   border-radius: 8px;
@@ -202,19 +259,10 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
   transition: all .15s ease;
 }
 .collapse-btn:hover { color: var(--scene); border-color: var(--scene-border); background: var(--scene-soft); }
-.brand-badge {
-  width: 32px; height: 32px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--scene); background: var(--scene-soft); border: 1px solid var(--scene-border);
-  font-size: 15px;
-  flex-shrink: 0;
-}
-.brand-name { font-weight: 700; letter-spacing: 0.05em; font-size: 15px; line-height: 1; }
-.scene-tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; width: fit-content; }
 
 .side-nav { flex: 1; overflow-y: auto; padding: 4px 8px 8px; }
-.nav-group { margin-top: 10px; }
-.nav-group-title { font-size: 10px; font-weight: 600; color: var(--c-text-3); letter-spacing: 0.15em; padding: 6px 10px 4px; margin: 0; white-space: nowrap; overflow: hidden; }
+
+/* ---- 导航项基础 ---- */
 .nav-item {
   display: flex; align-items: center; gap: 8px;
   width: 100%;
@@ -239,6 +287,43 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
   font-weight: 600;
   box-shadow: inset 2px 0 0 var(--scene);
 }
+
+/* ---- 一级菜单 ---- */
+.nav-item.lv1 { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.nav-item.lv1.open { color: var(--c-text); }
+.caret {
+  width: 12px;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--c-text-3);
+  transition: transform .18s ease;
+}
+.caret.open { transform: rotate(90deg); }
+.lv1-count {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--c-text-3);
+  background: var(--c-bg-2);
+  border-radius: 999px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+/* ---- 二级菜单：缩进 + 竖线 + 展开过渡 ---- */
+.nav-sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .2s ease;
+  margin-left: 15px;
+  padding-left: 10px;
+  border-left: 1px solid var(--c-border-soft);
+}
+.nav-sub.open { grid-template-rows: 1fr; }
+.nav-sub-inner { overflow: hidden; min-height: 0; }
+.nav-item.lv2 { font-size: 12.5px; padding-left: 6px; }
+.nav-item.lv2 .nav-dot { width: 6px; height: 6px; }
+.nav-item.lv2.on { color: var(--scene); }
+
 .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .nav-icon { width: 18px; text-align: center; flex-shrink: 0; }
 .nav-label { overflow: hidden; text-overflow: ellipsis; }

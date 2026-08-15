@@ -45,7 +45,8 @@ function del(id: string) {
 </template>
 
 <style scoped>
-.form { display: flex; gap: 8px; padding: 12px; }
+.form { display: flex; gap: 8px; padding: 12px; flex-wrap: wrap; }
+.form :deep(.el-input) { flex: 1; min-width: 200px; }
 .list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
 .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .done .t { text-decoration: line-through; color: var(--c-text-3); }

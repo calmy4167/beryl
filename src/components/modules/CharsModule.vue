@@ -50,7 +50,8 @@ function del(id: string) {
 </template>
 
 <style scoped>
-.form { display: flex; gap: 8px; padding: 12px; }
+.form { display: flex; gap: 8px; padding: 12px; flex-wrap: wrap; }
+.form :deep(.el-input) { flex: 1; min-width: 140px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 20px; }
 .card { padding: 16px; text-align: center; position: relative; }
 .del { position: absolute; top: 8px; right: 8px; }

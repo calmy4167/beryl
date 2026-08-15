@@ -93,4 +93,14 @@ function quickKeydown(e: KeyboardEvent) {
 /* ---- 合并输入框 ---- */
 .quick-box { padding: 16px; margin-top: 28px; }
 .quick-hint { font-size: 10px; color: var(--c-text-3); margin: 10px 0 0; }
+
+/* ---- 手机端 ---- */
+@media (max-width: 640px) {
+  .hero { padding: 24px 0 0; }
+  .hero-title { font-size: 1.6rem; }
+  .hero-badge { font-size: 10px; padding: 4px 12px; margin-bottom: 12px; }
+  .hero-sub { font-size: 13px; }
+  .hero-quote { font-size: 11px; }
+  .quick-box { padding: 12px; margin-top: 20px; }
+}
 </style>

@@ -11,6 +11,7 @@ const spans = ref<Record<string, 1 | 2>>({})
 const draggingId = ref<string | null>(null)
 const loading = ref(true)
 const emptyHint = ref('')
+const touch = ref(typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0))
 
 async function load() {
   loading.value = true
@@ -70,6 +71,16 @@ function resizeGroup(id: string, span: 1 | 2) {
   persist()
 }
 
+/* 触屏排序：按 ↑↓ 按钮移动位置 */
+function moveGroupBy(id: string, delta: number) {
+  const i = groups.value.findIndex(g => g.id === id)
+  const j = i + delta
+  if (i < 0 || j < 0 || j >= groups.value.length) return
+  const [moved] = groups.value.splice(i, 1)
+  groups.value.splice(j, 0, moved)
+  persist()
+}
+
 onMounted(() => {
   emptyHint.value = randomEmptyHint()
   void load()
@@ -84,6 +95,7 @@ onMounted(() => {
         {{ loading ? '加载中…' : '换一批 ↻' }}
       </button>
     </div>
+    <p v-if="touch" class="touch-hint">📱 触屏模式：拖 ⤡ 调整大小 · 点 ↑↓ 排序</p>
 
     <!-- 加载骨架：模拟大卡嵌小卡结构 -->
     <div v-if="loading" class="wall-grid">
@@ -111,12 +123,15 @@ onMounted(() => {
         :group="g"
         :span="spans[g.id] || 1"
         :dragging="draggingId === g.id"
+        :touch="touch"
         :style="{ animationDelay: i * 70 + 'ms' }"
         @drag-start="draggingId = g.id"
         @drag-end="draggingId = null"
         @drop-pos="moveGroup(g.id, $event)"
         @move-card="(f: number, t: number) => moveCard(g.id, f, t)"
         @resize="resizeGroup(g.id, $event)"
+        @move-up="moveGroupBy(g.id, -1)"
+        @move-down="moveGroupBy(g.id, 1)"
       />
     </div>
   </div>
@@ -139,6 +154,7 @@ onMounted(() => {
 .refresh-btn:hover:not(:disabled) { border-color: var(--scene-border); background: var(--scene-soft); }
 .refresh-btn:disabled { opacity: .6; cursor: default; }
 .hint { text-align: center; color: var(--c-text-3); font-size: 13px; padding: 48px 0; }
+.touch-hint { margin: 0 0 10px; font-size: 10px; color: var(--c-text-3); text-align: right; }
 
 /* 大卡片区域：两列，大卡可跨整行 */
 .wall-grid {
@@ -167,6 +183,12 @@ onMounted(() => {
 }
 .skeleton-card.span-2 { grid-column: 1 / -1; }
 .sk-head { height: 18px; width: 40%; background: var(--c-bg-2); border-radius: 6px; margin-bottom: 12px; }
-.sk-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.sk-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 .sk-mini { height: 64px; background: var(--c-bg-soft); border: 1px solid var(--c-border-soft); border-radius: 10px; }
+
+/* ---- 手机端紧凑化（卡片内部样式见 GroupCard.vue） ---- */
+@media (max-width: 640px) {
+  .head { margin: 24px 0 10px; }
+  .wall-grid { gap: 10px; }
+}
 </style>

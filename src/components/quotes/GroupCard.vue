@@ -7,6 +7,7 @@ const props = defineProps<{
   group: QuoteGroup
   span: 1 | 2
   dragging: boolean
+  touch: boolean
 }>()
 
 const emit = defineEmits<{
@@ -15,6 +16,8 @@ const emit = defineEmits<{
   (e: 'drop-pos', pos: 'before' | 'after'): void
   (e: 'move-card', from: number, to: number): void
   (e: 'resize', span: 1 | 2): void
+  (e: 'move-up'): void
+  (e: 'move-down'): void
 }>()
 
 /* ---- 大卡拖拽排序 ---- */
@@ -93,8 +96,14 @@ function onResizeStart(e: PointerEvent) {
       <span class="g-icon">{{ group.icon }}</span>
       <span class="g-title">{{ group.title }}</span>
       <span class="g-count">{{ group.cards.length }} 张</span>
-      <span class="g-hint">⠿ 拖动排序</span>
-      <span class="resize-handle" title="拖动改变大小" @pointerdown.prevent="onResizeStart">⤡</span>
+      <span class="g-actions">
+        <template v-if="touch">
+          <button class="g-move" title="上移" @click.stop="emit('move-up')">↑</button>
+          <button class="g-move" title="下移" @click.stop="emit('move-down')">↓</button>
+        </template>
+        <span v-else class="g-hint">⠿ 拖动排序</span>
+        <span class="resize-handle" title="拖动改变大小" @pointerdown.prevent="onResizeStart">⤡</span>
+      </span>
     </div>
 
     <!-- 大卡内部：小卡网格 -->
@@ -137,10 +146,24 @@ function onResizeStart(e: PointerEvent) {
 .g-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: grab; }
 .g-head:active { cursor: grabbing; }
 .g-icon { font-size: 16px; }
-.g-title { font-size: 13px; font-weight: 700; color: var(--c-text); }
-.g-count { font-size: 10px; color: var(--c-text-3); }
-.g-hint { margin-left: auto; font-size: 9px; color: var(--c-text-3); opacity: 0; transition: opacity .15s ease; }
+.g-title { font-size: 13px; font-weight: 700; color: var(--c-text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-count { font-size: 10px; color: var(--c-text-3); flex-shrink: 0; }
+.g-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.g-hint { font-size: 9px; color: var(--c-text-3); opacity: 0; transition: opacity .15s ease; }
 .group:hover .g-hint { opacity: 1; }
+.g-move {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  color: var(--c-text-3);
+  background: transparent;
+  border: 1px solid var(--c-border-soft);
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s ease;
+}
+.g-move:hover { color: var(--scene); border-color: var(--scene-border); background: var(--scene-soft); }
 .resize-handle {
   width: 24px; height: 24px;
   display: flex; align-items: center; justify-content: center;
@@ -149,6 +172,7 @@ function onResizeStart(e: PointerEvent) {
   border-radius: 6px;
   cursor: ew-resize;
   user-select: none;
+  touch-action: none; /* 触屏可拖动 */
   transition: all .15s ease;
 }
 .resize-handle:hover { color: var(--scene); background: var(--scene-soft); }
@@ -161,4 +185,13 @@ function onResizeStart(e: PointerEvent) {
 }
 .mini-cell { min-width: 0; transition: opacity .15s ease; }
 .mini-cell.drop-target { opacity: .5; }
+
+/* ---- 手机端紧凑化 ---- */
+@media (max-width: 640px) {
+  .group { padding: 10px; border-radius: 12px; }
+  .g-head { margin-bottom: 10px; }
+  .g-cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .g-move { width: 30px; height: 30px; } /* 触控目标 ≥ 44px 的折中，30px 可点 */
+  .resize-handle { width: 30px; height: 30px; }
+}
 </style>
