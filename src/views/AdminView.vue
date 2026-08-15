@@ -6,7 +6,7 @@ import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
-import { sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow } from '@/core/sync'
+import { sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
@@ -160,6 +160,16 @@ async function doFileConnect() {
 }
 function doDisconnect() { disconnect(); ElMessage.success('已断开同步（数据仍在本机）') }
 
+/* 同步诊断 */
+const diag = ref<SyncDiag | null>(null)
+const diagLoading = ref(false)
+async function runDiag() {
+  diagLoading.value = true
+  try { diag.value = await diagSync() }
+  catch { diag.value = null }
+  diagLoading.value = false
+}
+
 const now = new Date()
 onMounted(() => applySceneTheme(scene.value))
 </script>
@@ -235,6 +245,16 @@ onMounted(() => applySceneTheme(scene.value))
         </template>
       </div>
       <p class="mods-line">本地变更 0.8s 自动上传 · 前台每 5 秒自动拉取 · 切回页面立即拉取 · 云端增量 LWW 合并 + 加密</p>
+      <div class="btns" style="margin-top: 8px">
+        <el-button size="small" :loading="diagLoading" @click="runDiag">🔍 同步诊断</el-button>
+      </div>
+      <div v-if="diag" class="diag">
+        <p class="diag-line">云端地址：{{ diag.url }}</p>
+        <p class="diag-line">游标：pull={{ diag.pullCursor }} · localTs={{ diag.localTs }} · push={{ diag.pushCursor }} · dirty={{ diag.dirty }}</p>
+        <p class="diag-line">云端记录数：{{ diag.cloudRecords }}（-1=未连接 / -2=旧Worker / -3=请求失败）· 云端maxTs={{ diag.cloudMaxTs }}</p>
+        <p class="diag-line">上次推送：{{ diag.lastSync }}</p>
+        <p class="diag-line diag-raw">本地 b_inbox 值：{{ diag.localInboxSample }}</p>
+      </div>
     </div>
 
     <!-- Cloudflare 连接对话框 -->
@@ -282,4 +302,14 @@ onMounted(() => applySceneTheme(scene.value))
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .info { font-size: 12px; color: var(--c-text-2); margin: 4px 0; }
 .info span { color: var(--c-text); }
+.diag {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--c-bg-soft);
+  border: 1px solid var(--c-border-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.diag-line { font-size: 10px; color: var(--c-text-2); margin: 2px 0; line-height: 1.6; word-break: break-all; }
+.diag-raw { color: var(--c-text); }
 </style>

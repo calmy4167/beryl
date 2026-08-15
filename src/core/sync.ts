@@ -293,8 +293,12 @@ async function cloudWrite() {
     if (maxSeq) lsSet('b_push_cursor', String(maxSeq))
     sync.dirty = false
     sync.lastTouch = Date.now()
+    markLastSync(true)
     ElMessage.success('已同步到云端 ☁️')
-  } catch (e) { ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误')) }
+  } catch (e) {
+    markLastSync(false, e instanceof Error ? e.message : '网络错误')
+    ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误'))
+  }
 }
 
 /* 旧 Worker（KV 全量快照）回退 */
@@ -732,3 +736,47 @@ export async function restoreSync() {
 }
 
 export function currentSceneForSync() { return currentSceneId() }
+
+/* ---------- 同步诊断（排查"连上但不同步"问题） ---------- */
+export interface SyncDiag {
+  url: string
+  pullCursor: number
+  localTs: number
+  pushCursor: number
+  dirty: boolean
+  lastSync: string
+  cloudRecords: number  // -1 未连接 / -2 旧Worker / -3 请求失败
+  cloudMaxTs: number
+  localInboxSample: string
+}
+
+export async function diagSync(): Promise<SyncDiag> {
+  const d: SyncDiag = {
+    url: sync.cloud?.url || sync.saved.cloud?.url || '(未配置)',
+    pullCursor: getNum('b_pull_cursor'),
+    localTs: getNum('b_sync_ts'),
+    pushCursor: getNum('b_push_cursor'),
+    dirty: sync.dirty,
+    lastSync: lsGet('b_last_sync') || '从未同步过',
+    cloudRecords: -1,
+    cloudMaxTs: 0,
+    localInboxSample: (lsGet('b_inbox') || '(空)').slice(0, 150)
+  }
+  if (sync.cloud) {
+    try {
+      const r = await cloudPull(0)
+      if (r !== null) { d.cloudRecords = r.records.length; d.cloudMaxTs = r.maxTs }
+      else d.cloudRecords = -2
+    } catch {
+      d.cloudRecords = -3
+    }
+  }
+  return d
+}
+
+/* 记录最近一次推送结果（后台显示用） */
+function markLastSync(ok: boolean, extra = '') {
+  try {
+    lsSet('b_last_sync', new Date().toLocaleTimeString() + (ok ? ' 推送成功' : ' 推送失败') + (extra ? ' ' + extra : ''))
+  } catch { /* ignore */ }
+}
