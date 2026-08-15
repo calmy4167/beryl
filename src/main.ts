@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './router'
 import { initDb, recoverIfCleared } from './core/db'
 import { migrateData } from './core/migrate'
+import { purgeCorruptedEncryptedKeys } from './core/sync'
 
 const app = createApp(App)
 app.use(createPinia())
@@ -23,6 +24,9 @@ document.documentElement.classList.toggle('dark', savedTheme === 'dark')
 // 阶段 2：数据版本迁移 + localStorage 数据镜像到 IndexedDB（异步，不阻塞渲染）
 migrateData()
 void initDb()
+
+// 清除本地密文残留（历史同步 bug 写入的密文字符串，幂等安全）
+purgeCorruptedEncryptedKeys()
 
 // 数据恢复（一次性）：撤销误清洗造成的空数组（从变更日志找回历史数据）
 void (async () => {

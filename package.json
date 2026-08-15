@@ -8,7 +8,8 @@
     "build": "vue-tsc --noEmit && vite build && node -e \"const fs=require('fs');fs.copyFileSync('_worker.js','dist/_worker.js')\"",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:node": "node test/node/core.test.ts"
+    "test:node": "node test/node/core.test.ts",
+    "test:e2e": "node test/e2e-sync.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",

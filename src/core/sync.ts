@@ -142,6 +142,35 @@ const setLocalTs = (v: number) => lsSet('b_sync_ts', String(v))
 interface PullRecord { key: string; value: unknown; ts: number; device?: string; deleted?: boolean }
 
 /**
+ * 解密一条云端记录值：
+ * - 对象密文（{v:2,...}）→ 解密
+ * - 字符串：先尝试 JSON.parse——若是密文格式（Worker 存储时 JSON.stringify 过）→ 解密；
+ *   否则视为旧明文原样返回
+ * - 其他（非密文对象）→ null
+ */
+async function decryptRecordValue(password: string, value: unknown): Promise<string | null> {
+  let payload = value
+  if (typeof payload === 'string') {
+    try {
+      const parsed = JSON.parse(payload)
+      if (parsed && typeof parsed === 'object' && parsed.v === 2) {
+        payload = parsed // 字符串形式的密文
+      } else {
+        return payload // 真正的明文（普通字符串 / 明文 JSON）
+      }
+    } catch {
+      return payload // 不是 JSON，明文
+    }
+  }
+  if (payload && typeof payload === 'object' && (payload as { v?: unknown }).v === 2) {
+    const plain = await decryptValue(password, payload)
+    if (plain !== null) return plain
+    return typeof value === 'string' ? value : null // 解密失败：字符串原样（兼容），对象丢弃
+  }
+  return null
+}
+
+/**
  * 增量合并（LWW）：只取 ts 大于本地时间线的记录（自己推的跳过），
  * 解密后返回应写入本地的键值。纯函数（依赖 crypto 解密），可单测。
  */
@@ -154,11 +183,8 @@ export async function applyIncremental(
   for (const rec of records) {
     if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
     if (rec.ts <= lts) continue // 自己推的 / 不比自己新的，跳过（不覆盖本地新数据）
-    if (typeof rec.value === 'string') incoming[rec.key] = rec.value
-    else {
-      const plain = await decryptValue(password, rec.value)
-      if (plain !== null) incoming[rec.key] = plain
-    }
+    const plain = await decryptRecordValue(password, rec.value)
+    if (plain !== null) incoming[rec.key] = plain
   }
   return incoming
 }
@@ -201,11 +227,31 @@ async function decryptRecords(records: PullRecord[], password: string): Promise<
   const out: Record<string, string> = {}
   for (const rec of records) {
     if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
-    if (typeof rec.value === 'string') { out[rec.key] = rec.value; continue }
-    const plain = await decryptValue(password, rec.value)
+    const plain = await decryptRecordValue(password, rec.value)
     if (plain !== null) out[rec.key] = plain
   }
   return out
+}
+
+/**
+ * 清除本地被污染的密文残留（历史 bug 把密文字符串写进了 localStorage）。
+ * 幂等：仅删除"JSON 解析后是 {v:2} 密文对象"的值——正常数据（数组/数字/场景字符串）绝不匹配。
+ * 删除后由增量同步从云端拉取正确数据；未配云端的键变为空列表。
+ */
+export function purgeCorruptedEncryptedKeys(): number {
+  let removed = 0
+  for (const k of SYNC_KEYS) {
+    const raw = lsGet(k)
+    if (!raw) continue
+    try {
+      const p = JSON.parse(raw)
+      if (p && typeof p === 'object' && !Array.isArray(p) && p.v === 2) {
+        localStorage.removeItem(k)
+        removed++
+      }
+    } catch { /* 明文/普通字符串，保留 */ }
+  }
+  return removed
 }
 
 /** 收集本地变更：优先 IndexedDB 变更日志增量；无日志则全量快照（首次/降级） */

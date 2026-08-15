@@ -110,6 +110,27 @@ describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新
     expect(out['b_inbox']).toBe('["secret"]')
   })
 
+  it('字符串形式的密文（Worker JSON.stringify 存储）正确解密', async () => {
+    const { encryptValue } = await import('@/core/crypto')
+    const enc = await encryptValue('pw1234', '["hello"]')
+    const asString = JSON.stringify(enc) // 模拟 Worker 存储后的字符串形态
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: asString, ts: 300 }
+    ], 'pw1234', 0)
+    expect(out['b_inbox']).toBe('["hello"]')
+  })
+
+  it('普通明文字符串/明文 JSON 不被误判为密文', async () => {
+    const out = await applyIncremental([
+      { key: 'b_scene', value: '"personal"', ts: 300 },
+      { key: 'b_tasks', value: '[{"id":"a"}]', ts: 301 },
+      { key: 'b_pomoTotal', value: '25', ts: 302 }
+    ], 'pw1234', 0)
+    expect(out['b_scene']).toBe('"personal"')
+    expect(out['b_tasks']).toBe('[{"id":"a"}]')
+    expect(out['b_pomoTotal']).toBe('25')
+  })
+
   it('deleted 记录与非 b_ 前缀键跳过', async () => {
     const out = await applyIncremental([
       { key: 'b_inbox', value: 'x', ts: 300, deleted: true },
