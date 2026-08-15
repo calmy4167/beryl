@@ -7,7 +7,13 @@ interface InboxItem { id: string; text: string; date: string }
 const input = ref('')
 const items = ref<InboxItem[]>(store.get('inbox', []))
 
-function refresh() { items.value = store.get<InboxItem[]>('inbox', []) }
+function refresh() {
+  // 自动清洗脏数据：无 id 或空文本的条目（历史遗留/异常写入）直接移除并写回
+  const list = store.get<InboxItem[]>('inbox', [])
+  const clean = list.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.text || '').trim() !== '')
+  if (clean.length !== list.length) store.set('inbox', clean)
+  items.value = clean
+}
 function add() {
   const v = input.value.trim()
   if (!v) return

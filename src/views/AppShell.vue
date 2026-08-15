@@ -16,7 +16,8 @@ const collapsed = ref(false)
 
 try { collapsed.value = localStorage.getItem('b_side') === '1' } catch { /* ignore */ }
 
-const cats = computed(() => catsFor(currentSceneId()))
+/* 十神分类（一级菜单），去掉「全部」重复分类 */
+const cats = computed(() => catsFor(currentSceneId()).filter(c => c.id !== 'all'))
 const activeId = computed(() => {
   if (route.name === 'home') return 'home'
   if (route.name === 'module') return String(route.params.id || '')

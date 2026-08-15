@@ -9,8 +9,12 @@ const priority = ref('中')
 const items = ref<TaskItem[]>(load())
 
 function load(): TaskItem[] {
+  // 自动清洗脏数据：无 id 或空标题的条目移除并写回
+  const raw = store.get<TaskItem[]>('tasks', [])
+  const clean = raw.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.title || '').trim() !== '')
+  if (clean.length !== raw.length) store.set('tasks', clean)
   const order: Record<string, number> = { '高': 0, '中': 1, '低': 2 }
-  return store.get<TaskItem[]>('tasks', []).slice().sort((a, b) => {
+  return clean.slice().sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1
     const d = (order[a.priority] ?? 1) - (order[b.priority] ?? 1)
     return d !== 0 ? d : (b.id < a.id ? -1 : 1)

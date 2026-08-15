@@ -7,7 +7,13 @@ interface Goal { id: string; title: string; done: boolean }
 const input = ref('')
 const items = ref<Goal[]>(store.get('goals', []))
 
-function refresh() { items.value = store.get<Goal[]>('goals', []) }
+function refresh() {
+  // 自动清洗脏数据：无 id 或空标题的条目移除并写回
+  const raw = store.get<Goal[]>('goals', [])
+  const clean = raw.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.title || '').trim() !== '')
+  if (clean.length !== raw.length) store.set('goals', clean)
+  items.value = clean
+}
 function add() {
   const v = input.value.trim()
   if (!v) return
