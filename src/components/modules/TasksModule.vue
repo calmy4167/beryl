@@ -20,7 +20,8 @@ function refresh() { items.value = load() }
 function add() {
   const v = title.value.trim()
   if (!v) return
-  const list = store.get<TaskItem[]>('tasks', [])
+  let list: any[] = store.get<any>('tasks', [])
+  if (!Array.isArray(list)) list = [] // 坏值防御（历史 "null" 等）
   list.unshift({ id: nextId(), title: v, priority: priority.value, date: fmtDate(Date.now()), done: false })
   store.set('tasks', list)
   title.value = ''

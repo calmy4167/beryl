@@ -11,7 +11,8 @@ function refresh() { items.value = store.get<Goal[]>('goals', []) }
 function add() {
   const v = input.value.trim()
   if (!v) return
-  const list = store.get<Goal[]>('goals', [])
+  let list: any[] = store.get<any>('goals', [])
+  if (!Array.isArray(list)) list = [] // 坏值防御（历史 "null" 等）
   list.unshift({ id: nextId(), title: v, done: false })
   store.set('goals', list)
   input.value = ''
