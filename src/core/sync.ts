@@ -149,23 +149,20 @@ interface PullRecord { key: string; value: unknown; ts: number; device?: string;
  * - 其他（非密文对象）→ null
  */
 async function decryptRecordValue(password: string, value: unknown): Promise<string | null> {
-  let payload = value
-  if (typeof payload === 'string') {
-    try {
-      const parsed = JSON.parse(payload)
-      if (parsed && typeof parsed === 'object' && parsed.v === 2) {
-        payload = parsed // 字符串形式的密文
-      } else {
-        return payload // 真正的明文（普通字符串 / 明文 JSON）
-      }
-    } catch {
-      return payload // 不是 JSON，明文
+  if (typeof value === 'string') {
+    // 可能是 Worker JSON.stringify 存储的密文，也可能是旧明文
+    let parsed: unknown = null
+    try { parsed = JSON.parse(value) } catch { /* 非 JSON：明文 */ }
+    if (parsed && typeof parsed === 'object' && (parsed as { v?: unknown }).v === 2) {
+      const plain = await decryptValue(password, parsed)
+      if (plain !== null) return plain
+      return value // 解密失败：字符串原样（兼容）
     }
+    return value // 明文
   }
-  if (payload && typeof payload === 'object' && (payload as { v?: unknown }).v === 2) {
-    const plain = await decryptValue(password, payload)
+  if (value && typeof value === 'object' && (value as { v?: unknown }).v === 2) {
+    const plain = await decryptValue(password, value)
     if (plain !== null) return plain
-    return typeof value === 'string' ? value : null // 解密失败：字符串原样（兼容），对象丢弃
   }
   return null
 }
