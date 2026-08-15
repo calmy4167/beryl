@@ -394,6 +394,8 @@ export function applySyncData(data: Record<string, string>) {
   sync.lastTouch = Date.now()
   startPolling()
   renderHomeHook()
+  // 通知当前页面重新读取存储（模块组件重建，新数据上屏）
+  try { window.dispatchEvent(new CustomEvent('beryl-data-synced')) } catch { /* ignore */ }
 }
 let renderHomeHook: () => void = () => {}
 export function setRenderHomeHook(fn: () => void) { renderHomeHook = fn }

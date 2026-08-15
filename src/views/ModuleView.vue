@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MODS, MOD_CAT } from '@/core/modules'
 import { CATS } from '@/core/modules'
@@ -25,6 +25,12 @@ const MODULES: Record<string, unknown> = {
   goals: GoalsModule, chars: CharsModule, posts: PostsModule
 }
 const current = computed(() => MODULES[id.value] || InboxModule)
+
+/* 云端同步应用后重建当前模块组件（重新读取存储，让新数据上屏） */
+const syncTick = ref(0)
+function bumpSync() { syncTick.value++ }
+onMounted(() => window.addEventListener('beryl-data-synced', bumpSync))
+onUnmounted(() => window.removeEventListener('beryl-data-synced', bumpSync))
 </script>
 
 <template>
@@ -35,7 +41,7 @@ const current = computed(() => MODULES[id.value] || InboxModule)
       <h2 class="font-title mod-name">{{ mod.name }}</h2>
       <span v-if="cat" class="cat-badge" :style="{ color: cat.color, background: cat.color + '1a', borderColor: cat.color + '40' }">{{ cat.icon }} {{ cat.name }}</span>
     </div>
-    <component :is="current" />
+    <component :is="current" :key="syncTick" />
   </div>
 </template>
 
