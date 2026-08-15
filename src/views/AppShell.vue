@@ -20,6 +20,8 @@ try { collapsed.value = localStorage.getItem('b_side') === '1' } catch { /* igno
 
 /* 十神分类（一级菜单），去掉「全部」重复分类 */
 const cats = computed(() => catsFor(currentSceneId()).filter(c => c.id !== 'all'))
+/* 构建指纹（vite define 注入，类型声明见 vite-env.d.ts） */
+const appBuild = __APP_BUILD__ ?? 'dev'
 const activeId = computed(() => {
   if (route.name === 'home') return 'home'
   if (route.name === 'module') return String(route.params.id || '')
@@ -137,6 +139,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
         <button class="nav-item lv1" @click="toggleTheme" :title="dark ? '切换到浅色' : '切换到深色'">
           <span class="nav-icon">{{ dark ? '☀️' : '🌙' }}</span><span class="nav-label">{{ dark ? '浅色模式' : '深色模式' }}</span>
         </button>
+        <p class="side-version">v2.1.0 · {{ appBuild }}</p>
       </div>
     </aside>
 
@@ -351,6 +354,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 .nav-label { overflow: hidden; text-overflow: ellipsis; }
 
 .side-foot { border-top: 1px solid var(--c-border-soft); padding: 8px; }
+.side-version { margin: 8px 10px 4px; font-size: 9px; color: var(--c-text-3); text-align: center; user-select: none; }
 
 /* ---- 移动端顶栏 ---- */
 .topbar {

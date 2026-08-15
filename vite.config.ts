@@ -10,6 +10,9 @@ export default defineConfig({
     }
   },
   base: './', // 适配任意静态托管（Cloudflare Pages / GitHub Pages 子路径）
+  define: {
+    '__APP_BUILD__': JSON.stringify(new Date().toISOString().slice(0, 16)) // 构建指纹，界面显示用
+  },
   server: {
     watch: {
       ignored: ['**/node_modules/**', '**/.git/**', '**/*.tmp', '**/.*.tmpdir/**']
