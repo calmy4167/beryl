@@ -588,11 +588,17 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
       if (localHasData && remoteHasData) {
         const choose = await askDataSource('云端')
         if (choose === 'remote') { applySyncData(data); setLocalTs(r.maxTs) }
-        else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
+        else {
+          sync.mode = 'cloud' // ← 必须设置，否则推送/轮询永远不会触发
+          sync.fileData = buildLocalData()
+          sync.dirty = true
+          scheduleWrite()
+        }
       } else if (remoteHasData) {
         applySyncData(data)
         setLocalTs(r.maxTs)
       } else if (localHasData) {
+        sync.mode = 'cloud' // ← 同上
         sync.fileData = buildLocalData()
         sync.dirty = true
         scheduleWrite()
@@ -608,7 +614,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
     if (localHasData && Object.keys(r2.data).length) {
       const choose = await askDataSource('云端')
       if (choose === 'remote') applySyncData(r2.data)
-      else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
+      else { sync.mode = 'cloud'; sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
     } else {
       applySyncData(r2.data)
     }
@@ -630,7 +636,7 @@ export async function s3Connect(cfg: S3Input): Promise<boolean> {
     if (localHasData && Object.keys(r.data).length) {
       const choose = await askDataSource('远端')
       if (choose === 'remote') applySyncData(r.data)
-      else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
+      else { sync.mode = 's3'; sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
     } else {
       applySyncData(r.data)
     }
@@ -649,7 +655,7 @@ export async function fileConnect(h: FileSystemFileHandle): Promise<boolean> {
     if (localHasData && Object.keys(r.data).length) {
       const choose = await askDataSource('文件')
       if (choose === 'remote') applySyncData(r.data)
-      else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
+      else { sync.mode = 'file'; sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
     } else {
       applySyncData(r.data)
     }
@@ -688,6 +694,7 @@ export async function restoreSync() {
     try {
       const r = await cloudPull(0)
       if (r !== null) {
+        sync.mode = 'cloud' // ← 连上即云端模式，推送/轮询/立即同步全部生效
         // 刷新自动重连：增量 LWW 合并，绝不覆盖本地更新的数据
         const incoming = await applyIncremental(r.records, cfg.key, localTs())
         if (r.maxTs > pullCursor()) setPullCursor(r.maxTs)
