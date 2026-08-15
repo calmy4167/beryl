@@ -46,6 +46,6 @@ function del(id: string) {
 .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
 .text { flex: 1; font-size: 14px; word-break: break-all; }
-.date { font-size: 10px; color: #71717a; flex-shrink: 0; }
-.empty { text-align: center; color: #52525b; font-size: 14px; padding: 40px 0; }
+.date { font-size: 10px; color: var(--c-text-2); flex-shrink: 0; }
+.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
 </style>

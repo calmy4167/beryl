@@ -65,11 +65,11 @@ const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', 
 .form { display: flex; gap: 8px; padding: 12px; align-items: center; }
 .list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
 .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
-.done .t { text-decoration: line-through; color: rgba(228, 228, 231, 0.35); }
+.done .t { text-decoration: line-through; color: var(--c-text-3); }
 .t { flex: 1; font-size: 14px; word-break: break-all; }
 .tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; }
-.date { font-size: 10px; color: #71717a; flex-shrink: 0; }
-.chk { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); background: transparent; color: #0A0A0F; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.chk.on { background: #34D399; border-color: #34D399; }
-.empty { text-align: center; color: #52525b; font-size: 14px; padding: 40px 0; }
+.date { font-size: 10px; color: var(--c-text-2); flex-shrink: 0; }
+.chk { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--c-border); background: transparent; color: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chk.on { background: var(--c-success); border-color: var(--c-success); }
+.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
 </style>

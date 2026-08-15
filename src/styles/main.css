@@ -1,72 +1,180 @@
-/* ============ Beryl v2 主题（平移 v1 设计规范） ============ */
+/* ============ Beryl v2 · csdiy 风格主题（浅色默认 + 深色，天蓝主色） ============ */
+
+/* ---- 语义色板：浅色（默认） ---- */
 :root {
-  --amber: #F59E0B;
-  --amber-hover: #D97706;
-  --amber-light: #FBBF24;
-  --bg: #0A0A0F;
-  --text: #E4E4E7;
-  /* 场景主题变量（由 applySceneTheme 写入） */
-  --scene: #F59E0B;
-  --scene-light: #FBBF24;
-  --glow-a: rgba(245, 158, 11, 0.08);
-  --glow-b: rgba(245, 158, 11, 0.04);
-  --scene-focus: rgba(245, 158, 11, 0.5);
-  --scene-border: rgba(245, 158, 11, 0.35);
-  --scene-border-soft: rgba(245, 158, 11, 0.2);
-  --scene-border-strong: rgba(245, 158, 11, 0.4);
-  --scene-soft: rgba(245, 158, 11, 0.12);
-  --scene-glow-strong: rgba(245, 158, 11, 0.25);
+  /* 中性层次 */
+  --c-bg: #ffffff;            /* 页面背景 */
+  --c-bg-soft: #f6f8fa;       /* 浅灰层次（输入底、次级表面） */
+  --c-bg-2: #eef1f4;          /* 更深层次（代码块、hover 底） */
+  --c-text: #1f2328;          /* 主文字 */
+  --c-text-2: #57606a;        /* 次要文字 */
+  --c-text-3: #8c959f;        /* 弱文字/占位 */
+  --c-border: #d0d7de;        /* 主边框 */
+  --c-border-soft: #e6e9ec;   /* 更浅边框（卡片） */
+  --c-hover: #f0f3f6;         /* 悬停底色 */
+  --c-card: #ffffff;          /* 卡片表面 */
+  --c-topbar: rgba(255, 255, 255, 0.85); /* 顶栏毛玻璃底 */
+  --c-grid: rgba(0, 0, 0, 0.025); /* 背景网格线 */
+  /* 语义状态 */
+  --c-success: #1a7f37;
+  --c-success-weak: rgba(26, 127, 55, 0.10);
+  --c-danger: #cf222e;
+  --c-danger-weak: rgba(207, 34, 46, 0.08);
+  --c-warn: #9a6700;
+  --c-warn-weak: rgba(154, 103, 0, 0.10);
+  /* 场景主题（applySceneTheme 会覆盖 --scene 系列；默认天蓝） */
+  --scene: #0ea5e9;
+  --scene-light: #7dd3fc;
+  --glow-a: rgba(14, 165, 233, 0.06);
+  --glow-b: rgba(14, 165, 233, 0.03);
+  --scene-focus: rgba(14, 165, 233, 0.5);
+  --scene-border: rgba(14, 165, 233, 0.35);
+  --scene-border-soft: rgba(14, 165, 233, 0.2);
+  --scene-border-strong: rgba(14, 165, 233, 0.4);
+  --scene-soft: rgba(14, 165, 233, 0.10);
+  --scene-glow-strong: rgba(14, 165, 233, 0.25);
+  /* 兼容旧引用：--amber 即强调色 */
+  --amber: var(--scene);
 }
 
+/* ---- 语义色板：深色 ---- */
+html.dark {
+  --c-bg: #0d1117;
+  --c-bg-soft: #161b22;
+  --c-bg-2: #21262d;
+  --c-text: #f0f6fc;
+  --c-text-2: #8b949e;
+  --c-text-3: #6e7681;
+  --c-border: #30363d;
+  --c-border-soft: #21262d;
+  --c-hover: #1c2128;
+  --c-card: #161b22;
+  --c-topbar: rgba(13, 17, 23, 0.8);
+  --c-grid: rgba(255, 255, 255, 0.015);
+  --c-success: #3fb950;
+  --c-success-weak: rgba(63, 185, 80, 0.15);
+  --c-danger: #f85149;
+  --c-danger-weak: rgba(248, 81, 73, 0.12);
+  --c-warn: #d29922;
+  --c-warn-weak: rgba(210, 153, 34, 0.15);
+  --amber: var(--scene);
+}
+
+/* ---- Element Plus：浅色（默认） ---- */
+:root {
+  --el-color-primary: #0ea5e9;
+  --el-color-primary-light-3: #38bdf8;
+  --el-color-primary-light-5: #7dd3fc;
+  --el-color-primary-light-7: #bae6fd;
+  --el-color-primary-light-8: #e0f2fe;
+  --el-color-primary-light-9: #f0f9ff;
+  --el-color-primary-dark-2: #0284c7;
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f6f8fa;
+  --el-bg-color-overlay: #ffffff;
+  --el-border-color: #d0d7de;
+  --el-border-color-light: #e6e9ec;
+  --el-border-color-lighter: #eef1f4;
+  --el-border-color-extra-light: #f6f8fa;
+  --el-text-color-primary: #1f2328;
+  --el-text-color-regular: #57606a;
+  --el-text-color-secondary: #8c959f;
+  --el-fill-color-blank: #ffffff;
+  --el-fill-color-light: #f6f8fa;
+  --el-fill-color-lighter: #eef1f4;
+  --el-fill-color-extra-light: #f6f8fa;
+  --el-fill-color-dark: #eef1f4;
+  --el-fill-color-darker: #e6e9ec;
+  --el-border-radius-base: 8px;
+}
+
+/* ---- Element Plus：深色 ---- */
+html.dark {
+  --el-color-primary: #38bdf8;
+  --el-color-primary-light-3: #7dd3fc;
+  --el-color-primary-light-5: #38bdf8;
+  --el-color-primary-light-7: #0ea5e9;
+  --el-color-primary-light-8: #0284c7;
+  --el-color-primary-light-9: #075985;
+  --el-color-primary-dark-2: #0ea5e9;
+  --el-bg-color: #161b22;
+  --el-bg-color-page: #0d1117;
+  --el-bg-color-overlay: #1c2128;
+  --el-border-color: #30363d;
+  --el-border-color-light: #21262d;
+  --el-border-color-lighter: #21262d;
+  --el-border-color-extra-light: #21262d;
+  --el-text-color-primary: #f0f6fc;
+  --el-text-color-regular: #c9d1d9;
+  --el-text-color-secondary: #8b949e;
+  --el-fill-color-blank: #161b22;
+  --el-fill-color-light: #21262d;
+  --el-fill-color-lighter: #21262d;
+  --el-fill-color-extra-light: #21262d;
+  --el-fill-color-dark: #30363d;
+  --el-fill-color-darker: #30363d;
+}
+
+/* ---- 基础 ---- */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--c-bg);
   background-image:
     radial-gradient(60% 45% at 12% 0%, var(--glow-a), transparent 60%),
     radial-gradient(50% 40% at 88% 100%, var(--glow-b), transparent 60%),
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(var(--c-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
   background-size: auto, auto, 40px 40px, 40px 40px;
   background-attachment: fixed;
-  color: var(--text);
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  color: var(--c-text);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   min-height: 100vh;
 }
 
-.font-title { font-family: 'Space Grotesk', 'DM Sans', sans-serif; }
+.font-title { font-family: 'Space Grotesk', 'DM Sans', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
 
-/* 玻璃卡片（Element Plus 暗色主题下自定义） */
+/* ---- 卡片：白底/深底 + 1px 细边框（csdiy 质感） ---- */
 .beryl-card {
-  background: rgba(24, 24, 29, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--c-card);
+  border: 1px solid var(--c-border-soft);
   border-radius: 14px;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
 }
-.beryl-card.hoverable:hover { border-color: var(--scene-border-soft); }
+.beryl-card.hoverable:hover {
+  border-color: var(--scene-border);
+  box-shadow: 0 4px 18px var(--scene-soft), 0 1px 3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(10px); }
 
-/* Element Plus 暗色基调 */
-html.dark {
-  --el-bg-color: #18181d;
-  --el-bg-color-overlay: #1c1c22;
-  --el-border-color: rgba(255, 255, 255, 0.08);
-  --el-border-color-light: rgba(255, 255, 255, 0.06);
-  --el-text-color-primary: #E4E4E7;
-  --el-text-color-regular: #a1a1aa;
-  --el-fill-color-blank: rgba(24, 24, 29, 0.75);
-  --el-color-primary: #F59E0B;
-  --el-color-primary-light-3: #FBBF24;
-  --el-color-primary-dark-2: #D97706;
+/* ---- 通用页面容器 ---- */
+.page-container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 24px 96px;
+}
+@media (max-width: 640px) {
+  .page-container { padding: 16px 14px 80px; }
 }
 
-.page-container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px 16px 96px;
+/* ---- 可访问性：键盘焦点可见（Element Plus 组件保留自身焦点样式） ---- */
+button:not([class*="el-"]):focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--scene-focus);
+  outline-offset: 2px;
 }
+
+/* ---- 通用小工具（Element Plus 附带） ---- */
+.text-center { text-align: center; }
+.mt-2 { margin-top: 8px; }
+.mt-5 { margin-top: 20px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-8 { margin-bottom: 32px; }
+.pt-8 { padding-top: 32px; }
+.px-10 { padding-left: 40px; padding-right: 40px; }
+.w-full { width: 100%; }

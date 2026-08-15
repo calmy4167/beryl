@@ -34,10 +34,10 @@ onMounted(() => applySceneTheme(currentSceneId()))
         :key="s.id"
         class="beryl-card hoverable card"
         :class="{ sel: selected === s.id }"
-        :style="selected === s.id ? { borderColor: s.color, boxShadow: `0 0 0 1px ${s.color}44, 0 10px 34px rgba(0,0,0,0.35)` } : {}"
+        :style="selected === s.id ? { borderColor: s.color, boxShadow: `0 0 0 1px ${s.color}44, 0 8px 24px ${s.color}1a` } : {}"
         @click="pick(s.id)"
       >
-        <div class="icon">{{ s.icon }}</div>
+        <div class="icon" :style="{ background: s.color + '1a', borderColor: s.color + '33' }">{{ s.icon }}</div>
         <div class="font-title name">{{ s.name }}</div>
         <p class="desc">{{ s.desc }}</p>
         <p class="mods">{{ s.mods.length }} 个模块</p>
@@ -53,16 +53,35 @@ onMounted(() => applySceneTheme(currentSceneId()))
 </template>
 
 <style scoped>
-.scene-wrap { max-width: 768px; margin: 0 auto; padding: 40px 16px; }
-.logo { font-size: 32px; color: var(--scene); text-align: center; }
-.title { font-size: 1.875rem; font-weight: 700; text-align: center; margin: 8px 0 4px; }
-.subtitle { text-align: center; font-size: 12px; color: #71717a; }
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
-.card { padding: 20px; text-align: left; cursor: pointer; }
-.icon { font-size: 30px; }
-.name { font-weight: 700; margin-top: 12px; }
-.desc { font-size: 12px; color: #71717a; margin: 4px 0; }
-.mods { font-size: 10px; color: #52525b; margin: 2px 0; }
-.bar { width: 24px; height: 4px; border-radius: 2px; margin-top: 12px; }
-.cur { font-size: 10px; margin-top: 8px; }
+.scene-wrap { width: 100%; max-width: 880px; margin: 0 auto; padding: 40px 16px; }
+.logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--scene);
+  background: var(--scene-soft);
+  border: 1px solid var(--scene-border);
+}
+.title { font-size: 1.875rem; font-weight: 700; text-align: center; margin: 14px 0 4px; }
+.subtitle { text-align: center; font-size: 12px; color: var(--c-text-2); }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px; }
+.card { padding: 20px; text-align: left; cursor: pointer; position: relative; }
+.icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 1px solid transparent;
+}
+.name { font-weight: 700; margin-top: 14px; font-size: 15px; }
+.desc { font-size: 12px; color: var(--c-text-2); margin: 4px 0; }
+.mods { font-size: 10px; color: var(--c-text-3); margin: 2px 0; }
+.bar { width: 24px; height: 4px; border-radius: 2px; margin-top: 14px; }
+.cur { font-size: 10px; margin-top: 8px; font-weight: 600; }
 </style>

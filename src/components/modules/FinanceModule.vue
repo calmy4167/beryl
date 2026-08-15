@@ -72,10 +72,10 @@ function del(id: string) {
 <style scoped>
 .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .c { padding: 14px; }
-.l { font-size: 10px; color: #71717a; letter-spacing: 0.2em; }
+.l { font-size: 10px; color: var(--c-text-2); letter-spacing: 0.2em; }
 .v { font-weight: 700; font-size: 1.1rem; margin-top: 4px; }
-.inc { color: #34D399; }
-.exp { color: #f87171; }
+.inc { color: var(--c-success); }
+.exp { color: var(--c-danger); }
 .bal { color: var(--amber); }
 .form { padding: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
 .type-btns { width: 100%; }
@@ -84,9 +84,9 @@ function del(id: string) {
 .row > * { flex: 1; }
 .list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
 .item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
-.date { font-size: 10px; color: #71717a; width: 96px; flex-shrink: 0; }
-.tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); color: #a1a1aa; flex-shrink: 0; }
-.note { flex: 1; font-size: 13px; color: #a1a1aa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.date { font-size: 10px; color: var(--c-text-2); width: 96px; flex-shrink: 0; }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; background: var(--c-bg-2); color: var(--c-text-2); flex-shrink: 0; }
+.note { flex: 1; font-size: 13px; color: var(--c-text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .amt { font-weight: 700; font-size: 13px; flex-shrink: 0; }
-.empty { text-align: center; color: #52525b; font-size: 14px; padding: 40px 0; }
+.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
 </style>

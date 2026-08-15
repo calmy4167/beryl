@@ -2,11 +2,16 @@
    同步引擎（平移 v1：local / file / cloud / s3 四模式）
    - 机制：内存 fileData + localStorage 双写；0.8s 防抖上传；
      前台 5s 轮询 + 切回/聚焦立即拉取；立即同步（双向）；冲突弹窗
+   - v2 阶段 3/4：Cloudflare 模式升级为【增量 LWW + AES-GCM 加密】
+     （/api/sync/pull + /api/sync/push，D1 存储）；旧 Worker（KV 全量）
+     自动回退（404 检测）；S3 / 文件模式保持全量快照语义
    ================================================================ */
 import { reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lsGet, lsSet, safeParse, setSyncWriteHook } from './storage.ts'
 import { SCENES, currentSceneId } from './scenes.ts'
+import { readChanges, DEVICE_ID } from './db.ts'
+import { encryptValue, decryptValue } from './crypto.ts'
 
 export interface S3Cfg { endpoint: string; bucket: string; region: string; ak: string; sk: string; key: string; updatedAt: number }
 export interface S3Input { endpoint: string; bucket: string; region: string; ak: string; sk: string }
@@ -114,14 +119,121 @@ async function fileWrite() {
   } catch (e) { ElMessage.error('⚠️ 写入本地文件失败：' + (e instanceof Error ? e.message : '')) }
 }
 
-/* ---------- Cloudflare 模式 ---------- */
+/* ================================================================
+   Cloudflare 模式：v2 阶段 3/4（增量 LWW + AES-GCM 加密，D1 后端）
+   - pull 游标 b_pull_cursor：云端时间线位置
+   - 本地时间线 b_sync_ts：最后一次推送的 maxTs（pull 时跳过自己推的）
+   - 推送游标 b_push_cursor：IndexedDB 变更日志 seq 位置
+   - 旧 Worker（无 /api/sync/*，返回 404）自动回退全量快照协议
+   ================================================================ */
 const enc = new TextEncoder()
 function toHex(bytes: Uint8Array): string { return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('') }
 async function sha256Hex(text: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', enc.encode(text))
   return toHex(new Uint8Array(buf))
 }
-async function cloudRead(): Promise<{ data: Record<string, string>; mtime: number }> {
+
+function getNum(k: string): number { return Number(lsGet(k) || 0) || 0 }
+const pullCursor = () => getNum('b_pull_cursor')
+const setPullCursor = (v: number) => lsSet('b_pull_cursor', String(v))
+const localTs = () => getNum('b_sync_ts')
+const setLocalTs = (v: number) => lsSet('b_sync_ts', String(v))
+
+interface PullRecord { key: string; value: unknown; ts: number; device?: string; deleted?: boolean }
+
+/** 增量拉取；404 → 旧 Worker（返回 null，调用方回退） */
+async function cloudPull(since: number): Promise<{ records: PullRecord[]; maxTs: number } | null> {
+  if (!sync.cloud) throw new Error('not-connected')
+  const res = await fetch(sync.cloud.url + '/api/sync/pull', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sync.cloud.key },
+    body: JSON.stringify({ since })
+  })
+  if (res.status === 404) return null
+  if (res.status === 401) throw new Error('unauthorized')
+  if (!res.ok) throw new Error('HTTP ' + res.status)
+  const j = await res.json()
+  if (!j || !j.ok || !Array.isArray(j.records)) throw new Error('bad-response')
+  return { records: j.records as PullRecord[], maxTs: Number(j.maxTs) || 0 }
+}
+
+/** 增量推送；false = 旧 Worker（需回退全量） */
+async function cloudPush(changes: { key: string; ts: number; device: string; value: unknown }[]): Promise<boolean> {
+  if (!sync.cloud) throw new Error('not-connected')
+  const res = await fetch(sync.cloud.url + '/api/sync/push', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sync.cloud.key },
+    body: JSON.stringify({ changes })
+  })
+  if (res.status === 404) return false
+  if (res.status === 401) throw new Error('unauthorized')
+  if (!res.ok) throw new Error('HTTP ' + res.status)
+  const j = await res.json()
+  if (!j || !j.ok) throw new Error('bad-response')
+  if (j.maxTs) setLocalTs(Number(j.maxTs))
+  return true
+}
+
+/** 解密记录 → 本地键值（密文解密；旧明文直通） */
+async function decryptRecords(records: PullRecord[], password: string): Promise<Record<string, string>> {
+  const out: Record<string, string> = {}
+  for (const rec of records) {
+    if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
+    if (typeof rec.value === 'string') { out[rec.key] = rec.value; continue }
+    const plain = await decryptValue(password, rec.value)
+    if (plain !== null) out[rec.key] = plain
+  }
+  return out
+}
+
+/** 收集本地变更：优先 IndexedDB 变更日志增量；无日志则全量快照（首次/降级） */
+async function collectLocalChanges(): Promise<{ key: string; ts: number; device: string; value: string; lastSeq: number }[]> {
+  const cursor = getNum('b_push_cursor')
+  const changes = await readChanges(cursor, 500)
+  if (changes.length) {
+    const latest = new Map<string, (typeof changes)[number]>()
+    let maxSeq = cursor
+    changes.forEach(c => { latest.set(c.key, c); if (c.seq > maxSeq) maxSeq = c.seq })
+    return Array.from(latest.values()).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, lastSeq: maxSeq }))
+  }
+  const out: { key: string; ts: number; device: string; value: string; lastSeq: number }[] = []
+  let ts = Date.now()
+  for (const k of SYNC_KEYS) {
+    const v = lsGet(k)
+    if (v != null) out.push({ key: k, ts: ts++, device: DEVICE_ID, value: v, lastSeq: 0 })
+  }
+  return out
+}
+
+function buildLocalData(): Record<string, string> {
+  const o: Record<string, string> = {}
+  for (const k of SYNC_KEYS) { const v = lsGet(k); if (v != null) o[k] = v }
+  return o
+}
+
+async function cloudWrite() {
+  if (!sync.cloud) return
+  try {
+    const changes = await collectLocalChanges()
+    if (!changes.length) { sync.dirty = false; return }
+    const encChanges: { key: string; ts: number; device: string; value: unknown }[] = []
+    let maxSeq = 0
+    for (const c of changes) {
+      if (c.lastSeq > maxSeq) maxSeq = c.lastSeq
+      const v = await encryptValue(sync.cloud.key, c.value)
+      encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: v ?? c.value })
+    }
+    const ok = await cloudPush(encChanges)
+    if (!ok) { await cloudWriteLegacy(); return }
+    if (maxSeq) lsSet('b_push_cursor', String(maxSeq))
+    sync.dirty = false
+    sync.lastTouch = Date.now()
+    ElMessage.success('已同步到云端 ☁️')
+  } catch (e) { ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误')) }
+}
+
+/* 旧 Worker（KV 全量快照）回退 */
+async function cloudReadLegacy(): Promise<{ data: Record<string, string>; mtime: number }> {
   if (!sync.cloud) throw new Error('not-connected')
   const res = await fetch(sync.cloud.url + '/api/data', { headers: { Authorization: 'Bearer ' + sync.cloud.key } })
   if (res.status === 401) throw new Error('unauthorized')
@@ -131,9 +243,9 @@ async function cloudRead(): Promise<{ data: Record<string, string>; mtime: numbe
   if ('error' in parsed) throw new Error('bad-data')
   return { data: parsed.data, mtime: j.updatedAt || 0 }
 }
-async function cloudWrite() {
+async function cloudWriteLegacy() {
   if (!sync.cloud) return
-  const payload = { ...sync.fileData, _meta: { appVersion: 'v2.0.0', savedAt: new Date().toISOString() } }
+  const payload = { ...(sync.fileData || buildLocalData()), _meta: { appVersion: 'v2.0.0', savedAt: new Date().toISOString() } }
   try {
     const res = await fetch(sync.cloud.url + '/api/data', {
       method: 'PUT',
@@ -238,11 +350,31 @@ export async function pollCheck() {
   if (sync.dirty) return
   try {
     if (sync.mode === 'cloud' && sync.cloud) {
-      const r = await cloudRead()
-      if (r.data && Object.keys(r.data).length && r.mtime > sync.cloud.updatedAt && r.mtime > sync.lastTouch + 1000) {
-        sync.cloud.updatedAt = r.mtime
-        applySyncData(r.data)
-        ElMessage.success('已同步云端更新 ☁️')
+      const r = await cloudPull(pullCursor())
+      if (r === null) {
+        // 旧 Worker：全量快照
+        const r2 = await cloudReadLegacy()
+        if (r2.data && Object.keys(r2.data).length && r2.mtime > sync.cloud.updatedAt && r2.mtime > sync.lastTouch + 1000) {
+          sync.cloud.updatedAt = r2.mtime
+          applySyncData(r2.data)
+          ElMessage.success('已同步云端更新 ☁️')
+        }
+      } else if (r.records.length) {
+        const lts = localTs()
+        const incoming: Record<string, string> = {}
+        for (const rec of r.records) {
+          if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
+          if (rec.ts <= lts) continue // 自己推的
+          if (typeof rec.value === 'string') incoming[rec.key] = rec.value
+          else { const plain = await decryptValue(sync.cloud.key, rec.value); if (plain !== null) incoming[rec.key] = plain }
+        }
+        if (r.maxTs > pullCursor()) setPullCursor(r.maxTs)
+        if (Object.keys(incoming).length) {
+          applySyncData({ ...buildLocalData(), ...incoming })
+          ElMessage.success('已同步云端更新 ☁️')
+        }
+      } else if (r.maxTs > pullCursor()) {
+        setPullCursor(r.maxTs)
       }
     } else if (sync.mode === 's3' && sync.s3) {
       const r = await s3Read()
@@ -263,55 +395,122 @@ export async function pollCheck() {
 
 /* ---------- 立即同步（双向：先拉后推；两端都有改动弹窗选择） ---------- */
 export async function syncNow() {
-  let remote: { data: Record<string, string>; mtime: number } | null = null
   try {
-    if (sync.mode === 'cloud' && sync.cloud) remote = await cloudRead()
-    else if (sync.mode === 's3' && sync.s3) remote = await s3Read()
-    else if (sync.mode === 'file' && fileHandle) remote = await fileRead()
+    if (sync.mode === 'cloud' && sync.cloud) {
+      const r = await cloudPull(0)
+      if (r !== null) {
+        const lts = localTs()
+        const incoming: Record<string, string> = {}
+        let remoteNew = false
+        for (const rec of r.records) {
+          if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
+          if (rec.ts > lts) remoteNew = true
+          if (typeof rec.value === 'string') incoming[rec.key] = rec.value
+          else { const plain = await decryptValue(sync.cloud.key, rec.value); if (plain !== null) incoming[rec.key] = plain }
+        }
+        if (remoteNew && sync.dirty) {
+          try {
+            await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
+              confirmButtonText: '使用远端数据（覆盖本机）',
+              cancelButtonText: '使用本机数据（覆盖远端）',
+              distinguishCancelAndClose: true
+            })
+            applySyncData({ ...buildLocalData(), ...incoming })
+            setLocalTs(r.maxTs)
+            setPullCursor(r.maxTs)
+          } catch (action) {
+            if (action === 'cancel' || action === 'close') {
+              sync.fileData = buildLocalData()
+              sync.dirty = true
+              scheduleWrite()
+              ElMessage.success('将以本机数据覆盖远端')
+            }
+          }
+          return
+        }
+        if (remoteNew) {
+          applySyncData({ ...buildLocalData(), ...incoming })
+          setLocalTs(r.maxTs)
+          setPullCursor(r.maxTs)
+          ElMessage.success('已拉取远端最新数据 ⬇️')
+          return
+        }
+        if (r.maxTs > pullCursor()) setPullCursor(r.maxTs)
+      } else {
+        // 旧 Worker 回退
+        const r2 = await cloudReadLegacy()
+        const remoteNewer = r2.mtime > (sync.cloud.updatedAt || 0)
+        if (remoteNewer && sync.dirty) {
+          try {
+            await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
+              confirmButtonText: '使用远端数据（覆盖本机）',
+              cancelButtonText: '使用本机数据（覆盖远端）',
+              distinguishCancelAndClose: true
+            })
+            sync.cloud.updatedAt = r2.mtime
+            applySyncData(r2.data)
+          } catch (action) {
+            if (action === 'cancel' || action === 'close') {
+              sync.fileData = buildLocalData()
+              sync.dirty = true
+              scheduleWrite()
+              ElMessage.success('将以本机数据覆盖远端')
+            }
+          }
+          return
+        }
+        if (remoteNewer) {
+          sync.cloud.updatedAt = r2.mtime
+          applySyncData(r2.data)
+          ElMessage.success('已拉取远端最新数据 ⬇️')
+          return
+        }
+      }
+    } else {
+      let remote: { data: Record<string, string>; mtime: number } | null = null
+      try {
+        if (sync.mode === 's3' && sync.s3) remote = await s3Read()
+        else if (sync.mode === 'file' && fileHandle) remote = await fileRead()
+      } catch (e) {
+        ElMessage.error('⚠️ 拉取失败：' + (e instanceof Error ? e.message : ''))
+        return
+      }
+      if (remote) {
+        const remoteTime = (sync.s3 && sync.s3.updatedAt) || sync.lastTouch
+        const remoteNewer = remote.mtime > remoteTime
+        if (remoteNewer && sync.dirty) {
+          try {
+            await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
+              confirmButtonText: '使用远端数据（覆盖本机）',
+              cancelButtonText: '使用本机数据（覆盖远端）',
+              distinguishCancelAndClose: true
+            })
+            if (sync.s3) sync.s3.updatedAt = remote.mtime
+            applySyncData(remote.data)
+          } catch (action) {
+            if (action === 'cancel' || action === 'close') {
+              sync.fileData = buildLocalData()
+              sync.dirty = true
+              scheduleWrite()
+              ElMessage.success('将以本机数据覆盖远端')
+            }
+          }
+          return
+        }
+        if (remoteNewer) {
+          if (sync.s3) sync.s3.updatedAt = remote.mtime
+          applySyncData(remote.data)
+          ElMessage.success('已拉取远端最新数据 ⬇️')
+          return
+        }
+      }
+    }
   } catch (e) {
     ElMessage.error('⚠️ 拉取失败：' + (e instanceof Error ? e.message : ''))
     return
   }
-  if (remote) {
-    const remoteTime = (sync.cloud && sync.cloud.updatedAt) || (sync.s3 && sync.s3.updatedAt) || sync.lastTouch
-    const remoteNewer = remote.mtime > remoteTime
-    if (remoteNewer && sync.dirty) {
-      // 冲突：让用户选择
-      try {
-        await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
-          confirmButtonText: '使用远端数据（覆盖本机）',
-          cancelButtonText: '使用本机数据（覆盖远端）',
-          distinguishCancelAndClose: true
-        })
-        if (sync.cloud) sync.cloud.updatedAt = remote.mtime
-        if (sync.s3) sync.s3.updatedAt = remote.mtime
-        applySyncData(remote.data)
-      } catch (action) {
-        if (action === 'cancel' || action === 'close') {
-          sync.fileData = buildLocalData()
-          sync.dirty = true
-          scheduleWrite()
-          ElMessage.success('将以本机数据覆盖远端')
-        }
-      }
-      return
-    }
-    if (remoteNewer) {
-      if (sync.cloud) sync.cloud.updatedAt = remote.mtime
-      if (sync.s3) sync.s3.updatedAt = remote.mtime
-      applySyncData(remote.data)
-      ElMessage.success('已拉取远端最新数据 ⬇️')
-      return
-    }
-  }
   if (sync.dirty) await syncWrite()
   else ElMessage.success('已是最新 ✅')
-}
-
-function buildLocalData(): Record<string, string> {
-  const o: Record<string, string> = {}
-  for (const k of SYNC_KEYS) { const v = lsGet(k); if (v != null) o[k] = v }
-  return o
 }
 
 /* ---------- 连接 ---------- */
@@ -319,17 +518,41 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
   if (sync.mode === 'file' || sync.mode === 's3') disconnect()
   sync.cloud = { url: url.replace(/\/+$/, ''), key, updatedAt: 0 }
   try {
-    const r = await cloudRead()
-    sync.cloud.updatedAt = r.mtime
+    const r = await cloudPull(0)
+    if (r !== null) {
+      const data = await decryptRecords(r.records, key)
+      sync.cloud.updatedAt = r.maxTs
+      setPullCursor(r.maxTs)
+      lsSet('b_cloud', JSON.stringify({ url: sync.cloud.url, key: sync.cloud.key }))
+      sync.saved.cloud = { url: sync.cloud.url, key: sync.cloud.key }
+      const localHasData = SYNC_KEYS.some(k => lsGet(k) != null)
+      const remoteHasData = Object.keys(data).length > 0
+      if (localHasData && remoteHasData) {
+        const choose = await askDataSource('云端')
+        if (choose === 'remote') { applySyncData(data); setLocalTs(r.maxTs) }
+        else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
+      } else if (remoteHasData) {
+        applySyncData(data)
+        setLocalTs(r.maxTs)
+      } else if (localHasData) {
+        sync.fileData = buildLocalData()
+        sync.dirty = true
+        scheduleWrite()
+      }
+      return true
+    }
+    // 旧 Worker 回退
+    const r2 = await cloudReadLegacy()
+    sync.cloud.updatedAt = r2.mtime
     lsSet('b_cloud', JSON.stringify({ url: sync.cloud.url, key: sync.cloud.key }))
     sync.saved.cloud = { url: sync.cloud.url, key: sync.cloud.key }
     const localHasData = SYNC_KEYS.some(k => lsGet(k) != null)
-    if (localHasData && Object.keys(r.data).length) {
+    if (localHasData && Object.keys(r2.data).length) {
       const choose = await askDataSource('云端')
-      if (choose === 'remote') applySyncData(r.data)
+      if (choose === 'remote') applySyncData(r2.data)
       else { sync.fileData = buildLocalData(); sync.dirty = true; scheduleWrite() }
     } else {
-      applySyncData(r.data)
+      applySyncData(r2.data)
     }
     return true
   } catch {
@@ -398,16 +621,25 @@ export function disconnect() {
   sync.dirty = false
 }
 
-/* ---------- 启动恢复（自动重连已保存配置；刷新即同步；成功/失败提示） ---------- */
+/* ---------- 启动恢复（自动重连已保存配置；刷新即同步） ---------- */
 export async function restoreSync() {
   const cfg = safeParse<{ url: string; key: string }>(lsGet('b_cloud'))
   if (cfg && typeof cfg.url === 'string' && typeof cfg.key === 'string') {
     sync.saved.cloud = { url: cfg.url, key: cfg.key }
     sync.cloud = { url: cfg.url, key: cfg.key, updatedAt: 0 }
     try {
-      const r = await cloudRead()
-      sync.cloud.updatedAt = r.mtime
-      applySyncData(r.data || {})
+      const r = await cloudPull(0)
+      if (r !== null) {
+        const data = await decryptRecords(r.records, cfg.key)
+        setPullCursor(r.maxTs)
+        setLocalTs(r.maxTs)
+        applySyncData(data)
+        ElMessage.success('✅ 已自动同步最新数据')
+        return
+      }
+      const r2 = await cloudReadLegacy()
+      sync.cloud.updatedAt = r2.mtime
+      applySyncData(r2.data || {})
       ElMessage.success('✅ 已自动同步最新数据')
       return
     } catch {

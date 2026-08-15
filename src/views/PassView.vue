@@ -93,9 +93,22 @@ async function submit() {
   justify-content: center;
   padding: 24px 16px;
 }
-.logo { font-size: 40px; color: var(--scene); }
-.title { font-size: 1.5rem; font-weight: 700; margin: 12px 0 4px; }
-.subtitle { font-size: 12px; color: #71717a; }
-.card { width: 100%; max-width: 384px; padding: 24px; }
-.err { color: #f87171; font-size: 12px; margin: 0 0 12px; }
+.logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--scene);
+  background: var(--scene-soft);
+  border: 1px solid var(--scene-border);
+}
+.title { font-size: 1.5rem; font-weight: 700; margin: 14px 0 4px; }
+.subtitle { font-size: 12px; color: var(--c-text-2); }
+.card { width: 100%; max-width: 384px; padding: 24px 24px 20px; }
+.err { color: var(--c-danger); font-size: 12px; margin: 0 0 12px; }
 </style>

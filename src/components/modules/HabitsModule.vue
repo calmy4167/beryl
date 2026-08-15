@@ -75,11 +75,11 @@ function longest(h: Habit): number { return maxStreak(h.dates) }
 .head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .name { font-size: 14px; font-weight: 500; }
-.days { margin-left: auto; font-size: 10px; color: #71717a; }
+.days { margin-left: auto; font-size: 10px; color: var(--c-text-2); }
 .week { display: flex; justify-content: space-between; gap: 6px; }
-.day { flex: 1; max-width: 58px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #a1a1aa; cursor: pointer; }
-.day.today { border-color: rgba(245, 158, 11, 0.6); }
-.day.on { color: #0A0A0F; font-weight: 700; }
+.day { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; border-radius: 10px; background: var(--c-bg-soft); border: 1px solid var(--c-border-soft); color: var(--c-text-2); cursor: pointer; }
+.day.today { border-color: var(--scene-border-strong); }
+.day.on { color: #fff; font-weight: 700; }
 .wd { font-size: 10px; opacity: 0.7; }
 .d { font-size: 12px; font-weight: 700; }
 </style>

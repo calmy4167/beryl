@@ -64,12 +64,12 @@ function del(id: string) {
 .item { padding: 14px 16px; cursor: pointer; }
 .row { display: flex; align-items: center; gap: 10px; }
 .t { flex: 1; font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.date { font-size: 10px; color: #71717a; flex-shrink: 0; }
-.summary { font-size: 12px; color: #71717a; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.read-hint { font-size: 10px; color: rgba(245, 158, 11, 0.7); margin-top: 6px; }
-.empty { text-align: center; color: #52525b; font-size: 14px; padding: 40px 0; }
+.date { font-size: 10px; color: var(--c-text-2); flex-shrink: 0; }
+.summary { font-size: 12px; color: var(--c-text-2); margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.read-hint { font-size: 10px; color: var(--scene); margin-top: 6px; }
+.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
 .draw-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
-.draw-date { font-size: 10px; color: #71717a; margin-top: 8px; }
-.draw-hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 20px 0; }
-.draw-body { white-space: pre-wrap; line-height: 1.9; font-size: 15px; color: #d4d4d8; word-break: break-word; }
+.draw-date { font-size: 10px; color: var(--c-text-2); margin-top: 8px; }
+.draw-hr { border: none; border-top: 1px solid var(--c-border-soft); margin: 20px 0; }
+.draw-body { white-space: pre-wrap; line-height: 1.9; font-size: 15px; color: var(--c-text); word-break: break-word; max-width: 720px; margin: 0 auto; }
 </style>

@@ -49,14 +49,14 @@ function save() {
 
 <style scoped>
 .editor { padding: 16px; }
-.date-label { font-size: 10px; color: #71717a; letter-spacing: 0.2em; margin-bottom: 8px; }
+.date-label { font-size: 10px; color: var(--c-text-2); letter-spacing: 0.2em; margin-bottom: 8px; }
 .right { text-align: right; margin-top: 12px; }
 .sec { margin-top: 24px; }
-.sec-title { font-size: 14px; color: #a1a1aa; letter-spacing: 0.15em; margin-bottom: 12px; }
+.sec-title { font-size: 14px; color: var(--c-text-2); letter-spacing: 0.15em; margin-bottom: 12px; }
 .list { display: flex; flex-direction: column; gap: 8px; }
 .item { padding: 12px 16px; }
-.date { font-size: 10px; color: #71717a; margin-bottom: 4px; }
+.date { font-size: 10px; color: var(--c-text-2); margin-bottom: 4px; }
 .today { color: var(--amber); }
-.content { font-size: 13px; color: #d4d4d8; word-break: break-all; }
-.empty { text-align: center; color: #52525b; font-size: 14px; padding: 32px 0; }
+.content { font-size: 13px; color: var(--c-text); word-break: break-all; }
+.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 32px 0; }
 </style>

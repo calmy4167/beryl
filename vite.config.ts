@@ -10,6 +10,11 @@ export default defineConfig({
     }
   },
   base: './', // 适配任意静态托管（Cloudflare Pages / GitHub Pages 子路径）
+  server: {
+    watch: {
+      ignored: ['**/node_modules/**', '**/.git/**', '**/*.tmp', '**/.*.tmpdir/**']
+    }
+  },
   build: {
     outDir: 'dist',
     target: 'es2020'

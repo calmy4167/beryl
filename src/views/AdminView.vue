@@ -110,12 +110,12 @@ const s3Cfg = ref({ endpoint: '', bucket: '', region: '', ak: '', sk: '' })
 const connecting = ref(false)
 
 const syncStatus = computed(() => {
-  if (sync.mode === 'cloud' && sync.cloud) return { color: '#34D399', text: `☁️ 已连接云端：${sync.cloud.url}`, actions: true }
-  if (sync.mode === 's3' && sync.s3) return { color: '#34D399', text: `🗄️ 已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
-  if (sync.mode === 'file') return { color: '#34D399', text: `🔄 已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
-  if (sync.saved.cloud) return { color: '#F59E0B', text: '🟡 已保存 Cloudflare 配置（未连接）', actions: false }
-  if (sync.saved.s3) return { color: '#F59E0B', text: '🟡 已保存 S3 配置（未连接）', actions: false }
-  return { color: '#71717a', text: '未连接 · 数据仅存于本浏览器', actions: false }
+  if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `☁️ 已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
+  if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `🗄️ 已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
+  if (sync.mode === 'file') return { color: 'var(--c-success)', text: `🔄 已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
+  if (sync.saved.cloud) return { color: 'var(--c-warn)', text: '🟡 已保存 Cloudflare 配置（未连接）', actions: false }
+  if (sync.saved.s3) return { color: 'var(--c-warn)', text: '🟡 已保存 S3 配置（未连接）', actions: false }
+  return { color: 'var(--c-text-3)', text: '未连接 · 数据仅存于本浏览器', actions: false }
 })
 
 async function doCloudConnect() {
@@ -194,7 +194,7 @@ onMounted(() => applySceneTheme(scene.value))
     <!-- 系统信息 -->
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">系统信息</h3>
-      <p class="info">版本：<span>v2.0.0（阶段 1 平移中）</span></p>
+      <p class="info">版本：<span>v2.1.0（阶段 2–5：IndexedDB / 增量同步 / 加密 / PWA）</span></p>
       <p class="info">数据版本：<span>4</span></p>
       <p class="info">当前场景：<span :style="{ color: SCENES[scene].color }">{{ SCENES[scene].icon }} {{ SCENES[scene].name }}</span></p>
       <p class="info">日期：<span>{{ now.getFullYear() }} 年 {{ now.getMonth() + 1 }} 月 {{ now.getDate() }} 日</span></p>
@@ -219,7 +219,7 @@ onMounted(() => applySceneTheme(scene.value))
           <el-button v-if="fsOk" @click="doFileConnect">📂 本地文件</el-button>
         </template>
       </div>
-      <p class="mods-line">本地变更 0.8s 自动上传 · 前台每 5 秒自动拉取 · 切回页面立即拉取</p>
+      <p class="mods-line">本地变更 0.8s 自动上传 · 前台每 5 秒自动拉取 · 切回页面立即拉取 · 云端增量 LWW 合并 + 加密</p>
     </div>
 
     <!-- Cloudflare 连接对话框 -->
@@ -256,14 +256,15 @@ onMounted(() => applySceneTheme(scene.value))
 .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (min-width: 768px) { .grid4 { grid-template-columns: repeat(4, 1fr); } }
 .card { padding: 16px; }
-.label { font-size: 10px; color: #71717a; letter-spacing: 0.2em; }
+.label { font-size: 10px; color: var(--c-text-2); letter-spacing: 0.2em; }
 .value { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
 .block { padding: 16px; margin-top: 16px; }
-.sec { font-size: 12px; color: #a1a1aa; letter-spacing: 0.15em; margin: 0 0 12px; }
+.sec { font-size: 12px; color: var(--c-text-2); letter-spacing: 0.15em; margin: 0 0 12px; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { padding: 8px 16px; border-radius: 999px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; background: transparent; cursor: pointer; }
-.mods-line { font-size: 10px; color: #52525b; margin-top: 12px; line-height: 1.6; }
+.pill { padding: 8px 16px; border-radius: 999px; font-size: 13px; border: 1px solid var(--c-border); color: var(--c-text-2); background: transparent; cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.pill:hover { border-color: var(--scene-border); color: var(--c-text); }
+.mods-line { font-size: 10px; color: var(--c-text-3); margin-top: 12px; line-height: 1.6; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
-.info { font-size: 12px; color: #71717a; margin: 4px 0; }
-.info span { color: #d4d4d8; }
+.info { font-size: 12px; color: var(--c-text-2); margin: 4px 0; }
+.info span { color: var(--c-text); }
 </style>

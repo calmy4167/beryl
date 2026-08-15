@@ -93,10 +93,23 @@ onUnmounted(() => clearInterval(lockTimer))
   justify-content: center;
   padding: 24px 16px;
 }
-.logo { font-size: 48px; color: var(--scene); }
-.title { font-size: 2rem; font-weight: 700; letter-spacing: 0.3em; margin: 12px 0 4px; }
-.subtitle { font-size: 12px; color: #71717a; letter-spacing: 0.3em; }
-.card { width: 100%; max-width: 384px; padding: 24px; }
-.err { color: #f87171; font-size: 12px; margin: 0 0 12px; }
-.hint { text-align: center; font-size: 10px; color: #52525b; margin-top: 12px; }
+.logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--scene);
+  background: var(--scene-soft);
+  border: 1px solid var(--scene-border);
+}
+.title { font-size: 2rem; font-weight: 700; letter-spacing: 0.3em; margin: 16px 0 6px; }
+.subtitle { font-size: 12px; color: var(--c-text-2); letter-spacing: 0.3em; }
+.card { width: 100%; max-width: 384px; padding: 28px 24px 20px; }
+.err { color: var(--c-danger); font-size: 12px; margin: 0 0 12px; }
+.hint { text-align: center; font-size: 10px; color: var(--c-text-3); margin-top: 12px; }
 </style>

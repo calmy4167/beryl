@@ -51,13 +51,12 @@ function del(id: string) {
 
 <style scoped>
 .form { display: flex; gap: 8px; padding: 12px; }
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
-@media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 20px; }
 .card { padding: 16px; text-align: center; position: relative; }
 .del { position: absolute; top: 8px; right: 8px; }
 .avatar { width: 48px; height: 48px; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; border: 1px solid; }
 .name { font-size: 14px; font-weight: 500; margin-top: 10px; word-break: break-all; }
-.title { font-size: 10px; color: #71717a; margin-top: 2px; word-break: break-all; }
-.date { font-size: 10px; color: #52525b; margin-top: 8px; }
-.empty { grid-column: 1 / -1; text-align: center; color: #52525b; font-size: 14px; padding: 40px 0; }
+.title { font-size: 10px; color: var(--c-text-2); margin-top: 2px; word-break: break-all; }
+.date { font-size: 10px; color: var(--c-text-3); margin-top: 8px; }
+.empty { grid-column: 1 / -1; text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
 </style>

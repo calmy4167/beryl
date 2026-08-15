@@ -19,7 +19,7 @@ function paint() {
   const ring = document.getElementById('pomo-ring') as SVGCircleElement | null
   if (ring) {
     ring.style.strokeDashoffset = String(RING_C * (1 - remain.value / total.value))
-    ring.setAttribute('stroke', mode.value === 'focus' ? '#F59E0B' : '#34D399')
+    ring.style.stroke = mode.value === 'focus' ? 'var(--scene)' : 'var(--c-success)'
   }
   document.title = running.value ? `${timeText()} ${mode.value === 'focus' ? '专注' : '休息'} — Beryl` : 'Beryl — 个人管理体系'
 }
@@ -73,12 +73,12 @@ onUnmounted(stopTimer)
 
     <div class="ring-wrap">
       <svg viewBox="0 0 200 200" class="ring">
-        <circle cx="100" cy="100" r="88" stroke="rgba(255,255,255,0.08)" stroke-width="9" fill="none" />
-        <circle id="pomo-ring" cx="100" cy="100" r="88" stroke="#F59E0B" stroke-width="9" fill="none" stroke-linecap="round"
+        <circle cx="100" cy="100" r="88" :style="{ stroke: 'var(--c-border-soft)' }" stroke-width="9" fill="none" />
+        <circle id="pomo-ring" cx="100" cy="100" r="88" :style="{ stroke: 'var(--scene)' }" stroke-width="9" fill="none" stroke-linecap="round"
           :stroke-dasharray="RING_C" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
       </svg>
       <div class="center">
-        <p class="mode-label" :style="{ color: mode === 'focus' ? '#FBBF24' : '#6EE7B7' }">{{ mode === 'focus' ? '专 注' : '休 息' }}</p>
+        <p class="mode-label" :style="{ color: mode === 'focus' ? 'var(--scene)' : 'var(--c-success)' }">{{ mode === 'focus' ? '专 注' : '休 息' }}</p>
         <p class="font-title time">{{ timeText() }}</p>
       </div>
     </div>
@@ -94,15 +94,15 @@ onUnmounted(stopTimer)
 <style scoped>
 .box { padding: 24px; text-align: center; }
 .pills { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
-.pill { padding: 6px 18px; border-radius: 999px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa; background: transparent; cursor: pointer; }
-.pill.on-focus { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.5); color: #FBBF24; }
-.pill.on-rest { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.5); color: #6EE7B7; }
+.pill { padding: 6px 18px; border-radius: 999px; font-size: 13px; border: 1px solid var(--c-border); color: var(--c-text-2); background: transparent; cursor: pointer; }
+.pill.on-focus { background: var(--scene-soft); border-color: var(--scene-border); color: var(--scene); }
+.pill.on-rest { background: var(--c-success-weak); border-color: var(--c-success); color: var(--c-success); }
 .ring-wrap { position: relative; display: inline-block; }
 .ring { width: 224px; height: 224px; }
 @media (min-width: 640px) { .ring { width: 256px; height: 256px; } }
 .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.mode-label { font-size: 10px; letter-spacing: 0.3em; color: #71717a; margin-bottom: 4px; }
+.mode-label { font-size: 10px; letter-spacing: 0.3em; color: var(--c-text-2); margin-bottom: 4px; }
 .time { font-size: 2.25rem; font-weight: 700; }
-.stat-line { margin-top: 20px; display: flex; justify-content: center; gap: 24px; font-size: 12px; color: #71717a; }
+.stat-line { margin-top: 20px; display: flex; justify-content: center; gap: 24px; font-size: 12px; color: var(--c-text-2); }
 .amber { color: var(--amber); }
 </style>
