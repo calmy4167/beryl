@@ -7,7 +7,7 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import './styles/main.css'
 import App from './App.vue'
 import router from './router'
-import { initDb } from './core/db'
+import { initDb, recoverIfCleared } from './core/db'
 import { migrateData } from './core/migrate'
 
 const app = createApp(App)
@@ -23,6 +23,18 @@ document.documentElement.classList.toggle('dark', savedTheme === 'dark')
 // 阶段 2：数据版本迁移 + localStorage 数据镜像到 IndexedDB（异步，不阻塞渲染）
 migrateData()
 void initDb()
+
+// 数据恢复（一次性）：撤销误清洗造成的空数组（从变更日志找回历史数据）
+void (async () => {
+  try {
+    if (localStorage.getItem('b_recover_done')) return
+    localStorage.setItem('b_recover_done', '1')
+    for (const k of ['b_inbox', 'b_tasks', 'b_goals']) {
+      const ok = await recoverIfCleared(k)
+      if (ok) console.log('[beryl] recovered key:', k)
+    }
+  } catch { /* ignore */ }
+})()
 
 // 阶段 5：PWA Service Worker（仅生产构建注册，避免开发热更新干扰）
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

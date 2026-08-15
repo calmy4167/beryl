@@ -140,6 +140,9 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
       </div>
     </aside>
 
+    <!-- 折叠后的悬浮展开按钮（不占布局空间） -->
+    <button v-if="wide && collapsed" class="side-open-btn" title="展开侧边栏" @click="toggleCollapse">☰</button>
+
     <!-- 移动端顶栏 -->
     <header v-else class="topbar">
       <div class="inner">
@@ -225,17 +228,33 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 }
 .side-static { position: static; height: 100%; width: 100%; border-right: none; transition: none; }
 
-/* 折叠态：窄栏只留图标，二级直接平铺图标 */
-.side.collapsed { width: 64px; }
-.side.collapsed .side-head { flex-direction: column; gap: 8px; padding: 16px 0 10px; }
-.side.collapsed .side-brand,
-.side.collapsed .nav-label,
-.side.collapsed .lv1-count,
-.side.collapsed .caret { display: none; }
-.side.collapsed .nav-item { justify-content: center; padding: 9px 0; }
-.side.collapsed .nav-dot { display: none; }
-.side.collapsed .nav-sub { grid-template-rows: 1fr; margin-left: 0; padding-left: 0; border-left: none; }
-.side.collapsed .nav-sub-inner { padding: 0; }
+/* 折叠态：完全收起（不占空间，内容区全宽），左上角悬浮按钮展开 */
+.side.collapsed {
+  width: 0;
+  overflow: hidden;
+  padding: 0;
+  border-right: none;
+}
+.side-open-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 50;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border-soft);
+  background: var(--c-card);
+  color: var(--c-text-2);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+  transition: all .15s ease;
+}
+.side-open-btn:hover { color: var(--scene); border-color: var(--scene-border); box-shadow: 0 2px 14px var(--scene-soft); }
 
 .side-head { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px; }
 .side-brand { display: flex; flex-direction: column; gap: 3px; overflow: hidden; white-space: nowrap; flex: 1; min-width: 0; }

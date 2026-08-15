@@ -201,3 +201,27 @@ export async function maxChangeSeq(): Promise<number> {
   const all = await readChanges(0, 1)
   return all.length ? all[all.length - 1].seq : 0
 }
+
+/**
+ * 撤销误清洗：若某键当前恰好是空数组、且变更日志中最后一条该键记录也是空数组、
+ * 但更早存在非空记录 → 恢复为最近的非空值（防止历史数据被误删）。
+ * 用户主动清空（最后记录非空→空）与从未有数据（无记录）均不恢复。
+ */
+export async function recoverIfCleared(key: string): Promise<boolean> {
+  try {
+    const cur = lsGet(key)
+    if (cur !== '[]') return false // 当前不是空数组，无需恢复
+    const changes = await readChanges(0, 2000)
+    const hits = changes.filter(c => c.key === key)
+    if (!hits.length) return false // 从未写过该键
+    const last = hits[hits.length - 1]
+    if (last.value !== '[]') return false // 最后写入的是非空数据，正常
+    const prev = [...hits].reverse().find(c => c.value !== '[]')
+    if (!prev || prev.value == null) return false
+    localStorage.setItem(key, prev.value)
+    await fullMirror() // 恢复后同步镜像
+    return true
+  } catch {
+    return false
+  }
+}

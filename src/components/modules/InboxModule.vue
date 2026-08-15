@@ -5,16 +5,9 @@ import { store, nextId, fmtDate } from '@/core/storage'
 
 interface InboxItem { id: string; text: string; date: string }
 const input = ref('')
-const items = ref<InboxItem[]>([])
-refresh() // 首次进入即清洗脏数据（无 id / 空文本）
+const items = ref<InboxItem[]>(store.get('inbox', []))
 
-function refresh() {
-  // 自动清洗脏数据：无 id 或空文本的条目（历史遗留/异常写入）直接移除并写回
-  const list = store.get<InboxItem[]>('inbox', [])
-  const clean = list.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.text || '').trim() !== '')
-  if (clean.length !== list.length) store.set('inbox', clean)
-  items.value = clean
-}
+function refresh() { items.value = store.get<InboxItem[]>('inbox', []) }
 function add() {
   const v = input.value.trim()
   if (!v) return
@@ -25,8 +18,13 @@ function add() {
   refresh()
   ElMessage.success('已收入收件箱')
 }
-function del(id: string) {
-  store.set('inbox', store.get<InboxItem[]>('inbox', []).filter(x => x.id !== id))
+/* 按索引删除：任何条目（含缺 id 的历史数据）都能删，绝不误删其他条目 */
+function del(index: number) {
+  const list = store.get<InboxItem[]>('inbox', [])
+  if (index >= 0 && index < list.length) {
+    list.splice(index, 1)
+    store.set('inbox', list)
+  }
   refresh()
 }
 </script>
@@ -38,11 +36,11 @@ function del(id: string) {
   </form>
   <div class="list">
     <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
-    <div v-for="it in items" :key="it.id" class="beryl-card hoverable item">
+    <div v-for="(it, i) in items" :key="i" class="beryl-card hoverable item">
       <span class="dot" />
       <p class="text">{{ it.text }}</p>
       <span class="date">{{ it.date }}</span>
-      <el-button circle text size="small" @click="del(it.id)">✕</el-button>
+      <el-button circle text size="small" @click="del(i)">✕</el-button>
     </div>
   </div>
 </template>

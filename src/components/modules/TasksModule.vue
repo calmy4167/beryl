@@ -9,12 +9,8 @@ const priority = ref('中')
 const items = ref<TaskItem[]>(load())
 
 function load(): TaskItem[] {
-  // 自动清洗脏数据：无 id 或空标题的条目移除并写回
-  const raw = store.get<TaskItem[]>('tasks', [])
-  const clean = raw.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.title || '').trim() !== '')
-  if (clean.length !== raw.length) store.set('tasks', clean)
   const order: Record<string, number> = { '高': 0, '中': 1, '低': 2 }
-  return clean.slice().sort((a, b) => {
+  return store.get<TaskItem[]>('tasks', []).slice().sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1
     const d = (order[a.priority] ?? 1) - (order[b.priority] ?? 1)
     return d !== 0 ? d : (b.id < a.id ? -1 : 1)
@@ -36,8 +32,12 @@ function toggle(id: string) {
   const t = list.find(x => x.id === id)
   if (t) { t.done = !t.done; store.set('tasks', list); refresh() }
 }
-function del(id: string) {
-  store.set('tasks', store.get<TaskItem[]>('tasks', []).filter(x => x.id !== id))
+function del(index: number) {
+  const list = store.get<TaskItem[]>('tasks', [])
+  if (index >= 0 && index < list.length) {
+    list.splice(index, 1)
+    store.set('tasks', list)
+  }
   refresh()
 }
 const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', '低': '#6366F1' }
@@ -55,12 +55,12 @@ const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', 
   </form>
   <div class="list">
     <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
-    <div v-for="t in items" :key="t.id" class="beryl-card hoverable item" :class="{ done: t.done }">
+    <div v-for="(t, i) in items" :key="i" class="beryl-card hoverable item" :class="{ done: t.done }">
       <button class="chk" :class="{ on: t.done }" @click="toggle(t.id)">{{ t.done ? '✓' : '' }}</button>
       <p class="t">{{ t.title }}</p>
       <span class="tag" :style="{ color: PRI_COLOR[t.priority], background: (PRI_COLOR[t.priority] || '#888') + '1f' }">{{ t.priority }}</span>
       <span class="date">{{ t.date }}</span>
-      <el-button circle text size="small" @click="del(t.id)">✕</el-button>
+      <el-button circle text size="small" @click="del(i)">✕</el-button>
     </div>
   </div>
 </template>

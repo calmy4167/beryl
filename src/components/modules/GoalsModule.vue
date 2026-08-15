@@ -5,16 +5,9 @@ import { store, nextId } from '@/core/storage'
 
 interface Goal { id: string; title: string; done: boolean }
 const input = ref('')
-const items = ref<Goal[]>([])
-refresh() // 首次进入即清洗脏数据（无 id / 空标题）
+const items = ref<Goal[]>(store.get('goals', []))
 
-function refresh() {
-  // 自动清洗脏数据：无 id 或空标题的条目移除并写回
-  const raw = store.get<Goal[]>('goals', [])
-  const clean = raw.filter(x => x && typeof x.id === 'string' && x.id !== '' && String(x.title || '').trim() !== '')
-  if (clean.length !== raw.length) store.set('goals', clean)
-  items.value = clean
-}
+function refresh() { items.value = store.get<Goal[]>('goals', []) }
 function add() {
   const v = input.value.trim()
   if (!v) return
@@ -30,8 +23,13 @@ function toggle(id: string) {
   const g = list.find(x => x.id === id)
   if (g) { g.done = !g.done; store.set('goals', list); refresh() }
 }
-function del(id: string) {
-  store.set('goals', store.get<Goal[]>('goals', []).filter(x => x.id !== id))
+/* 按索引删除：任何条目（含缺 id 的历史数据）都能删，绝不误删其他条目 */
+function del(index: number) {
+  const list = store.get<Goal[]>('goals', [])
+  if (index >= 0 && index < list.length) {
+    list.splice(index, 1)
+    store.set('goals', list)
+  }
   refresh()
 }
 </script>
@@ -43,10 +41,10 @@ function del(id: string) {
   </form>
   <div class="list">
     <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
-    <div v-for="g in items" :key="g.id" class="beryl-card hoverable item" :class="{ done: g.done }">
+    <div v-for="(g, i) in items" :key="i" class="beryl-card hoverable item" :class="{ done: g.done }">
       <button class="chk" :class="{ on: g.done }" @click="toggle(g.id)">{{ g.done ? '✓' : '' }}</button>
       <p class="t">{{ g.title }}</p>
-      <el-button circle text size="small" @click="del(g.id)">✕</el-button>
+      <el-button circle text size="small" @click="del(i)">✕</el-button>
     </div>
   </div>
 </template>
