@@ -1,124 +1,32 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { SCENES, currentSceneId } from '@/core/scenes'
 import { store, nextId, fmtDate } from '@/core/storage'
-import { randomHeroQuote } from '@/core/quotes'
-import QuoteWall from '@/components/quotes/QuoteWall.vue'
 import { caseRepository } from '@/domain/case/repository'
 import { PHASE_META, STATUS_LABEL, type CaseItem } from '@/domain/case/model'
 
-const router = useRouter()
-const scene = computed(() => SCENES[currentSceneId()])
-const heroQuote = ref('')
-const dataTick = ref(0)
-const activeCases = computed<CaseItem[]>(() => { void dataTick.value; return caseRepository.list().filter(item => item.status === 'active' || item.status === 'inbox').sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 4) })
-const todayTasks = computed(() => { void dataTick.value; return store.get<any[]>('tasks', []).filter(task => !task.done).slice(0, 5) })
-const inboxCount = computed(() => { void dataTick.value; return store.get<any[]>('inbox', []).length })
-function refreshDashboard() { dataTick.value++ }
-onMounted(() => { heroQuote.value = randomHeroQuote(); window.addEventListener('beryl-data-synced', refreshDashboard) })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', refreshDashboard))
-
-/* 合并输入框：Enter 记随想；1 秒内再按 Enter 升级为待办 */
-const QUICK_DBL_MS = 1000
-const quickText = ref('')
-let last: { text: string; id: string; time: number } | null = null
-
-function quickKeydown(e: KeyboardEvent) {
-  if (e.key !== 'Enter') return
-  e.preventDefault()
-  const now = Date.now()
-  const v = quickText.value.trim()
-  const L = last
-  if (L && now - L.time < QUICK_DBL_MS && (!v || v === L.text)) {
-    const inbox = store.get<any[]>('inbox', [])
-    store.set('inbox', inbox.filter(x => x.id !== L.id))
-    const tasks = store.get<any[]>('tasks', [])
-    tasks.unshift({ id: nextId(), title: L.text, priority: '中', date: fmtDate(now), done: false })
-    store.set('tasks', tasks)
-    last = null
-    quickText.value = ''
-    ElMessage.success('已转为待办（中优先级）')
-    return
-  }
-  if (!v) return
-  const items = store.get<any[]>('inbox', [])
-  const it = { id: nextId(), text: v, date: fmtDate(now) }
-  items.unshift(it)
-  store.set('inbox', items)
-  last = { text: v, id: it.id, time: now }
-  quickText.value = ''
-  ElMessage.success('已记录随想，1 秒内再按 Enter 转为待办')
-}
+const router = useRouter(); const tick = ref(0); const capture = ref('')
+const greeting = computed(() => { const h = new Date().getHours(); return h < 11 ? '早上好' : h < 18 ? '下午好' : '晚上好' })
+const cases = computed<CaseItem[]>(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'active').sort((a,b) => b.updatedAt-a.updatedAt).slice(0,3) })
+const tasks = computed(() => { void tick.value; return store.get<any[]>('tasks', []).filter(x => !x.done).slice(0,5) })
+const inbox = computed(() => { void tick.value; return store.get<any[]>('inbox', []).filter(x => x?.text?.trim()).length })
+const resolved = computed(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'resolved').length })
+function refresh() { tick.value++ }
+function add(kind: 'inbox' | 'task' | 'case') { const text = capture.value.trim(); if (!text) { ElMessage.warning('先写下一件事'); return }; const now = Date.now(); if (kind === 'case') { const item = caseRepository.create({ title:text }); capture.value=''; router.push('/app/cases/'+item.id); return }; if (kind === 'task') { const data = store.get<any[]>('tasks', []); data.unshift({ id:nextId(), title:text, priority:'中', date:fmtDate(now), done:false }); store.set('tasks',data); ElMessage.success('已加入今日行动') } else { const data = store.get<any[]>('inbox', []); data.unshift({id:nextId(),text,date:fmtDate(now)}); store.set('inbox',data); ElMessage.success('已收入收集箱') }; capture.value=''; refresh() }
+function toggleTask(task: any) { const all = store.get<any[]>('tasks', []); const target = all.find(x => x.id === task.id); if (target) { target.done = !target.done; store.set('tasks', all); refresh() } }
+onMounted(() => window.addEventListener('beryl-data-synced',refresh)); onUnmounted(() => window.removeEventListener('beryl-data-synced',refresh))
 </script>
 
 <template>
-  <div>
-    <!-- Hero -->
-    <div class="hero text-center">
-      <div class="hero-badge">{{ scene.icon }} BERYL · {{ scene.name }}</div>
-      <h1 class="font-title hero-title">{{ scene.tagline }}</h1>
-      <p class="hero-sub">{{ scene.desc }}</p>
-      <p v-if="heroQuote" class="hero-quote">{{ heroQuote }}</p>
-    </div>
-
-    <section class="case-overview">
-      <div class="section-head"><h2 class="font-title">正在解决</h2><el-button text @click="router.push('/app/cases')">全部课题 →</el-button></div>
-      <div class="case-grid"><button v-for="item in activeCases" :key="item.id" class="beryl-card case-card" @click="router.push('/app/cases/' + item.id)"><span>{{ PHASE_META[item.currentPhase].icon }} {{ PHASE_META[item.currentPhase].label }}</span><b>{{ item.title }}</b><small>{{ STATUS_LABEL[item.status] }} · {{ item.desiredOutcome || '尚未定义结果' }}</small></button><button v-if="!activeCases.length" class="beryl-card case-card empty-case" @click="router.push('/app/cases')">◈ 创建第一个现实课题</button></div>
-      <div class="today-grid"><div class="beryl-card today"><div class="section-head"><h3>今日行动</h3><el-button text size="small" @click="router.push('/app/module/tasks')">任务 →</el-button></div><p v-for="task in todayTasks" :key="task.id">□ {{ task.title }}</p><p v-if="!todayTasks.length" class="muted">暂无待办行动</p></div><button class="beryl-card today inbox" @click="router.push('/app/module/inbox')"><h3>待处理收集箱</h3><b>{{ inboxCount }}</b><span>条想法等待归入课题或行动</span></button></div>
-    </section>
-
-    <!-- 合并输入框：随想 / 待办 -->
-    <div class="beryl-card hoverable quick-box">
-      <el-input
-        v-model="quickText"
-        size="large"
-        placeholder="此刻在想什么？"
-        class="quick-input"
-        @keydown="quickKeydown"
-      />
-      <p class="quick-hint">Enter 记录随想 · 1 秒内再按 Enter 转为待办</p>
-    </div>
-
-    <!-- 大卡片墙：大卡嵌小卡，可拖动排序/调整大小 -->
-    <QuoteWall />
+  <div class="dashboard">
+    <header class="welcome"><div><p class="eyebrow">个人工作台 · {{ new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'}) }}</p><h1 class="font-title">{{ greeting }}，从一件重要的事开始。</h1><p>收集、行动、判断和复盘，都围绕你真正想解决的课题。</p></div><div class="progress"><b>{{ cases.length }}</b><span>进行中的课题</span></div></header>
+    <section class="capture beryl-card"><div class="capture-title"><span>＋</span><div><b>快速记录</b><small>先把它放进系统，再决定下一步</small></div></div><el-input v-model="capture" size="large" placeholder="例如：给王老师确认下周的时间" @keyup.enter="add('inbox')"/><div class="capture-actions"><span>Enter 收集 · 选择类型可直接归位</span><div><el-button @click="add('inbox')">收集</el-button><el-button @click="add('task')">作为行动</el-button><el-button type="primary" @click="add('case')">作为课题</el-button></div></div></section>
+    <section class="main-grid"><div class="focus"><div class="section-title"><div><p class="eyebrow">FOCUS</p><h2 class="font-title">正在推进</h2></div><el-button text @click="router.push('/app/cases')">查看全部 →</el-button></div><div class="case-list"><button v-for="item in cases" :key="item.id" class="case-row" @click="router.push('/app/cases/'+item.id)"><span class="phase">{{ PHASE_META[item.currentPhase].icon }}</span><span class="case-copy"><b>{{ item.title }}</b><small>{{ PHASE_META[item.currentPhase].summary }}</small></span><span class="state">{{ STATUS_LABEL[item.status] }}</span><span class="arrow">→</span></button><button v-if="!cases.length" class="empty-focus" @click="router.push('/app/cases')"><span>◈</span><b>还没有进行中的课题</b><small>创建一个现实问题，系统才有中心。</small></button></div></div><aside class="side-stats"><button class="stat-card" @click="router.push('/app/module/inbox')"><span>收集箱</span><b>{{ inbox }}</b><small>条尚未归位的想法 →</small></button><button class="stat-card warm" @click="router.push('/app/cases')"><span>已完成</span><b>{{ resolved }}</b><small>个解决过的问题 →</small></button></aside></section>
+    <section class="today"><div class="section-title"><div><p class="eyebrow">TODAY</p><h2 class="font-title">今天的行动</h2></div><el-button text @click="router.push('/app/module/tasks')">管理行动 →</el-button></div><div class="task-panel beryl-card"><button v-for="task in tasks" :key="task.id" class="today-task" @click="toggleTask(task)"><span class="check"> </span><span>{{ task.title }}</span><small>{{ task.priority }}优先级</small></button><p v-if="!tasks.length" class="nothing">今天还没有行动。把一个想法转为行动，开始推进。</p></div></section>
   </div>
 </template>
 
 <style scoped>
-/* ---- hero ---- */
-.hero { padding: 40px 0 8px; }
-.hero-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--scene);
-  background: var(--scene-soft);
-  border: 1px solid var(--scene-border-soft);
-  padding: 5px 14px;
-  border-radius: 999px;
-  margin-bottom: 16px;
-}
-.hero-title { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; line-height: 1.25; }
-.hero-sub { font-size: 14px; color: var(--c-text-2); margin: 0; }
-.hero-quote { margin: 12px 0 0; font-size: 12px; color: var(--c-text-3); font-style: italic; letter-spacing: 0.05em; }
-
-/* ---- 合并输入框 ---- */
-.quick-box { padding: 16px; margin-top: 28px; }
-.quick-hint { font-size: 10px; color: var(--c-text-3); margin: 10px 0 0; }
-.case-overview { margin-top:28px; }.section-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }.section-head h2 { margin:0; font-size:16px; }.section-head h3 { margin:0; font-size:13px; }.case-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; margin-top:10px; }.case-card { min-height:116px; text-align:left; display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid var(--c-border-soft); background:var(--c-card); color:var(--c-text); cursor:pointer; }.case-card:hover { border-color:var(--scene-border-strong); }.case-card span { font-size:10px; color:var(--scene); }.case-card b { font-size:14px; }.case-card small { color:var(--c-text-2); font-size:10px; line-height:1.5; }.empty-case { align-items:center; justify-content:center; color:var(--c-text-3); }.today-grid { display:grid; grid-template-columns:2fr 1fr; gap:10px; margin-top:10px; }.today { padding:14px; text-align:left; }.today p { margin:8px 0 0; font-size:12px; }.muted { color:var(--c-text-3); }.inbox { border:1px solid var(--c-border-soft); background:var(--c-card); color:var(--c-text); cursor:pointer; display:flex; flex-direction:column; gap:8px; }.inbox b { font-size:30px; color:var(--scene); }.inbox span { font-size:11px; color:var(--c-text-2); line-height:1.5; }
-
-/* ---- 手机端 ---- */
-@media (max-width: 640px) {
-  .hero { padding: 24px 0 0; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-badge { font-size: 10px; padding: 4px 12px; margin-bottom: 12px; }
-  .hero-sub { font-size: 13px; }
-  .hero-quote { font-size: 11px; }
-  .quick-box { padding: 12px; margin-top: 20px; }
-  .today-grid { grid-template-columns:1fr; }
-}
+.welcome{display:flex;justify-content:space-between;gap:24px;align-items:end;margin:8px 0 30px}.eyebrow{font-size:10px;letter-spacing:.13em;color:var(--scene);font-weight:700;margin:0 0 8px}.welcome h1{font-size:clamp(30px,4vw,46px);line-height:1.08;margin:0;letter-spacing:-.035em}.welcome>div>p:last-child{color:var(--c-text-2);font-size:13px;margin:12px 0 0}.progress{min-width:126px;padding:16px 18px;border-left:1px solid var(--c-border);display:grid;gap:2px}.progress b{font:600 36px/1 var(--font-title);color:var(--scene)}.progress span{font-size:11px;color:var(--c-text-2)}.capture{padding:16px 18px;margin-bottom:32px;display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:center}.capture-title{display:flex;gap:10px;align-items:center}.capture-title>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--scene-soft);color:var(--scene);font-size:20px}.capture-title b,.capture-title small{display:block}.capture-title b{font-size:13px}.capture-title small{font-size:10px;color:var(--c-text-3);margin-top:3px}.capture-actions{grid-column:2;display:flex;align-items:center;justify-content:space-between;gap:10px}.capture-actions>span{font-size:10px;color:var(--c-text-3)}.main-grid{display:grid;grid-template-columns:minmax(0,1fr) 218px;gap:18px}.section-title{display:flex;align-items:end;justify-content:space-between;margin-bottom:12px}.section-title h2{font-size:25px;margin:0;letter-spacing:-.02em}.case-list{border-top:1px solid var(--c-border)}.case-row{width:100%;display:grid;grid-template-columns:38px 1fr auto 20px;align-items:center;gap:10px;padding:16px 4px;border:0;border-bottom:1px solid var(--c-border-soft);background:transparent;color:var(--c-text);text-align:left;cursor:pointer}.case-row:hover .case-copy b{color:var(--scene)}.phase{font-size:23px}.case-copy{display:grid;gap:4px}.case-copy b{font-size:14px;transition:.15s}.case-copy small{font-size:11px;color:var(--c-text-3)}.state{font-size:10px;padding:4px 8px;border-radius:99px;color:var(--scene);background:var(--scene-soft)}.arrow{color:var(--c-text-3)}.empty-focus{width:100%;min-height:180px;border:1px dashed var(--c-border);background:transparent;border-radius:14px;display:grid;place-content:center;gap:8px;text-align:center;color:var(--c-text-2);cursor:pointer}.empty-focus span{font-size:30px;color:var(--scene)}.empty-focus small{font-size:11px;color:var(--c-text-3)}.side-stats{display:grid;gap:12px;align-content:end}.stat-card{border:1px solid var(--c-border-soft);background:var(--c-card);border-radius:16px;padding:20px;text-align:left;color:var(--c-text);cursor:pointer;display:grid;gap:5px}.stat-card:hover{border-color:var(--scene-border-strong)}.stat-card span,.stat-card small{font-size:11px;color:var(--c-text-2)}.stat-card b{font:600 42px/1 var(--font-title);color:var(--scene)}.stat-card.warm b{color:var(--c-warn)}.today{margin-top:42px}.task-panel{padding:4px 18px}.today-task{width:100%;display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;border:0;border-bottom:1px solid var(--c-border-soft);background:transparent;padding:13px 0;color:var(--c-text);text-align:left;cursor:pointer;font-size:13px}.today-task:last-child{border-bottom:0}.check{width:17px;height:17px;border:1.5px solid var(--c-border);border-radius:50%}.today-task small{font-size:10px;color:var(--c-text-3)}.nothing{font-size:12px;color:var(--c-text-3);padding:16px 0;margin:0}@media(max-width:760px){.welcome{margin-top:4px;margin-bottom:24px}.progress{display:none}.capture{display:block;padding:14px}.capture-title{margin-bottom:12px}.capture-actions{margin-top:9px;display:block}.capture-actions>span{display:none}.capture-actions>div{display:flex;gap:6px;justify-content:flex-end}.main-grid{grid-template-columns:1fr}.side-stats{grid-template-columns:1fr 1fr}.stat-card{padding:14px}.stat-card b{font-size:31px}.today{margin-top:30px}}
 </style>

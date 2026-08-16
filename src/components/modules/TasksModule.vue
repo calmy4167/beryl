@@ -45,8 +45,9 @@ const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', 
 </script>
 
 <template>
-  <form class="beryl-card hoverable form" @submit.prevent="add">
-    <el-input v-model="title" placeholder="添加任务…" @keydown.enter.prevent="add" />
+  <form class="beryl-card form" @submit.prevent="add">
+    <div class="form-lead"><span>＋</span><b>添加行动</b></div>
+    <el-input v-model="title" placeholder="下一步最具体的行动是什么？" @keydown.enter.prevent="add" />
     <el-select v-model="priority" style="width: 90px">
       <el-option label="高" value="高" />
       <el-option label="中" value="中" />
@@ -55,8 +56,9 @@ const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', 
     <el-button type="primary" native-type="submit">添加</el-button>
   </form>
   <div class="list">
-    <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
-    <div v-for="(t, i) in items" :key="i" class="beryl-card hoverable item" :class="{ done: t.done }">
+    <div class="list-head"><span>{{ items.filter(x => !x.done).length }} 个待完成</span><span>完成后会自动沉到底部</span></div>
+    <div v-if="!items.length" class="empty">今天没有待办。把一个课题拆成足够小的下一步。</div>
+    <div v-for="(t, i) in items" :key="t.id" class="item" :class="{ done: t.done }">
       <button class="chk" :class="{ on: t.done }" @click="toggle(t.id)">{{ t.done ? '✓' : '' }}</button>
       <p class="t">{{ t.title }}</p>
       <span class="tag" :style="{ color: PRI_COLOR[t.priority], background: (PRI_COLOR[t.priority] || '#888') + '1f' }">{{ t.priority }}</span>
@@ -67,15 +69,10 @@ const PRI_COLOR: Record<string, string> = { '高': '#EF4444', '中': '#F59E0B', 
 </template>
 
 <style scoped>
-.form { display: flex; gap: 8px; padding: 12px; align-items: center; flex-wrap: wrap; }
-.form :deep(.el-input) { flex: 1; min-width: 180px; }
-.list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-.item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.form { display:flex;gap:10px;padding:14px;align-items:center;flex-wrap:wrap; }.form-lead{display:flex;align-items:center;gap:7px;font-size:12px;white-space:nowrap}.form-lead span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--scene-soft);color:var(--scene);font-size:18px}.form :deep(.el-input){flex:1;min-width:180px}.list{margin-top:28px;display:flex;flex-direction:column}.list-head{display:flex;justify-content:space-between;color:var(--c-text-3);font-size:10px;padding:0 4px 9px}.item{display:flex;align-items:center;gap:12px;padding:14px 8px;border-top:1px solid var(--c-border-soft);transition:background .15s}.item:hover{background:var(--c-hover)}
 .done .t { text-decoration: line-through; color: var(--c-text-3); }
-.t { flex: 1; font-size: 14px; word-break: break-all; }
-.tag { font-size: 10px; padding: 2px 8px; border-radius: 999px; }
-.date { font-size: 10px; color: var(--c-text-2); flex-shrink: 0; }
+.t{flex:1;font-size:14px;word-break:break-all;margin:0}.tag{font-size:10px;padding:3px 8px;border-radius:999px}.date{font-size:10px;color:var(--c-text-3);flex-shrink:0}
 .chk { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--c-border); background: transparent; color: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .chk.on { background: var(--c-success); border-color: var(--c-success); }
-.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
+.empty{text-align:center;color:var(--c-text-3);font-size:12px;padding:50px 0;border-top:1px solid var(--c-border-soft)}@media(max-width:600px){.form-lead{width:100%}.date{display:none}.form :deep(.el-input){min-width:0}.tag{margin-left:auto}}
 </style>

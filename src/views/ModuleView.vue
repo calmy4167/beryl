@@ -36,18 +36,13 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', bumpSync))
 <template>
   <div>
     <div class="head fade-enter-active">
-      <el-button circle text @click="router.push('/app/home')" title="返回首页">←</el-button>
-      <span class="mod-icon">{{ mod.icon }}</span>
-      <h2 class="font-title mod-name">{{ mod.name }}</h2>
-      <span v-if="cat" class="cat-badge" :style="{ color: cat.color, background: cat.color + '1a', borderColor: cat.color + '40' }">{{ cat.icon }} {{ cat.name }}</span>
+      <button class="back" @click="router.push('/app/home')" title="返回工作台">←</button>
+      <div class="heading"><p v-if="cat">{{ cat.icon }} {{ cat.name }}</p><h1 class="font-title"><span>{{ mod.icon }}</span>{{ mod.name }}</h1></div>
     </div>
     <component :is="current" :key="syncTick" />
   </div>
 </template>
 
 <style scoped>
-.head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.mod-icon { font-size: 20px; }
-.mod-name { font-size: 1.25rem; font-weight: 700; }
-.cat-badge { margin-left: auto; font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid; }
+.head{display:flex;align-items:center;gap:13px;margin:4px 0 27px}.back{width:32px;height:32px;border:1px solid var(--c-border);border-radius:9px;background:var(--c-card);color:var(--c-text-2);cursor:pointer}.heading p{font-size:10px;letter-spacing:.1em;color:var(--scene);margin:0 0 4px;font-weight:700}.heading h1{font-size:31px;letter-spacing:-.025em;margin:0;line-height:1}.heading h1 span{font-family:inherit;font-size:21px;margin-right:8px}
 </style>

@@ -67,13 +67,14 @@ onMounted(refresh)
 </script>
 
 <template>
-  <form class="beryl-card hoverable form" @submit.prevent="add">
-    <el-input v-model="input" placeholder="记下你的想法，Enter 提交…" @keydown.enter.prevent="add" />
-    <el-button type="primary" native-type="submit">添加</el-button>
+  <div class="intro"><p class="eyebrow">CAPTURE FIRST</p><h3 class="font-title">先收集，不急着判断。</h3><p>之后再把它变成行动，或展开为一个现实课题。</p></div>
+  <form class="beryl-card form" @submit.prevent="add">
+    <el-input v-model="input" placeholder="脑中闪过什么？先放在这里…" @keydown.enter.prevent="add" />
+    <el-button type="primary" native-type="submit">收下</el-button>
   </form>
   <div class="list">
-    <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
-    <div v-for="(it, i) in items" :key="i" class="beryl-card hoverable item">
+    <div v-if="!items.length" class="empty">收集箱已经清空。继续保持，把注意力留给正在做的事。</div>
+    <div v-for="(it, i) in items" :key="it.id" class="item">
       <span class="dot" />
       <p class="text">{{ it.text }}</p>
       <span class="date">{{ it.date }}</span>
@@ -85,12 +86,7 @@ onMounted(refresh)
 </template>
 
 <style scoped>
-.form { display: flex; gap: 8px; padding: 12px; flex-wrap: wrap; }
-.form :deep(.el-input) { flex: 1; min-width: 200px; }
-.list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-.item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.intro{margin:2px 0 22px}.eyebrow{font-size:10px;letter-spacing:.13em;color:var(--scene);font-weight:700;margin:0 0 7px}.intro h3{font-size:27px;margin:0;letter-spacing:-.02em}.intro p:last-child{font-size:12px;color:var(--c-text-2);margin:8px 0 0}.form{display:flex;gap:8px;padding:14px;flex-wrap:wrap}.form :deep(.el-input){flex:1;min-width:200px}.list{margin-top:26px;display:flex;flex-direction:column}.item{display:flex;align-items:center;gap:12px;padding:14px 8px;border-top:1px solid var(--c-border-soft);transition:.15s}.item:hover{background:var(--c-hover)}
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
-.text { flex: 1; font-size: 14px; word-break: break-all; }
-.date { font-size: 10px; color: var(--c-text-2); flex-shrink: 0; }
-.empty { text-align: center; color: var(--c-text-3); font-size: 14px; padding: 40px 0; }
+.text{flex:1;font-size:14px;word-break:break-all;margin:0}.date{font-size:10px;color:var(--c-text-3);flex-shrink:0}.empty{text-align:center;color:var(--c-text-3);font-size:12px;padding:50px 0;border-top:1px solid var(--c-border-soft)}@media(max-width:600px){.date{display:none}.item{gap:7px}.form :deep(.el-input){min-width:0}}
 </style>
