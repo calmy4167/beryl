@@ -47,6 +47,17 @@ export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_financ
 /** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
 export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
 
+/**
+ * 从 Pages 合体模式迁移：旧配置若正好指向当前 Pages 站点，自动改用构建时指定的
+ * 独立 Worker。手动填写的其他地址始终保持不变。
+ */
+export function preferredCloudUrl(savedUrl = ''): string {
+  const saved = savedUrl.trim().replace(/\/+$/, '')
+  if (!DEFAULT_API_BASE_URL || typeof window === 'undefined') return saved || DEFAULT_API_BASE_URL
+  const currentPage = window.location.origin.replace(/\/+$/, '')
+  return saved === currentPage ? DEFAULT_API_BASE_URL : (saved || DEFAULT_API_BASE_URL)
+}
+
 /* 存储挂钩：模块 store.set → fileData + dirty + 防抖写（与 v1 一致） */
 setSyncWriteHook((key, str) => {
   if (!sync.fileData) return
@@ -692,8 +703,10 @@ export function disconnect() {
 export async function restoreSync() {
   const cfg = safeParse<{ url: string; key: string }>(lsGet('b_cloud'))
   if (cfg && typeof cfg.url === 'string' && typeof cfg.key === 'string') {
-    sync.saved.cloud = { url: cfg.url, key: cfg.key }
-    sync.cloud = { url: cfg.url, key: cfg.key, updatedAt: 0 }
+    const apiUrl = preferredCloudUrl(cfg.url)
+    if (apiUrl !== cfg.url) lsSet('b_cloud', JSON.stringify({ ...cfg, url: apiUrl }))
+    sync.saved.cloud = { url: apiUrl, key: cfg.key }
+    sync.cloud = { url: apiUrl, key: cfg.key, updatedAt: 0 }
     try {
       const r = await cloudPull(0)
       if (r !== null) {

@@ -6,7 +6,7 @@ import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
-import { DEFAULT_API_BASE_URL, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
+import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
@@ -112,7 +112,7 @@ const connecting = ref(false)
 /* 打开对话框时回填已保存的配置（不再每次重新填写） */
 function openCloudDlg() {
   if (sync.saved.cloud) {
-    cloudUrl.value = sync.saved.cloud.url
+    cloudUrl.value = preferredCloudUrl(sync.saved.cloud.url)
     cloudKey.value = sync.saved.cloud.key || ''
   } else {
     cloudUrl.value = DEFAULT_API_BASE_URL
