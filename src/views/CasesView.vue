@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { caseRepository } from '@/domain/case/repository'
@@ -7,14 +7,17 @@ import { PHASE_META, STATUS_LABEL, type CaseItem, type CaseStatus } from '@/doma
 const router=useRouter(); const title=ref(''); const query=ref(''); const status=ref<'all'|CaseStatus>('active'); const tick=ref(0)
 const all=computed<CaseItem[]>(()=>{void tick.value;return caseRepository.list().slice().sort((a,b)=>b.updatedAt-a.updatedAt)})
 const items=computed(()=>all.value.filter(x=>(status.value==='all'||x.status===status.value)&&(!query.value||`${x.title}${x.problem}${x.desiredOutcome}`.toLowerCase().includes(query.value.toLowerCase()))))
-const counts=computed(()=>({all:all.value.length,active:all.value.filter(x=>x.status==='active').length,inbox:all.value.filter(x=>x.status==='inbox').length,paused:all.value.filter(x=>x.status==='paused').length,resolved:all.value.filter(x=>x.status==='resolved').length}))
+const counts=computed(()=>({all:all.value.length,active:all.value.filter(x=>x.status==='active').length,inbox:all.value.filter(x=>x.status==='inbox').length,paused:all.value.filter(x=>x.status==='paused').length,resolved:all.value.filter(x=>x.status==='resolved').length,archived:all.value.filter(x=>x.status==='archived').length}))
 function create(){const v=title.value.trim();if(!v){ElMessage.warning('先写下要解决的现实问题');return};const item=caseRepository.create({title:v});title.value='';router.push('/app/cases/'+item.id)}
+function onDataSynced() { tick.value++ }
+onMounted(() => window.addEventListener('beryl-data-synced', onDataSynced))
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 <template>
   <div class="cases-page"><header class="page-head"><div><p class="eyebrow">CASE LIBRARY</p><h1 class="font-title">现实课题</h1><p>每个课题都是一条从问题到行动、判断和复盘的路径。</p></div><div class="head-number"><b>{{ counts.active }}</b><span>正在推进</span></div></header>
   <form class="new-case beryl-card" @submit.prevent="create"><span>◈</span><el-input v-model="title" size="large" placeholder="现在最想解决的一个现实问题是什么？"/><el-button type="primary" native-type="submit">新建课题</el-button></form>
-  <div class="toolbar"><div class="filters"><button v-for="item in ([['active','进行中'],['inbox','待梳理'],['paused','暂停'],['resolved','已解决'],['all','全部']] as const)" :key="item[0]" :class="{on:status===item[0]}" @click="status=item[0]">{{ item[1] }} <small>{{ counts[item[0]] }}</small></button></div><el-input v-model="query" class="search" placeholder="搜索课题" clearable /></div>
-  <div v-if="items.length" class="cards"><button v-for="item in items" :key="item.id" class="case-card beryl-card hoverable" @click="router.push('/app/cases/'+item.id)"><div class="card-top"><span class="phase">{{ PHASE_META[item.currentPhase].icon }} {{ PHASE_META[item.currentPhase].label }}</span><span class="status">{{ STATUS_LABEL[item.status] }}</span></div><h2 class="font-title">{{ item.title }}</h2><p>{{ item.desiredOutcome || item.problem || '还没有定义目标，打开课题从“木”开始。' }}</p><div class="card-bottom"><span>更新于 {{ new Date(item.updatedAt).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'}) }}</span><b>进入 →</b></div></button></div>
+  <div class="toolbar"><div class="filters"><button v-for="item in ([['active','进行中'],['inbox','待梳理'],['paused','暂停'],['resolved','已解决'],['archived','已归档'],['all','全部']] as const)" :key="item[0]" :class="{on:status===item[0]}" @click="status=item[0]">{{ item[1] }} <small>{{ counts[item[0]] }}</small></button></div><el-input v-model="query" class="search" placeholder="搜索课题" clearable /></div>
+  <div v-if="items.length" class="cards"><button v-for="item in items" :key="item.id" class="case-card beryl-card hoverable" @click="router.push('/app/cases/'+item.id)"><div class="card-top"><span class="phase">{{ PHASE_META[item.currentPhase].icon }} {{ PHASE_META[item.currentPhase].label }}</span><span class="status">{{ STATUS_LABEL[item.status] }} · {{ item.priority === 1 ? '高' : item.priority === 3 ? '低' : '中' }}</span></div><h2 class="font-title">{{ item.title }}</h2><p>{{ item.desiredOutcome || item.problem || '还没有定义目标，打开课题从“木”开始。' }}</p><div class="card-bottom"><span>更新于 {{ new Date(item.updatedAt).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'}) }}<em v-if="item.deadline"> · 截止 {{ new Date(item.deadline).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'}) }}</em></span><b>进入 →</b></div></button></div>
   <div v-else class="empty"><span>◈</span><h2 class="font-title">这里暂时没有课题</h2><p>{{ query ? '换个关键词试试。' : '把一个模糊的烦恼或目标新建成课题，开始拆解。' }}</p></div></div>
 </template>
 <style scoped>

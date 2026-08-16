@@ -6,7 +6,7 @@
  * ================================================================ */
 import { DatabaseSync } from 'node:sqlite'
 import { webcrypto } from 'node:crypto'
-import worker from '../_worker.js'
+import worker from '../backend/src/worker.js'
 
 let pass = 0, fail = 0
 function check(name, cond, extra = '') {
@@ -103,8 +103,8 @@ async function clientPush(env, password, changes) {
   const r = await call(env, 'POST', '/api/sync/push', body, password)
   return r
 }
-async function clientPull(env, password, since) {
-  const r = await call(env, 'POST', '/api/sync/pull', { since }, password)
+async function clientPull(env, password, since, sinceDevice = '', sinceKey = '') {
+  const r = await call(env, 'POST', '/api/sync/pull', { since, sinceDevice, sinceKey }, password)
   if (r.status !== 200 || !r.json || !r.json.ok) return r
   const out = {}
   for (const rec of r.json.records) {
@@ -121,7 +121,13 @@ async function clientPull(env, password, since) {
     const plain = await decryptValue(password, payload)
     out[rec.key] = plain ?? (typeof rec.value === 'string' ? rec.value : null)
   }
-  return { status: r.status, data: out, maxTs: r.json.maxTs, raw: r.json }
+  return { status: r.status, data: out, maxTs: r.json.maxTs, nextCursor: r.json.nextCursor, raw: r.json }
+}
+async function entityPush(env, password, changes) {
+  return call(env, 'POST', '/api/entity-sync/push', { changes }, password)
+}
+async function entityPull(env, password, cursor = { since: 0, sinceDevice: '', sinceEntity: '', sinceEntityId: '' }) {
+  return call(env, 'POST', '/api/entity-sync/pull', cursor, password)
 }
 
 /* ================================================================ */
@@ -195,16 +201,49 @@ console.log('场景 4：前端 LWW 合并（刷新不丢本地数据）')
   check('云端 ts<=本地时间线的记录被跳过（本地新数据不丢）', Object.keys(incoming).length === 0)
 }
 
-/* 场景 5：KV 旧数据 + 旧密码自动迁移 */
-console.log('场景 5：旧 KV 数据/密码自动迁移到 D1')
+/* 场景 5：KV 退役后不再作为认证或数据回退 */
+console.log('场景 5：KV 退役后不再作为认证或数据回退')
 {
   const env = makeEnv(makeD1(), true)
   const pull = await clientPull(env, 'kv-password-hash', 0) // KV auth 哈希即密码（简化模拟）
-  check('无 setup 时用 KV 密码可访问（auth 兼容）', pull.status === 200 || pull.status === 401)
-  // 用真实场景：KV auth 存的是 SHA-256(password)，前端密码是原文 → 需要一致
-  // 简化验证：KV 数据已迁移进 records
+  check('KV 密码不再作为认证回退', pull.status === 401)
   const r = await call(env, 'GET', '/api/data')
-  check('KV 数据迁移后 /api/data 可读', r.status === 401 || r.status === 200)
+  check('未配置 D1 认证时旧数据接口拒绝访问', r.status === 401)
+}
+
+/* 场景 6：同毫秒游标按 device/key 继续分页，不跳过同 ts 记录 */
+console.log('场景 6：复合游标（同毫秒记录不丢失）')
+{
+  const env = makeEnv(makeD1())
+  await call(env, 'POST', '/api/setup', { password: 'cursor-pass' })
+  await clientPush(env, 'cursor-pass', [
+    { key: 'b_page_a', ts: 5000, device: 'devA', value: '"a"' },
+    { key: 'b_page_b', ts: 5000, device: 'devB', value: '"b"' },
+    { key: 'b_page_c', ts: 5001, device: 'devA', value: '"c"' }
+  ])
+  const page = await clientPull(env, 'cursor-pass', 5000, 'devA', 'b_page_a')
+  check('同 ts 的后续记录仍可拉取', page.data.b_page_b === '"b"')
+  check('复合游标推进到最后一条', page.nextCursor && page.nextCursor.ts === 5001 && page.nextCursor.key === 'b_page_c')
+}
+
+/* 场景 7：实体级兼容层（不改变默认键级同步） */
+console.log('场景 7：实体级同步兼容层（LWW + tombstone）')
+{
+  const env = makeEnv(makeD1())
+  await call(env, 'POST', '/api/setup', { password: 'entity-pass' })
+  const kvStatus = await call(env, 'GET', '/api/kv-status', undefined, 'entity-pass')
+  check('KV 退役状态可鉴权查询', kvStatus.status === 200 && kvStatus.json.ok === true && kvStatus.json.d1Auth === 1)
+  const pushed = await entityPush(env, 'entity-pass', [
+    { entity: 'tasks', entityId: 'task-1', value: { id: 'task-1', title: '实体任务' }, updatedAt: 7000, device: 'devA' },
+    { entity: 'tasks', entityId: 'task-2', value: { id: 'task-2' }, updatedAt: 7001, device: 'devA', deleted: true }
+  ])
+  check('实体 push 成功', pushed.status === 200 && pushed.json.ok === true)
+  const pulled = await entityPull(env, 'entity-pass')
+  check('实体 pull 返回创建与删除记录', pulled.status === 200 && pulled.json.records.length === 2)
+  check('实体删除以 tombstone 传输', pulled.json.records.find(r => r.entityId === 'task-2')?.deleted === true)
+  const stale = await entityPush(env, 'entity-pass', [{ entity: 'tasks', entityId: 'task-1', value: { id: 'task-1', title: '旧' }, updatedAt: 6999, device: 'devB' }])
+  const after = await entityPull(env, 'entity-pass')
+  check('实体旧版本不覆盖新版本', stale.status === 200 && after.json.records.find(r => r.entityId === 'task-1')?.value?.includes('实体任务'))
 }
 
 console.log(`\n结果：${pass} 通过 / ${fail} 失败`)

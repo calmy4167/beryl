@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent, type Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MODS, MOD_CAT } from '@/core/modules'
 import { CATS } from '@/core/modules'
-import InboxModule from '@/components/modules/InboxModule.vue'
-import TasksModule from '@/components/modules/TasksModule.vue'
-import HabitsModule from '@/components/modules/HabitsModule.vue'
-import DiaryModule from '@/components/modules/DiaryModule.vue'
-import PomoModule from '@/components/modules/PomoModule.vue'
-import FinanceModule from '@/components/modules/FinanceModule.vue'
-import GoalsModule from '@/components/modules/GoalsModule.vue'
-import CharsModule from '@/components/modules/CharsModule.vue'
-import PostsModule from '@/components/modules/PostsModule.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,12 +10,19 @@ const id = computed(() => String(route.params.id || 'inbox'))
 const mod = computed(() => MODS[id.value] || MODS.inbox)
 const cat = computed(() => CATS.find(c => c.id === MOD_CAT[id.value]))
 
-const MODULES: Record<string, unknown> = {
-  inbox: InboxModule, tasks: TasksModule, habits: HabitsModule,
-  diary: DiaryModule, pomo: PomoModule, finance: FinanceModule,
-  goals: GoalsModule, chars: CharsModule, posts: PostsModule
+const lazy = (loader: () => Promise<{ default: Component }>) => defineAsyncComponent(loader)
+const MODULES: Record<string, Component> = {
+  inbox: lazy(() => import('@/components/modules/InboxModule.vue')),
+  tasks: lazy(() => import('@/components/modules/TasksModule.vue')),
+  habits: lazy(() => import('@/components/modules/HabitsModule.vue')),
+  diary: lazy(() => import('@/components/modules/DiaryModule.vue')),
+  pomo: lazy(() => import('@/components/modules/PomoModule.vue')),
+  finance: lazy(() => import('@/components/modules/FinanceModule.vue')),
+  goals: lazy(() => import('@/components/modules/GoalsModule.vue')),
+  chars: lazy(() => import('@/components/modules/CharsModule.vue')),
+  posts: lazy(() => import('@/components/modules/PostsModule.vue'))
 }
-const current = computed(() => MODULES[id.value] || InboxModule)
+const current = computed(() => MODULES[id.value] || MODULES.inbox)
 
 /* 云端同步应用后重建当前模块组件（重新读取存储，让新数据上屏） */
 const syncTick = ref(0)

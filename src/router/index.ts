@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { ensureAuth, readSession } from '@/core/auth'
+import { lsGet } from '@/core/storage'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -21,6 +23,32 @@ const router = createRouter({
       ]
     }
   ]
+})
+
+router.beforeEach(async (to) => {
+  const session = readSession()
+  const isAppRoute = to.path.startsWith('/app') || to.path === '/scene'
+  if (isAppRoute && !session) return { path: '/login', replace: true }
+
+  if (to.path === '/pass') {
+    try {
+      const rec = await ensureAuth()
+      if (to.query.mode === 'first') {
+        if (!rec._d || sessionStorage.getItem('beryl_first_pass') !== '1') return { path: '/login', replace: true }
+      } else if (!session || rec.u !== session.u) {
+        return { path: '/login', replace: true }
+      }
+    } catch { return { path: '/login', replace: true } }
+  }
+
+  if (to.path === '/login' && session) {
+    try {
+      const rec = await ensureAuth()
+      if (rec._d) return { path: '/pass', query: { mode: 'first' }, replace: true }
+      return { path: lsGet('b_scene') != null ? '/app/home' : '/scene', replace: true }
+    } catch { /* allow login */ }
+  }
+  return true
 })
 
 export default router

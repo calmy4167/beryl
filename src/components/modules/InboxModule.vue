@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 import { caseRepository } from '@/domain/case/repository'
+import { registerUndo } from '@/core/undo'
 
-interface InboxItem { id: string; text: string; date: string }
+interface InboxItem { id?: string; text: string; date: string }
+interface InboxViewItem extends InboxItem { sourceIndex: number }
 const input = ref('')
-const items = ref<InboxItem[]>([])
+const items = ref<InboxViewItem[]>([])
 
 function refresh() {
   try {
@@ -14,7 +16,9 @@ function refresh() {
     const list = Array.isArray(raw) ? raw : []
     if (!Array.isArray(raw)) store.set('inbox', list) // 规范化坏值（如 "null"），修复后正常
     // 显示层过滤：空文本（含无 text 字段的历史数据）不显示，但数据本身保留
-    items.value = list.filter((x: any) => x && x.text != null && String(x.text).trim() !== '')
+    items.value = list
+      .map((x: any, sourceIndex: number) => ({ ...x, sourceIndex }))
+      .filter((x: any) => x && x.text != null && String(x.text).trim() !== '')
   } catch {
     items.value = []
   }
@@ -35,30 +39,36 @@ function add() {
     ElMessage.error('添加失败，请重试')
   }
 }
-/* 按索引删除：任何条目（含缺 id 的历史数据）都能删，绝不误删其他条目 */
-function del(index: number) {
+/* 使用源数组索引删除，避免显示层过滤后错位；无 id 历史数据也可安全删除 */
+function removeSourceItem(item: InboxViewItem): boolean {
+  let list: any[] = store.get<any>('inbox', [])
+  if (!Array.isArray(list)) list = []
+  if (item.sourceIndex < 0 || item.sourceIndex >= list.length) return false
+  const [removed] = list.splice(item.sourceIndex, 1)
+  registerUndo('inbox', removed, item.sourceIndex, removed?.id)
+  return store.set('inbox', list)
+}
+function del(item: InboxViewItem) {
   try {
-    let list: any[] = store.get<any>('inbox', [])
-    if (!Array.isArray(list)) list = []
-    if (index >= 0 && index < list.length) {
-      list.splice(index, 1)
-      store.set('inbox', list)
-    }
+    removeSourceItem(item)
     refresh()
   } catch { /* ignore */ }
 }
-function toCase(it: InboxItem) {
+function toCase(it: InboxViewItem) {
   const item = caseRepository.create({ title: it.text, status: 'inbox' })
-  const list = store.get<InboxItem[]>('inbox', []).filter(row => row.id !== it.id)
-  store.set('inbox', list)
+  removeSourceItem(it)
   refresh()
   ElMessage.success(`已转为现实课题「${item.title}」`)
 }
-function toTask(it: InboxItem) {
-  const tasks = store.get<any[]>('tasks', [])
+function toTask(it: InboxViewItem) {
+  const rawTasks = store.get<any>('tasks', [])
+  const tasks = Array.isArray(rawTasks) ? rawTasks : []
   tasks.unshift({ id: nextId(), title: it.text, priority: '中', date: fmtDate(Date.now()), done: false })
-  store.set('tasks', tasks)
-  store.set('inbox', store.get<InboxItem[]>('inbox', []).filter(row => row.id !== it.id))
+  if (!store.set('tasks', tasks)) {
+    ElMessage.error('转换失败：任务未保存')
+    return
+  }
+  removeSourceItem(it)
   refresh()
   ElMessage.success('已转为行动任务')
 }
@@ -74,13 +84,13 @@ onMounted(refresh)
   </form>
   <div class="list">
     <div v-if="!items.length" class="empty">收集箱已经清空。继续保持，把注意力留给正在做的事。</div>
-    <div v-for="(it, i) in items" :key="it.id" class="item">
+    <div v-for="it in items" :key="`${it.id || 'legacy'}-${it.sourceIndex}`" class="item">
       <span class="dot" />
       <p class="text">{{ it.text }}</p>
       <span class="date">{{ it.date }}</span>
       <el-button text size="small" @click="toTask(it)">→ 行动</el-button>
       <el-button text size="small" @click="toCase(it)">→ 课题</el-button>
-      <el-button circle text size="small" @click="del(i)">✕</el-button>
+      <el-button circle text size="small" @click="del(it)">✕</el-button>
     </div>
   </div>
 </template>

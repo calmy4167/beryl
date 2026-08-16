@@ -1,4 +1,4 @@
-import { authorized, sha256 } from './lib/auth.js';
+import { authorized, hashPassword } from './lib/auth.js';
 import { corsHeaders, json } from './lib/http.js';
 
 /**
@@ -15,11 +15,10 @@ import { corsHeaders, json } from './lib/http.js';
  *   3. 部署 Worker → 完成
  *   4. 首次设置同步密码（仅一次）：
  *        Invoke-RestMethod -Method Post -Uri "https://<Worker 地址>/api/setup" -ContentType "application/json" -Body '{"password":"你的同步密码"}'
- *   5. 旧 KV 数据自动迁移：若项目仍绑定 BERYL_KV（beryl-kv），首次请求时自动导入
- *      records 表（含 auth 密码哈希），迁移完成后 KV 绑定可解除。
+ *   5. 当前版本已完成 KV 退役：D1 是唯一云端数据和认证来源。
  *
  * 协议（v2 阶段 3/4）：
- *   POST /api/sync/pull { since }   → { ok, records:[{key,value,ts,device,deleted}], maxTs }
+ *   POST /api/sync/pull { since, sinceDevice, sinceKey } → { ok, records, nextCursor, hasMore, maxTs }
  *   POST /api/sync/push { changes:[{key,ts,device,value}] } → { ok, maxTs }
  *     - 服务端 LWW：仅当新 ts 大于现有记录 ts 时覆盖
  *     - value 为前端 AES-GCM 密文（服务端不感知内容）
@@ -29,9 +28,15 @@ import { corsHeaders, json } from './lib/http.js';
 
 let schemaReady = false;
 let schemaPromise = null;
+let schemaBinding = null;
 
 async function ensureSchema(env) {
-  if (schemaReady) return;
+  if (schemaReady && schemaBinding === env.BERYL_D1) return;
+  if (schemaBinding !== env.BERYL_D1) {
+    schemaReady = false;
+    schemaPromise = null;
+    schemaBinding = env.BERYL_D1;
+  }
   if (!schemaPromise) {
     schemaPromise = (async () => {
       await env.BERYL_D1.prepare(
@@ -42,55 +47,21 @@ async function ensureSchema(env) {
       await env.BERYL_D1.prepare(
         'CREATE TABLE IF NOT EXISTS auth (id INTEGER PRIMARY KEY CHECK (id = 1), hash TEXT NOT NULL)'
       ).run();
-      await migrateFromKv(env);
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS entity_records (' +
+        'entity TEXT NOT NULL, entity_id TEXT NOT NULL, value TEXT, updated_at INTEGER NOT NULL, ' +
+        'device TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (entity, entity_id))'
+      ).run();
       schemaReady = true;
     })();
   }
   await schemaPromise;
 }
 
-/** 旧 KV 数据自动迁移（仅当 D1 records 为空且 KV 绑定存在） */
-async function migrateFromKv(env) {
-  if (!env.BERYL_KV) return;
-  const count = await env.BERYL_D1.prepare('SELECT COUNT(*) AS n FROM records').first();
-  if (count && count.n > 0) return;
-  try {
-    const entry = await env.BERYL_KV.getWithMetadata('data');
-    if (entry && entry.value) {
-      const data = JSON.parse(entry.value);
-      const stmts = [];
-      let ts = Date.now();
-      for (const [k, v] of Object.entries(data)) {
-        if (!k.startsWith('b_')) continue;
-        stmts.push(env.BERYL_D1.prepare(
-          'INSERT OR IGNORE INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, 0)'
-        ).bind(k, typeof v === 'string' ? v : JSON.stringify(v), ts++, 'kv-migrate'));
-      }
-      if (stmts.length) await env.BERYL_D1.batch(stmts);
-    }
-    const auth = await env.BERYL_KV.get('auth');
-    if (auth) {
-      await env.BERYL_D1.prepare('INSERT OR IGNORE INTO auth (id, hash) VALUES (1, ?)').bind(auth).run();
-    }
-  } catch (e) {
-    /* 迁移失败不阻断 API（下次请求重试） */
-  }
-}
-
 async function getAuthHash(env) {
   await ensureSchema(env);
   const row = await env.BERYL_D1.prepare('SELECT hash FROM auth WHERE id = 1').first();
   if (row) return row.hash;
-  // D1 无密码：回退旧 KV 中的密码哈希（并顺手迁移进 D1，兼容升级期）
-  if (env.BERYL_KV) {
-    try {
-      const kvAuth = await env.BERYL_KV.get('auth');
-      if (kvAuth) {
-        await env.BERYL_D1.prepare('INSERT OR IGNORE INTO auth (id, hash) VALUES (1, ?)').bind(kvAuth).run();
-        return kvAuth;
-      }
-    } catch (e) { /* ignore */ }
-  }
   return null;
 }
 
@@ -123,6 +94,16 @@ export default {
       }
     }
 
+    /* KV 退役前检查：只返回元数据，不返回 KV/D1 业务内容。 */
+    if (p === '/api/kv-status' && request.method === 'GET') {
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
+      await ensureSchema(env);
+      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
+      const count = await env.BERYL_D1.prepare('SELECT COUNT(*) AS n FROM records').first();
+      const auth = await env.BERYL_D1.prepare('SELECT COUNT(*) AS n FROM auth').first();
+      return respond({ ok: true, kvCompatEnabled: false, kvBound: false, legacyKvPresent: false, d1Records: Number(count?.n || 0), d1Auth: Number(auth?.n || 0) });
+    }
+
     /* 首次设置同步密码（仅一次） */
     if (p === '/api/setup' && request.method === 'POST') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
@@ -132,7 +113,7 @@ export default {
       try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
       if (!body.password || String(body.password).length < 6) return respond({ error: 'weak-password' }, 400);
       await env.BERYL_D1.prepare('INSERT OR REPLACE INTO auth (id, hash) VALUES (1, ?)')
-        .bind(await sha256(String(body.password))).run();
+         .bind(await hashPassword(String(body.password))).run();
       return respond({ ok: true, message: '同步密码已设置' });
     }
 
@@ -143,13 +124,20 @@ export default {
       if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
       let body;
       try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
-      const since = Number(body && body.since) || 0;
-      const { results } = await env.BERYL_D1.prepare(
-        'SELECT key, value, ts, device, deleted FROM records WHERE ts > ? ORDER BY ts ASC LIMIT 500'
-      ).bind(since).all();
-      return respond({ ok: true, records: results.map(r => ({
-        key: r.key, value: r.value, ts: r.ts, device: r.device, deleted: !!r.deleted
-      })), maxTs: await maxTs(env) });
+       const since = Number(body && body.since) || 0;
+       const sinceDevice = String(body && body.sinceDevice || '');
+       const sinceKey = String(body && body.sinceKey || '');
+       const page = await env.BERYL_D1.prepare(
+         'SELECT key, value, ts, device, deleted FROM records ' +
+         'WHERE ts > ? OR (ts = ? AND (device > ? OR (device = ? AND key > ?))) ' +
+         'ORDER BY ts ASC, device ASC, key ASC LIMIT 501'
+       ).bind(since, since, sinceDevice, sinceDevice, sinceKey).all();
+       const hasMore = page.results.length > 500;
+       const results = page.results.slice(0, 500);
+       const last = results[results.length - 1];
+       return respond({ ok: true, records: results.map(r => ({
+         key: r.key, value: r.value, ts: r.ts, device: r.device, deleted: !!r.deleted
+       })), nextCursor: last ? { ts: Number(last.ts), device: last.device, key: last.key } : { ts: since, device: sinceDevice, key: sinceKey }, hasMore, maxTs: await maxTs(env) });
     }
 
     /* 增量推送（阶段 3/4 协议，服务端 LWW） */
@@ -165,11 +153,52 @@ export default {
         .filter(c => c && typeof c.key === 'string' && c.key.startsWith('b_') && typeof c.ts === 'number')
         .map(c => env.BERYL_D1.prepare(
           'INSERT INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, 0) ' +
-          'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted ' +
-          'WHERE excluded.ts > records.ts'
+           'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted ' +
+           'WHERE excluded.ts > records.ts OR (excluded.ts = records.ts AND excluded.device > records.device)'
         ).bind(c.key, typeof c.value === 'string' ? c.value : JSON.stringify(c.value), c.ts, String(c.device || 'unknown')));
       if (stmts.length) await env.BERYL_D1.batch(stmts);
       return respond({ ok: true, maxTs: await maxTs(env) });
+    }
+
+    /* 实体级同步兼容层：默认前端仍使用上面的键级协议，迁移演练可显式调用。 */
+    if (p === '/api/entity-sync/pull' && request.method === 'POST') {
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
+      await ensureSchema(env);
+      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
+      let body;
+      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
+      const since = Number(body && body.since) || 0;
+      const sinceDevice = String(body && body.sinceDevice || '');
+      const sinceEntity = String(body && body.sinceEntity || '');
+      const sinceEntityId = String(body && body.sinceEntityId || '');
+      const page = await env.BERYL_D1.prepare(
+        'SELECT entity, entity_id, value, updated_at, device, deleted FROM entity_records ' +
+        'WHERE updated_at > ? OR (updated_at = ? AND (device > ? OR (device = ? AND (entity > ? OR (entity = ? AND entity_id > ?))))) ' +
+        'ORDER BY updated_at ASC, device ASC, entity ASC, entity_id ASC LIMIT 501'
+      ).bind(since, since, sinceDevice, sinceDevice, sinceEntity, sinceEntity, sinceEntityId).all();
+      const hasMore = page.results.length > 500;
+      const results = page.results.slice(0, 500);
+      const last = results[results.length - 1];
+      return respond({ ok: true, records: results.map(r => ({
+        entity: r.entity, entityId: r.entity_id, value: r.value, updatedAt: Number(r.updated_at), device: r.device, deleted: !!r.deleted
+      })), nextCursor: last ? { ts: Number(last.updated_at), device: last.device, entity: last.entity, entityId: last.entity_id } : { ts: since, device: sinceDevice, entity: sinceEntity, entityId: sinceEntityId }, hasMore });
+    }
+
+    if (p === '/api/entity-sync/push' && request.method === 'POST') {
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
+      await ensureSchema(env);
+      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
+      let body;
+      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
+      const changes = Array.isArray(body && body.changes) ? body.changes : [];
+      const stmts = changes.filter(c => c && typeof c.entity === 'string' && typeof c.entityId === 'string' && typeof c.updatedAt === 'number')
+        .map(c => env.BERYL_D1.prepare(
+          'INSERT INTO entity_records (entity, entity_id, value, updated_at, device, deleted) VALUES (?, ?, ?, ?, ?, ?) ' +
+          'ON CONFLICT(entity, entity_id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at, device = excluded.device, deleted = excluded.deleted ' +
+          'WHERE excluded.updated_at > entity_records.updated_at OR (excluded.updated_at = entity_records.updated_at AND excluded.device > entity_records.device)'
+        ).bind(c.entity, c.entityId, c.value == null ? null : (typeof c.value === 'string' ? c.value : JSON.stringify(c.value)), c.updatedAt, String(c.device || 'unknown'), c.deleted ? 1 : 0));
+      if (stmts.length) await env.BERYL_D1.batch(stmts);
+      return respond({ ok: true, accepted: stmts.length });
     }
 
     /* 旧协议兼容：全量快照读写（旧前端/工具仍可用） */
@@ -201,7 +230,8 @@ export default {
           if (!k.startsWith('b_')) continue;
           stmts.push(env.BERYL_D1.prepare(
             'INSERT INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, 0) ' +
-            'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted'
+            'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted ' +
+            'WHERE excluded.ts > records.ts OR (excluded.ts = records.ts AND excluded.device > records.device)'
           ).bind(k, typeof v === 'string' ? v : JSON.stringify(v), ts++, 'legacy-put'));
         }
         if (stmts.length) await env.BERYL_D1.batch(stmts);

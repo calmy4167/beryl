@@ -6,8 +6,6 @@
  * UI 层仍走 localStorage 同步层（快照缓存），IndexedDB 为异步持久层，
  * 启动时全量迁移，运行期 0.8s 防抖增量镜像。IndexedDB 不可用时静默降级。
  */
-import { lsGet } from './storage.ts'
-
 const DB_NAME = 'beryl-db'
 const DB_VERSION = 2
 const KV = 'kv'
@@ -15,7 +13,21 @@ const CHANGES = 'changes'
 const META = 'meta'
 const ENTITY_CHANGES = 'entity_changes'
 
-export const DEVICE_ID = 'dev-' + Math.random().toString(36).slice(2, 10)
+const DEVICE_STORAGE_KEY = 'beryl_device_id'
+
+function getDeviceId(): string {
+  try {
+    const existing = localStorage.getItem(DEVICE_STORAGE_KEY)
+    if (existing) return existing
+    const id = 'dev-' + crypto.randomUUID()
+    localStorage.setItem(DEVICE_STORAGE_KEY, id)
+    return id
+  } catch {
+    return 'dev-' + Math.random().toString(36).slice(2, 10)
+  }
+}
+
+export const DEVICE_ID = getDeviceId()
 
 let dbPromise: Promise<IDBDatabase> | null = null
 
@@ -62,13 +74,20 @@ export async function fullMirror(): Promise<void> {
       const k = localStorage.key(i)
       if (k && k.startsWith('b_')) keys.push(k)
     }
+    const existing = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const req = db.transaction(KV, 'readonly').objectStore(KV).getAllKeys()
+      req.onsuccess = () => resolve(req.result)
+      req.onerror = () => reject(req.error)
+    })
+    const current = new Set(keys)
     const tx = db.transaction([KV, CHANGES, META], 'readwrite')
     const kv = tx.objectStore(KV)
     const changes = tx.objectStore(CHANGES)
     keys.forEach(k => {
-      const v = lsGet(k)
+      const v = localStorage.getItem(k)
       if (v != null) kv.put(v, k)
     })
+    existing.forEach(k => { if (!current.has(String(k))) kv.delete(k) })
     const now = Date.now()
     changes.add({ ts: now, key: '*', value: keys.length, device: DEVICE_ID })
     tx.objectStore(META).put(now, 'lastMirrorAt')
@@ -102,6 +121,19 @@ export async function dbPut(key: string, value: string): Promise<void> {
   } catch {
     /* ignore */
   }
+}
+
+/** 远端应用专用：只更新持久镜像，不追加本地变更日志，避免把云端数据再次当成本地写入推回。 */
+export async function dbMirrorPut(key: string, value: string): Promise<void> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction(KV, 'readwrite')
+    tx.objectStore(KV).put(value, key)
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+  } catch { /* ignore */ }
 }
 
 /** 变更日志只保留最近 1000 条（append-only，但修剪防无限增长） */
@@ -140,8 +172,10 @@ export function scheduleMirror(): void {
 }
 
 /** 启动迁移：localStorage → IndexedDB 全量镜像；localStorage 为空而镜像有数据时恢复 */
-export function initDb(): void {
-  void fullMirror().then(() => { void restoreFromDb() })
+export async function initDb(): Promise<void> {
+  // 必须先恢复再镜像，否则 localStorage 被清空时会把空快照写回 IDB。
+  await restoreFromDb()
+  await fullMirror()
 }
 
 /** 从 IndexedDB 恢复：localStorage 缺失的 b_* 键写回（防 localStorage 被清理） */
@@ -156,8 +190,14 @@ export async function restoreFromDb(): Promise<void> {
     const tx = db.transaction(KV, 'readonly')
     const store = tx.objectStore(KV)
     const all = await new Promise<{ key: string; value: string }[]>((resolve, reject) => {
-      const req = store.getAll()
-      req.onsuccess = () => resolve(req.result as { key: string; value: string }[])
+      const req = store.openCursor()
+      const result: { key: string; value: string }[] = []
+      req.onsuccess = () => {
+        const cursor = req.result
+        if (!cursor) { resolve(result); return }
+        result.push({ key: String(cursor.key), value: String(cursor.value) })
+        cursor.continue()
+      }
       req.onerror = () => reject(req.error)
     })
     let restored = 0
@@ -174,6 +214,19 @@ export async function restoreFromDb(): Promise<void> {
   } catch {
     /* ignore */
   }
+}
+
+/** 清理本地镜像与变更日志（管理页重置使用，不影响 IndexedDB 不可用的降级路径）。 */
+export async function clearDb(): Promise<void> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction([KV, CHANGES, META, ENTITY_CHANGES], 'readwrite')
+    ;[KV, CHANGES, META, ENTITY_CHANGES].forEach(name => tx.objectStore(name).clear())
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+  } catch { /* ignore */ }
 }
 
 /* ---------- 变更日志读取（阶段 3 增量同步使用） ---------- */
@@ -214,7 +267,31 @@ export async function recordEntityChanges(key: string, before: unknown, after: u
     const tx = db.transaction(ENTITY_CHANGES, 'readwrite')
     const store = tx.objectStore(ENTITY_CHANGES)
     changes.forEach((change, i) => store.put({ ...change, id: `${change.id}:${i}` }))
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+    await pruneEntityChanges()
   } catch { /* 不阻断旧存储与同步流程 */ }
+}
+
+async function pruneEntityChanges(): Promise<void> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction(ENTITY_CHANGES, 'readwrite')
+    const store = tx.objectStore(ENTITY_CHANGES)
+    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const req = store.getAllKeys()
+      req.onsuccess = () => resolve(req.result)
+      req.onerror = () => reject(req.error)
+    })
+    const ordered = keys.map(String).sort()
+    ordered.slice(0, Math.max(0, ordered.length - 5000)).forEach(key => store.delete(key))
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+  } catch { /* ignore */ }
 }
 
 export async function readEntityChanges(limit = 500): Promise<EntityChange[]> {
@@ -246,7 +323,7 @@ export async function readChanges(after: number, limit = 500): Promise<DbChange[
       req.onsuccess = () => resolve(req.result as DbChange[])
       req.onerror = () => reject(req.error)
     })
-    return all.filter(c => c.seq > after).sort((a, b) => a.seq - b.seq).slice(-limit)
+    return all.filter(c => c.seq > after).sort((a, b) => a.seq - b.seq).slice(0, limit)
   } catch {
     return []
   }
@@ -254,8 +331,16 @@ export async function readChanges(after: number, limit = 500): Promise<DbChange[
 
 /** 变更日志的最大 seq（增量游标） */
 export async function maxChangeSeq(): Promise<number> {
-  const all = await readChanges(0, 1)
-  return all.length ? all[all.length - 1].seq : 0
+  try {
+    const db = await openDb()
+    const tx = db.transaction(CHANGES, 'readonly')
+    const keys = await new Promise<number[]>((resolve, reject) => {
+      const req = tx.objectStore(CHANGES).getAllKeys()
+      req.onsuccess = () => resolve(req.result as number[])
+      req.onerror = () => reject(req.error)
+    })
+    return Math.max(0, ...keys)
+  } catch { return 0 }
 }
 
 /**
@@ -265,7 +350,7 @@ export async function maxChangeSeq(): Promise<number> {
  */
 export async function recoverIfCleared(key: string): Promise<boolean> {
   try {
-    const cur = lsGet(key)
+    const cur = localStorage.getItem(key)
     if (cur !== '[]') return false // 当前不是空数组，无需恢复
     const changes = await readChanges(0, 2000)
     const hits = changes.filter(c => c.key === key)

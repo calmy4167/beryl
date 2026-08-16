@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
+import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
+import { registerUndo } from '@/core/undo'
 
 interface CharItem { id: string; name: string; title: string; date: string }
 const name = ref('')
@@ -26,7 +28,9 @@ function add() {
   ElMessage.success('人物已添加 👥')
 }
 function del(id: string) {
-  store.set('chars', store.get<CharItem[]>('chars', []).filter(x => x.id !== id))
+  const list = store.get<CharItem[]>('chars', [])
+  const index = list.findIndex(x => x.id === id)
+  if (index >= 0) { const [removed] = list.splice(index, 1); registerUndo('chars', removed, index, id); store.set('chars', list) }
   refresh()
 }
 </script>
@@ -45,6 +49,7 @@ function del(id: string) {
       <p class="name">{{ c.name }}</p>
       <p class="title">{{ c.title }}</p>
       <p class="date">{{ c.date }}</p>
+      <CaseLinkSelect target-type="person" :target-id="c.id" compact />
     </div>
   </div>
 </template>

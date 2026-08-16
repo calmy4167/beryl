@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
+import { clearDb } from '@/core/db'
+import { BACKUP_SENSITIVE_KEYS, createBackup, parseBackup } from '@/core/backup'
+import { createEntityMigrationPlan, migrationBackupExists, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
+import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
+import { apiFetch } from '@/core/api/client'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
+const countsVersion = ref(0)
 
 const counts = computed(() => ({
+  // 让同步事件和本地操作可显式触发重新读取，而不是依赖非响应式 localStorage。
+  _version: countsVersion.value,
   tasks: store.get<any[]>('tasks', []).length,
   finance: store.get<any[]>('finance', []).length,
   habits: store.get<any[]>('habits', []).length,
   posts: store.get<any[]>('posts', []).length
 }))
-function refreshCounts() { void counts.value }
+function refreshCounts() { countsVersion.value++ }
 
 function switchScene(id: string) {
   scene.value = id
@@ -28,11 +36,7 @@ function switchScene(id: string) {
 }
 
 function exportData() {
-  const out: Record<string, string> = {}
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i)
-    if (k && k.startsWith('b_')) out[k] = localStorage.getItem(k) || ''
-  }
+  const out = createBackup()
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -46,15 +50,27 @@ function importData(file: File) {
   const reader = new FileReader()
   reader.onload = () => {
     try {
-      const data = JSON.parse(String(reader.result))
-      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('bad')
-      const ok = Object.keys(data).every(k => k.startsWith('b_') && typeof data[k] === 'string')
-      if (!ok) throw new Error('bad')
-      Object.entries(data as Record<string, string>).forEach(([k, v]) => lsSet(k, v))
+      const incoming = parseBackup(JSON.parse(String(reader.result)))
+      const previous: Record<string, string | null> = {}
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i)
+        if (k && k.startsWith('b_') && !BACKUP_SENSITIVE_KEYS.has(k)) previous[k] = localStorage.getItem(k)
+      }
+      try {
+        Object.keys(previous).filter(k => !(k in incoming)).forEach(k => localStorage.removeItem(k))
+        for (const [k, v] of Object.entries(incoming)) if (!lsSet(k, v)) throw new Error('write')
+      } catch (error) {
+        Object.keys(previous).forEach(k => {
+          const value = previous[k]
+          if (value == null) localStorage.removeItem(k)
+          else localStorage.setItem(k, value)
+        })
+        throw error
+      }
       ElMessage.success('导入成功，正在刷新…')
       setTimeout(() => location.reload(), 600)
     } catch {
-      ElMessage.error('导入失败：文件格式错误')
+      ElMessage.error('导入失败：文件格式错误或写入失败')
     }
   }
   reader.readAsText(file)
@@ -75,8 +91,11 @@ function resetData() {
     const k = localStorage.key(i)
     if (k && k.startsWith('b_')) keys.push(k)
   }
-  keys.forEach(k => localStorage.removeItem(k))
-  location.reload()
+  void (async () => {
+    keys.forEach(k => localStorage.removeItem(k))
+    await clearDb()
+    location.reload()
+  })()
 }
 
 function logout() {
@@ -169,15 +188,72 @@ function doDisconnect() { disconnect(); ElMessage.success('已断开同步（数
 /* 同步诊断 */
 const diag = ref<SyncDiag | null>(null)
 const diagLoading = ref(false)
+const migrationPlan = ref<EntityMigrationPlan | null>(null)
+const migrationBusy = ref(false)
+const migrationReport = ref('')
+const kvStatus = ref<{ kvCompatEnabled: boolean; kvBound: boolean; legacyKvPresent: boolean; d1Records: number; d1Auth: number } | null>(null)
 async function runDiag() {
   diagLoading.value = true
   try { diag.value = await diagSync() }
   catch { diag.value = null }
   diagLoading.value = false
 }
+function prepareEntityMigration() {
+  migrationPlan.value = createEntityMigrationPlan()
+  migrationReport.value = `可迁移 ${migrationPlan.value.records.length} 个实体${migrationPlan.value.skipped.length ? `，跳过 ${migrationPlan.value.skipped.length} 项异常数据` : ''}`
+}
+async function scanEntityConflicts() {
+  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
+  migrationBusy.value = true
+  try {
+    const plan = migrationPlan.value || createEntityMigrationPlan()
+    const remote = []
+    let cursor = { ts: 0, device: '', entity: '', entityId: '' }
+    do {
+      const page = await pullEntityChanges(sync.cloud.url, sync.cloud.key, cursor)
+      remote.push(...page.records); cursor = page.cursor
+      if (!page.hasMore) break
+    } while (true)
+    const result = summarizeEntityConflicts(plan.records, remote)
+    migrationReport.value = `远端 ${remote.length} 个实体，冲突 ${result.conflicts} 个（远端较新 ${result.newerRemote}，本地较新 ${result.newerLocal}）`
+  } catch (error) { migrationReport.value = `冲突扫描失败：${error instanceof Error ? error.message : '请求失败'}` }
+  finally { migrationBusy.value = false }
+}
+async function pushEntityMigration() {
+  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
+  const plan = migrationPlan.value || createEntityMigrationPlan()
+  if (!saveMigrationBackup(plan)) { ElMessage.error('迁移前备份写入失败，已取消'); return }
+  migrationBusy.value = true
+  try {
+    const ok = await pushEntityChanges(sync.cloud.url, sync.cloud.key, plan.records.map(record => ({ id: `${record.device}:${record.updatedAt}:${record.entityId}`, entity: record.entity, entityId: record.entityId, operation: 'create', updatedAt: record.updatedAt, device: record.device, value: record.value })))
+    migrationReport.value = ok ? `已加密推送 ${plan.records.length} 个实体；键级同步仍保持不变` : '实体迁移推送失败'
+  } catch (error) { migrationReport.value = `实体迁移失败：${error instanceof Error ? error.message : '请求失败'}` }
+  finally { migrationBusy.value = false }
+}
+function rollbackEntityMigration() {
+  if (!migrationBackupExists()) { ElMessage.warning('没有可用的迁移前备份'); return }
+  if (rollbackMigration()) { migrationReport.value = '已恢复迁移前本地快照；云端实体记录未删除，默认键级同步未切换'; ElMessage.success('本地迁移已回滚') }
+  else ElMessage.error('回滚失败，本地快照未能完整恢复')
+}
+async function runKvStatus() {
+  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
+  migrationBusy.value = true
+  try {
+    const response = await apiFetch(sync.cloud.url, '/api/kv-status', { headers: { Authorization: 'Bearer ' + sync.cloud.key } })
+    if (!response.ok) throw new Error(`kv-status:${response.status}`)
+    kvStatus.value = await response.json()
+    migrationReport.value = kvStatus.value?.legacyKvPresent ? 'KV 仍有遗留数据，暂不能解绑' : 'KV 未发现遗留数据，可进入解绑评估'
+  } catch (error) { migrationReport.value = `KV 状态检查失败：${error instanceof Error ? error.message : '请求失败'}` }
+  finally { migrationBusy.value = false }
+}
 
 const now = new Date()
-onMounted(() => applySceneTheme(scene.value))
+function onDataSynced() { refreshCounts() }
+onMounted(() => {
+  applySceneTheme(scene.value)
+  window.addEventListener('beryl-data-synced', onDataSynced)
+})
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 
 <template>
@@ -261,6 +337,22 @@ onMounted(() => applySceneTheme(scene.value))
         <p class="diag-line">上次推送：{{ diag.lastSync }}</p>
         <p class="diag-line diag-raw">本地 b_inbox 值：{{ diag.localInboxSample }}</p>
       </div>
+    </div>
+
+    <!-- 实体同步迁移：默认键级同步不变，必须显式预览/备份后执行 -->
+    <div class="beryl-card hoverable block">
+      <h3 class="font-title sec">🧬 实体同步迁移（P0）</h3>
+      <p class="info">先生成迁移计划和本地回滚快照，再扫描冲突；确认后才会加密推送实体记录。</p>
+      <div class="btns">
+        <el-button @click="prepareEntityMigration">生成计划</el-button>
+        <el-button :loading="migrationBusy" @click="scanEntityConflicts">扫描冲突</el-button>
+        <el-button type="primary" :loading="migrationBusy" @click="pushEntityMigration">加密推送</el-button>
+        <el-button type="warning" plain @click="rollbackEntityMigration">回滚本地快照</el-button>
+        <el-button :loading="migrationBusy" @click="runKvStatus">检查 KV 退役条件</el-button>
+      </div>
+      <p v-if="migrationPlan" class="mods-line">计划：{{ migrationPlan.records.length }} 个实体 · 创建于 {{ new Date(migrationPlan.createdAt).toLocaleString() }} · 备份{{ migrationBackupExists() ? '已存在' : '未生成' }}</p>
+      <p v-if="migrationReport" class="info diag-raw">{{ migrationReport }}</p>
+      <p v-if="kvStatus" class="mods-line">D1 records={{ kvStatus.d1Records }} · D1 auth={{ kvStatus.d1Auth }} · KV bound={{ kvStatus.kvBound }} · KV legacy={{ kvStatus.legacyKvPresent }}</p>
     </div>
 
     <!-- Cloudflare 连接对话框 -->

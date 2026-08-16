@@ -57,10 +57,11 @@ describe('增量合并 LWW（阶段 3 规则）', async () => {
   })
 
   it('同毫秒按 device 字典序决胜（服务端 ts 相等时不覆盖）', () => {
-    // 服务端 SQL：WHERE excluded.ts > records.ts → 相等时保留旧值
-    const serverKeepOld = (newTs: number, oldTs: number) => newTs > oldTs
-    expect(serverKeepOld(100, 100)).toBe(false)
-    expect(serverKeepOld(101, 100)).toBe(true)
+    // 服务端 SQL：ts 相等时按 device 决胜，避免同毫秒写入不稳定。
+    const newer = (next: { ts: number; device: string }, old: { ts: number; device: string }) =>
+      next.ts > old.ts || (next.ts === old.ts && next.device > old.device)
+    expect(newer({ ts: 100, device: 'devB' }, { ts: 100, device: 'devA' })).toBe(true)
+    expect(newer({ ts: 100, device: 'devA' }, { ts: 100, device: 'devB' })).toBe(false)
   })
 })
 
@@ -118,6 +119,24 @@ describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新
       { key: 'b_inbox', value: asString, ts: 300 }
     ], 'pw1234', 0)
     expect(out['b_inbox']).toBe('["hello"]')
+  })
+
+  it('v2 密文解密失败时不把密文当作业务明文', async () => {
+    const { encryptValue } = await import('@/core/crypto')
+    const enc = await encryptValue('right-pass', '["secret"]')
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: JSON.stringify(enc), ts: 300 }
+    ], 'wrong-pass', 0)
+    expect(out['b_inbox']).toBeUndefined()
+  })
+
+  it('按 key 使用本地时间线，其他 key 的新写入不被全局时间线误跳过', async () => {
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: '["new-inbox"]', ts: 150 },
+      { key: 'b_tasks', value: '["new-task"]', ts: 300 }
+    ], 'p', { b_inbox: 100, b_tasks: 300 })
+    expect(out['b_inbox']).toBe('["new-inbox"]')
+    expect(out['b_tasks']).toBeUndefined()
   })
 
   it('普通明文字符串/明文 JSON 不被误判为密文', async () => {

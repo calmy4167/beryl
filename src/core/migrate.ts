@@ -34,10 +34,16 @@ export function migrateData(): void {
     for (let v = start; v < DATA_VERSION; v++) {
       const m = MIGRATIONS[v]
       if (m) {
-        try { m.run() } catch { /* 单步失败不阻断后续 */ }
+        try { m.run() }
+        catch {
+          console.error(`[beryl] migration ${v} failed; version was not advanced`)
+          return
+        }
       }
     }
-    lsSet('b_version', String(DATA_VERSION))
+    if (!lsSet('b_version', String(DATA_VERSION))) {
+      console.error('[beryl] failed to persist data version')
+    }
   } catch {
     /* 存储不可用时静默 */
   }

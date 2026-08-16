@@ -2,19 +2,24 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { store, nextId, fmtDate } from '@/core/storage'
+import { nextId, fmtDate } from '@/core/storage'
+import { createCollectionRepository } from '@/core/repository'
 import { caseRepository } from '@/domain/case/repository'
 import { PHASE_META, STATUS_LABEL, type CaseItem } from '@/domain/case/model'
 
 const router = useRouter(); const tick = ref(0); const capture = ref('')
+interface HomeTask { id: string; title: string; priority: string; date: string; done: boolean }
+interface HomeInbox { id: string; text: string; date: string }
+const taskRepository = createCollectionRepository<HomeTask>('tasks')
+const inboxRepository = createCollectionRepository<HomeInbox>('inbox')
 const greeting = computed(() => { const h = new Date().getHours(); return h < 11 ? '早上好' : h < 18 ? '下午好' : '晚上好' })
 const cases = computed<CaseItem[]>(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'active').sort((a,b) => b.updatedAt-a.updatedAt).slice(0,3) })
-const tasks = computed(() => { void tick.value; return store.get<any[]>('tasks', []).filter(x => !x.done).slice(0,5) })
-const inbox = computed(() => { void tick.value; return store.get<any[]>('inbox', []).filter(x => x?.text?.trim()).length })
+const tasks = computed(() => { void tick.value; return taskRepository.list().filter(x => !x.done).slice(0,5) })
+const inbox = computed(() => { void tick.value; return inboxRepository.list().filter(x => x?.text?.trim()).length })
 const resolved = computed(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'resolved').length })
 function refresh() { tick.value++ }
-function add(kind: 'inbox' | 'task' | 'case') { const text = capture.value.trim(); if (!text) { ElMessage.warning('先写下一件事'); return }; const now = Date.now(); if (kind === 'case') { const item = caseRepository.create({ title:text }); capture.value=''; router.push('/app/cases/'+item.id); return }; if (kind === 'task') { const data = store.get<any[]>('tasks', []); data.unshift({ id:nextId(), title:text, priority:'中', date:fmtDate(now), done:false }); store.set('tasks',data); ElMessage.success('已加入今日行动') } else { const data = store.get<any[]>('inbox', []); data.unshift({id:nextId(),text,date:fmtDate(now)}); store.set('inbox',data); ElMessage.success('已收入收集箱') }; capture.value=''; refresh() }
-function toggleTask(task: any) { const all = store.get<any[]>('tasks', []); const target = all.find(x => x.id === task.id); if (target) { target.done = !target.done; store.set('tasks', all); refresh() } }
+function add(kind: 'inbox' | 'task' | 'case') { const text = capture.value.trim(); if (!text) { ElMessage.warning('先写下一件事'); return }; const now = Date.now(); if (kind === 'case') { const item = caseRepository.create({ title:text }); capture.value=''; router.push('/app/cases/'+item.id); return }; if (kind === 'task') { taskRepository.create({ id:nextId(), title:text, priority:'中', date:fmtDate(now), done:false }); ElMessage.success('已加入今日行动') } else { inboxRepository.create({id:nextId(),text,date:fmtDate(now)}); ElMessage.success('已收入收集箱') }; capture.value=''; refresh() }
+function toggleTask(task: HomeTask) { taskRepository.update(task.id, current => ({ ...current, done: !current.done })); refresh() }
 onMounted(() => window.addEventListener('beryl-data-synced',refresh)); onUnmounted(() => window.removeEventListener('beryl-data-synced',refresh))
 </script>
 

@@ -5,6 +5,8 @@ import { fmtDate } from '@/core/storage'
 import { createCollectionRepository, createEntityId } from '@/core/repository'
 import ContentEditor from '@/components/content/ContentEditor.vue'
 import ContentRenderer from '@/components/content/ContentRenderer.vue'
+import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
+import { registerUndo } from '@/core/undo'
 
 interface Post { id: string; title: string; content: string; date: string }
 const postRepository = createCollectionRepository<Post>('posts')
@@ -24,7 +26,8 @@ function add() {
   ElMessage.success('文章已发布 ✍️')
 }
 function del(id: string) {
-  postRepository.remove(id)
+  const list = postRepository.list(); const index = list.findIndex(item => item.id === id); const removed = list[index]
+  if (index >= 0) { registerUndo('posts', removed, index, id); postRepository.remove(id) }
   refresh()
 }
 </script>
@@ -46,6 +49,7 @@ function del(id: string) {
       </div>
       <p class="summary">{{ p.content.replace(/\n/g, ' ').slice(0, 80) }}</p>
       <p class="read-hint">点击阅读全文 →</p>
+      <CaseLinkSelect target-type="post" :target-id="p.id" compact @click.stop />
     </div>
   </div>
 

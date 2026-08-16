@@ -2,10 +2,14 @@
  * 策略：network-first + 运行时缓存 + index.html 兜底。
  * 离线时页面可打开（内容来自缓存），数据仍在本地（localStorage/IndexedDB）。
  */
-const CACHE = 'beryl-cache-v1'
+const CACHE = 'beryl-cache-v2'
+const PRECACHE_URLS = ['./', './index.html', './manifest.webmanifest', './icon.svg']
 
 self.addEventListener('install', (e) => {
-  self.skipWaiting()
+  e.waitUntil(
+    caches.open(CACHE).then(cache => Promise.all(PRECACHE_URLS.map(url => cache.add(url).catch(() => undefined))))
+      .then(() => self.skipWaiting())
+  )
 })
 
 self.addEventListener('activate', (e) => {

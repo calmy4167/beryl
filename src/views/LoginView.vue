@@ -41,7 +41,10 @@ async function submit() {
     if (ok) {
       resetFails()
       writeSession(u)
-      if (rec._d) router.replace({ path: '/pass', query: { mode: 'first', u } })
+      if (rec._d) {
+        sessionStorage.setItem('beryl_first_pass', '1')
+        router.replace({ path: '/pass', query: { mode: 'first' } })
+      }
       else router.replace('/scene')
     } else {
       if (registerFail()) { startLockTick(); ElMessage.warning('登录失败 5 次，锁定 30 秒'); }

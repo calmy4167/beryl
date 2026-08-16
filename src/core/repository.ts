@@ -33,7 +33,7 @@ export function createCollectionRepository<T>(
     list,
     replace,
     create(item: T): T {
-      replace([item, ...list()])
+      if (!replace([item, ...list()])) throw new Error(`storage-write-failed:${key}`)
       return item
     },
     update(id: EntityId, updater: (item: T) => T): boolean {

@@ -2,8 +2,10 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
+import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
+import { registerUndo } from '@/core/undo'
 
-interface FinItem { id: string; type: string; amount: number; category: string; note: string; date: string }
+interface FinItem { id: string; type: string; amount?: number; amountCents?: number; category: string; note: string; date: string }
 const type = ref('expense')
 const cat = ref('')
 const amount = ref<number | null>(null)
@@ -13,22 +15,28 @@ const CATS = ['餐饮', '交通', '购物', '娱乐', '住房', '工资', '理�
 
 const stats = computed(() => {
   let inc = 0, exp = 0
-  items.value.forEach(r => { if (r.type === 'income') inc += r.amount; else exp += r.amount })
-  return { inc: inc.toFixed(2), exp: exp.toFixed(2), bal: (inc - exp).toFixed(2) }
+  items.value.forEach(r => { const cents = amountCents(r); if (r.type === 'income') inc += cents; else exp += cents })
+  return { inc: (inc / 100).toFixed(2), exp: (exp / 100).toFixed(2), bal: ((inc - exp) / 100).toFixed(2) }
 })
+function amountCents(item: FinItem): number {
+  return Number.isInteger(item.amountCents) ? item.amountCents! : Math.round(Number(item.amount || 0) * 100)
+}
 function refresh() { items.value = store.get<FinItem[]>('finance', []) }
 function add() {
   const a = Number(amount.value)
   if (!(a > 0)) { ElMessage.warning('请输入有效金额'); return }
   const list = store.get<FinItem[]>('finance', [])
-  list.unshift({ id: nextId(), type: type.value, amount: a, category: cat.value.trim() || '其他', note: note.value.trim(), date: fmtDate(Date.now()) })
+  const cents = Math.round(a * 100)
+  list.unshift({ id: nextId(), type: type.value, amount: cents / 100, amountCents: cents, category: cat.value.trim() || '其他', note: note.value.trim(), date: fmtDate(Date.now()) })
   store.set('finance', list)
   amount.value = null; note.value = ''
   refresh()
   ElMessage.success(type.value === 'income' ? '已记录收入' : '已记录支出')
 }
 function del(id: string) {
-  store.set('finance', store.get<FinItem[]>('finance', []).filter(x => x.id !== id))
+  const list = store.get<FinItem[]>('finance', [])
+  const index = list.findIndex(x => x.id === id)
+  if (index >= 0) { const [removed] = list.splice(index, 1); registerUndo('finance', removed, index, id); store.set('finance', list) }
   refresh()
 }
 </script>
@@ -63,7 +71,8 @@ function del(id: string) {
       <span class="date">{{ r.date }}</span>
       <span class="tag">{{ r.category }}</span>
       <p class="note">{{ r.note }}</p>
-      <span class="amt" :class="r.type === 'income' ? 'inc' : 'exp'">{{ r.type === 'income' ? '+' : '-' }}{{ Number(r.amount).toFixed(2) }}</span>
+      <span class="amt" :class="r.type === 'income' ? 'inc' : 'exp'">{{ r.type === 'income' ? '+' : '-' }}{{ (amountCents(r) / 100).toFixed(2) }}</span>
+      <CaseLinkSelect target-type="transaction" :target-id="r.id" compact />
       <el-button circle text size="small" @click="del(r.id)">✕</el-button>
     </div>
   </div>

@@ -1,5 +1,5 @@
 /* ---------- 存储层（平移 v1：localStorage 统一容错封装；阶段 2 迁 IndexedDB） ---------- */
-import { dbPut, recordEntityChanges } from './db.ts'
+import { dbPut, recordEntityChanges, DEVICE_ID } from './db.ts'
 
 export function lsGet(key: string): string | null {
   try { return localStorage.getItem(key); } catch { return null; }
@@ -30,17 +30,19 @@ export const store = {
     const previous = safeParse<unknown>(lsGet(fullKey))
     const str = JSON.stringify(v);
     const ok = lsSet(fullKey, str);
-    syncWriteHook?.(fullKey, str);
-    // 阶段 2：单键镜像进 IndexedDB + 追加变更日志（失败静默，不阻断主流程）
-    void dbPut(fullKey, str);
-    void recordEntityChanges(fullKey, previous, v);
+    if (ok) {
+      syncWriteHook?.(fullKey, str);
+      // 阶段 2：单键镜像进 IndexedDB + 追加变更日志（失败静默，不阻断主流程）
+      void dbPut(fullKey, str);
+      void recordEntityChanges(fullKey, previous, v);
+    }
     return ok;
   }
 };
 
 /** 多设备冲突安全 ID（时间戳36进制 + 随机后缀，与 v1 一致） */
 export function nextId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return `${DEVICE_ID}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function fmtDate(ts: number): string {

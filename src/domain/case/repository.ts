@@ -32,15 +32,28 @@ export const caseRepository = {
     return cases.update(id, item => ({ ...item, reviews: [review, ...(item.reviews || [])], updatedAt: Date.now() }))
   },
   setStatus(id: string, status: CaseStatus): boolean { return this.update(id, { status }) },
-  remove: cases.remove
+  remove(id: string): boolean {
+    const removed = cases.remove(id)
+    if (removed) relations.list().filter(item => item.caseId === id).forEach(item => relations.remove(item.id))
+    return removed
+  }
 }
 
 export const caseRelationRepository = {
   listFor(caseId: string): CaseRelation[] { return relations.list().filter(item => item.caseId === caseId) },
+  listForTarget(targetType: CaseRelation['targetType'], targetId: string): CaseRelation[] {
+    return relations.list().filter(item => item.targetType === targetType && item.targetId === targetId)
+  },
   link(caseId: string, targetType: CaseRelation['targetType'], targetId: string, phase?: CasePhase): CaseRelation {
     const exists = this.listFor(caseId).find(item => item.targetType === targetType && item.targetId === targetId)
     if (exists) return exists
     return relations.create({ id: createEntityId(), caseId, targetType, targetId, phase, createdAt: Date.now() })
   },
-  unlink(id: string): boolean { return relations.remove(id) }
+  unlink(id: string): boolean { return relations.remove(id) },
+  unlinkForTarget(targetType: CaseRelation['targetType'], targetId: string): boolean {
+    const matches = this.listForTarget(targetType, targetId)
+    let changed = false
+    for (const relation of matches) changed = relations.remove(relation.id) || changed
+    return changed
+  }
 }

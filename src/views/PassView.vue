@@ -16,10 +16,18 @@ const err = ref('')
 const loading = ref(false)
 
 onMounted(async () => {
-  if (mode.value === 'change') {
+  try {
     const rec = await ensureAuth()
-    user.value = rec.u
-  }
+    if (mode.value === 'first') {
+      if (!rec._d || sessionStorage.getItem('beryl_first_pass') !== '1') {
+        await router.replace('/login')
+        return
+      }
+      user.value = rec.u
+    } else {
+      user.value = rec.u
+    }
+  } catch { await router.replace('/login') }
 })
 
 async function submit() {
@@ -40,8 +48,9 @@ async function submit() {
   }
   try {
     const rec = await createAuthRecord(u, np.value, false)
-    lsSet('b_auth', JSON.stringify(rec))
+    if (!lsSet('b_auth', JSON.stringify(rec))) throw new Error('auth-write-failed')
     writeSession(u)
+    if (mode.value === 'first') sessionStorage.removeItem('beryl_first_pass')
     ElMessage.success('密码已更新，请牢记 🔒')
     if (mode.value === 'first') router.replace('/scene')
     else router.replace('/app/admin')
