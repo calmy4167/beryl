@@ -127,6 +127,10 @@ function openS3Dlg() {
 }
 
 const syncStatus = computed(() => {
+  if (sync.phase === 'syncing') return { color: 'var(--scene)', text: '☁️ 正在同步…', actions: true }
+  if (sync.phase === 'dirty') return { color: 'var(--c-warn)', text: '⚠️ 本地有待同步变更', actions: true }
+  if (sync.phase === 'offline') return { color: 'var(--c-warn)', text: '⌁ 当前离线，待恢复网络后同步', actions: true }
+  if (sync.phase === 'error') return { color: 'var(--c-danger)', text: `⚠️ 同步失败：${sync.lastError || '网络或配置错误'}`, actions: true }
   if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `☁️ 已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
   if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `🗄️ 已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
   if (sync.mode === 'file') return { color: 'var(--c-success)', text: `🔄 已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
@@ -140,7 +144,7 @@ async function doCloudConnect() {
   const ok = await cloudConnect(cloudUrl.value.trim(), cloudKey.value)
   connecting.value = false
   if (ok) { cloudDlg.value = false; ElMessage.success('已连接云端 ☁️') }
-  else ElMessage.error('连接失败：请检查地址与同步密码')
+  else ElMessage.error(`连接失败：${sync.lastError || '请检查地址、同步密码或 Worker 配置'}`)
 }
 async function doS3Connect() {
   connecting.value = true

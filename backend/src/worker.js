@@ -1,3 +1,6 @@
+import { authorized, sha256 } from './lib/auth.js';
+import { corsHeaders, json } from './lib/http.js';
+
 /**
  * Beryl 云端 API — 独立 Cloudflare Worker（v2 阶段 4）
  * ================================================================
@@ -21,31 +24,6 @@
  *     - 服务端 LWW：仅当新 ts 大于现有记录 ts 时覆盖
  *     - value 为前端 AES-GCM 密文（服务端不感知内容）
  * ================================================================ */
-
-function corsHeaders(request, env) {
-  const origin = request.headers.get('Origin');
-  const allowed = String(env.FRONTEND_ORIGINS || '').split(',').map(v => v.trim()).filter(Boolean);
-  // 未配置时保留向后兼容；生产环境应配置 FRONTEND_ORIGINS。
-  const allowOrigin = !allowed.length ? '*' : (origin && allowed.includes(origin) ? origin : 'null');
-  return {
-    'Access-Control-Allow-Origin': allowOrigin,
-    'Access-Control-Allow-Methods': 'GET, PUT, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Vary': 'Origin'
-  };
-}
-
-function json(obj, status = 200, headers = {}) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { 'Content-Type': 'application/json', ...headers }
-  });
-}
-
-async function sha256(text) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 /* ---------- D1 模式（v2 阶段 4） ---------- */
 
@@ -116,15 +94,6 @@ async function getAuthHash(env) {
   return null;
 }
 
-async function authorized(request, env) {
-  const expected = await getAuthHash(env);
-  if (!expected) return false;
-  const auth = request.headers.get('Authorization') || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!token) return false;
-  return (await sha256(token)) === expected;
-}
-
 async function maxTs(env) {
   const row = await env.BERYL_D1.prepare('SELECT COALESCE(MAX(ts), 0) AS m FROM records').first();
   return row ? Number(row.m) : 0;
@@ -143,6 +112,17 @@ export default {
     // 容忍尾斜杠：/api/setup/ 与 /api/setup 等效
     const p = url.pathname.replace(/\/+$/, '');
 
+    /** 部署诊断：不暴露业务数据，仅用于前端和人工确认 Worker/D1 是否可用。 */
+    if (p === '/api/health' && request.method === 'GET') {
+      if (!env.BERYL_D1) return respond({ ok: false, error: 'no-d1-binding' }, 500);
+      try {
+        await ensureSchema(env);
+        return respond({ ok: true, service: 'beryl-api', protocol: 2 });
+      } catch {
+        return respond({ ok: false, error: 'd1-unavailable' }, 503);
+      }
+    }
+
     /* 首次设置同步密码（仅一次） */
     if (p === '/api/setup' && request.method === 'POST') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
@@ -160,7 +140,7 @@ export default {
     if (p === '/api/sync/pull' && request.method === 'POST') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
-      if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
+      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
       let body;
       try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
       const since = Number(body && body.since) || 0;
@@ -176,7 +156,7 @@ export default {
     if (p === '/api/sync/push' && request.method === 'POST') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
-      if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
+      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
       let body;
       try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
       const changes = Array.isArray(body && body.changes) ? body.changes : [];
@@ -197,7 +177,7 @@ export default {
       if (request.method === 'GET') {
         if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
-        if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
+        if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
         const { results } = await env.BERYL_D1.prepare(
           'SELECT key, value FROM records WHERE deleted = 0'
         ).all();
@@ -208,7 +188,7 @@ export default {
       if (request.method === 'PUT') {
         if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
-        if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
+        if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
         let body;
         try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
         if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) {

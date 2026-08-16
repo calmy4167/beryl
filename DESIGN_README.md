@@ -927,3 +927,27 @@ npm test             # 组件测试（vitest，建议本机运行）
 | 状态 | 稳定版，继续可用 | 阶段 1 功能平移完成，可并行体验 |
 | 数据 | 共用 localStorage 键 | 共用（格式兼容） |
 | 后续 | 冻结新功能 | 阶段 2 起能力升级（IndexedDB/增量同步/加密） |
+
+---
+
+## 16. 架构演进基线（2026-08-16）
+
+前后端继续保持分离：Pages 只部署 Vue 静态前端；`backend/` 的 Worker 提供 API 并绑定 D1。以下基础设施用于后续演进，均不改变现有 `b_*` 数据格式与键级云同步协议。
+
+- **Repository**：新增 `src/core/repository.ts`，领域模块应逐步使用 `list/create/update/remove`，而不是直接操作浏览器存储。博客已作为首个迁移模块。
+- **持久化**：localStorage 目前仍是兼容读写层；IndexedDB 保存镜像、键级同步日志及新增的实体级本地变更日志。后续可迁移为 IndexedDB 主存储，不改变 Repository 调用方。
+- **同步状态**：`sync.phase` 显式表示 `idle / dirty / syncing / offline / conflict / error`，界面展示当前同步状态与错误原因。
+- **内容系统**：`ContentEditor` 与安全的 `ContentRenderer` 提供统一 Markdown 编辑/渲染入口；博客已接入，日记、随想、人物将在后续逐步接入。
+- **Worker 分层**：HTTP/CORS 响应与认证哈希已拆至 `backend/src/lib/`；路由和 D1 数据访问将按 API 领域继续拆分。
+- **API 边界**：前端通过 `src/core/api/client.ts` 请求独立 Worker，统一处理超时、网络错误与 URL 拼接；`GET /api/health` 可在不携带密码的情况下确认 Worker/D1 部署状态，且不返回用户数据。
+
+> 实体级变更日志目前仅在本地生成，用于验证和后续迁移；云端仍使用经过验证的键级加密 LWW 协议。待完成旧数据回填、双端合并与回滚方案后，再单独启用实体级云端同步，避免影响已有用户数据。
+
+### 16.1 Case-centered v3（兼容式启用）
+
+`Case`（现实课题）是新增的顶层领域对象，而不是替换既有模块。一个课题包含问题、期望结果、状态、当前五行阶段与五个独立工作区：木（定义）、火（行动）、土（沉淀）、金（判断）、水（复盘）。
+
+- 数据：`b_cases` 与 `b_caseRelations` 已纳入现有加密同步。
+- 关系：`CaseRelation` 通过 `caseId + targetType + targetId` 引用任务、日记、人物、财务和文章，不复制原始数据。
+- 自由过程：五行表示当前工作的侧重点，不是审批流；允许跳过、回退、反复进入。
+- 兼容性：原来的任务、日记、人物、财务、博客、收集箱等模块保持独立可用；火阶段目前可直接新建并关联任务。

@@ -1,5 +1,5 @@
 /* ---------- 存储层（平移 v1：localStorage 统一容错封装；阶段 2 迁 IndexedDB） ---------- */
-import { dbPut } from './db.ts'
+import { dbPut, recordEntityChanges } from './db.ts'
 
 export function lsGet(key: string): string | null {
   try { return localStorage.getItem(key); } catch { return null; }
@@ -26,11 +26,14 @@ export const store = {
     return v === undefined ? d : v;
   },
   set(k: string, v: unknown): boolean {
+    const fullKey = PREFIX + k
+    const previous = safeParse<unknown>(lsGet(fullKey))
     const str = JSON.stringify(v);
-    const ok = lsSet(PREFIX + k, str);
-    syncWriteHook?.(PREFIX + k, str);
+    const ok = lsSet(fullKey, str);
+    syncWriteHook?.(fullKey, str);
     // 阶段 2：单键镜像进 IndexedDB + 追加变更日志（失败静默，不阻断主流程）
-    void dbPut(PREFIX + k, str);
+    void dbPut(fullKey, str);
+    void recordEntityChanges(fullKey, previous, v);
     return ok;
   }
 };

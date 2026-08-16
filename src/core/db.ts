@@ -9,10 +9,11 @@
 import { lsGet } from './storage.ts'
 
 const DB_NAME = 'beryl-db'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const KV = 'kv'
 const CHANGES = 'changes'
 const META = 'meta'
+const ENTITY_CHANGES = 'entity_changes'
 
 export const DEVICE_ID = 'dev-' + Math.random().toString(36).slice(2, 10)
 
@@ -35,6 +36,11 @@ function openDb(): Promise<IDBDatabase> {
         s.createIndex('key', 'key', { unique: false })
       }
       if (!db.objectStoreNames.contains(META)) db.createObjectStore(META)
+      if (!db.objectStoreNames.contains(ENTITY_CHANGES)) {
+        const s = db.createObjectStore(ENTITY_CHANGES, { keyPath: 'id' })
+        s.createIndex('entity', 'entity', { unique: false })
+        s.createIndex('updatedAt', 'updatedAt', { unique: false })
+      }
     }
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error || new Error('indexedDB open failed'))
@@ -173,6 +179,56 @@ export async function restoreFromDb(): Promise<void> {
 /* ---------- 变更日志读取（阶段 3 增量同步使用） ---------- */
 
 export interface DbChange { seq: number; ts: number; key: string; value: string }
+
+/** 本地实体级操作日志；暂不改变既有云端键级协议，作为平滑迁移基础。 */
+export interface EntityChange {
+  id: string
+  entity: string
+  entityId: string
+  operation: 'create' | 'update' | 'delete'
+  updatedAt: number
+  device: string
+  value?: unknown
+}
+
+export async function recordEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
+  if (!Array.isArray(before) || !Array.isArray(after) || !key.startsWith('b_')) return
+  const asMap = (items: unknown[]) => new Map(items
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && 'id' in item && item.id != null)
+    .map(item => [String(item.id), item]))
+  const previous = asMap(before)
+  const next = asMap(after)
+  const now = Date.now()
+  const changes: EntityChange[] = []
+  for (const [entityId, value] of next) {
+    const old = previous.get(entityId)
+    if (!old) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'create', updatedAt: now, device: DEVICE_ID, value })
+    else if (JSON.stringify(old) !== JSON.stringify(value)) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'update', updatedAt: now, device: DEVICE_ID, value })
+  }
+  for (const entityId of previous.keys()) {
+    if (!next.has(entityId)) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'delete', updatedAt: now, device: DEVICE_ID })
+  }
+  if (!changes.length) return
+  try {
+    const db = await openDb()
+    const tx = db.transaction(ENTITY_CHANGES, 'readwrite')
+    const store = tx.objectStore(ENTITY_CHANGES)
+    changes.forEach((change, i) => store.put({ ...change, id: `${change.id}:${i}` }))
+  } catch { /* 不阻断旧存储与同步流程 */ }
+}
+
+export async function readEntityChanges(limit = 500): Promise<EntityChange[]> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction(ENTITY_CHANGES, 'readonly')
+    const req = tx.objectStore(ENTITY_CHANGES).getAll()
+    const all = await new Promise<EntityChange[]>((resolve, reject) => {
+      req.onsuccess = () => resolve(req.result as EntityChange[])
+      req.onerror = () => reject(req.error)
+    })
+    return all.sort((a, b) => a.updatedAt - b.updatedAt).slice(-limit)
+  } catch { return [] }
+}
 
 /** 读取 seq > after 的变更记录（按 seq 升序） */
 export async function readChanges(after: number, limit = 500): Promise<DbChange[]> {

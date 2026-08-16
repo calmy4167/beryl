@@ -12,9 +12,11 @@ import { lsGet, lsSet, safeParse, setSyncWriteHook } from './storage.ts'
 import { SCENES, currentSceneId } from './scenes.ts'
 import { readChanges, DEVICE_ID } from './db.ts'
 import { encryptValue, decryptValue } from './crypto.ts'
+import { apiFetch } from './api/client.ts'
 
 export interface S3Cfg { endpoint: string; bucket: string; region: string; ak: string; sk: string; key: string; updatedAt: number }
 export interface S3Input { endpoint: string; bucket: string; region: string; ak: string; sk: string }
+export type SyncPhase = 'idle' | 'dirty' | 'syncing' | 'offline' | 'conflict' | 'error'
 
 export interface SyncState {
   mode: 'local' | 'file' | 'cloud' | 's3'
@@ -27,6 +29,8 @@ export interface SyncState {
   dirty: boolean
   pendingFile: boolean
   connectedLabel: string
+  phase: SyncPhase
+  lastError: string
 }
 
 export const sync = reactive<SyncState>({
@@ -40,9 +44,11 @@ export const sync = reactive<SyncState>({
   dirty: false,
   pendingFile: false,
   connectedLabel: ''
+  , phase: 'idle'
+  , lastError: ''
 })
 
-export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
+export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
 
 /** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
 export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
@@ -63,6 +69,7 @@ setSyncWriteHook((key, str) => {
   if (!sync.fileData) return
   sync.fileData[key] = str
   sync.dirty = true
+  sync.phase = 'dirty'
   scheduleWrite()
 })
 
@@ -70,6 +77,7 @@ setSyncWriteHook((key, str) => {
 const SCHEMA: Record<string, (v: unknown) => boolean> = {
   b_tasks: Array.isArray, b_inbox: Array.isArray, b_habits: Array.isArray, b_goals: Array.isArray,
   b_finance: Array.isArray, b_diary: Array.isArray, b_chars: Array.isArray, b_posts: Array.isArray,
+  b_cases: Array.isArray, b_caseRelations: Array.isArray,
   b_pomoTotal: v => v != null && !isNaN(Number(v)),
   b_pomoCount: v => v != null && !isNaN(Number(v)),
   b_scene: v => {
@@ -203,7 +211,7 @@ export async function applyIncremental(
 /** 增量拉取；404 → 旧 Worker（返回 null，调用方回退） */
 async function cloudPull(since: number): Promise<{ records: PullRecord[]; maxTs: number } | null> {
   if (!sync.cloud) throw new Error('not-connected')
-  const res = await fetch(sync.cloud.url + '/api/sync/pull', {
+  const res = await apiFetch(sync.cloud.url, '/api/sync/pull', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sync.cloud.key },
     body: JSON.stringify({ since })
@@ -219,7 +227,7 @@ async function cloudPull(since: number): Promise<{ records: PullRecord[]; maxTs:
 /** 增量推送；false = 旧 Worker（需回退全量） */
 async function cloudPush(changes: { key: string; ts: number; device: string; value: unknown }[]): Promise<boolean> {
   if (!sync.cloud) throw new Error('not-connected')
-  const res = await fetch(sync.cloud.url + '/api/sync/push', {
+  const res = await apiFetch(sync.cloud.url, '/api/sync/push', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sync.cloud.key },
     body: JSON.stringify({ changes })
@@ -292,9 +300,11 @@ function buildLocalData(): Record<string, string> {
 
 async function cloudWrite() {
   if (!sync.cloud) return
+  sync.phase = 'syncing'
+  sync.lastError = ''
   try {
     const changes = await collectLocalChanges()
-    if (!changes.length) { sync.dirty = false; return }
+    if (!changes.length) { sync.dirty = false; sync.phase = 'idle'; return }
     const encChanges: { key: string; ts: number; device: string; value: unknown }[] = []
     let maxSeq = 0
     for (const c of changes) {
@@ -306,10 +316,13 @@ async function cloudWrite() {
     if (!ok) { await cloudWriteLegacy(); return }
     if (maxSeq) lsSet('b_push_cursor', String(maxSeq))
     sync.dirty = false
+    sync.phase = 'idle'
     sync.lastTouch = Date.now()
     markLastSync(true)
     ElMessage.success('已同步到云端 ☁️')
   } catch (e) {
+    sync.phase = navigator.onLine ? 'error' : 'offline'
+    sync.lastError = e instanceof Error ? e.message : '网络错误'
     markLastSync(false, e instanceof Error ? e.message : '网络错误')
     ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误'))
   }
@@ -318,7 +331,7 @@ async function cloudWrite() {
 /* 旧 Worker（KV 全量快照）回退 */
 async function cloudReadLegacy(): Promise<{ data: Record<string, string>; mtime: number }> {
   if (!sync.cloud) throw new Error('not-connected')
-  const res = await fetch(sync.cloud.url + '/api/data', { headers: { Authorization: 'Bearer ' + sync.cloud.key } })
+  const res = await apiFetch(sync.cloud.url, '/api/data', { headers: { Authorization: 'Bearer ' + sync.cloud.key } })
   if (res.status === 401) throw new Error('unauthorized')
   const j = await res.json()
   if (!j || !j.ok) throw new Error('bad-response')
@@ -330,7 +343,7 @@ async function cloudWriteLegacy() {
   if (!sync.cloud) return
   const payload = { ...(sync.fileData || buildLocalData()), _meta: { appVersion: 'v2.0.0', savedAt: new Date().toISOString() } }
   try {
-    const res = await fetch(sync.cloud.url + '/api/data', {
+    const res = await apiFetch(sync.cloud.url, '/api/data', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sync.cloud.key },
       body: JSON.stringify({ data: payload })
@@ -589,6 +602,8 @@ export async function syncNow() {
 export async function cloudConnect(url: string, key: string): Promise<boolean> {
   if (sync.mode === 'file' || sync.mode === 's3') disconnect()
   sync.cloud = { url: url.replace(/\/+$/, ''), key, updatedAt: 0 }
+  sync.phase = 'syncing'
+  sync.lastError = ''
   try {
     const r = await cloudPull(0)
     if (r !== null) {
@@ -617,6 +632,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
         sync.dirty = true
         scheduleWrite()
       }
+      sync.phase = 'idle'
       return true
     }
     // 旧 Worker 回退
@@ -632,8 +648,11 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
     } else {
       applySyncData(r2.data)
     }
+    sync.phase = 'idle'
     return true
-  } catch {
+  } catch (e) {
+    sync.phase = navigator.onLine ? 'error' : 'offline'
+    sync.lastError = e instanceof Error ? e.message : '连接失败'
     sync.cloud = null
     return false
   }
@@ -697,6 +716,8 @@ export function disconnect() {
   sync.mode = 'local'
   sync.fileData = null
   sync.dirty = false
+  sync.phase = 'idle'
+  sync.lastError = ''
 }
 
 /* ---------- 启动恢复（自动重连已保存配置；刷新即同步） ---------- */

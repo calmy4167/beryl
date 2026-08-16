@@ -24,6 +24,7 @@ const cats = computed(() => catsFor(currentSceneId()).filter(c => c.id !== 'all'
 const appBuild = __APP_BUILD__ ?? 'dev'
 const activeId = computed(() => {
   if (route.name === 'home') return 'home'
+  if (route.name === 'cases' || route.name === 'case') return 'cases'
   if (route.name === 'module') return String(route.params.id || '')
   if (route.name === 'admin') return 'admin'
   return ''
@@ -96,6 +97,9 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
         <button class="nav-item lv1" :class="{ on: activeId === 'home' }" @click="go('/app/home')" title="首页">
           <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
         </button>
+        <button class="nav-item lv1" :class="{ on: activeId === 'cases' }" @click="go('/app/cases')" title="现实课题">
+          <span class="nav-icon">◈</span><span class="nav-label">现实课题</span>
+        </button>
 
         <!-- 一级：十神分类（可展开）→ 二级：模块 -->
         <div v-for="c in cats" :key="c.id" class="nav-group">
@@ -162,6 +166,9 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
         <nav class="side-nav">
           <button class="nav-item lv1" :class="{ on: activeId === 'home' }" @click="go('/app/home')">
             <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
+          </button>
+          <button class="nav-item lv1" :class="{ on: activeId === 'cases' }" @click="go('/app/cases')">
+            <span class="nav-icon">◈</span><span class="nav-label">现实课题</span>
           </button>
           <div v-for="c in cats" :key="c.id" class="nav-group">
             <button class="nav-item lv1" :class="{ open: openGroups[c.id] }" @click="toggleGroup(c.id)">

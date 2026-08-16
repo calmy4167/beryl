@@ -1,28 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { store, nextId, fmtDate } from '@/core/storage'
+import { fmtDate } from '@/core/storage'
+import { createCollectionRepository, createEntityId } from '@/core/repository'
+import ContentEditor from '@/components/content/ContentEditor.vue'
+import ContentRenderer from '@/components/content/ContentRenderer.vue'
 
 interface Post { id: string; title: string; content: string; date: string }
+const postRepository = createCollectionRepository<Post>('posts')
 const title = ref('')
 const content = ref('')
-const items = ref<Post[]>(store.get('posts', []))
+const items = ref<Post[]>(postRepository.list())
 const reading = ref<Post | null>(null)
 
-function refresh() { items.value = store.get<Post[]>('posts', []) }
+function refresh() { items.value = postRepository.list() }
 function add() {
   const t = title.value.trim()
   const c = content.value.trim()
   if (!t || !c) { ElMessage.warning('标题和内容都要填写哦'); return }
-  const list = store.get<Post[]>('posts', [])
-  list.unshift({ id: nextId(), title: t, content: c, date: fmtDate(Date.now()) })
-  store.set('posts', list)
+  postRepository.create({ id: createEntityId(), title: t, content: c, date: fmtDate(Date.now()) })
   title.value = ''; content.value = ''
   refresh()
   ElMessage.success('文章已发布 ✍️')
 }
 function del(id: string) {
-  store.set('posts', store.get<Post[]>('posts', []).filter(x => x.id !== id))
+  postRepository.remove(id)
   refresh()
 }
 </script>
@@ -30,7 +32,7 @@ function del(id: string) {
 <template>
   <form class="beryl-card hoverable form" @submit.prevent="add">
     <el-input v-model="title" placeholder="文章标题" />
-    <el-input v-model="content" type="textarea" :rows="6" placeholder="写下你的文章…" />
+    <ContentEditor v-model="content" :rows="6" placeholder="写下你的文章…（支持 Markdown）" />
     <div class="right"><el-button type="primary" native-type="submit">发布</el-button></div>
   </form>
 
@@ -52,7 +54,7 @@ function del(id: string) {
       <h1 class="font-title draw-title">{{ reading.title }}</h1>
       <p class="draw-date">{{ reading.date }}</p>
       <hr class="draw-hr">
-      <p class="draw-body">{{ reading.content }}</p>
+      <ContentRenderer class="draw-body" :content="reading.content" />
     </template>
   </el-drawer>
 </template>
@@ -71,5 +73,5 @@ function del(id: string) {
 .draw-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
 .draw-date { font-size: 10px; color: var(--c-text-2); margin-top: 8px; }
 .draw-hr { border: none; border-top: 1px solid var(--c-border-soft); margin: 20px 0; }
-.draw-body { white-space: pre-wrap; line-height: 1.9; font-size: 15px; color: var(--c-text); word-break: break-word; max-width: 720px; margin: 0 auto; }
+.draw-body { font-size: 15px; color: var(--c-text); max-width: 720px; margin: 0 auto; }
 </style>
