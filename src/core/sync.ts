@@ -44,6 +44,9 @@ export const sync = reactive<SyncState>({
 
 export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
 
+/** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
+export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
+
 /* 存储挂钩：模块 store.set → fileData + dirty + 防抖写（与 v1 一致） */
 setSyncWriteHook((key, str) => {
   if (!sync.fileData) return

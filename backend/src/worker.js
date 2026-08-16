@@ -1,18 +1,17 @@
 /**
- * Beryl 云端 API — Cloudflare Pages 合体版（_worker.js）v2 阶段 4
+ * Beryl 云端 API — 独立 Cloudflare Worker（v2 阶段 4）
  * ================================================================
  * 存储从 KV（整包快照）升级为 D1（SQLite，按键记录 + LWW + 游标增量）。
- * 一个 Pages 项目同时托管【网站】与【数据 API】：
- *   - 网站：https://<项目名>.<子域>.pages.dev/
+ * 前端由 Cloudflare Pages 独立托管，Worker 只提供数据 API：
  *   - 增量 API：/api/sync/pull、/api/sync/push（新前端使用）
  *   - 兼容 API：/api/data（旧前端全量快照仍可用）
  *
  * 部署步骤：
  *   1. Cloudflare → Workers & Pages → D1 → 创建数据库（如 beryl-d1）
- *   2. Pages 项目 → 设置 → 绑定 → D1：变量名 BERYL_D1 → 选择 beryl-d1
- *   3. 重新部署（上传 dist 或 git push）→ 完成
+ *   2. Worker → Settings → Bindings → D1：变量名 BERYL_D1 → 选择 beryl-d1
+ *   3. 部署 Worker → 完成
  *   4. 首次设置同步密码（仅一次）：
- *        Invoke-RestMethod -Method Post -Uri "https://<项目名>.<子域>.pages.dev/api/setup" -ContentType "application/json" -Body '{"password":"你的同步密码"}'
+ *        Invoke-RestMethod -Method Post -Uri "https://<Worker 地址>/api/setup" -ContentType "application/json" -Body '{"password":"你的同步密码"}'
  *   5. 旧 KV 数据自动迁移：若项目仍绑定 BERYL_KV（beryl-kv），首次请求时自动导入
  *      records 表（含 auth 密码哈希），迁移完成后 KV 绑定可解除。
  *
@@ -23,16 +22,23 @@
  *     - value 为前端 AES-GCM 密文（服务端不感知内容）
  * ================================================================ */
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-};
+function corsHeaders(request, env) {
+  const origin = request.headers.get('Origin');
+  const allowed = String(env.FRONTEND_ORIGINS || '').split(',').map(v => v.trim()).filter(Boolean);
+  // 未配置时保留向后兼容；生产环境应配置 FRONTEND_ORIGINS。
+  const allowOrigin = !allowed.length ? '*' : (origin && allowed.includes(origin) ? origin : 'null');
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Methods': 'GET, PUT, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin'
+  };
+}
 
-function json(obj, status = 200) {
+function json(obj, status = 200, headers = {}) {
   return new Response(JSON.stringify(obj), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    headers: { 'Content-Type': 'application/json', ...headers }
   });
 }
 
@@ -127,15 +133,11 @@ async function maxTs(env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-
-    // 非 API 路径：交给 Pages 静态资源（网站页面）
-    if (!url.pathname.startsWith('/api/')) {
-      if (request.method === 'OPTIONS') return new Response('OK', { headers: corsHeaders });
-      return env.ASSETS.fetch(request);
-    }
+    const cors = corsHeaders(request, env);
+    const respond = (body, status = 200) => json(body, status, cors);
 
     if (request.method === 'OPTIONS') {
-      return new Response('OK', { headers: corsHeaders });
+      return new Response('OK', { headers: cors });
     }
 
     // 容忍尾斜杠：/api/setup/ 与 /api/setup 等效
@@ -143,42 +145,42 @@ export default {
 
     /* 首次设置同步密码（仅一次） */
     if (p === '/api/setup' && request.method === 'POST') {
-      if (!env.BERYL_D1) return json({ error: 'no-d1-binding' }, 500);
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
-      if (await getAuthHash(env)) return json({ error: 'already-setup' }, 400);
+      if (await getAuthHash(env)) return respond({ error: 'already-setup' }, 400);
       let body;
-      try { body = await request.json(); } catch (e) { return json({ error: 'bad-json' }, 400); }
-      if (!body.password || String(body.password).length < 6) return json({ error: 'weak-password' }, 400);
+      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
+      if (!body.password || String(body.password).length < 6) return respond({ error: 'weak-password' }, 400);
       await env.BERYL_D1.prepare('INSERT OR REPLACE INTO auth (id, hash) VALUES (1, ?)')
         .bind(await sha256(String(body.password))).run();
-      return json({ ok: true, message: '同步密码已设置' });
+      return respond({ ok: true, message: '同步密码已设置' });
     }
 
     /* 增量拉取（阶段 3/4 协议） */
     if (p === '/api/sync/pull' && request.method === 'POST') {
-      if (!env.BERYL_D1) return json({ error: 'no-d1-binding' }, 500);
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
-      if (!(await authorized(request, env))) return json({ error: 'unauthorized' }, 401);
+      if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
       let body;
-      try { body = await request.json(); } catch (e) { return json({ error: 'bad-json' }, 400); }
+      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
       const since = Number(body && body.since) || 0;
       const { results } = await env.BERYL_D1.prepare(
         'SELECT key, value, ts, device, deleted FROM records WHERE ts > ? ORDER BY ts ASC LIMIT 500'
       ).bind(since).all();
-      return json({ ok: true, records: results.map(r => ({
+      return respond({ ok: true, records: results.map(r => ({
         key: r.key, value: r.value, ts: r.ts, device: r.device, deleted: !!r.deleted
       })), maxTs: await maxTs(env) });
     }
 
     /* 增量推送（阶段 3/4 协议，服务端 LWW） */
     if (p === '/api/sync/push' && request.method === 'POST') {
-      if (!env.BERYL_D1) return json({ error: 'no-d1-binding' }, 500);
+      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
-      if (!(await authorized(request, env))) return json({ error: 'unauthorized' }, 401);
+      if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
       let body;
-      try { body = await request.json(); } catch (e) { return json({ error: 'bad-json' }, 400); }
+      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
       const changes = Array.isArray(body && body.changes) ? body.changes : [];
-      if (!changes.length) return json({ ok: true, maxTs: await maxTs(env) });
+      if (!changes.length) return respond({ ok: true, maxTs: await maxTs(env) });
       const stmts = changes
         .filter(c => c && typeof c.key === 'string' && c.key.startsWith('b_') && typeof c.ts === 'number')
         .map(c => env.BERYL_D1.prepare(
@@ -187,30 +189,30 @@ export default {
           'WHERE excluded.ts > records.ts'
         ).bind(c.key, typeof c.value === 'string' ? c.value : JSON.stringify(c.value), c.ts, String(c.device || 'unknown')));
       if (stmts.length) await env.BERYL_D1.batch(stmts);
-      return json({ ok: true, maxTs: await maxTs(env) });
+      return respond({ ok: true, maxTs: await maxTs(env) });
     }
 
     /* 旧协议兼容：全量快照读写（旧前端/工具仍可用） */
     if (p === '/api/data') {
       if (request.method === 'GET') {
-        if (!env.BERYL_D1) return json({ error: 'no-d1-binding' }, 500);
+        if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
-        if (!(await authorized(request, env))) return json({ error: 'unauthorized' }, 401);
+        if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
         const { results } = await env.BERYL_D1.prepare(
           'SELECT key, value FROM records WHERE deleted = 0'
         ).all();
         const data = {};
         results.forEach(r => { data[r.key] = r.value; });
-        return json({ ok: true, data, updatedAt: await maxTs(env) });
+        return respond({ ok: true, data, updatedAt: await maxTs(env) });
       }
       if (request.method === 'PUT') {
-        if (!env.BERYL_D1) return json({ error: 'no-d1-binding' }, 500);
+        if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
-        if (!(await authorized(request, env))) return json({ error: 'unauthorized' }, 401);
+        if (!(await authorized(request, env))) return respond({ error: 'unauthorized' }, 401);
         let body;
-        try { body = await request.json(); } catch (e) { return json({ error: 'bad-json' }, 400); }
+        try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
         if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) {
-          return json({ error: 'bad-data' }, 400);
+          return respond({ error: 'bad-data' }, 400);
         }
         const now = Date.now();
         const stmts = [];
@@ -223,10 +225,10 @@ export default {
           ).bind(k, typeof v === 'string' ? v : JSON.stringify(v), ts++, 'legacy-put'));
         }
         if (stmts.length) await env.BERYL_D1.batch(stmts);
-        return json({ ok: true, updatedAt: now });
+        return respond({ ok: true, updatedAt: now });
       }
     }
 
-    return json({ error: 'not-found' }, 404);
+    return respond({ error: 'not-found' }, 404);
   }
 };

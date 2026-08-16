@@ -33,7 +33,8 @@ D:\dsharness\            ← 项目根（git 仓库，v2 工程已上移为单�
 ├── src\                 ← 源码（core 逻辑 / views / components / styles）
 ├── test\node\           ← 核心逻辑测试（node:test，15 项，npm run test:node）
 ├── src\__tests__\       ← 组件测试（vitest，本机 npm test）
-├── _worker.js           ← 云端 API 后端（Pages 合体模式，部署见 §13/§15）
+├── backend\src\worker.js ← 云端 API 后端（独立 Cloudflare Worker）
+├── backend\wrangler.toml  ← Worker 的 D1/KV/CORS 部署配置
 ├── DESIGN_README.md     ← 本文档（设计规范 + 维护日志）
 ├── package.json         ← 依赖与脚本（dev/build/test/test:node）
 └── wrangler.toml        ← Cloudflare Worker 配置（如适用）
@@ -885,36 +886,41 @@ POST /api/sync/pull { since }     → 返回游标之后的变更
 保底：每阶段保留导出/导入与旧版回退；v1 与 v2 数据格式在阶段 1 完全兼容（共用 localStorage 键）。
 ---
 
-## 15. v2 部署指南（Cloudflare Pages）
+## 15. v2 部署指南（Pages 前端 + Worker 后端）
 
-> v2 构建产物在 `v2/dist`（纯静态，hash 路由，子路径可用）。部署后与 v1 站点互不影响；数据键与 v1 完全兼容（共用 localStorage）。
+> 自 2026-08-16 起，网站与数据 API 分离部署：Cloudflare Pages 只托管 Vue 静态产物，Cloudflare Worker 只提供 `/api/*` 与 D1 数据访问。现有本地数据、同步协议和旧 KV 迁移能力保持不变。
 
 ### 15.1 构建
 
 ```powershell
-cd D:\dsharness\v2
+cd D:\dsharness
 npm install          # 首次（沙箱环境需加 --ignore-scripts；正常环境不需要）
-npm run build        # 产物输出 v2\dist
+npm run build        # 产物输出 dist（纯静态，不再包含 Worker）
 npm run test:node    # 核心逻辑测试（15 项，沙箱可用）
 npm test             # 组件测试（vitest，建议本机运行）
 ```
 
-### 15.2 部署到 Cloudflare Pages
+### 15.2 部署后端 Worker
 
-> ⚠️ **build 脚本已内置 `_worker.js` 复制**（`npm run build` 自动把根目录 `_worker.js` 复制进 `dist/`）——这是 Pages 合体模式（网站 + API 一体）的前提；若缺少此步，`/api/*` 会返回 405。
+1. 在 Cloudflare D1 控制台复制数据库 ID，填入 `backend/wrangler.toml` 的 `database_id`。
+2. 将 `FRONTEND_ORIGINS` 改为 Pages 站点地址；有自定义域名时可用英文逗号追加多个来源。
+3. 首次从旧 KV 迁移时保留 `BERYL_KV` 绑定；确认 D1 已有数据后可删除该段配置。
+4. 执行 `npm run deploy:api`，得到 `https://beryl-api.<账户>.workers.dev`；也可为它绑定 `api.你的域名`。
+5. 首次设置同步密码：`Invoke-RestMethod -Method Post -Uri "https://<API 地址>/api/setup" -ContentType "application/json" -Body '{"password":"你的同步密码"}'`。
 
-1. **直接上传**：Workers & Pages → Pages → 创建项目 → 直接上传 → 拖入 `dist` 整个文件夹 → 部署 → 得到 `https://<项目名>.pages.dev`
-2. **Git 集成**：Pages → 创建项目 → 连接 Git 仓库 → 构建配置：根目录 `/`、构建命令 `npm run build`、输出目录 `dist`（§15.3）
-3. 部署后绑定 KV（`BERYL_KV → beryl-kv`）并重新部署一次，`/api/data` 返回 `unauthorized` 即 API 生效
+### 15.3 部署前端 Pages
 
-### 15.3 Git 集成说明（2026-08-15 起项目已单一起源）
+1. Pages → 创建项目 → 连接仓库，根目录 `/`、构建命令 `npm run build`、输出目录 `dist`。
+2. 在 Pages 的环境变量添加 `VITE_API_BASE_URL=https://<API 地址>`，然后重新部署。该值会自动带入后台的 Cloudflare 地址输入框，仍可手动覆盖。
+3. `dist` 不含 `_worker.js`；访问 Pages 地址的 `/api/*` 返回 404 属于预期，API 应访问 Worker 地址。
 
-> v2 工程已上移为仓库根目录（v1 已移除），Git 集成直接指向根目录即可：
-> - 根目录（Root directory）：`/`（项目根）
-> - 构建命令：`npm run build`；输出目录：`dist`
-> - `_worker.js` 位于根目录 → Pages 自动合体（网站 + API 一体），云端同步可用
+### 15.4 验证与连接
 
-### 15.4 与 v1 的关系
+1. 浏览器访问 `https://<API 地址>/api/data`，应得到 `{"error":"unauthorized"}`。
+2. 浏览器打开 Pages 网站 → 后台管理 →「Cloudflare」；地址会预填 `VITE_API_BASE_URL`，输入同步密码后连接。
+3. 后端 API 与前端 Pages 可独立更新；部署前端不会重启或覆盖 D1 数据。
+
+### 15.5 与 v1 的关系
 
 | | v1（index.html） | v2（v2/dist） |
 | --- | --- | --- |

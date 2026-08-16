@@ -6,7 +6,7 @@ import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
-import { sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
+import { DEFAULT_API_BASE_URL, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
@@ -103,7 +103,7 @@ function onImportChange(e: Event) {
 
 /* ---------- 同步配置 ---------- */
 const cloudDlg = ref(false)
-const cloudUrl = ref('')
+const cloudUrl = ref(DEFAULT_API_BASE_URL)
 const cloudKey = ref('')
 const s3Dlg = ref(false)
 const s3Cfg = ref({ endpoint: '', bucket: '', region: '', ak: '', sk: '' })
@@ -114,6 +114,8 @@ function openCloudDlg() {
   if (sync.saved.cloud) {
     cloudUrl.value = sync.saved.cloud.url
     cloudKey.value = sync.saved.cloud.key || ''
+  } else {
+    cloudUrl.value = DEFAULT_API_BASE_URL
   }
   cloudDlg.value = true
 }

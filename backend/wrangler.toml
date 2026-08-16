@@ -1,0 +1,18 @@
+name = "beryl-api"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+# 在 Cloudflare 控制台创建 D1 后，填入真实数据库 ID；不要把生产数据文件提交到仓库。
+[[d1_databases]]
+binding = "BERYL_D1"
+database_name = "beryl-d1"
+database_id = "bcc40cef-b196-4203-8d9a-cb46e2d64a93"
+
+# 可选：仅在首次部署要从旧 KV 快照迁移数据时保留。确认迁移完成后可移除。
+[[kv_namespaces]]
+binding = "BERYL_KV"
+id = "5151147a5a014060a2fc5244649c8e45"
+
+[vars]
+# 填入实际 Pages/自定义域名（多个来源用英文逗号分隔）。空值仅为本地开发兼容，生产必须设置。
+FRONTEND_ORIGINS = "https://beryl-ddk.pages.dev"

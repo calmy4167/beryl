@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build && node -e \"const fs=require('fs');fs.copyFileSync('_worker.js','dist/_worker.js')\"",
+    "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:node": "node test/node/core.test.ts",
-    "test:e2e": "node test/e2e-sync.mjs"
+    "test:e2e": "node test/e2e-sync.mjs",
+    "deploy:api": "npx wrangler deploy --config backend/wrangler.toml"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
