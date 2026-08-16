@@ -1,5 +1,7 @@
 import { authorized, hashPassword } from './lib/auth.js';
 import { corsHeaders, json } from './lib/http.js';
+import { ensureSchema, getAuthHash, maxTs } from './lib/d1.js';
+import { handleEntityPull, handleEntityPush, handleSyncPull, handleSyncPush } from './routes/sync.js';
 
 /**
  * Beryl 云端 API — 独立 Cloudflare Worker（v2 阶段 4）
@@ -23,52 +25,6 @@ import { corsHeaders, json } from './lib/http.js';
  *     - 服务端 LWW：仅当新 ts 大于现有记录 ts 时覆盖
  *     - value 为前端 AES-GCM 密文（服务端不感知内容）
  * ================================================================ */
-
-/* ---------- D1 模式（v2 阶段 4） ---------- */
-
-let schemaReady = false;
-let schemaPromise = null;
-let schemaBinding = null;
-
-async function ensureSchema(env) {
-  if (schemaReady && schemaBinding === env.BERYL_D1) return;
-  if (schemaBinding !== env.BERYL_D1) {
-    schemaReady = false;
-    schemaPromise = null;
-    schemaBinding = env.BERYL_D1;
-  }
-  if (!schemaPromise) {
-    schemaPromise = (async () => {
-      await env.BERYL_D1.prepare(
-        'CREATE TABLE IF NOT EXISTS records (' +
-        'key TEXT PRIMARY KEY, value TEXT NOT NULL, ts INTEGER NOT NULL, ' +
-        'device TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0)'
-      ).run();
-      await env.BERYL_D1.prepare(
-        'CREATE TABLE IF NOT EXISTS auth (id INTEGER PRIMARY KEY CHECK (id = 1), hash TEXT NOT NULL)'
-      ).run();
-      await env.BERYL_D1.prepare(
-        'CREATE TABLE IF NOT EXISTS entity_records (' +
-        'entity TEXT NOT NULL, entity_id TEXT NOT NULL, value TEXT, updated_at INTEGER NOT NULL, ' +
-        'device TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (entity, entity_id))'
-      ).run();
-      schemaReady = true;
-    })();
-  }
-  await schemaPromise;
-}
-
-async function getAuthHash(env) {
-  await ensureSchema(env);
-  const row = await env.BERYL_D1.prepare('SELECT hash FROM auth WHERE id = 1').first();
-  if (row) return row.hash;
-  return null;
-}
-
-async function maxTs(env) {
-  const row = await env.BERYL_D1.prepare('SELECT COALESCE(MAX(ts), 0) AS m FROM records').first();
-  return row ? Number(row.m) : 0;
-}
 
 export default {
   async fetch(request, env) {
@@ -117,89 +73,10 @@ export default {
       return respond({ ok: true, message: '同步密码已设置' });
     }
 
-    /* 增量拉取（阶段 3/4 协议） */
-    if (p === '/api/sync/pull' && request.method === 'POST') {
-      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
-      await ensureSchema(env);
-      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
-      let body;
-      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
-       const since = Number(body && body.since) || 0;
-       const sinceDevice = String(body && body.sinceDevice || '');
-       const sinceKey = String(body && body.sinceKey || '');
-       const page = await env.BERYL_D1.prepare(
-         'SELECT key, value, ts, device, deleted FROM records ' +
-         'WHERE ts > ? OR (ts = ? AND (device > ? OR (device = ? AND key > ?))) ' +
-         'ORDER BY ts ASC, device ASC, key ASC LIMIT 501'
-       ).bind(since, since, sinceDevice, sinceDevice, sinceKey).all();
-       const hasMore = page.results.length > 500;
-       const results = page.results.slice(0, 500);
-       const last = results[results.length - 1];
-       return respond({ ok: true, records: results.map(r => ({
-         key: r.key, value: r.value, ts: r.ts, device: r.device, deleted: !!r.deleted
-       })), nextCursor: last ? { ts: Number(last.ts), device: last.device, key: last.key } : { ts: since, device: sinceDevice, key: sinceKey }, hasMore, maxTs: await maxTs(env) });
-    }
-
-    /* 增量推送（阶段 3/4 协议，服务端 LWW） */
-    if (p === '/api/sync/push' && request.method === 'POST') {
-      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
-      await ensureSchema(env);
-      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
-      let body;
-      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
-      const changes = Array.isArray(body && body.changes) ? body.changes : [];
-      if (!changes.length) return respond({ ok: true, maxTs: await maxTs(env) });
-      const stmts = changes
-        .filter(c => c && typeof c.key === 'string' && c.key.startsWith('b_') && typeof c.ts === 'number')
-        .map(c => env.BERYL_D1.prepare(
-          'INSERT INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, 0) ' +
-           'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted ' +
-           'WHERE excluded.ts > records.ts OR (excluded.ts = records.ts AND excluded.device > records.device)'
-        ).bind(c.key, typeof c.value === 'string' ? c.value : JSON.stringify(c.value), c.ts, String(c.device || 'unknown')));
-      if (stmts.length) await env.BERYL_D1.batch(stmts);
-      return respond({ ok: true, maxTs: await maxTs(env) });
-    }
-
-    /* 实体级同步兼容层：默认前端仍使用上面的键级协议，迁移演练可显式调用。 */
-    if (p === '/api/entity-sync/pull' && request.method === 'POST') {
-      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
-      await ensureSchema(env);
-      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
-      let body;
-      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
-      const since = Number(body && body.since) || 0;
-      const sinceDevice = String(body && body.sinceDevice || '');
-      const sinceEntity = String(body && body.sinceEntity || '');
-      const sinceEntityId = String(body && body.sinceEntityId || '');
-      const page = await env.BERYL_D1.prepare(
-        'SELECT entity, entity_id, value, updated_at, device, deleted FROM entity_records ' +
-        'WHERE updated_at > ? OR (updated_at = ? AND (device > ? OR (device = ? AND (entity > ? OR (entity = ? AND entity_id > ?))))) ' +
-        'ORDER BY updated_at ASC, device ASC, entity ASC, entity_id ASC LIMIT 501'
-      ).bind(since, since, sinceDevice, sinceDevice, sinceEntity, sinceEntity, sinceEntityId).all();
-      const hasMore = page.results.length > 500;
-      const results = page.results.slice(0, 500);
-      const last = results[results.length - 1];
-      return respond({ ok: true, records: results.map(r => ({
-        entity: r.entity, entityId: r.entity_id, value: r.value, updatedAt: Number(r.updated_at), device: r.device, deleted: !!r.deleted
-      })), nextCursor: last ? { ts: Number(last.updated_at), device: last.device, entity: last.entity, entityId: last.entity_id } : { ts: since, device: sinceDevice, entity: sinceEntity, entityId: sinceEntityId }, hasMore });
-    }
-
-    if (p === '/api/entity-sync/push' && request.method === 'POST') {
-      if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
-      await ensureSchema(env);
-      if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
-      let body;
-      try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
-      const changes = Array.isArray(body && body.changes) ? body.changes : [];
-      const stmts = changes.filter(c => c && typeof c.entity === 'string' && typeof c.entityId === 'string' && typeof c.updatedAt === 'number')
-        .map(c => env.BERYL_D1.prepare(
-          'INSERT INTO entity_records (entity, entity_id, value, updated_at, device, deleted) VALUES (?, ?, ?, ?, ?, ?) ' +
-          'ON CONFLICT(entity, entity_id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at, device = excluded.device, deleted = excluded.deleted ' +
-          'WHERE excluded.updated_at > entity_records.updated_at OR (excluded.updated_at = entity_records.updated_at AND excluded.device > entity_records.device)'
-        ).bind(c.entity, c.entityId, c.value == null ? null : (typeof c.value === 'string' ? c.value : JSON.stringify(c.value)), c.updatedAt, String(c.device || 'unknown'), c.deleted ? 1 : 0));
-      if (stmts.length) await env.BERYL_D1.batch(stmts);
-      return respond({ ok: true, accepted: stmts.length });
-    }
+    if (p === '/api/sync/pull' && request.method === 'POST') { const r = await handleSyncPull(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/sync/push' && request.method === 'POST') { const r = await handleSyncPush(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/entity-sync/pull' && request.method === 'POST') { const r = await handleEntityPull(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/entity-sync/push' && request.method === 'POST') { const r = await handleEntityPush(request, env); return respond(r.body, r.status || 200); }
 
     /* 旧协议兼容：全量快照读写（旧前端/工具仍可用） */
     if (p === '/api/data') {

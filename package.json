@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && node scripts/generate-sw-precache.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:node": "node test/node/core.test.ts",
     "test:e2e": "node test/e2e-sync.mjs",
+    "test:pwa": "node scripts/verify-pwa-drill.mjs",
     "deploy:api": "npx wrangler deploy --config backend/wrangler.toml"
   },
   "dependencies": {

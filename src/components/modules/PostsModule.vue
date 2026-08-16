@@ -7,6 +7,7 @@ import ContentEditor from '@/components/content/ContentEditor.vue'
 import ContentRenderer from '@/components/content/ContentRenderer.vue'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface Post { id: string; title: string; content: string; date: string }
 const postRepository = createCollectionRepository<Post>('posts')
@@ -40,12 +41,12 @@ function del(id: string) {
   </form>
 
   <div class="list">
-    <div v-if="!items.length" class="empty">空空如也，写一篇吧 ✍️</div>
+    <EmptyState v-if="!items.length" icon="✍" title="还没有文章" description="把值得留下的经验写成一篇文章。" />
     <div v-for="p in items" :key="p.id" class="beryl-card hoverable item" @click="reading = p">
       <div class="row">
         <p class="t">{{ p.title }}</p>
         <span class="date">{{ p.date }}</span>
-        <el-button circle text size="small" @click.stop="del(p.id)">✕</el-button>
+        <el-button circle text size="small" aria-label="删除文章" @click.stop="del(p.id)">✕</el-button>
       </div>
       <p class="summary">{{ p.content.replace(/\n/g, ' ').slice(0, 80) }}</p>
       <p class="read-hint">点击阅读全文 →</p>

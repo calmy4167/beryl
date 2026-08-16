@@ -13,6 +13,7 @@ import { SCENES, currentSceneId } from './scenes.ts'
 import { readChanges, DEVICE_ID, dbMirrorPut } from './db.ts'
 import { encryptValue, decryptValue } from './crypto.ts'
 import { apiFetch } from './api/client.ts'
+import { syncEntityData } from './entity-sync'
 
 export interface S3Cfg { endpoint: string; bucket: string; region: string; ak: string; sk: string; key: string; updatedAt: number }
 export interface S3Input { endpoint: string; bucket: string; region: string; ak: string; sk: string }
@@ -49,6 +50,7 @@ export const sync = reactive<SyncState>({
 })
 
 export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
+const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations'])
 
 /** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
 export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
@@ -328,12 +330,12 @@ async function collectLocalChanges(): Promise<{ key: string; ts: number; device:
     const latest = new Map<string, (typeof changes)[number]>()
     let maxSeq = cursor
     changes.filter(c => c.key.startsWith('b_')).forEach(c => { latest.set(c.key, c); if (c.seq > maxSeq) maxSeq = c.seq })
-    if (latest.size) return Array.from(latest.values()).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, lastSeq: maxSeq }))
+    if (latest.size) return Array.from(latest.values()).filter(c => !ENTITY_SYNC_KEYS.has(c.key)).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, lastSeq: maxSeq }))
   }
   if (!forceFullSnapshot) return []
   const out: { key: string; ts: number; device: string; value: string; lastSeq: number }[] = []
   let ts = Date.now()
-  for (const k of SYNC_KEYS) {
+  for (const k of SYNC_KEYS.filter(key => !ENTITY_SYNC_KEYS.has(key))) {
     const v = lsGet(k)
     if (v != null) out.push({ key: k, ts: ts++, device: DEVICE_ID, value: v, lastSeq: 0 })
   }
@@ -352,7 +354,10 @@ async function cloudWrite() {
   sync.lastError = ''
   try {
     const changes = await collectLocalChanges()
-    if (!changes.length) { sync.dirty = false; sync.phase = 'idle'; return }
+    if (!changes.length) {
+      await syncEntityData(sync.cloud.url, sync.cloud.key)
+      sync.dirty = false; sync.phase = 'idle'; return
+    }
     const encChanges: { key: string; ts: number; device: string; value: unknown }[] = []
     let maxSeq = 0
     for (const c of changes) {
@@ -362,13 +367,14 @@ async function cloudWrite() {
        encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: v })
     }
     const ok = await cloudPush(encChanges)
-    if (!ok) { await cloudWriteLegacy(); return }
+    if (!ok) { await cloudWriteLegacy(); await syncEntityData(sync.cloud.url, sync.cloud.key); return }
      if (maxSeq) lsSet('b_push_cursor', String(maxSeq))
      changes.forEach(c => setLocalTs(c.ts, c.key))
      forceFullSnapshot = false
     sync.dirty = false
     sync.phase = 'idle'
     sync.lastTouch = Date.now()
+    await syncEntityData(sync.cloud.url, sync.cloud.key)
     markLastSync(true)
     ElMessage.success('已同步到云端 ☁️')
   } catch (e) {
@@ -519,6 +525,7 @@ export async function pollCheck() {
       } else {
         setPullCursor(r.nextCursor)
       }
+      await syncEntityData(sync.cloud.url, sync.cloud.key)
     } else if (sync.mode === 's3' && sync.s3) {
       const r = await s3Read()
       if (r.data && Object.keys(r.data).length && r.mtime > sync.lastTouch + 1500) {
@@ -645,6 +652,7 @@ export async function syncNow() {
     ElMessage.error('⚠️ 拉取失败：' + (e instanceof Error ? e.message : ''))
     return
   }
+  if (sync.mode === 'cloud' && sync.cloud) await syncEntityData(sync.cloud.url, sync.cloud.key)
   if (sync.dirty) await syncWrite()
   else ElMessage.success('已是最新 ✅')
 }
@@ -685,6 +693,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
         forceFullSnapshot = true
         scheduleWrite()
       }
+      await syncEntityData(sync.cloud.url, sync.cloud.key)
       sync.phase = 'idle'
       return true
     }
@@ -701,6 +710,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
     } else {
       applySyncData(r2.data)
     }
+    await syncEntityData(sync.cloud.url, sync.cloud.key)
     sync.phase = 'idle'
     return true
   } catch (e) {

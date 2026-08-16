@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, todayKey } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface DiaryEntry { date: string; content: string }
 const tk = todayKey()
@@ -39,7 +40,7 @@ function save() {
   <div class="sec">
     <h3 class="font-title sec-title">最近记录</h3>
     <div class="list">
-      <div v-if="!history.length" class="empty">空空如也，写一篇吧 ✨</div>
+      <EmptyState v-if="!history.length" icon="✎" title="还没有日记" description="写下今天的心情、想法与收获。" />
       <div v-for="d in history" :key="d.date" class="beryl-card hoverable item">
         <div class="item-head"><p class="date">{{ d.date }} <span v-if="d.date === tk" class="today">· 今天</span></p><CaseLinkSelect target-type="diary" :target-id="d.date" compact /></div>
         <p class="content">{{ d.content.slice(0, 60) }}{{ d.content.length > 60 ? '…' : '' }}</p>

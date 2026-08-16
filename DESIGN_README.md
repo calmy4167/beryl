@@ -980,9 +980,9 @@ npm test             # 组件测试（vitest，建议本机运行）
 | 本地数据 | `localStorage` 仍为兼容数据层；IndexedDB 维护镜像与本地实体变更日志。`b_cases`、`b_caseRelations` 已被纳入同步键。 |
 | 领域模型 | 现实课题（Case）为顶层对象；木/火/土/金/水分别负责定义、行动、资源、判断和复盘。Case 通过关系表引用任务、人物、日记、财务、文章，不复制原始数据。 |
 | 交互 | 收集箱条目可转行动或课题；课题的火阶段可新建/关联任务，土阶段可关联资源；首页与课题页均优先显示正在推进的事项。 |
-| UI（本轮） | 已重做全局颜色、字体、桌面侧栏、移动端底部导航、工作台、课题列表、课题详情阶段导航、任务与收集箱。首页不再承载 QuoteWall；旧工具仍保留在工具箱内。 |
-| 校验 | 当前 `npm run build`、`npm test`（42 项）、`npm run test:node`（15 项）、`npm run test:e2e`（19 项）均通过；主入口 JS 约 388 KB，未触发 500 KB chunk 警告。 |
-| 兼容同步 | 已新增 `entity_records` 与 `/api/entity-sync/*` 的实体级 LWW/tombstone 兼容层及前端客户端；默认键级同步不变，等待真实 D1 灰度迁移。 |
+| UI（本轮） | 已重做全局颜色、字体、桌面侧栏、移动端底部导航、工作台、课题列表、课题详情阶段导航、任务与收集箱；QuoteWall 已重新接入首页，旧工具仍保留在工具箱内。 |
+| 校验 | 当前 `npm run build`、`npm test`（44 项）、`npm run test:node`（15 项）、`npm run test:e2e`（19 项）、`npm run test:pwa` 均通过；主入口 JS 约 391 KB，未触发 500 KB chunk 警告。 |
+| 兼容同步 | `entity_records` 与 `/api/entity-sync/*` 已成为 Cloudflare 默认集合同步路径；键级同步保留用于标量键和兼容镜像。 |
 
 ### 17.2 当前界面信息架构
 
@@ -1007,8 +1007,8 @@ npm test             # 组件测试（vitest，建议本机运行）
 
 **P0：数据与同步正确性**
 
-- [x] 实体级同步兼容层已具备 D1 增量 push/pull、逐条 LWW、删除墓碑和复合游标；[ ] 尚未切换默认同步，也未做生产灰度与冲突可视化。
-- [x] 已实现旧快照 → 实体同步的迁移计划、本地回滚快照、冲突扫描和加密推送；[ ] 尚未执行生产数据迁移，默认键级同步仍保留。
+- [x] 实体级同步已成为 Cloudflare 默认流程：首次连接自动迁移本地集合，之后按实体游标增量拉取、AES-GCM 加密推送、LWW/tombstone 合并；键级协议继续保留用于标量键和兼容镜像。
+- [x] 已实现旧快照 → 实体同步的迁移计划、本地回滚快照、冲突扫描和加密推送；首次连接会自动执行安全边界内的迁移，后台仍可查看计划并回滚。
 - [x] 补齐当前键级和实体级同步端到端测试（setup、鉴权、LWW、KV/D1 迁移、复合游标、tombstone）。
 - [x] KV 已退役：Worker 与 `backend/wrangler.toml` 已移除 KV 绑定和认证/数据回退；D1 是唯一云端来源。
 
@@ -1018,14 +1018,14 @@ npm test             # 组件测试（vitest，建议本机运行）
 - [x] 任务已支持截止日期、排序、筛选和课题上下文。
 - [x] 支持 Case 的优先级、截止日期、归档/删除确认、阶段完成度与跨课题搜索。
 - [x] 水阶段改为独立、明确的“下一轮课题标题”输入，避免把整段复盘当作标题。
-- [ ] 让土阶段可快捷创建资源，而不只可引用已存在资源。
+- [x] 土阶段支持快捷创建人物、日记、财务和文章，并自动建立资源关联。
 
 **P2：产品体验与工程质量**
 
-- [ ] 其余旧模块（习惯、日记、财务、目标、人物、文章、番茄）尚未逐一按新工作台视觉与移动端细节重做。
-- [x] 全局课题搜索/命令面板和 8 秒撤销删除已加入；[ ] 统一空状态、可访问性检查仍待完成。
-- [x] 数据 AES-GCM 传输加密已启用，PWA 外壳 precache 已加入；[ ] 真实浏览器离线安装与备份恢复演练仍待完成。
-- [ ] 拆分 Worker 的其余路由与 D1 数据访问层；目前只抽出了 HTTP/CORS、认证工具。
+- [ ] 其余旧模块（习惯、日记、财务、目标、人物、文章、番茄）仍未逐一按新工作台视觉与移动端细节重做。
+- [x] QuoteWall 已重新接入首页；全局课题搜索/命令面板、8 秒撤销删除、统一空状态和主要控件基础无障碍标签已加入。
+- [x] 数据 AES-GCM 传输加密已启用，构建后会把 hash 资源写入 PWA precache；`npm run test:pwa` 已执行本地离线资源完整性演练，真实设备安装仍建议再做一次人工确认。
+- [x] Worker 已拆出 `backend/src/lib/d1.js` 和 `backend/src/routes/sync.js`；更细的业务路由拆分仍属于低收益整理。
 - [x] Element Plus 改为按实际组件注册，入口 JS 约 385 KB；[ ] CSS 进一步拆分仍可优化。
 
 ### 17.4 部署现实与注意事项
@@ -1035,7 +1035,8 @@ npm test             # 组件测试（vitest，建议本机运行）
 - Pages 环境变量：`VITE_API_BASE_URL=https://<你的 Worker>.workers.dev`；Worker 变量：`FRONTEND_ORIGINS=https://<你的 Pages>.pages.dev`（有自定义域名时用逗号追加）。
 - D1 绑定为必需。KV 仅为旧迁移兼容，不是新部署必需；若当前仍有旧 KV 数据，先迁移和验证，不能直接删除。
 - 2026-08-17 生产检查：Worker `/api/health` 正常，旧 `/api/sync/pull`、新 `/api/entity-sync/pull` 和 `/api/kv-status` 未授权均返回 401；KV 已从生产绑定移除。Worker 版本 ID：`d6d7240f-cf9a-4b3c-be22-fac6d545a148`。
-- Pages 前端 P0 版本已部署到项目 `beryl`；最新预览地址：`https://c272f0f3.beryl-ddk.pages.dev`，主域名 `https://beryl-ddk.pages.dev` 返回 200。
+- Worker 已部署到 `https://beryl-api.3091634749.workers.dev`，版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`；`/api/health` 返回 200，实体/键级同步未授权均返回 401。
+- Pages 前端已部署到项目 `beryl`；本轮预览地址：`https://2482983a.beryl-ddk.pages.dev`，主域名 `https://beryl-ddk.pages.dev` 返回 200；`/sw.js` 返回 200 且包含 hash 资源清单。
 
 ### 17.5 文档维护规则
 

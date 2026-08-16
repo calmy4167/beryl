@@ -13,6 +13,12 @@ describe('backup contract', () => {
   it('keeps only safe JSON strings', () => {
     expect(parseBackup({ b_tasks: '[]', b_auth: '{}' })).toEqual({ b_tasks: '[]' })
   })
+  it('round-trips a safe backup through validation', () => {
+    const source = new StorageMock({ b_tasks: '[{"id":"t1"}]', b_theme: '"personal"', b_session: '"secret"' })
+    const backup = createBackup(source)
+    expect(parseBackup(backup)).toEqual(backup)
+    expect(backup).not.toHaveProperty('b_session')
+  })
 })
 
 class StorageMock implements Storage {

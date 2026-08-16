@@ -6,6 +6,7 @@ import { nextId, fmtDate } from '@/core/storage'
 import { createCollectionRepository } from '@/core/repository'
 import { caseRepository } from '@/domain/case/repository'
 import { PHASE_META, STATUS_LABEL, type CaseItem } from '@/domain/case/model'
+import QuoteWall from '@/components/quotes/QuoteWall.vue'
 
 const router = useRouter(); const tick = ref(0); const capture = ref('')
 interface HomeTask { id: string; title: string; priority: string; date: string; done: boolean }
@@ -29,6 +30,7 @@ onMounted(() => window.addEventListener('beryl-data-synced',refresh)); onUnmount
     <section class="capture beryl-card"><div class="capture-title"><span>＋</span><div><b>快速记录</b><small>先把它放进系统，再决定下一步</small></div></div><el-input v-model="capture" size="large" placeholder="例如：给王老师确认下周的时间" @keyup.enter="add('inbox')"/><div class="capture-actions"><span>Enter 收集 · 选择类型可直接归位</span><div><el-button @click="add('inbox')">收集</el-button><el-button @click="add('task')">作为行动</el-button><el-button type="primary" @click="add('case')">作为课题</el-button></div></div></section>
     <section class="main-grid"><div class="focus"><div class="section-title"><div><p class="eyebrow">FOCUS</p><h2 class="font-title">正在推进</h2></div><el-button text @click="router.push('/app/cases')">查看全部 →</el-button></div><div class="case-list"><button v-for="item in cases" :key="item.id" class="case-row" @click="router.push('/app/cases/'+item.id)"><span class="phase">{{ PHASE_META[item.currentPhase].icon }}</span><span class="case-copy"><b>{{ item.title }}</b><small>{{ PHASE_META[item.currentPhase].summary }}</small></span><span class="state">{{ STATUS_LABEL[item.status] }}</span><span class="arrow">→</span></button><button v-if="!cases.length" class="empty-focus" @click="router.push('/app/cases')"><span>◈</span><b>还没有进行中的课题</b><small>创建一个现实问题，系统才有中心。</small></button></div></div><aside class="side-stats"><button class="stat-card" @click="router.push('/app/module/inbox')"><span>收集箱</span><b>{{ inbox }}</b><small>条尚未归位的想法 →</small></button><button class="stat-card warm" @click="router.push('/app/cases')"><span>已完成</span><b>{{ resolved }}</b><small>个解决过的问题 →</small></button></aside></section>
     <section class="today"><div class="section-title"><div><p class="eyebrow">TODAY</p><h2 class="font-title">今天的行动</h2></div><el-button text @click="router.push('/app/module/tasks')">管理行动 →</el-button></div><div class="task-panel beryl-card"><button v-for="task in tasks" :key="task.id" class="today-task" @click="toggleTask(task)"><span class="check"> </span><span>{{ task.title }}</span><small>{{ task.priority }}优先级</small></button><p v-if="!tasks.length" class="nothing">今天还没有行动。把一个想法转为行动，开始推进。</p></div></section>
+    <QuoteWall />
   </div>
 </template>
 

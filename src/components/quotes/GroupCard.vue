@@ -92,17 +92,17 @@ function onResizeStart(e: PointerEvent) {
     @drop.prevent="onDrop"
   >
     <!-- 大卡标题栏 -->
-    <div class="g-head">
+    <div class="g-head" role="heading" aria-level="3">
       <span class="g-icon">{{ group.icon }}</span>
       <span class="g-title">{{ group.title }}</span>
       <span class="g-count">{{ group.cards.length }} 张</span>
       <span class="g-actions">
         <template v-if="touch">
-          <button class="g-move" title="上移" @click.stop="emit('move-up')">↑</button>
-          <button class="g-move" title="下移" @click.stop="emit('move-down')">↓</button>
+          <button class="g-move" title="上移" aria-label="卡片组上移" @click.stop="emit('move-up')">↑</button>
+          <button class="g-move" title="下移" aria-label="卡片组下移" @click.stop="emit('move-down')">↓</button>
         </template>
         <span v-else class="g-hint">⠿ 拖动排序</span>
-        <span class="resize-handle" title="拖动改变大小" @pointerdown.prevent="onResizeStart">⤡</span>
+        <span class="resize-handle" role="button" tabindex="0" title="拖动改变大小" aria-label="拖动改变卡片组大小" @pointerdown.prevent="onResizeStart">⤡</span>
       </span>
     </div>
 

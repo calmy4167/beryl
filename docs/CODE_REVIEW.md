@@ -198,14 +198,14 @@
 
 ## P2：未来优化
 
-### P2-01：QuoteWall 代码与当前首页脱节
+### P2-01：QuoteWall 首页接入（已完成）
 
 - 文件路径：[src/core/quotes.ts](../src/core/quotes.ts)、[src/components/quotes/](../src/components/quotes/)、[src/views/HomeView.vue](../src/views/HomeView.vue)、[docs/DESIGN.md](DESIGN.md)
-- 当前问题：设计文档把 QuoteWall 描述为首页核心，但 HomeView 未使用；相关代码成为死代码。
-- 为什么是问题：维护者会误判真实渲染链路，重复修复两套 UI。
-- 推荐修改：确认产品取舍后删除死代码或让 HomeView 正式接入；在确认前只标记，不自动删除。
-- 是否必须现在修改：否。
-- 修改风险：中高；可能影响未导入的实验功能。
+- 当前问题：已解决，`HomeView.vue` 正式渲染 `QuoteWall`。
+- 为什么是问题：此前维护者会误判真实渲染链路；现在首页和组件实现已重新对齐。
+- 推荐修改：继续只在 QuoteWall 组件链路维护名句墙，新增交互补组件测试。
+- 是否必须现在修改：否，代码已完成。
+- 修改风险：低；网络源失败仍由离线名句池兜底。
 
 ### P2-02：旧模块注册表与场景层职责重叠
 
@@ -225,14 +225,14 @@
 - 是否必须现在修改：否。
 - 修改风险：中。
 
-### P2-04：构建资源仍未按 hash 清单 precache
+### P2-04：构建资源 hash precache
 
 - 文件路径：[public/sw.js](../public/sw.js)、[src/main.ts](../src/main.ts)
-- 当前问题：SW 已预缓存应用外壳、manifest 和图标，但 Vite 生成的 hash 资源仍依赖首次网络请求。
+- 当前问题：已解决。`npm run build` 会执行 `scripts/generate-sw-precache.mjs`，将 `dist/assets` 中的 hash 资源写入构建后的 SW；仍需真实浏览器离线安装演练。
 - 为什么是问题：离线首次打开体验不可靠。
-- 推荐修改：部署流水线生成 hash 资源清单后再 precache；当前按需组件已完成。
-- 是否必须现在修改：否。
-- 修改风险：中；缓存失效策略需单独验证。
+- 推荐修改：保留构建后生成清单，并在真实浏览器验证安装、升级和离线回退。
+- 是否必须现在修改：否，代码已完成。
+- 修改风险：低；主要剩余风险是浏览器缓存升级行为。
 
 ## P3：暂时不要动
 
@@ -299,19 +299,20 @@
 - P1-09、P1-10、P1-11：已分别完成持久设备 ID 前缀、实体日志 transaction/prune、金额最小单位整数兼容写入。
 - P1-12：Case 已补优先级、截止日期、阶段进度、归档/删除确认、复盘下一轮标题；资源模块已增加直接关联入口；全局课题搜索已加入。
 - P1-13：新增 `src/core/backup.ts` 统一备份白名单与校验、`src/core/undo.ts` 8 秒实体级撤销；新增 PWA 外壳预缓存。
-- P0-10：实体级 D1 兼容层、迁移回滚/冲突扫描、加密推送和 KV 状态检查均已部署；KV 已退役，生产实体数据迁移仍需在后台显式执行。
-- P2/P3：按文档标记保留，涉及生产部署、无障碍或当前无高置信收益的重构未强行删除/重写。
+- P0-10：实体级 D1 同步、迁移回滚/冲突扫描、加密推送和 KV 状态检查均已部署；首次连接已自动执行集合迁移，后台仍保留显式计划与回滚入口。
+- P2-01/P2-02/P2-03、完整人工无障碍审计和 CSS 细拆仍按文档保留；本轮已完成 QuoteWall 接回首页、默认实体同步、土阶段快捷创建、主要页面 EmptyState、基础 aria 标签、hash precache、PWA 资源演练及 Worker D1/同步路由拆分。
 
 ## 最终验证
 
-- `npm test`：39 项通过。
+- `npm test`：44 项通过。
 - `npm run test:node`：15 项通过。
 - `npm run test:e2e`：19 项通过。
+- `npm run test:pwa`：52 个 precache 文件完整性通过。
 - `npm run build`：通过；仅保留第三方 `@vueuse` 的 Rollup 注释提示。
 
-## 生产部署验证（2026-08-16）
+## 生产部署验证（2026-08-17）
 
 - Worker `https://beryl-api.3091634749.workers.dev` 已完成 OAuth 后部署 P0 版本。
 - `/api/health` 返回正常；`/api/sync/pull`、`/api/entity-sync/pull` 与 `/api/kv-status` 未授权均返回 `401`，KV 绑定已移除。
-- 本次部署未执行业务数据 push、迁移或删除。
-- Pages 前端 P0 版本已部署；最新预览地址为 `https://c272f0f3.beryl-ddk.pages.dev`，主域名和预览域名均返回 HTTP 200。实体迁移仍需在后台由用户显式点击执行，KV 解绑仍需先通过 `/api/kv-status` 检查。
+- 默认实体同步已接入客户端首次连接流程；生产 D1 中已有键级记录会在首次连接时按实体快照自动迁移，后台仍保留备份、冲突扫描和回滚入口。
+- Worker 最新版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`；Pages 最新预览地址：`https://2482983a.beryl-ddk.pages.dev`，主域名和预览域名均返回 HTTP 200。

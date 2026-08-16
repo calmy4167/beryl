@@ -247,8 +247,8 @@ export interface EntityChange {
 export async function recordEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
   if (!Array.isArray(before) || !Array.isArray(after) || !key.startsWith('b_')) return
   const asMap = (items: unknown[]) => new Map(items
-    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && 'id' in item && item.id != null)
-    .map(item => [String(item.id), item]))
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && (('id' in item && item.id != null) || ('date' in item && item.date != null)))
+    .map(item => [String(item.id ?? item.date), item]))
   const previous = asMap(before)
   const next = asMap(after)
   const now = Date.now()
@@ -294,7 +294,7 @@ async function pruneEntityChanges(): Promise<void> {
   } catch { /* ignore */ }
 }
 
-export async function readEntityChanges(limit = 500): Promise<EntityChange[]> {
+export async function readEntityChanges(limit = 500, afterUpdatedAt = 0): Promise<EntityChange[]> {
   try {
     const db = await openDb()
     const tx = db.transaction(ENTITY_CHANGES, 'readonly')
@@ -303,7 +303,7 @@ export async function readEntityChanges(limit = 500): Promise<EntityChange[]> {
       req.onsuccess = () => resolve(req.result as EntityChange[])
       req.onerror = () => reject(req.error)
     })
-    return all.sort((a, b) => a.updatedAt - b.updatedAt).slice(-limit)
+    return all.filter(change => change.updatedAt >= afterUpdatedAt).sort((a, b) => a.updatedAt - b.updatedAt).slice(-limit)
   } catch { return [] }
 }
 

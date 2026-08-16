@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface TaskItem { id: string; title: string; priority: string; date: string; dueAt?: string; done: boolean }
 const title = ref('')
@@ -67,15 +68,15 @@ const visibleItems = computed(() => filter.value === 'all' ? items.value : items
   </form>
   <div class="list">
     <div class="list-head"><span>{{ items.filter(x => !x.done).length }} 个待完成</span><label>显示 <select v-model="filter"><option value="open">未完成</option><option value="all">全部</option><option value="done">已完成</option></select></label></div>
-    <div v-if="!visibleItems.length" class="empty">今天没有待办。把一个课题拆成足够小的下一步。</div>
+    <EmptyState v-if="!visibleItems.length" icon="✓" title="今天没有待办" description="把一个课题拆成足够小的下一步。" />
     <div v-for="t in visibleItems" :key="t.id" class="item" :class="{ done: t.done }">
-      <button class="chk" :class="{ on: t.done }" @click="toggle(t.id)">{{ t.done ? '✓' : '' }}</button>
+      <button class="chk" :class="{ on: t.done }" :aria-label="t.done ? '标记为未完成' : '标记为已完成'" @click="toggle(t.id)">{{ t.done ? '✓' : '' }}</button>
       <p class="t">{{ t.title }}</p>
       <span class="tag" :style="{ color: PRI_COLOR[t.priority], background: (PRI_COLOR[t.priority] || '#888') + '1f' }">{{ t.priority }}</span>
       <span v-if="t.dueAt" class="due" :class="{ overdue: !t.done && Date.parse(t.dueAt) < Date.now() }">截止 {{ t.dueAt }}</span>
       <span class="date">{{ t.date }}</span>
       <CaseLinkSelect target-type="task" :target-id="t.id" compact />
-       <el-button circle text size="small" @click="del(t.id)">✕</el-button>
+       <el-button circle text size="small" aria-label="删除任务" @click="del(t.id)">✕</el-button>
     </div>
   </div>
 </template>

@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface CharItem { id: string; name: string; title: string; date: string }
 const name = ref('')
@@ -42,9 +43,9 @@ function del(id: string) {
     <el-button type="primary" native-type="submit">添加</el-button>
   </form>
   <div class="grid">
-    <div v-if="!items.length" class="empty">空空如也，添加一位吧 ✨</div>
+    <EmptyState v-if="!items.length" icon="♙" title="还没有人物" description="添加一位与你当前课题有关的人。" />
     <div v-for="c in items" :key="c.id" class="beryl-card hoverable card">
-      <el-button circle text size="small" class="del" @click="del(c.id)">✕</el-button>
+      <el-button circle text size="small" class="del" aria-label="删除人物" @click="del(c.id)">✕</el-button>
       <div class="avatar" :style="{ background: charColor(c.name) + '22', color: charColor(c.name), borderColor: charColor(c.name) + '44' }">{{ (c.name || '?')[0] }}</div>
       <p class="name">{{ c.name }}</p>
       <p class="title">{{ c.title }}</p>

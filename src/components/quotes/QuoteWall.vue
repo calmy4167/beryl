@@ -98,7 +98,7 @@ onMounted(() => {
     <p v-if="touch" class="touch-hint">📱 触屏模式：拖 ⤡ 调整大小 · 点 ↑↓ 排序</p>
 
     <!-- 加载骨架：模拟大卡嵌小卡结构 -->
-    <div v-if="loading" class="wall-grid">
+    <div v-if="loading" class="wall-grid" role="status" aria-live="polite" aria-label="名言加载中">
       <div class="skeleton-card span-2">
         <div class="sk-head" />
         <div class="sk-cards">
@@ -113,7 +113,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-else-if="!groups.length" class="hint">{{ emptyHint }}</div>
+    <div v-else-if="!groups.length" class="hint" role="status">{{ emptyHint }}</div>
 
     <!-- 卡片墙：渐入 + 拖拽排序/调大小 -->
     <div v-else class="wall-grid">

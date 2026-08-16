@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 import { caseRepository } from '@/domain/case/repository'
 import { registerUndo } from '@/core/undo'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface InboxItem { id?: string; text: string; date: string }
 interface InboxViewItem extends InboxItem { sourceIndex: number }
@@ -83,7 +84,7 @@ onMounted(refresh)
     <el-button type="primary" native-type="submit">收下</el-button>
   </form>
   <div class="list">
-    <div v-if="!items.length" class="empty">收集箱已经清空。继续保持，把注意力留给正在做的事。</div>
+    <EmptyState v-if="!items.length" icon="↓" title="收集箱已经清空" description="继续保持，把注意力留给正在做的事。" />
     <div v-for="it in items" :key="`${it.id || 'legacy'}-${it.sourceIndex}`" class="item">
       <span class="dot" />
       <p class="text">{{ it.text }}</p>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId } from '@/core/storage'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface Goal { id: string; title: string; done: boolean }
 const input = ref('')
@@ -41,11 +42,11 @@ function del(index: number) {
     <el-button type="primary" native-type="submit">添加</el-button>
   </form>
   <div class="list">
-    <div v-if="!items.length" class="empty">空空如也，添加一条吧 ✨</div>
+    <EmptyState v-if="!items.length" icon="◎" title="还没有目标" description="把一个想完成的结果写下来。" />
     <div v-for="(g, i) in items" :key="i" class="beryl-card hoverable item" :class="{ done: g.done }">
-      <button class="chk" :class="{ on: g.done }" @click="toggle(g.id)">{{ g.done ? '✓' : '' }}</button>
+      <button class="chk" :class="{ on: g.done }" :aria-label="g.done ? '标记目标为未完成' : '标记目标为已完成'" @click="toggle(g.id)">{{ g.done ? '✓' : '' }}</button>
       <p class="t">{{ g.title }}</p>
-      <el-button circle text size="small" @click="del(i)">✕</el-button>
+      <el-button circle text size="small" aria-label="删除目标" @click="del(i)">✕</el-button>
     </div>
   </div>
 </template>

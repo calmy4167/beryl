@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface FinItem { id: string; type: string; amount?: number; amountCents?: number; category: string; note: string; date: string }
 const type = ref('expense')
@@ -66,14 +67,14 @@ function del(id: string) {
   </form>
 
   <div class="list">
-    <div v-if="!items.length" class="empty">空空如也，记一笔吧 ✨</div>
+    <EmptyState v-if="!items.length" icon="¥" title="还没有财务记录" description="记录第一笔收入或支出，开始看见现金流。" />
     <div v-for="r in items" :key="r.id" class="beryl-card hoverable item">
       <span class="date">{{ r.date }}</span>
       <span class="tag">{{ r.category }}</span>
       <p class="note">{{ r.note }}</p>
       <span class="amt" :class="r.type === 'income' ? 'inc' : 'exp'">{{ r.type === 'income' ? '+' : '-' }}{{ (amountCents(r) / 100).toFixed(2) }}</span>
       <CaseLinkSelect target-type="transaction" :target-id="r.id" compact />
-      <el-button circle text size="small" @click="del(r.id)">✕</el-button>
+      <el-button circle text size="small" aria-label="删除财务记录" @click="del(r.id)">✕</el-button>
     </div>
   </div>
 </template>
