@@ -32,6 +32,7 @@ const activeId = computed(() => {
 
 /* ---- 二级菜单展开状态（持久化 b_nav_open） ---- */
 const openGroups = ref<Record<string, boolean>>({})
+const toolsOpen = ref(false)
 try {
   Object.assign(openGroups.value, JSON.parse(localStorage.getItem('b_nav_open') || '{}'))
 } catch { /* ignore */ }
@@ -80,7 +81,7 @@ onMounted(() => {
 })
 onUnmounted(() => window.removeEventListener('resize', onResize))
 
-const visibleMods = (catId: string) => cats.value.find(c => c.id === catId)?.mods.filter(m => scene.value.mods.includes(m)) || []
+const visibleMods = (catId: string) => cats.value.find(c => c.id === catId)?.mods.filter(m => m !== 'inbox' && scene.value.mods.includes(m)) || []
 const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
 </script>
 
@@ -100,8 +101,15 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
         <button class="nav-item lv1" :class="{ on: activeId === 'cases' }" @click="go('/app/cases')" title="现实课题">
           <span class="nav-icon">◈</span><span class="nav-label">现实课题</span>
         </button>
+        <button class="nav-item lv1" :class="{ on: activeId === 'inbox' }" @click="go('/app/module/inbox')" title="收集箱">
+          <span class="nav-icon">📥</span><span class="nav-label">收集箱</span>
+        </button>
+        <button class="nav-item lv1" :class="{ open: toolsOpen }" @click="toolsOpen = !toolsOpen" title="工具">
+          <span class="caret" :class="{ open: toolsOpen }">▸</span><span class="nav-icon">🧰</span><span class="nav-label">工具</span>
+        </button>
 
         <!-- 一级：十神分类（可展开）→ 二级：模块 -->
+        <div v-if="toolsOpen">
         <div v-for="c in cats" :key="c.id" class="nav-group">
           <button class="nav-item lv1" :class="{ open: isOpen(c.id) }" @click="toggleGroup(c.id)" :title="c.name">
             <span class="caret" :class="{ open: isOpen(c.id) }">▸</span>
@@ -125,6 +133,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
               </button>
             </div>
           </div>
+        </div>
         </div>
       </nav>
 
@@ -170,6 +179,9 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
           <button class="nav-item lv1" :class="{ on: activeId === 'cases' }" @click="go('/app/cases')">
             <span class="nav-icon">◈</span><span class="nav-label">现实课题</span>
           </button>
+          <button class="nav-item lv1" :class="{ on: activeId === 'inbox' }" @click="go('/app/module/inbox')"><span class="nav-icon">📥</span><span class="nav-label">收集箱</span></button>
+          <button class="nav-item lv1" :class="{ open: toolsOpen }" @click="toolsOpen = !toolsOpen"><span class="caret" :class="{ open: toolsOpen }">▸</span><span class="nav-icon">🧰</span><span class="nav-label">工具</span></button>
+          <div v-if="toolsOpen">
           <div v-for="c in cats" :key="c.id" class="nav-group">
             <button class="nav-item lv1" :class="{ open: openGroups[c.id] }" @click="toggleGroup(c.id)">
               <span class="caret" :class="{ open: openGroups[c.id] }">▸</span>
@@ -192,6 +204,7 @@ const isOpen = (id: string) => collapsed.value || !!openGroups.value[id]
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </nav>
         <div class="side-foot">

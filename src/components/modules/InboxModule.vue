@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId, fmtDate } from '@/core/storage'
+import { caseRepository } from '@/domain/case/repository'
 
 interface InboxItem { id: string; text: string; date: string }
 const input = ref('')
@@ -46,6 +47,21 @@ function del(index: number) {
     refresh()
   } catch { /* ignore */ }
 }
+function toCase(it: InboxItem) {
+  const item = caseRepository.create({ title: it.text, status: 'inbox' })
+  const list = store.get<InboxItem[]>('inbox', []).filter(row => row.id !== it.id)
+  store.set('inbox', list)
+  refresh()
+  ElMessage.success(`已转为现实课题「${item.title}」`)
+}
+function toTask(it: InboxItem) {
+  const tasks = store.get<any[]>('tasks', [])
+  tasks.unshift({ id: nextId(), title: it.text, priority: '中', date: fmtDate(Date.now()), done: false })
+  store.set('tasks', tasks)
+  store.set('inbox', store.get<InboxItem[]>('inbox', []).filter(row => row.id !== it.id))
+  refresh()
+  ElMessage.success('已转为行动任务')
+}
 
 onMounted(refresh)
 </script>
@@ -61,6 +77,8 @@ onMounted(refresh)
       <span class="dot" />
       <p class="text">{{ it.text }}</p>
       <span class="date">{{ it.date }}</span>
+      <el-button text size="small" @click="toTask(it)">→ 行动</el-button>
+      <el-button text size="small" @click="toCase(it)">→ 课题</el-button>
       <el-button circle text size="small" @click="del(i)">✕</el-button>
     </div>
   </div>

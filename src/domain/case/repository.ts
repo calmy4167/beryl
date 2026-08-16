@@ -1,5 +1,5 @@
 import { createCollectionRepository, createEntityId } from '@/core/repository'
-import type { CaseItem, CasePhase, CaseRelation, CaseStatus } from './model'
+import type { CaseDecision, CaseItem, CasePhase, CaseRelation, CaseReview, CaseStatus } from './model'
 
 const cases = createCollectionRepository<CaseItem>('cases')
 const relations = createCollectionRepository<CaseRelation>('caseRelations')
@@ -7,12 +7,12 @@ const relations = createCollectionRepository<CaseRelation>('caseRelations')
 export const caseRepository = {
   list: cases.list,
   find: cases.find,
-  create(input: Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority'>>): CaseItem {
+  create(input: Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>): CaseItem {
     const now = Date.now()
     return cases.create({
       id: createEntityId(), title: input.title.trim(), problem: input.problem || '', desiredOutcome: input.desiredOutcome || '',
-      status: 'active', currentPhase: input.currentPhase || 'wood', priority: input.priority || 2,
-      createdAt: now, updatedAt: now, phaseNotes: {}
+      status: input.status || 'active', currentPhase: input.currentPhase || 'wood', priority: input.priority || 2,
+      createdAt: now, updatedAt: now, phaseNotes: {}, wood: { constraints: '', paths: '' }, decisions: [], reviews: []
     })
   },
   update(id: string, patch: Partial<Omit<CaseItem, 'id' | 'createdAt'>>): boolean {
@@ -20,6 +20,16 @@ export const caseRepository = {
   },
   setPhaseNote(id: string, phase: CasePhase, value: string): boolean {
     return cases.update(id, item => ({ ...item, phaseNotes: { ...item.phaseNotes, [phase]: value }, updatedAt: Date.now() }))
+  },
+  updateWood(id: string, patch: Partial<CaseItem['wood']>): boolean {
+    return cases.update(id, item => ({ ...item, wood: { ...(item.wood || { constraints: '', paths: '' }), ...patch }, updatedAt: Date.now() }))
+  },
+  addDecision(id: string, input: Omit<CaseDecision, 'id' | 'createdAt'>): boolean {
+    return cases.update(id, item => ({ ...item, decisions: [{ id: createEntityId(), createdAt: Date.now(), ...input }, ...(item.decisions || [])], updatedAt: Date.now() }))
+  },
+  addReview(id: string, content: string): boolean {
+    const review: CaseReview = { id: createEntityId(), content, createdAt: Date.now() }
+    return cases.update(id, item => ({ ...item, reviews: [review, ...(item.reviews || [])], updatedAt: Date.now() }))
   },
   setStatus(id: string, status: CaseStatus): boolean { return this.update(id, { status }) },
   remove: cases.remove

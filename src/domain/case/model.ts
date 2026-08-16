@@ -14,7 +14,13 @@ export interface CaseItem {
   createdAt: number
   updatedAt: number
   phaseNotes: Partial<Record<CasePhase, string>>
+  wood: { constraints: string; paths: string }
+  decisions: CaseDecision[]
+  reviews: CaseReview[]
 }
+
+export interface CaseDecision { id: string; title: string; options: string; conclusion: string; createdAt: number }
+export interface CaseReview { id: string; content: string; createdAt: number }
 
 export interface CaseRelation {
   id: string
