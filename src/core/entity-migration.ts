@@ -9,7 +9,7 @@ export interface EntityMigrationPlan {
   skipped: string[]
 }
 
-const COLLECTION_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations']
+const COLLECTION_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments']
 
 function entityId(key: string, item: Record<string, unknown>): string | undefined {
   if (item.id != null) return String(item.id)

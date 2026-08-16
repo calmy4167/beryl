@@ -10,7 +10,7 @@ export interface SceneDef {
   stats: string[]
 }
 
-export const ALL_MODS = ['inbox', 'diary', 'posts', 'habits', 'chars', 'tasks', 'goals', 'finance', 'pomo']
+export const ALL_MODS = ['inbox', 'diary', 'posts', 'habits', 'chars', 'tasks', 'goals', 'finance', 'pomo', 'moments']
 
 export const SCENES: Record<string, SceneDef> = {
   personal: { id: 'personal', name: '个人', icon: '🧑', color: '#0EA5E9', desc: '专注自我提升', tagline: '写下你的想法', mods: [...ALL_MODS], stats: ['count', 'done', 'streak', 'pct'] },

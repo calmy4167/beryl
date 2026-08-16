@@ -304,10 +304,10 @@
 
 ## 最终验证
 
-- `npm test`：44 项通过。
+- `npm test`：48 项通过（含动态、点赞、评论和回复线程测试）。
 - `npm run test:node`：15 项通过。
 - `npm run test:e2e`：19 项通过。
-- `npm run test:pwa`：52 个 precache 文件完整性通过。
+- `npm run test:pwa`：55 个 precache 文件完整性通过。
 - `npm run build`：通过；仅保留第三方 `@vueuse` 的 Rollup 注释提示。
 
 ## 生产部署验证（2026-08-17）
@@ -315,4 +315,4 @@
 - Worker `https://beryl-api.3091634749.workers.dev` 已完成 OAuth 后部署 P0 版本。
 - `/api/health` 返回正常；`/api/sync/pull`、`/api/entity-sync/pull` 与 `/api/kv-status` 未授权均返回 `401`，KV 绑定已移除。
 - 默认实体同步已接入客户端首次连接流程；生产 D1 中已有键级记录会在首次连接时按实体快照自动迁移，后台仍保留备份、冲突扫描和回滚入口。
-- Worker 最新版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`；Pages 最新预览地址：`https://2482983a.beryl-ddk.pages.dev`，主域名和预览域名均返回 HTTP 200。
+- Worker 最新版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`；Pages 最新预览地址：`https://5aa02cbf.beryl-ddk.pages.dev`，主域名和预览域名均返回 HTTP 200。

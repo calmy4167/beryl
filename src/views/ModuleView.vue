@@ -20,7 +20,8 @@ const MODULES: Record<string, Component> = {
   finance: lazy(() => import('@/components/modules/FinanceModule.vue')),
   goals: lazy(() => import('@/components/modules/GoalsModule.vue')),
   chars: lazy(() => import('@/components/modules/CharsModule.vue')),
-  posts: lazy(() => import('@/components/modules/PostsModule.vue'))
+  posts: lazy(() => import('@/components/modules/PostsModule.vue')),
+  moments: lazy(() => import('@/components/modules/MomentsModule.vue'))
 }
 const current = computed(() => MODULES[id.value] || MODULES.inbox)
 

@@ -49,8 +49,8 @@ export const sync = reactive<SyncState>({
   , lastError: ''
 })
 
-export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
-const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations'])
+export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
+const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
 
 /** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
 export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
@@ -82,7 +82,7 @@ setSyncWriteHook((key, str) => {
 const SCHEMA: Record<string, (v: unknown) => boolean> = {
   b_tasks: Array.isArray, b_inbox: Array.isArray, b_habits: Array.isArray, b_goals: Array.isArray,
   b_finance: Array.isArray, b_diary: Array.isArray, b_chars: Array.isArray, b_posts: Array.isArray,
-  b_cases: Array.isArray, b_caseRelations: Array.isArray,
+  b_cases: Array.isArray, b_caseRelations: Array.isArray, b_moments: Array.isArray,
   b_pomoTotal: v => v != null && !isNaN(Number(v)),
   b_pomoCount: v => v != null && !isNaN(Number(v)),
   b_scene: v => {

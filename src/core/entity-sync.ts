@@ -6,7 +6,7 @@ import { lsGet, lsSet, safeParse } from './storage'
 export interface EntitySyncCursor { ts: number; device: string; entity: string; entityId: string }
 export interface EntitySyncRecord { entity: string; entityId: string; value?: unknown; updatedAt: number; device: string; deleted?: boolean }
 
-const ENTITY_COLLECTIONS = ['tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations']
+const ENTITY_COLLECTIONS = ['tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments']
 const ENTITY_CURSOR_KEY = 'b_entity_pull_cursor'
 const ENTITY_READY_KEY = 'b_entity_sync_ready'
 const ENTITY_PUSH_TS_KEY = 'b_entity_push_ts'

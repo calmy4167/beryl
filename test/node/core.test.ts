@@ -124,9 +124,9 @@ describe('modules', () => {
     assert.equal(statValue('balance'), '74.50')
   })
   test('场景差异化：模块数与分类过滤', () => {
-    assert.equal(modsFor('personal').length, 9)
-    assert.equal(modsFor('married').length, 8)
-    assert.equal(modsFor('family').length, 7)
+    assert.equal(modsFor('personal').length, 10)
+    assert.equal(modsFor('married').length, 9)
+    assert.equal(modsFor('family').length, 8)
     const cai = catsFor('family').find(c => c.id === 'cai')!
     assert.deepEqual(cai.mods.filter(m => modsFor('family').includes(m)), ['finance'])
   })
@@ -139,7 +139,7 @@ describe('scenes', () => {
   test('四个场景配置齐全', () => {
     assert.equal(Object.keys(SCENES).length, 4)
     for (const s of Object.values(SCENES)) {
-      assert.ok(s.mods.length >= 7 && s.mods.length <= 9)
+      assert.ok(s.mods.length >= 8 && s.mods.length <= 10)
       assert.equal(s.stats.length, 4)
       assert.ok(s.tagline.length > 0)
     }

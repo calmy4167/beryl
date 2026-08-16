@@ -23,9 +23,9 @@ describe('modules', () => {
   })
 
   it('场景模块/分类过滤（差异化）', () => {
-    expect(modsFor('personal')).toHaveLength(9)
-    expect(modsFor('married')).toHaveLength(8)
-    expect(modsFor('family')).toHaveLength(7)
+    expect(modsFor('personal')).toHaveLength(10)
+    expect(modsFor('married')).toHaveLength(9)
+    expect(modsFor('family')).toHaveLength(8)
     const familyCats = catsFor('family')
     expect(familyCats.some(c => c.id === 'cai')).toBe(true)
     expect(familyCats.find(c => c.id === 'cai')!.mods.filter(m => modsFor('family').includes(m))).toEqual(['finance'])

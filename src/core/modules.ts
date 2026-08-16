@@ -18,7 +18,8 @@ export const MODS: Record<string, ModDef> = {
   tasks: { id: 'tasks', name: '任务', icon: '📌', color: '#EF4444' },
   goals: { id: 'goals', name: '目标', icon: '🥅', color: '#EF4444' },
   finance: { id: 'finance', name: '财务', icon: '💰', color: '#8B5CF6' },
-  pomo: { id: 'pomo', name: '番茄钟', icon: '🍅', color: '#8B5CF6' }
+  pomo: { id: 'pomo', name: '番茄钟', icon: '🍅', color: '#8B5CF6' },
+  moments: { id: 'moments', name: '动态', icon: '💬', color: '#EC4899' }
 }
 
 export interface CatDef {
@@ -35,7 +36,8 @@ export const CATS: CatDef[] = [
   { id: 'shi', name: '食伤·输出', icon: '✍️', color: '#F59E0B', mods: ['posts'] },
   { id: 'bi', name: '比劫·身心', icon: '🤝', color: '#10B981', mods: ['habits', 'chars'] },
   { id: 'guan', name: '官杀·目标', icon: '🎯', color: '#EF4444', mods: ['tasks', 'goals'] },
-  { id: 'cai', name: '财才·资源', icon: '💰', color: '#8B5CF6', mods: ['finance', 'pomo'] }
+  { id: 'cai', name: '财才·资源', icon: '💰', color: '#8B5CF6', mods: ['finance', 'pomo'] },
+  { id: 'social', name: '动态·互动', icon: '💬', color: '#EC4899', mods: ['moments'] }
 ]
 
 export const MOD_CAT: Record<string, string> = {}

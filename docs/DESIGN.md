@@ -7,7 +7,7 @@
 - 前端：Vue 3 + Vite + TypeScript + Element Plus + Vue Router（Hash History）。
 - 部署：Cloudflare Pages 托管 `dist`；独立 Cloudflare Worker 提供 `/api/*`；D1 是当前云端数据库。
 - 兼容层：localStorage 保存 `b_*` 键；IndexedDB 保存本地镜像、键级变更日志和实体级本地日志。
-- 同步：云端按键保存，键级增量 LWW + AES-GCM 密文；实体级接口已具备兼容层，但默认同步尚未切换。
+- 同步：Cloudflare 默认按实体保存，实体级增量 LWW/tombstone + AES-GCM 密文；场景等标量仍走键级增量协议。
 - 认证：本机登录使用 PBKDF2 哈希；Worker 同步密码使用 PBKDF2，新版本兼容旧 SHA-256 哈希。
 
 ## 2. 产品信息架构
@@ -27,7 +27,7 @@
 └── 水：复盘与下一轮课题
 
 工具箱
-└── 任务、习惯、日记、番茄钟、财务、目标、人物、文章
+└── 动态、任务、习惯、日记、番茄钟、财务、目标、人物、文章
 ```
 
 当前首页是 `HomeView` 工作台，不是 QuoteWall。`src/core/quotes.ts` 和
@@ -62,7 +62,7 @@
 | `/app/home` | 工作台 | 快速记录、正在推进、今日行动、统计 |
 | `/app/cases` | 课题列表 | 状态筛选、搜索、新建课题 |
 | `/app/cases/:id` | 课题详情 | 五阶段工作区、关系和复盘 |
-| `/app/module/:id` | 工具模块 | 9 个旧工具模块，按需异步加载 |
+| `/app/module/:id` | 工具模块 | 10 个工具模块，按需异步加载；包含动态/评论 |
 | `/app/admin` | 后台 | 数据管理、场景、同步、诊断 |
 
 `src/router/index.ts` 负责路由守卫；`src/App.vue` 只在有效 session 恢复后启动自动同步。
@@ -81,7 +81,7 @@
 - `kv`：localStorage 的持久镜像，out-of-line key。
 - `changes`：键级 append-only 变更日志，按 seq 读取并限制窗口。
 - `meta`：镜像和设备元数据。
-- `entity_changes`：实体级本地日志，当前只用于迁移准备和诊断。
+- `entity_changes`：实体级本地日志，用于 Cloudflare 默认实体同步的增量推送。
 
 启动顺序是：迁移数据版本 → 从 IndexedDB 恢复缺失的 `b_*` 键 → 镜像当前 localStorage。
 IndexedDB 不可用时仍降级到 localStorage。
@@ -120,8 +120,9 @@ PUT  /api/data                 # 旧客户端兼容，仍走 LWW
 
 ### 6.3 同步粒度的明确限制
 
-当前是**键级同步**：一个集合的任意变化会重传整个 `b_*` JSON 值；双端同时编辑同一键时是整键 LWW，
-不是条目合并。实体级云同步、删除墓碑和逐条冲突界面仍未启用。
+Cloudflare 模式下，集合数据默认走**实体级同步**：实体按 `(entity, entityId)` 使用 LWW 和删除墓碑，
+并以 AES-GCM 密文传输；场景、番茄统计等标量仍走键级增量协议。file/S3 模式仍保留整键快照语义。
+多人权限和细粒度可见范围目前只在动态数据模型中预留，尚未接入成员管理。
 
 ## 7. 备份、导入与重置
 
@@ -132,13 +133,13 @@ IndexedDB 镜像、变更日志和实体日志。
 ## 8. 当前性能边界
 
 - 工具模块通过异步组件按需加载；Element Plus 只注册当前实际使用的组件。
-- 当前入口 JS 约 385 KB，未触发 500 KB chunk 警告；CSS 仍包含 Element Plus 全局样式。
+- 当前入口 JS 约 392 KB，未触发 500 KB chunk 警告；CSS 仍包含 Element Plus 全局样式。
 - 多数工具模块仍按集合全量解析和写回，数据量明显增长后应逐步迁移到 Repository/IndexedDB 查询。
 - Service Worker 已预缓存应用外壳、manifest 和图标；构建生成的 hash 资源仍通过 network-first 运行时缓存。
 
 ## 9. 测试与验证
 
-- `npm test`：9 个文件、42 项 Vitest 测试。
+- `npm test`：11 个文件、48 项 Vitest 测试（含动态、点赞、评论和回复线程）。
 - `npm run test:node`：15 项 Node 核心测试。
 - `npm run test:e2e`：19 项真实 SQLite + Worker 协议测试，覆盖 setup、鉴权、LWW、KV 迁移、复合游标、实体级 tombstone 和 KV 退役状态。
 - `npm run build`：`vue-tsc --noEmit` 和 Vite 构建通过；仅有第三方 `@vueuse` Rollup 注释提示。
@@ -192,12 +193,12 @@ IndexedDB 镜像、变更日志和实体日志。
 
 ### 12.4 当前验证
 
-- Vitest：42 项通过。
+- Vitest：48 项通过。
 - Node 核心测试：15 项通过。
 - Worker 端到端：19 项通过（包含实体级 tombstone、LWW、复合游标和 KV 退役状态检查）。
-- `npm run build`：通过；首屏 JS 约 387 KB，未出现 500 KB 警告。
+- `npm run build`：通过；首屏 JS 约 392 KB，未出现 500 KB 警告。
 
 仍需真实 Cloudflare 环境完成的工作：D1 `entity_records` 生产迁移演练、KV 解绑前的备份/恢复演练，以及 Pages 部署后在真实浏览器验证 PWA 安装和离线启动。这些依赖外部环境，代码仓库内不做假完成标记。
 
-截至 2026-08-17 的生产检查：`/api/health` 返回 `{"ok":true,"protocol":2}`；旧 `/api/sync/pull`、新 `/api/entity-sync/pull` 和 `/api/kv-status` 未授权均返回 `401`，KV 已从生产绑定移除。Worker 版本 ID：`d6d7240f-cf9a-4b3c-be22-fac6d545a148`。
+截至 2026-08-17 的生产检查：`/api/health` 返回 `{"ok":true,"protocol":2}`；旧 `/api/sync/pull`、新 `/api/entity-sync/pull` 和 `/api/kv-status` 未授权均返回 `401`，KV 已从生产绑定移除。当前 Worker 版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`。
 Pages P0 前端也已部署；最新预览地址为 `https://c272f0f3.beryl-ddk.pages.dev`，主域名返回 HTTP 200。

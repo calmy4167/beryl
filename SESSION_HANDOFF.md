@@ -17,9 +17,9 @@
 | 前端 | Cloudflare Pages，构建命令 `npm run build`，输出目录 `dist` |
 | 后端 | 独立 Cloudflare Worker：`backend/src/worker.js`，通过 `backend/wrangler.toml` 部署 |
 | 数据库 | D1 是当前必需后端存储；KV 只保留为旧同步数据/认证迁移兼容 |
-| 同步 | 默认仍是 `b_*` 整键保存的键级增量 LWW、复合游标和 AES-GCM 密文同步；实体级 D1 push/pull、LWW、tombstone 兼容层已实现但未切换默认 |
+| 同步 | Cloudflare 默认使用实体级 D1 push/pull、LWW、tombstone 和 AES-GCM 密文同步；标量键与兼容镜像继续使用键级增量协议 |
 | 当前产品中心 | Case（现实课题）→ 木、火、土、金、水五阶段；任务等是被关联的工具实体 |
-| 测试 | `npm run build`、`npm test`（44 项）、`npm run test:node`（15 项）、`npm run test:e2e`（19 项）、`npm run test:pwa` 均通过；`git diff --check` 通过 |
+| 测试 | `npm run build`、`npm test`（48 项）、`npm run test:node`（15 项）、`npm run test:e2e`（19 项）、`npm run test:pwa` 均通过；`git diff --check` 通过 |
 
 ## 本轮已完成
 
@@ -31,7 +31,7 @@
 ## Git 状态与本次文档改动
 
 - 当前 UI 重设计已在最近提交 `18414cc feat: add case-centered workspace` 中；提交前仍应自行用 `git log -1 --stat` 核对。
-- 本次会话新增/更新的未提交内容是 `DESIGN_README.md` 与 `SESSION_HANDOFF.md`，用于纠正过去过时的架构和待办描述。
+- 本次会话新增/更新的未提交内容包括动态/评论模块、实体同步接入、测试及设计/交接文档；用于纠正过去过时的架构和待办描述。
 - 在操作前先运行 `git status --short`，不要覆盖用户后续产生的改动。
 
 ## 真正待办（不要重复做已完成项）
@@ -60,12 +60,12 @@
 - Worker：在 `backend/wrangler.toml` 配置 D1 `database_id`、`FRONTEND_ORIGINS`；部署命令 `npm run deploy:api`。
 - Pages：环境变量 `VITE_API_BASE_URL=https://<worker>.workers.dev`，构建 `npm run build`，目录 `dist`。
 - 本轮 Pages 部署预览：`https://8df2397e.beryl-ddk.pages.dev`；主域名与 `/sw.js` 已完成线上 200 校验。
-- 最新 Pages 部署预览：`https://2482983a.beryl-ddk.pages.dev`；主域名、`/sw.js`、Worker `/api/health` 已完成线上 200 校验。
+- 最新 Pages 部署预览：`https://5aa02cbf.beryl-ddk.pages.dev`；主域名、`/sw.js`、Worker `/api/health` 已完成线上 200 校验。
 - 访问 `https://<worker>/api/data` 返回 `unauthorized` 说明 API 可达；`/api/health` 可用于健康检查。
 - `workers.dev` 域名由 Cloudflare 账户级子域决定，改显示用户名不会变。中国大陆部分网络无法直连 Pages/Workers，需另行做国内可达性架构。
 
-> 2026-08-17 生产检查：`/api/health` 正常，旧同步接口、新实体同步接口和 `/api/kv-status` 未授权均返回 401，KV 已从生产绑定移除。Worker 版本 ID：`d6d7240f-cf9a-4b3c-be22-fac6d545a148`。
-> Pages 最新前端已部署到项目 `beryl`；预览地址 `https://2482983a.beryl-ddk.pages.dev`，主域名与预览域名 HTTP 200。
+> 2026-08-17 生产检查：`/api/health` 正常，旧同步接口、新实体同步接口和 `/api/kv-status` 未授权均返回 401，KV 已从生产绑定移除。当前 Worker 版本 ID：`264a4304-56b4-473d-8e12-80fb4e8c2caa`。
+> Pages 最新前端已部署到项目 `beryl`；预览地址 `https://5aa02cbf.beryl-ddk.pages.dev`，主域名与预览域名 HTTP 200。
 
 ## 可直接复制到下个对话的提示词
 
@@ -76,7 +76,7 @@
 
 重要约束：
 - 当前是 Cloudflare Pages 前端 + 独立 Cloudflare Worker/D1 后端，必须保持前后端分离；不要把 Worker 放回 Pages 或改为传统服务器。
-- 默认同步仍是键级增量 LWW：本地集合整键传输，使用复合游标和 AES-GCM 密文；实体级 D1 兼容层已实现但未切换默认，任何生产灰度必须保留迁移、回滚和测试。
+- Cloudflare 默认同步已切换为实体级增量 LWW/tombstone 和 AES-GCM 密文；标量键继续走键级协议，首次连接保留迁移、回滚和测试入口。
 - Case（现实课题）是产品中心；任务、日记、人物、财务和文章等是可关联资源。
 - 本地工作区可能有未提交改动，先执行 git status --short 和阅读相关源文件；不要覆盖无关改动。
 - 使用 apply_patch 修改文件；每次代码改动后同步更新 DESIGN_README.md §17 与本交接文档。
