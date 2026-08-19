@@ -29,6 +29,14 @@ export const recordRepository = {
     revisions.create({ id: createEntityId(), recordId: item.calmyId, revision: item.revision, body: item.body, reason: 'imported', actor: 'import', changedAt: item.updatedAt })
     return 'created'
   },
+  replaceImported(item: RealityRecord): 'replaced' | 'unchanged' {
+    const current = records.find(item.calmyId)
+    if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
+    if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
+    if (!records.update(item.calmyId, () => item)) throw new RecordDomainError('NOT_FOUND', 'Record import target disappeared')
+    revisions.create({ id: createEntityId(), recordId: item.calmyId, revision: item.revision, body: item.body, reason: 'import-replaced', actor: 'import', changedAt: item.updatedAt })
+    return 'replaced'
+  },
   revisions(calmyId: string): RecordRevision[] {
     return revisions.list().filter(item => item.recordId === calmyId).sort((a, b) => a.revision - b.revision)
   },
@@ -43,11 +51,14 @@ export const recordRepository = {
     const record: RealityRecord = {
       calmyId: createEntityId(), type, body: assertBody(input.body), occurredAt: input.occurredAt || now,
       createdAt: now, updatedAt: now, matterId: input.matterId, actionId: input.actionId,
-      source, evidenceIds, revision: 1
+      source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined
     }
     records.create(record)
     revisions.create({ id: createEntityId(), recordId: record.calmyId, revision: 1, body: record.body, reason: 'created', actor: source, changedAt: now })
     return record
+  },
+  createNegative(input: Omit<RecordCreateInput, 'type'> & { impact: NonNullable<RecordCreateInput['impact']> }): RealityRecord {
+    return this.create({ ...input, type: 'negative' })
   },
   revise(calmyId: string, body: string, reason: string, actor: RecordSource = 'user', expectedRevision?: number): RealityRecord {
     const current = records.find(calmyId)

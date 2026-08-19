@@ -5,6 +5,7 @@ import { store, nextId, fmtDate } from '@/core/storage'
 import { caseRepository } from '@/domain/case/repository'
 import { registerUndo } from '@/core/undo'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface InboxItem { id?: string; text: string; date: string }
 interface InboxViewItem extends InboxItem { sourceIndex: number }
@@ -12,17 +13,9 @@ const input = ref('')
 const items = ref<InboxViewItem[]>([])
 
 function refresh() {
-  try {
-    const raw = store.get<any>('inbox', [])
-    const list = Array.isArray(raw) ? raw : []
-    if (!Array.isArray(raw)) store.set('inbox', list) // 规范化坏值（如 "null"），修复后正常
-    // 显示层过滤：空文本（含无 text 字段的历史数据）不显示，但数据本身保留
-    items.value = list
-      .map((x: any, sourceIndex: number) => ({ ...x, sourceIndex }))
-      .filter((x: any) => x && x.text != null && String(x.text).trim() !== '')
-  } catch {
-    items.value = []
-  }
+  items.value = listRealityDocuments({ types: ['inbox'] }).map(item => ({
+    id: item.id, text: item.body || item.title, date: item.date || '', sourceIndex: item.sourceIndex ?? -1
+  }))
 }
 function add() {
   const v = input.value.trim()

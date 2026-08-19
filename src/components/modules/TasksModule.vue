@@ -5,6 +5,7 @@ import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface TaskItem { id: string; title: string; priority: string; date: string; dueAt?: string; done: boolean }
 const title = ref('')
@@ -15,7 +16,9 @@ const items = ref<TaskItem[]>(load())
 
 function load(): TaskItem[] {
   const order: Record<string, number> = { '高': 0, '中': 1, '低': 2 }
-  return store.get<TaskItem[]>('tasks', []).slice().sort((a, b) => {
+  return listRealityDocuments({ types: ['task'] }).map(item => ({
+    id: item.id, title: item.title, priority: item.priority || '中', date: item.date || '', dueAt: item.dueAt, done: item.done ?? item.status === 'done'
+  })).sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1
     const due = (a.dueAt ? Date.parse(a.dueAt) : Number.MAX_SAFE_INTEGER) - (b.dueAt ? Date.parse(b.dueAt) : Number.MAX_SAFE_INTEGER)
     if (due !== 0) return due

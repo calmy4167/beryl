@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 import { store } from '@/core/storage'
+import { listRealityDocuments } from '@/domain/reality'
 
 const mode = ref<'focus' | 'rest'>('focus')
 const total = ref(25 * 60)
 const remain = ref(25 * 60)
 const running = ref(false)
-const minutes = ref(Number(store.get('pomoTotal', 0)) || 0)
-const count = ref(Number(store.get('pomoCount', 0)) || 0)
+function stats(): { minutes: number; count: number } {
+  const item = listRealityDocuments({ types: ['pomo'] })[0]
+  return { minutes: item?.minutes || 0, count: item?.count || 0 }
+}
+const initialStats = stats()
+const minutes = ref(initialStats.minutes)
+const count = ref(initialStats.count)
 let timer: number | undefined
 
 const RING_C = 2 * Math.PI * 88
@@ -44,8 +50,9 @@ function startTimer() {
       if (mode.value === 'focus') {
         store.set('pomoTotal', (Number(store.get('pomoTotal', 0)) || 0) + 25)
         store.set('pomoCount', (Number(store.get('pomoCount', 0)) || 0) + 1)
-        minutes.value = Number(store.get('pomoTotal', 0)) || 0
-        count.value = Number(store.get('pomoCount', 0)) || 0
+        const nextStats = stats()
+        minutes.value = nextStats.minutes
+        count.value = nextStats.count
         switchMode('rest')
       } else {
         switchMode('focus')

@@ -16,7 +16,13 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/app/home' },
         { path: 'home', name: 'home', component: () => import('@/views/HomeView.vue') },
+        { path: 'capture', name: 'capture', component: () => import('@/views/CaptureView.vue') },
         { path: 'today', name: 'today', component: () => import('@/views/TodayView.vue') },
+        { path: 'review', name: 'review', component: () => import('@/views/ReviewView.vue') },
+        { path: 'calendar', name: 'calendar', component: () => import('@/views/CalendarView.vue') },
+        { path: 'people', name: 'people', component: () => import('@/views/PeopleView.vue') },
+        { path: 'library', name: 'library', component: () => import('@/views/LibraryView.vue') },
+        { path: 'graph', name: 'graph', component: () => import('@/views/GraphView.vue') },
         { path: 'cases', name: 'cases', component: () => import('@/views/CasesView.vue') },
         { path: 'cases/:id', name: 'case', component: () => import('@/views/CaseView.vue') },
         { path: 'matters', name: 'matters', component: () => import('@/views/MattersView.vue') },

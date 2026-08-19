@@ -7,6 +7,7 @@ import { caseRelationRepository, caseRepository } from '@/domain/case/repository
 import { CASE_PHASES, PHASE_META, STATUS_LABEL, type CasePhase, type CaseStatus, type CaseRelation } from '@/domain/case/model'
 import { createCollectionRepository, createEntityId } from '@/core/repository'
 import { fmtDate, todayKey } from '@/core/storage'
+import { listRealityDocuments } from '@/domain/reality'
 
 type Task = { id: string; title: string; priority: string; date: string; done: boolean }
 type Person = { id: string; name: string; title: string }
@@ -51,7 +52,11 @@ async function deleteCase() {
 }
 function updateWood(key: 'constraints' | 'paths', value: string) { if (!item.value) return; caseRepository.updateWood(item.value.id, { [key]: value }); refresh() }
 const relations = computed(() => item.value ? caseRelationRepository.listFor(item.value.id) : [])
-const linkedTasks = computed(() => relations.value.filter(link => link.targetType === 'task').map(link => ({ link, task: tasks.find(link.targetId) })).filter(row => !!row.task) as { link: CaseRelation; task: Task }[])
+const linkedTasks = computed(() => {
+  void tick.value
+  const taskIds = new Set(listRealityDocuments({ types: ['task'] }).map(item => item.id))
+  return relations.value.filter(link => link.targetType === 'task' && taskIds.has(link.targetId)).map(link => ({ link, task: tasks.find(link.targetId) })).filter(row => !!row.task) as { link: CaseRelation; task: Task }[]
+})
 const availableTargets = computed(() => {
   switch (relationType.value) {
     case 'person': return people.list().map(row => ({ id: row.id, label: `${row.name}${row.title ? ' · ' + row.title : ''}` }))

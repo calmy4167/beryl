@@ -20,6 +20,13 @@ export const todayRepository = {
     plans.create(item)
     return 'created'
   },
+  replaceImported(item: TodayPlan): 'replaced' | 'unchanged' {
+    const current = plans.find(item.date)
+    if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
+    if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
+    if (!plans.update(item.date, () => item)) throw new Error('Today import target disappeared')
+    return 'replaced'
+  },
   update(date: string, patch: TodayPatch, expectedRevision?: number): TodayPlan {
     const current = this.get(date)
     if (expectedRevision !== undefined && expectedRevision !== current.revision) throw new Error(`Today ${date} revision conflict`)

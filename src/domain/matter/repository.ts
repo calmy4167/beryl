@@ -65,6 +65,14 @@ export const matterRepository = {
     appendMutation(item, 'create', 'import:' + item.calmyId + ':' + item.revision, 'import', [], 0, item)
     return 'created'
   },
+  replaceImported(item: Matter): 'replaced' | 'unchanged' {
+    const current = matters.find(item.calmyId)
+    if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
+    if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
+    if (!matters.update(item.calmyId, () => item)) throw new MatterDomainError('NOT_FOUND', 'Matter import target disappeared')
+    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', [], current.revision, item)
+    return 'replaced'
+  },
   mutations(calmyId?: string): MatterMutation[] {
     return mutations.list().filter(item => !calmyId || item.entityId === calmyId).sort((a, b) => a.occurredAt - b.occurredAt)
   },
@@ -95,6 +103,9 @@ export const matterRepository = {
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
     appendMutation(next, 'update', command.commandId, command.actor, command.sourceIds, current.revision, patch)
     return saveCommand(command.commandId, next)
+  },
+  bindCycle(calmyId: string, cycleId: string, meta: MatterCommandMeta = {}): Matter {
+    return this.update(calmyId, { currentCycleId: cycleId }, meta)
   },
   transition(calmyId: string, status: MatterStatus, meta: MatterCommandMeta = {}): Matter {
     const command = metaOf(meta)

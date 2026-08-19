@@ -1,5 +1,8 @@
-export const RECORD_TYPES = ['fact', 'observation', 'insight', 'seed', 'review'] as const
+export const RECORD_TYPES = ['fact', 'observation', 'insight', 'seed', 'review', 'negative'] as const
 export type RecordType = typeof RECORD_TYPES[number]
+
+export const NEGATIVE_RECORD_IMPACTS = ['waste', 'escape', 'retreat', 'loss', 'other'] as const
+export type NegativeRecordImpact = typeof NEGATIVE_RECORD_IMPACTS[number]
 
 export const RECORD_SOURCES = ['user', 'ai', 'import', 'sync'] as const
 export type RecordSource = typeof RECORD_SOURCES[number]
@@ -16,6 +19,7 @@ export interface RealityRecord {
   source: RecordSource
   evidenceIds: string[]
   revision: number
+  impact?: NegativeRecordImpact
   redactedAt?: number
 }
 
@@ -27,6 +31,7 @@ export interface RecordCreateInput {
   actionId?: string
   source?: RecordSource
   evidenceIds?: string[]
+  impact?: NegativeRecordImpact
 }
 
 export interface RecordRevision {

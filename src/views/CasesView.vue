@@ -4,9 +4,10 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { caseRepository } from '@/domain/case/repository'
 import { PHASE_META, STATUS_LABEL, type CaseItem, type CaseStatus } from '@/domain/case/model'
+import { listRealityDocuments } from '@/domain/reality'
 import EmptyState from '@/components/EmptyState.vue'
 const router=useRouter(); const title=ref(''); const query=ref(''); const status=ref<'all'|CaseStatus>('active'); const tick=ref(0)
-const all=computed<CaseItem[]>(()=>{void tick.value;return caseRepository.list().slice().sort((a,b)=>b.updatedAt-a.updatedAt)})
+const all=computed<CaseItem[]>(()=>{void tick.value;const ids=new Set(listRealityDocuments({types:['case']}).map(item=>item.id));return caseRepository.list().filter(item=>ids.has(item.id)).slice().sort((a,b)=>b.updatedAt-a.updatedAt)})
 const items=computed(()=>all.value.filter(x=>(status.value==='all'||x.status===status.value)&&(!query.value||`${x.title}${x.problem}${x.desiredOutcome}`.toLowerCase().includes(query.value.toLowerCase()))))
 const counts=computed(()=>({all:all.value.length,active:all.value.filter(x=>x.status==='active').length,inbox:all.value.filter(x=>x.status==='inbox').length,paused:all.value.filter(x=>x.status==='paused').length,resolved:all.value.filter(x=>x.status==='resolved').length,archived:all.value.filter(x=>x.status==='archived').length}))
 function create(){const v=title.value.trim();if(!v){ElMessage.warning('先写下要解决的现实问题');return};const item=caseRepository.create({title:v});title.value='';router.push('/app/cases/'+item.id)}

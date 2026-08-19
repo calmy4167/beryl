@@ -8,15 +8,19 @@ import ContentRenderer from '@/components/content/ContentRenderer.vue'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface Post { id: string; title: string; content: string; date: string }
 const postRepository = createCollectionRepository<Post>('posts')
 const title = ref('')
 const content = ref('')
-const items = ref<Post[]>(postRepository.list())
+const items = ref<Post[]>(load())
 const reading = ref<Post | null>(null)
 
-function refresh() { items.value = postRepository.list() }
+function load(): Post[] {
+  return listRealityDocuments({ types: ['post'] }).map(item => ({ id: item.id, title: item.title, content: item.body || item.summary, date: item.date || '' }))
+}
+function refresh() { items.value = load() }
 function add() {
   const t = title.value.trim()
   const c = content.value.trim()

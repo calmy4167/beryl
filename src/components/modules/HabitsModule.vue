@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { store, nextId, todayKey, dateKey } from '@/core/storage'
 import { maxStreak } from '@/core/modules'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface Habit { id: string; name: string; color: string; days: number; dates: string[] }
 const PRESETS = [
@@ -12,14 +13,17 @@ const PRESETS = [
   { name: '冥想', color: '#8B5CF6' }
 ]
 
-function seed(): Habit[] {
+function seed(): void {
   const existing = localStorage.getItem('b_habits')
-  if (existing != null) return store.get<Habit[]>('habits', [])
+  if (existing != null) return
   const list = PRESETS.map(h => ({ id: nextId(), name: h.name, color: h.color, days: 0, dates: [] as string[] }))
   store.set('habits', list)
-  return list
 }
-const habits = ref<Habit[]>(seed())
+function load(): Habit[] {
+  seed()
+  return listRealityDocuments({ types: ['habit'] }).map(item => ({ id: item.id, name: item.title, color: item.color || '#6366F1', days: item.days || item.dates?.length || 0, dates: item.dates || [] }))
+}
+const habits = ref<Habit[]>(load())
 const tk = todayKey()
 
 function weekDates(): { key: string; day: number; wd: string; today: boolean }[] {

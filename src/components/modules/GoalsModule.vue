@@ -3,12 +3,14 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { store, nextId } from '@/core/storage'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface Goal { id: string; title: string; done: boolean }
 const input = ref('')
-const items = ref<Goal[]>(store.get('goals', []))
+const items = ref<Goal[]>(load())
 
-function refresh() { items.value = store.get<Goal[]>('goals', []) }
+function load(): Goal[] { return listRealityDocuments({ types: ['goal'] }).map(item => ({ id: item.id, title: item.title, done: item.done ?? item.status === 'done' })) }
+function refresh() { items.value = load() }
 function add() {
   const v = input.value.trim()
   if (!v) return

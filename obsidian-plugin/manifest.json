@@ -1,0 +1,9 @@
+{
+  "id": "calmy-open",
+  "name": "Calmy Open Workspace",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Validate and observe a Calmy Open Format workspace.",
+  "author": "Calmy",
+  "isDesktopOnly": false
+}

@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { store, todayKey } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface DiaryEntry { date: string; content: string }
 const tk = todayKey()
@@ -11,12 +12,12 @@ const input = ref('')
 const history = ref<DiaryEntry[]>(loadHistory())
 
 function loadHistory(): DiaryEntry[] {
-  return store.get<DiaryEntry[]>('diary', []).slice().sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 5)
+  return listRealityDocuments({ types: ['diary'] }).map(item => ({ date: item.date || item.id, content: item.body || item.summary })).slice(0, 5)
 }
 function refresh() { history.value = loadHistory() }
 
-const cur = store.get<DiaryEntry[]>('diary', []).find(d => d.date === tk)
-if (cur) input.value = cur.content
+const cur = listRealityDocuments({ types: ['diary'] }).find(item => item.date === tk)
+if (cur) input.value = cur.body || cur.summary
 
 function save() {
   const v = input.value.trim()

@@ -4,15 +4,20 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '@/components/EmptyState.vue'
 import { currentAuthor, socialRepository } from '@/domain/social/repository'
 import { VISIBILITY_LABEL, type SocialPost, type SocialVisibility } from '@/domain/social/model'
+import { listRealityDocuments } from '@/domain/reality'
 
 const content = ref('')
 const visibility = ref<SocialVisibility>('private')
-const posts = ref<SocialPost[]>(socialRepository.list())
+const posts = ref<SocialPost[]>(load())
 const commentDrafts = ref<Record<string, string>>({})
 const replyTargets = ref<Record<string, string | undefined>>({})
 const authorId = computed(() => currentAuthor().id)
 
-function refresh() { posts.value = socialRepository.list() }
+function load(): SocialPost[] {
+  const ids = new Set(listRealityDocuments({ types: ['moment'] }).map(item => item.id))
+  return socialRepository.list().filter(item => ids.has(item.id))
+}
+function refresh() { posts.value = load() }
 function publish() {
   if (!content.value.trim()) { ElMessage.warning('写点内容再发布吧'); return }
   socialRepository.create(content.value, visibility.value)

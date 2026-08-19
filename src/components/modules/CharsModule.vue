@@ -5,11 +5,12 @@ import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface CharItem { id: string; name: string; title: string; date: string }
 const name = ref('')
 const title = ref('')
-const items = ref<CharItem[]>(store.get('chars', []))
+const items = ref<CharItem[]>(load())
 
 const COLORS = ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#06B6D4']
 function charColor(n: string): string {
@@ -17,7 +18,10 @@ function charColor(n: string): string {
   for (const ch of String(n)) h = (h * 31 + ch.codePointAt(0)!) >>> 0
   return COLORS[h % COLORS.length]
 }
-function refresh() { items.value = store.get<CharItem[]>('chars', []) }
+function load(): CharItem[] {
+  return listRealityDocuments({ types: ['char'] }).map(item => ({ id: item.id, name: item.name || item.title, title: item.charTitle || item.summary, date: item.date || '' }))
+}
+function refresh() { items.value = load() }
 function add() {
   const n = name.value.trim()
   if (!n) { ElMessage.warning('请输入姓名'); return }

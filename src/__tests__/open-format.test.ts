@@ -3,7 +3,7 @@ import type { ActionItem } from '@/domain/action/model'
 import type { Matter } from '@/domain/matter/model'
 import type { RealityRecord } from '@/domain/record/model'
 import type { TodayPlan } from '@/domain/today/model'
-import { exportOpenWorkspace, importOpenWorkspace, OPEN_MANIFEST_PATH, serializeOpenEntity } from '@/core/content/open-format'
+import { compareOpenEntities, compareOpenEntityFields, exportOpenWorkspace, importOpenWorkspace, mergeOpenEntity, OPEN_MANIFEST_PATH, scanOpenAssetReferences, serializeOpenEntity } from '@/core/content/open-format'
 
 const matter: Matter = {
   calmyId: 'matter-stable-1', title: '处理：供应商/合同？', why: '减少长期不确定性', primaryContradiction: '',
@@ -27,6 +27,8 @@ const daily: TodayPlan = {
   letGo: [], review: { observation: '', analysis: '', adjustment: '', seed: '' }, revision: 1, updatedAt: 1723900004000
 }
 
+const asset = { path: 'assets/evidence.bin', data: new Uint8Array([0, 1, 2, 255]), mimeType: 'application/octet-stream' }
+
 describe('Calmy Open Format', () => {
   it('round-trips all MVP entity types without losing stable IDs', () => {
     const workspace = exportOpenWorkspace({ matters: [matter], actions: [action], records: [record], dailies: [daily] })
@@ -47,6 +49,40 @@ describe('Calmy Open Format', () => {
 
     expect(result.issues).toEqual([])
     expect(result.entities[0]).toMatchObject({ calmyId: matter.calmyId, title: matter.title })
+  })
+
+  it('accepts a moved file even when the old manifest path has not been edited yet', () => {
+    const workspace = exportOpenWorkspace({ matters: [matter] })
+    const originalPath = Object.keys(workspace.files).find(path => path.endsWith('.md')) as string
+    const movedFiles = Object.fromEntries(Object.entries(workspace.files).map(([path, content]) => [
+      path === originalPath ? 'Projects/供应商合同.md' : path, content
+    ]))
+
+    const result = importOpenWorkspace(movedFiles)
+
+    expect(result.issues).toEqual([])
+    expect(result.entities).toHaveLength(1)
+    expect(result.entities[0]).toMatchObject({ calmyId: matter.calmyId })
+  })
+
+  it('classifies same-ID edits as conflicts while treating identical entities as unchanged', () => {
+    const edited = { ...matter, why: '改动后的现实原因', revision: matter.revision + 1 }
+
+    const changed = compareOpenEntities([matter], [edited])
+    const unchanged = compareOpenEntities([matter], [matter])
+
+    expect(changed.added).toHaveLength(0)
+    expect(changed.conflicts).toEqual([expect.objectContaining({ calmyId: matter.calmyId, localRevision: 2, incomingRevision: 3 })])
+    expect(unchanged.unchanged).toHaveLength(1)
+  })
+
+  it('merges only the fields explicitly selected from the incoming entity', () => {
+    const incoming = { ...matter, why: 'Vault 原因', revision: 3 }
+    const fields = compareOpenEntityFields(matter, incoming)
+    const merged = mergeOpenEntity(matter, incoming, { why: 'use-incoming' })
+
+    expect(fields.map(field => field.key)).toEqual(expect.arrayContaining(['why', 'revision']))
+    expect(merged).toMatchObject({ why: 'Vault 原因', revision: matter.revision })
   })
 
   it('rejects duplicate stable IDs instead of silently overwriting one file', () => {
@@ -79,5 +115,28 @@ describe('Calmy Open Format', () => {
 
     expect(result.entities).toHaveLength(0)
     expect(result.issues).toEqual([expect.objectContaining({ code: 'unsupported-file', path: 'assets/photo.png' })])
+  })
+
+  it('round-trips binary assets through the manifest hash', () => {
+    const workspace = exportOpenWorkspace({ matters: [matter], assets: [asset] })
+    const result = importOpenWorkspace(workspace.files, workspace.assets)
+
+    expect(result.issues).toEqual([])
+    expect(result.assets).toHaveLength(1)
+    expect([...result.assets[0].data]).toEqual([0, 1, 2, 255])
+    expect(result.orphanAssets).toHaveLength(1)
+    expect(workspace.files[OPEN_MANIFEST_PATH]).toContain('evidence.bin')
+  })
+
+  it('scans Obsidian and Markdown asset links and blocks missing references', () => {
+    const references = scanOpenAssetReferences({ '50 Records/note.md': '![证据](assets/a.png)\\n![[assets/b.pdf|原件]]' })
+    const missing = importOpenWorkspace({ '50 Records/note.md': serializeOpenEntity({ ...record, body: '![证据](assets/missing.png)' }) })
+
+    expect(references).toEqual([
+      { source_path: '50 Records/note.md', asset_path: 'assets/a.png', syntax: 'markdown' },
+      { source_path: '50 Records/note.md', asset_path: 'assets/b.pdf', syntax: 'obsidian' }
+    ])
+    expect(missing.missingAssetReferences).toEqual([expect.objectContaining({ asset_path: 'assets/missing.png' })])
+    expect(missing.issues).toEqual([expect.objectContaining({ code: 'missing-asset-reference' })])
   })
 })

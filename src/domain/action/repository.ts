@@ -22,6 +22,13 @@ export const actionRepository = {
     actions.create(item)
     return 'created'
   },
+  replaceImported(item: ActionItem): 'replaced' | 'unchanged' {
+    const current = actions.find(item.calmyId)
+    if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
+    if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
+    if (!actions.update(item.calmyId, () => item)) throw new ActionDomainError('NOT_FOUND', 'Action import target disappeared')
+    return 'replaced'
+  },
   create(input: ActionCreateInput): ActionItem {
     if (!input.date.trim()) throw new ActionDomainError('VALIDATION_FAILED', 'Action date is required')
     const now = Date.now()

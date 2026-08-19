@@ -6,6 +6,7 @@ import { nextId, fmtDate } from '@/core/storage'
 import { createCollectionRepository } from '@/core/repository'
 import { caseRepository } from '@/domain/case/repository'
 import { PHASE_META, STATUS_LABEL, type CaseItem } from '@/domain/case/model'
+import { listRealityDocuments } from '@/domain/reality'
 import QuoteWall from '@/components/quotes/QuoteWall.vue'
 
 const router = useRouter(); const tick = ref(0); const capture = ref('')
@@ -14,10 +15,11 @@ interface HomeInbox { id: string; text: string; date: string }
 const taskRepository = createCollectionRepository<HomeTask>('tasks')
 const inboxRepository = createCollectionRepository<HomeInbox>('inbox')
 const greeting = computed(() => { const h = new Date().getHours(); return h < 11 ? '早上好' : h < 18 ? '下午好' : '晚上好' })
-const cases = computed<CaseItem[]>(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'active').sort((a,b) => b.updatedAt-a.updatedAt).slice(0,3) })
+const realityCaseIds = computed(() => { void tick.value; return new Set(listRealityDocuments({ types: ['case'] }).map(item => item.id)) })
+const cases = computed<CaseItem[]>(() => { void tick.value; return caseRepository.list().filter(x => realityCaseIds.value.has(x.id) && x.status === 'active').sort((a,b) => b.updatedAt-a.updatedAt).slice(0,3) })
 const tasks = computed(() => { void tick.value; return taskRepository.list().filter(x => !x.done).slice(0,5) })
 const inbox = computed(() => { void tick.value; return inboxRepository.list().filter(x => x?.text?.trim()).length })
-const resolved = computed(() => { void tick.value; return caseRepository.list().filter(x => x.status === 'resolved').length })
+const resolved = computed(() => { void tick.value; return caseRepository.list().filter(x => realityCaseIds.value.has(x.id) && x.status === 'resolved').length })
 function refresh() { tick.value++ }
 function add(kind: 'inbox' | 'task' | 'case') { const text = capture.value.trim(); if (!text) { ElMessage.warning('先写下一件事'); return }; const now = Date.now(); if (kind === 'case') { const item = caseRepository.create({ title:text }); capture.value=''; router.push('/app/cases/'+item.id); return }; if (kind === 'task') { taskRepository.create({ id:nextId(), title:text, priority:'中', date:fmtDate(now), done:false }); ElMessage.success('已加入今日行动') } else { inboxRepository.create({id:nextId(),text,date:fmtDate(now)}); ElMessage.success('已收入收集箱') }; capture.value=''; refresh() }
 function toggleTask(task: HomeTask) { taskRepository.update(task.id, current => ({ ...current, done: !current.done })); refresh() }

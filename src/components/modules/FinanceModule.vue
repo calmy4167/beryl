@@ -5,14 +5,22 @@ import { store, nextId, fmtDate } from '@/core/storage'
 import CaseLinkSelect from '@/components/CaseLinkSelect.vue'
 import { registerUndo } from '@/core/undo'
 import EmptyState from '@/components/EmptyState.vue'
+import { listRealityDocuments } from '@/domain/reality'
 
 interface FinItem { id: string; type: string; amount?: number; amountCents?: number; category: string; note: string; date: string }
 const type = ref('expense')
 const cat = ref('')
 const amount = ref<number | null>(null)
 const note = ref('')
-const items = ref<FinItem[]>(store.get('finance', []))
+const items = ref<FinItem[]>(load())
 const CATS = ['餐饮', '交通', '购物', '娱乐', '住房', '工资', '理财', '医疗', '学习', '其他']
+
+function load(): FinItem[] {
+  return listRealityDocuments({ types: ['transaction'] }).map(item => ({
+    id: item.id, type: item.financeType || item.status || 'expense', amount: item.amount, amountCents: item.amountCents,
+    category: item.category || item.title, note: item.body || '', date: item.date || ''
+  }))
+}
 
 const stats = computed(() => {
   let inc = 0, exp = 0
@@ -22,7 +30,7 @@ const stats = computed(() => {
 function amountCents(item: FinItem): number {
   return Number.isInteger(item.amountCents) ? item.amountCents! : Math.round(Number(item.amount || 0) * 100)
 }
-function refresh() { items.value = store.get<FinItem[]>('finance', []) }
+function refresh() { items.value = load() }
 function add() {
   const a = Number(amount.value)
   if (!(a > 0)) { ElMessage.warning('请输入有效金额'); return }
