@@ -16,8 +16,11 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/app/home' },
         { path: 'home', name: 'home', component: () => import('@/views/HomeView.vue') },
+        { path: 'today', name: 'today', component: () => import('@/views/TodayView.vue') },
         { path: 'cases', name: 'cases', component: () => import('@/views/CasesView.vue') },
         { path: 'cases/:id', name: 'case', component: () => import('@/views/CaseView.vue') },
+        { path: 'matters', name: 'matters', component: () => import('@/views/MattersView.vue') },
+        { path: 'matters/:id', name: 'matter', component: () => import('@/views/MatterView.vue') },
         { path: 'module/:id', name: 'module', component: () => import('@/views/ModuleView.vue') },
         { path: 'admin', name: 'admin', component: () => import('@/views/AdminView.vue') }
       ]
