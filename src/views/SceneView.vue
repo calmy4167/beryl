@@ -34,6 +34,7 @@ onMounted(() => applySceneTheme(currentSceneId()))
         :key="s.id"
         class="beryl-card hoverable card"
         :class="{ sel: selected === s.id }"
+        :aria-pressed="selected === s.id"
         :style="selected === s.id ? { borderColor: s.color, boxShadow: `0 0 0 1px ${s.color}44, 0 8px 24px ${s.color}1a` } : {}"
         @click="pick(s.id)"
       >

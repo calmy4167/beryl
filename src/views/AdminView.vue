@@ -12,6 +12,7 @@ import { createEntityMigrationPlan, migrationBackupExists, rollbackMigration, sa
 import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
 import { apiFetch } from '@/core/api/client'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
+import { listRealityDocuments } from '@/domain/reality'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
@@ -20,10 +21,10 @@ const countsVersion = ref(0)
 const counts = computed(() => ({
   // 让同步事件和本地操作可显式触发重新读取，而不是依赖非响应式 localStorage。
   _version: countsVersion.value,
-  tasks: store.get<any[]>('tasks', []).length,
-  finance: store.get<any[]>('finance', []).length,
-  habits: store.get<any[]>('habits', []).length,
-  posts: store.get<any[]>('posts', []).length
+  tasks: listRealityDocuments({ types: ['task'] }).length,
+  finance: listRealityDocuments({ types: ['transaction'] }).length,
+  habits: listRealityDocuments({ types: ['habit'] }).length,
+  posts: listRealityDocuments({ types: ['post'] }).length
 }))
 function refreshCounts() { countsVersion.value++ }
 
@@ -357,8 +358,8 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 
     <!-- Cloudflare 连接对话框 -->
     <el-dialog v-model="cloudDlg" title="☁️ 连接 Cloudflare 云端" width="92%" style="max-width: 420px">
-      <el-input v-model="cloudUrl" placeholder="https://beryl-api.你的子域.workers.dev" class="mb-2" />
-      <el-input v-model="cloudKey" type="password" placeholder="同步密码" show-password />
+      <el-input v-model="cloudUrl" aria-label="Cloudflare Worker 地址" placeholder="https://beryl-api.你的子域.workers.dev" class="mb-2" />
+      <el-input v-model="cloudKey" aria-label="云端同步密码" type="password" placeholder="同步密码" show-password />
       <template #footer>
         <el-button @click="cloudDlg = false">取消</el-button>
         <el-button type="primary" :loading="connecting" @click="doCloudConnect">连接</el-button>

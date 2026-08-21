@@ -72,16 +72,16 @@ async function submit() {
     <form class="beryl-card card" @submit.prevent="submit">
       <el-form label-position="top">
         <el-form-item v-if="mode === 'change'" label="当前密码">
-          <el-input v-model="cur" type="password" placeholder="当前密码" autocomplete="current-password" show-password />
+          <el-input v-model="cur" aria-label="当前密码" type="password" placeholder="当前密码" autocomplete="current-password" show-password />
         </el-form-item>
         <el-form-item label="用户名">
-          <el-input v-model="user" placeholder="用户名" autocomplete="username" />
+          <el-input v-model="user" aria-label="用户名" placeholder="用户名" autocomplete="username" />
         </el-form-item>
         <el-form-item label="新密码（至少 6 位）">
-          <el-input v-model="np" type="password" placeholder="新密码" autocomplete="new-password" show-password />
+          <el-input v-model="np" aria-label="新密码" type="password" placeholder="新密码" autocomplete="new-password" show-password />
         </el-form-item>
         <el-form-item label="确认新密码">
-          <el-input v-model="cp" type="password" placeholder="确认新密码" autocomplete="new-password" show-password />
+          <el-input v-model="cp" aria-label="确认新密码" type="password" placeholder="确认新密码" autocomplete="new-password" show-password />
         </el-form-item>
       </el-form>
 

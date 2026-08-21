@@ -9,6 +9,10 @@ import router from './router'
 import { initDb } from './core/db'
 import { migrateData } from './core/migrate'
 import { purgeCorruptedEncryptedKeys } from './core/sync'
+import { setModuleRealityReader } from './core/modules'
+import { listRealityDocuments, type RealityEntityType } from './domain/reality'
+
+setModuleRealityReader(type => listRealityDocuments({ types: [type as RealityEntityType] }))
 
 const app = createApp(App)
 app.use(createPinia())

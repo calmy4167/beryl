@@ -112,15 +112,15 @@ describe('modules', () => {
     assert.equal(maxStreak(undefined), 0)
   })
   test('statValue', () => {
-    store.set('tasks', [{ done: true }, { done: false }])
-    store.set('goals', [{ done: true }, { done: false }, { done: true }])
+    store.set('tasks', [{ id: 'task-1', title: '完成报告', done: true }, { id: 'task-2', title: '回复邮件', done: false }])
+    store.set('goals', [{ id: 'goal-1', title: '阅读', done: true }, { id: 'goal-2', title: '运动', done: false }, { id: 'goal-3', title: '学习', done: true }])
     store.set('habits', [])
     store.set('finance', [])
     store.set('posts', [])
     assert.equal(statValue('count'), '2')
     assert.equal(statValue('done'), '1')
     assert.ok(statValue('pct').startsWith('67') && statValue('pct').includes('%'))
-    store.set('finance', [{ type: 'income', amount: 100 }, { type: 'expense', amount: 25.5 }])
+    store.set('finance', [{ id: 'finance-1', type: 'income', amount: 100 }, { id: 'finance-2', type: 'expense', amount: 25.5 }])
     assert.equal(statValue('balance'), '74.50')
   })
   test('场景差异化：模块数与分类过滤', () => {

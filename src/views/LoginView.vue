@@ -70,10 +70,10 @@ onUnmounted(() => clearInterval(lockTimer))
     <form class="beryl-card card" @submit.prevent="submit">
       <el-form label-position="top">
         <el-form-item label="用户名">
-          <el-input v-model="user" placeholder="请输入用户名" autocomplete="username" size="large" />
+          <el-input v-model="user" aria-label="用户名" placeholder="请输入用户名" autocomplete="username" size="large" />
         </el-form-item>
         <el-form-item label="密码">
-          <el-input v-model="pass" type="password" placeholder="请输入密码" autocomplete="current-password" size="large" show-password />
+          <el-input v-model="pass" aria-label="密码" type="password" placeholder="请输入密码" autocomplete="current-password" size="large" show-password />
         </el-form-item>
       </el-form>
 

@@ -35,7 +35,7 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', bumpSync))
 <template>
   <div>
     <div class="head fade-enter-active">
-      <button class="back" @click="router.push('/app/home')" title="返回工作台">←</button>
+      <button class="back" aria-label="返回工作台" @click="router.push('/app/home')" title="返回工作台">←</button>
       <div class="heading"><p v-if="cat">{{ cat.icon }} {{ cat.name }}</p><h1 class="font-title"><span>{{ mod.icon }}</span>{{ mod.name }}</h1></div>
     </div>
     <component :is="current" :key="syncTick" />

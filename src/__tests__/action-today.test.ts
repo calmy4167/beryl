@@ -13,6 +13,16 @@ describe('actionRepository', () => {
     expect(action.matterId).toBe('mat-1')
   })
 
+  it('lists actions by Matter and Cycle without mixing parallel cycles', () => {
+    const first = actionRepository.create({ title: '恢复作息', date: '2026-08-19', matterId: 'mat-1', cycleId: 'cycle-a' })
+    const second = actionRepository.create({ title: '整理环境', date: '2026-08-19', matterId: 'mat-1', cycleId: 'cycle-b' })
+    actionRepository.create({ title: '其他课题', date: '2026-08-19', matterId: 'mat-2', cycleId: 'cycle-a' })
+
+    expect(actionRepository.listForMatter('mat-1').map(item => item.calmyId)).toEqual(expect.arrayContaining([first.calmyId, second.calmyId]))
+    expect(actionRepository.listForCycle('cycle-a').map(item => item.calmyId)).toEqual(expect.arrayContaining([first.calmyId]))
+    expect(actionRepository.listForCycle('cycle-a').map(item => item.calmyId)).not.toContain(second.calmyId)
+  })
+
   it('moves an action through start and complete while preserving revision', () => {
     const action = actionRepository.create({ title: '跑通测试', date: '2026-08-19' })
     const started = actionRepository.start(action.calmyId, 1)

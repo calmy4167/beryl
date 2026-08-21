@@ -29,12 +29,18 @@ const records = computed(() => {
 const cycles = computed(() => { void tick.value; return matter.value ? unifiedRepository.listCyclesForMatter(matter.value.calmyId) : [] })
 const selectedCycle = computed(() => cycles.value.find(item => item.calmyId === selectedCycleId.value) || cycles.value.find(item => item.calmyId === matter.value?.currentCycleId) || cycles.value[0])
 const stages = computed(() => selectedCycle.value ? unifiedRepository.listStagesForCycle(selectedCycle.value.calmyId) : [])
-const actions = computed(() => {
+const matterActions = computed(() => {
   void tick.value
   const matterId = matter.value?.calmyId
   if (!matterId) return []
   const actionIds = new Set(listRealityDocuments({ types: ['action'] }).filter(item => item.matterId === matterId).map(item => item.id))
-  return actionRepository.list().filter(item => actionIds.has(item.calmyId))
+  return actionRepository.listForMatter(matterId).filter(item => actionIds.has(item.calmyId))
+})
+const actions = computed(() => {
+  void tick.value
+  const cycleId = selectedCycle.value?.calmyId
+  const cycleActionIds = cycleId ? new Set(actionRepository.listForCycle(cycleId).map(item => item.calmyId)) : new Set<string>()
+  return matterActions.value.filter(item => cycleActionIds.has(item.calmyId))
 })
 const outcomes = computed(() => { void tick.value; const matterId = matter.value?.calmyId; const actionIds = new Set(actions.value.map(item => item.calmyId)); return unifiedRepository.list<Outcome>('outcome').filter(item => actionIds.has(item.actionId) || item.matterId === matterId) })
 const practices = computed(() => { void tick.value; const matterId = matter.value?.calmyId; const outcomeIds = new Set(outcomes.value.map(item => item.calmyId)); return unifiedRepository.list<Practice>('practice').filter(item => item.matterIds.includes(matterId || '') || item.outcomeIds.some(id => outcomeIds.has(id))) })

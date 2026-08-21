@@ -2,6 +2,34 @@
 import { store } from './storage.ts'
 import { SCENES, currentSceneId } from './scenes.ts'
 
+export type ModuleRealityType = 'task' | 'goal' | 'habit' | 'transaction' | 'pomo' | 'post'
+export interface ModuleRealityDocument {
+  id?: string
+  title?: string
+  status?: string
+  done?: boolean
+  dates?: string[]
+  amount?: number
+  amountCents?: number
+  financeType?: string
+  minutes?: number
+}
+type ModuleRealityReader = (type: ModuleRealityType) => ModuleRealityDocument[]
+
+function legacyRealityDocuments(type: ModuleRealityType): ModuleRealityDocument[] {
+  if (type === 'pomo') return [{ minutes: Number(store.get('pomoTotal', 0)) || 0 }]
+  const keys: Record<Exclude<ModuleRealityType, 'pomo'>, string> = { task: 'tasks', goal: 'goals', habit: 'habits', transaction: 'finance', post: 'posts' }
+  const raw = store.get<unknown>(keys[type], [])
+  if (!Array.isArray(raw)) return []
+  if (type === 'task' || type === 'goal') return raw.filter(item => !!item && typeof item === 'object' && typeof (item as any).id === 'string' && typeof (item as any).title === 'string').map(item => ({ id: (item as any).id, title: (item as any).title, done: !!(item as any).done, status: (item as any).done ? 'done' : 'open' }))
+  if (type === 'habit') return raw.filter(item => !!item && typeof item === 'object' && typeof (item as any).id === 'string' && typeof (item as any).name === 'string').map(item => ({ id: (item as any).id, title: (item as any).name, dates: (item as any).dates || [] }))
+  if (type === 'post') return raw.filter(item => !!item && typeof item === 'object' && typeof (item as any).id === 'string' && typeof (item as any).title === 'string').map(item => ({ id: (item as any).id, title: (item as any).title }))
+  return raw.filter(item => !!item && typeof item === 'object' && typeof (item as any).id === 'string').map(item => ({ id: (item as any).id, amount: (item as any).amount, amountCents: (item as any).amountCents, financeType: (item as any).type }))
+}
+
+let realityReader: ModuleRealityReader = legacyRealityDocuments
+export function setModuleRealityReader(reader?: ModuleRealityReader): void { realityReader = reader || legacyRealityDocuments }
+
 export interface ModDef {
   id: string
   name: string
@@ -70,26 +98,30 @@ export function maxStreak(dates: string[] | undefined): number {
 }
 
 export function statValue(type: string): string {
-  const tasks = store.get<any[]>('tasks', [])
-  const goals = store.get<any[]>('goals', [])
-  const habits = store.get<any[]>('habits', [])
   switch (type) {
-    case 'count': return String(tasks.length)
-    case 'done': return String(tasks.filter(t => t.done).length)
+    case 'count': return String(realityReader('task').length)
+    case 'done': return String(realityReader('task').filter(item => item.done ?? item.status === 'done').length)
     case 'streak': {
-      const s = habits.length ? Math.max(...habits.map(h => maxStreak(h.dates))) : 0
+      const habits = realityReader('habit')
+      const s = habits.length ? Math.max(...habits.map(item => maxStreak(item.dates))) : 0
       return s + '<span class="unit">天</span>'
     }
     case 'pct': {
-      const p = goals.length ? Math.round(goals.filter(g => g.done).length / goals.length * 100) : 0
+      const goals = realityReader('goal')
+      const p = goals.length ? Math.round(goals.filter(item => item.done ?? item.status === 'done').length / goals.length * 100) : 0
       return p + '<span class="unit">%</span>'
     }
     case 'balance': {
-      const fin = store.get<any[]>('finance', [])
-      return fin.reduce((a, r) => a + (r.type === 'income' ? r.amount : -r.amount), 0).toFixed(2)
+      const cents = realityReader('transaction').reduce((total, item) => {
+        const value = typeof item.amountCents === 'number'
+          ? item.amountCents
+          : Math.round((Number(item.amount) || 0) * 100)
+        return total + (item.financeType === 'income' ? value : -value)
+      }, 0)
+      return (cents / 100).toFixed(2)
     }
-    case 'pomo': return (Number(store.get('pomoTotal', 0)) || 0) + '<span class="unit">分</span>'
-    case 'posts': return String(store.get<any[]>('posts', []).length)
+    case 'pomo': return (realityReader('pomo')[0]?.minutes || 0) + '<span class="unit">分</span>'
+    case 'posts': return String(realityReader('post').length)
     default: return '0'
   }
 }

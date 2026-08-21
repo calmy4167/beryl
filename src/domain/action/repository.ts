@@ -12,6 +12,8 @@ function titleOf(title: string): string {
 export const actionRepository = {
   list(): ActionItem[] { return actions.list().slice().sort((a, b) => b.updatedAt - a.updatedAt) },
   listForDate(date: string): ActionItem[] { return this.list().filter(item => item.date === date) },
+  listForMatter(matterId: string): ActionItem[] { return this.list().filter(item => item.matterId === matterId) },
+  listForCycle(cycleId: string): ActionItem[] { return this.list().filter(item => item.cycleId === cycleId) },
   find(calmyId: string): ActionItem | undefined { return actions.find(calmyId) },
   importEntity(item: ActionItem): 'created' | 'unchanged' {
     const current = actions.find(item.calmyId)

@@ -233,13 +233,13 @@ async function cleanupOrphans(): Promise<void> {
   <div class="matters-page">
     <header class="page-head">
       <div><p class="eyebrow">MVP MATTERS</p><h1 class="font-title">现实事项</h1><p>围绕一个现实问题，决定今天最小必要行动。</p></div>
-      <div class="head-actions"><input ref="vaultInput" type="file" multiple accept=".md,.json" webkitdirectory directory hidden @change="importVault"><el-button plain size="small" @click="exportVault">导出 Open Vault</el-button><el-button plain size="small" @click="vaultInput?.click()">导入 Vault</el-button></div>
+<div class="head-actions"><input ref="vaultInput" aria-label="选择 Open Vault 文件夹或文件" type="file" multiple accept=".md,.json" webkitdirectory directory hidden @change="importVault"><el-button plain size="small" @click="exportVault">导出 Open Vault</el-button><el-button plain size="small" @click="vaultInput?.click()">导入 Vault</el-button></div>
       <div class="head-number"><b>{{ counts.active }}</b><span>进行中</span></div>
     </header>
 
     <form class="new-matter beryl-card" @submit.prevent="create">
       <span class="matter-mark">◈</span>
-      <div class="new-fields"><el-input v-model="title" size="large" placeholder="现在正在面对什么现实事项？" /><el-input v-model="why" placeholder="为什么现在值得处理？（可选）" /></div>
+<div class="new-fields"><el-input v-model="title" aria-label="Matter 标题" size="large" placeholder="现在正在面对什么现实事项？" /><el-input v-model="why" aria-label="Matter 为什么值得处理" placeholder="为什么现在值得处理？（可选）" /></div>
       <el-button type="primary" native-type="submit">新建 Matter</el-button>
     </form>
 
@@ -248,7 +248,7 @@ async function cleanupOrphans(): Promise<void> {
       <div class="conflict-list">
         <div v-for="conflict in pendingComparison.conflicts" :key="conflict.calmyId" class="conflict-row">
           <div class="conflict-copy"><b>{{ conflict.calmyId }}</b><span>{{ conflict.calmyType }} · 本地 revision {{ conflict.localRevision }} · Vault revision {{ conflict.incomingRevision }}</span></div>
-          <div class="decision-row"><label><input :checked="conflictDecisions[conflict.calmyId] === 'keep-local'" type="radio" :name="'open-conflict-' + conflict.calmyId" @change="setConflictDecision(conflict.calmyId, 'keep-local')">保留本地</label><label><input :checked="conflictDecisions[conflict.calmyId] === 'use-incoming'" type="radio" :name="'open-conflict-' + conflict.calmyId" @change="setConflictDecision(conflict.calmyId, 'use-incoming')">采用 Vault</label><button class="manual-button" type="button" @click="openManualMerge(conflict)">手工合并</button></div>
+<div class="decision-row"><label><input :checked="conflictDecisions[conflict.calmyId] === 'keep-local'" aria-label="冲突保留本地" type="radio" :name="'open-conflict-' + conflict.calmyId" @change="setConflictDecision(conflict.calmyId, 'keep-local')">保留本地</label><label><input :checked="conflictDecisions[conflict.calmyId] === 'use-incoming'" aria-label="冲突采用 Vault" type="radio" :name="'open-conflict-' + conflict.calmyId" @change="setConflictDecision(conflict.calmyId, 'use-incoming')">采用 Vault</label><button class="manual-button" type="button" @click="openManualMerge(conflict)">手工合并</button></div>
         </div>
       </div>
       <div v-if="manualConflictId" class="manual-merge">
@@ -257,7 +257,7 @@ async function cleanupOrphans(): Promise<void> {
           <div class="field-name">{{ field.key }}</div>
           <div class="field-value"><b>本地</b><pre>{{ formatOpenValue(field.localValue) }}</pre></div>
           <div class="field-value"><b>Vault</b><pre>{{ formatOpenValue(field.incomingValue) }}</pre></div>
-          <div class="field-choice"><label><input :checked="manualDecisions[field.key] === 'keep-local'" type="radio" :name="'field-' + field.key" @change="setManualDecision(field.key, 'keep-local')">本地</label><label><input :checked="manualDecisions[field.key] === 'use-incoming'" type="radio" :name="'field-' + field.key" @change="setManualDecision(field.key, 'use-incoming')">Vault</label></div>
+<div class="field-choice"><label><input :checked="manualDecisions[field.key] === 'keep-local'" aria-label="字段保留本地" type="radio" :name="'field-' + field.key" @change="setManualDecision(field.key, 'keep-local')">本地</label><label><input :checked="manualDecisions[field.key] === 'use-incoming'" aria-label="字段采用 Vault" type="radio" :name="'field-' + field.key" @change="setManualDecision(field.key, 'use-incoming')">Vault</label></div>
         </div>
         <div class="manual-actions"><el-button plain @click="manualConflictId = undefined">取消手工合并</el-button><el-button type="primary" @click="confirmManualMerge">完成字段选择</el-button></div>
       </div>
