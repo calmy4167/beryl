@@ -21,6 +21,29 @@ export interface ActionCreateInput {
   cycleId?: string
 }
 
+export interface ActionCommandMeta {
+  commandId?: string
+  actor?: 'user' | 'import' | 'sync'
+  actorId?: string
+  sourceIds?: string[]
+  expectedRevision?: number
+}
+
+export interface ActionMutation {
+  id: string
+  entity: 'action'
+  entityId: string
+  operation: 'create' | 'update' | 'transition'
+  commandId: string
+  actor: NonNullable<ActionCommandMeta['actor']>
+  actorId?: string
+  sourceIds: string[]
+  fromRevision: number
+  toRevision: number
+  occurredAt: number
+  patch?: unknown
+}
+
 export class ActionDomainError extends Error {
   constructor(public readonly code: 'VALIDATION_FAILED' | 'NOT_FOUND' | 'INVALID_TRANSITION' | 'REVISION_CONFLICT', message: string) {
     super(message)

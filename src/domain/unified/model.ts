@@ -53,6 +53,7 @@ export interface Relationship extends CoreEntityMeta {
   sharedSpaceIds: string[]
   matterIds: string[]
   evidenceIds: string[]
+  ownerId?: string
 }
 
 export interface SharedSpace extends CoreEntityMeta {
@@ -66,6 +67,7 @@ export interface SharedSpace extends CoreEntityMeta {
   memberIds: string[]
   relationshipIds: string[]
   matterIds: string[]
+  ownerId?: string
 }
 
 export interface Cycle extends CoreEntityMeta {
@@ -207,6 +209,7 @@ export interface CoreEntityMutation {
   operation: 'create' | 'update' | 'archive' | 'transition'
   commandId: string
   actor: CoreEntitySource
+  actorId?: string
   sourceIds: string[]
   fromRevision: number
   toRevision: number
@@ -217,6 +220,7 @@ export interface CoreEntityMutation {
 export interface CoreCommandMeta {
   commandId?: string
   actor?: CoreEntitySource
+  actorId?: string
   sourceIds?: string[]
   expectedRevision?: number
 }

@@ -283,8 +283,26 @@ export async function applyWorkspaceImportToVault(
 
 export class CompanionBridgeSession {
   private readonly responses = new Map<string, CompanionMessage>()
+  private readonly inflight = new Map<string, Promise<CompanionMessage>>()
 
   constructor(private readonly adapter: VaultAdapter, private readonly client: BridgeClient = 'obsidian-plugin') {}
+
+  private async dispatch(message: CompanionMessage): Promise<CompanionMessage> {
+    if (message.kind === 'hello') {
+      return createBridgeHello(this.client, ['workspace-export', 'workspace-import-preview', 'workspace-import-apply'])
+    }
+    if (message.kind === 'workspace_export_request') {
+      try {
+        const snapshot = await readVaultSnapshot(this.adapter)
+        if (snapshot.issues.length || !snapshot.manifest) throw new Error(snapshot.issues[0]?.message || 'vault-manifest-missing')
+        return exportMessage(message.request_id, { files: snapshot.files, assets: snapshot.assets, manifest: snapshot.manifest })
+      } catch (error) {
+        return errorMessage('vault-export-failed', error instanceof Error ? error.message : 'vault-export-failed', message.request_id)
+      }
+    }
+    if (message.kind === 'workspace_import_apply') return applyWorkspaceImportToVault(this.adapter, message)
+    return errorMessage('bridge-message-not-handled', '当前端点不处理：' + message.kind, 'request_id' in message ? message.request_id : undefined)
+  }
 
   async handle(input: unknown): Promise<CompanionMessage> {
     let message: CompanionMessage
@@ -296,24 +314,17 @@ export class CompanionBridgeSession {
     }
     const previous = this.responses.get(message.message_id)
     if (previous) return previous
-    let response: CompanionMessage
-    if (message.kind === 'hello') {
-      response = createBridgeHello(this.client, ['workspace-export', 'workspace-import-preview', 'workspace-import-apply'])
-    } else if (message.kind === 'workspace_export_request') {
-      try {
-        const snapshot = await readVaultSnapshot(this.adapter)
-        if (snapshot.issues.length || !snapshot.manifest) throw new Error(snapshot.issues[0]?.message || 'vault-manifest-missing')
-        response = exportMessage(message.request_id, { files: snapshot.files, assets: snapshot.assets, manifest: snapshot.manifest })
-      } catch (error) {
-        response = errorMessage('vault-export-failed', error instanceof Error ? error.message : 'vault-export-failed', message.request_id)
-      }
-    } else if (message.kind === 'workspace_import_apply') {
-      response = await applyWorkspaceImportToVault(this.adapter, message)
-    } else {
-      response = errorMessage('bridge-message-not-handled', '当前端点不处理：' + message.kind, 'request_id' in message ? message.request_id : undefined)
+    const running = this.inflight.get(message.message_id)
+    if (running) return running
+    const responsePromise = this.dispatch(message)
+    this.inflight.set(message.message_id, responsePromise)
+    try {
+      const response = await responsePromise
+      this.responses.set(message.message_id, response)
+      if (this.responses.size > 100) this.responses.delete(this.responses.keys().next().value as string)
+      return response
+    } finally {
+      this.inflight.delete(message.message_id)
     }
-    this.responses.set(message.message_id, response)
-    if (this.responses.size > 100) this.responses.delete(this.responses.keys().next().value as string)
-    return response
   }
 }

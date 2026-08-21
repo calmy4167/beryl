@@ -47,6 +47,7 @@ export interface MatterMutation {
   operation: 'create' | 'update' | 'transition'
   commandId: string
   actor: 'user' | 'ai_assisted' | 'import' | 'sync'
+  actorId?: string
   sourceIds: string[]
   fromRevision: number
   toRevision: number

@@ -6,17 +6,41 @@ import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
-import { clearDb } from '@/core/db'
+import { clearDb, flushPendingDbWrites, getDbStatus, type DbRuntimeStatus } from '@/core/db'
 import { BACKUP_SENSITIVE_KEYS, createBackup, parseBackup } from '@/core/backup'
 import { createEntityMigrationPlan, migrationBackupExists, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
 import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
 import { apiFetch } from '@/core/api/client'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 import { listRealityDocuments } from '@/domain/reality'
+import { exportCurrentOpenWorkspace } from '@/core/content/open-workspace'
+import { createFileSystemVaultAdapter, type FileSystemDirectoryHandleLike, type VaultAdapter } from '@/core/content/obsidian-adapter'
+import { applyVaultSyncPlan, buildVaultSyncPlan, type VaultAssetDecision, type VaultEntityDecision, type VaultFieldDecision, type VaultSyncPlan } from '@/core/content/vault-sync'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
 const countsVersion = ref(0)
+const persistenceStatus = ref<DbRuntimeStatus>(getDbStatus())
+const persistenceBusy = ref(false)
+let persistenceTimer: number | undefined
+
+const persistenceStatusText = computed(() => {
+  const status = persistenceStatus.value
+  if (status.state === 'ready') return `IndexedDB 已就绪 · 已恢复 ${status.restoredKeys} 个键`
+  if (status.state === 'recovering') return 'IndexedDB 正在恢复本地持久层…'
+  if (status.state === 'degraded') return `IndexedDB 暂不可用 · ${status.lastError || '等待下次重试'}`
+  return 'IndexedDB 尚未完成初始化'
+})
+
+async function retryPersistence() {
+  persistenceBusy.value = true
+  try {
+    await flushPendingDbWrites()
+    persistenceStatus.value = getDbStatus()
+    if (persistenceStatus.value.pendingWrites === 0 && persistenceStatus.value.available) ElMessage.success('持久层已完成重试')
+    else ElMessage.warning(`仍有 ${persistenceStatus.value.pendingWrites} 项等待持久化`)
+  } finally { persistenceBusy.value = false }
+}
 
 const counts = computed(() => ({
   // 让同步事件和本地操作可显式触发重新读取，而不是依赖非响应式 localStorage。
@@ -186,6 +210,97 @@ async function doFileConnect() {
 }
 function doDisconnect() { disconnect(); ElMessage.success('已断开同步（数据仍在本机）') }
 
+/* ---------- Obsidian Vault 同步 ---------- */
+const vaultAdapter = ref<VaultAdapter | null>(null)
+const vaultName = ref('')
+const vaultPlan = ref<VaultSyncPlan | null>(null)
+const vaultDecisions = ref<Record<string, VaultEntityDecision | VaultAssetDecision>>({})
+const vaultBusy = ref(false)
+const vaultReport = ref('')
+
+function defaultVaultDecisions(plan: VaultSyncPlan): Record<string, VaultEntityDecision | VaultAssetDecision> {
+  const decisions: Record<string, VaultEntityDecision | VaultAssetDecision> = {}
+  plan.conflicts.forEach(conflict => { decisions[conflict.calmyId] = 'keep-vault' })
+  plan.vaultOnlyEntities.forEach(entity => { decisions[entity.calmyId] = 'keep-vault' })
+  plan.vaultDeletedEntities.forEach(entity => { decisions[entity.calmyId] = 'keep-vault' })
+  plan.assetConflicts.forEach(conflict => { decisions[`asset:${conflict.path}`] = 'keep-vault' })
+  plan.vaultOnlyAssets.forEach(asset => { decisions[`asset:${asset.path}`] = 'keep-vault' })
+  return decisions
+}
+
+async function connectVault() {
+  const picker = (window as unknown as { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandleLike> }).showDirectoryPicker
+  if (!picker) { ElMessage.warning('当前浏览器不支持 File System Access API'); return }
+  try {
+    const root = await picker()
+    vaultAdapter.value = createFileSystemVaultAdapter(root)
+    vaultName.value = (root as unknown as { name?: string }).name || 'Obsidian Vault'
+    vaultPlan.value = null
+    vaultReport.value = `已连接 ${vaultName.value}，请扫描差异`
+    ElMessage.success('已连接 Obsidian Vault')
+  } catch { /* 用户取消 */ }
+}
+
+async function scanVault() {
+  if (!vaultAdapter.value) { ElMessage.warning('请先选择 Obsidian Vault'); return }
+  vaultBusy.value = true
+  try {
+    const plan = await buildVaultSyncPlan(vaultAdapter.value, exportCurrentOpenWorkspace())
+    vaultPlan.value = plan
+    vaultDecisions.value = defaultVaultDecisions(plan)
+    vaultReport.value = plan.issues.length
+      ? `扫描被阻断：${plan.issues.join('；')}`
+      : `新增 ${plan.addedEntities.length} · 不变 ${plan.unchangedEntities.length} · 冲突 ${plan.conflicts.length} · Vault 独有 ${plan.vaultOnlyEntities.length} · Vault tombstone ${plan.vaultDeletedEntities.length}`
+  } catch (error) { vaultReport.value = `扫描失败：${error instanceof Error ? error.message : 'Vault 读取失败'}` }
+  finally { vaultBusy.value = false }
+}
+
+function conflictMode(id: string): string {
+  const decision = vaultDecisions.value[id]
+  if (typeof decision === 'object' && decision.mode === 'merge') return 'merge'
+  return decision === 'use-local' ? 'use-local' : 'keep-vault'
+}
+
+function fieldMode(id: string, key: string): VaultFieldDecision {
+  const decision = vaultDecisions.value[id]
+  if (typeof decision === 'object' && decision.mode === 'merge') return decision.fields[key] || 'use-local'
+  return decision === 'use-local' ? 'use-local' : 'keep-vault'
+}
+
+function setConflictMode(id: string, mode: string) {
+  if (mode === 'merge') {
+    const conflict = vaultPlan.value?.conflicts.find(item => item.calmyId === id)
+    vaultDecisions.value[id] = { mode: 'merge', fields: Object.fromEntries((conflict?.fields || []).map(field => [field.key, 'use-local' as const])) }
+  } else vaultDecisions.value[id] = mode as VaultEntityDecision
+}
+
+function setFieldMode(id: string, key: string, mode: VaultFieldDecision) {
+  const current = vaultDecisions.value[id]
+  const fields = typeof current === 'object' && current.mode === 'merge' ? { ...current.fields } : {}
+  fields[key] = mode
+  vaultDecisions.value[id] = { mode: 'merge', fields }
+}
+
+async function applyVault() {
+  if (!vaultAdapter.value || !vaultPlan.value) { ElMessage.warning('请先连接并扫描 Vault'); return }
+  vaultBusy.value = true
+  try {
+    const result = await applyVaultSyncPlan(vaultAdapter.value, vaultPlan.value, vaultDecisions.value)
+    if (result.missingDecisions.length) {
+      vaultReport.value = `仍需决策：${result.missingDecisions.join('、')}`
+      ElMessage.warning('请先完成所有冲突与删除决策')
+    } else if (result.errors.length) {
+      vaultReport.value = `写回失败：${result.errors.join('；')}`
+      ElMessage.error('Vault 写回失败')
+    } else {
+      vaultReport.value = `已写回 ${result.sync?.writtenPaths.length || 0} 个文件，未变更 ${result.sync?.unchangedPaths.length || 0} 个，删除 ${result.sync?.deletedPaths.length || 0} 个；实体 tombstone ${result.deletedEntityIds.length} 个`
+      ElMessage.success('Vault 同步完成')
+      await scanVault()
+    }
+  } catch (error) { vaultReport.value = `写回失败：${error instanceof Error ? error.message : 'Vault 写入失败'}` }
+  finally { vaultBusy.value = false }
+}
+
 /* 同步诊断 */
 const diag = ref<SyncDiag | null>(null)
 const diagLoading = ref(false)
@@ -253,8 +368,12 @@ function onDataSynced() { refreshCounts() }
 onMounted(() => {
   applySceneTheme(scene.value)
   window.addEventListener('beryl-data-synced', onDataSynced)
+  persistenceTimer = window.setInterval(() => { persistenceStatus.value = getDbStatus() }, 1500)
 })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
+onUnmounted(() => {
+  window.removeEventListener('beryl-data-synced', onDataSynced)
+  if (persistenceTimer) window.clearInterval(persistenceTimer)
+})
 </script>
 
 <template>
@@ -297,6 +416,11 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
         <input id="file-import" type="file" accept="application/json,.json" style="display:none" @change="onImportChange" />
         <el-button type="danger" plain @click="resetData">🗑️ 重置</el-button>
       </div>
+      <div class="persistence-status" :style="{ color: persistenceStatus.state === 'degraded' ? 'var(--c-danger)' : persistenceStatus.state === 'ready' ? 'var(--c-success)' : 'var(--c-text-2)' }">
+        <p class="info">💾 {{ persistenceStatusText }}</p>
+        <p class="info">待重试写入：{{ persistenceStatus.pendingWrites }} · 最近镜像：{{ persistenceStatus.lastMirrorAt ? new Date(persistenceStatus.lastMirrorAt).toLocaleString() : '暂无' }}</p>
+        <el-button size="small" :loading="persistenceBusy" @click="retryPersistence">重试持久化</el-button>
+      </div>
     </div>
 
     <!-- 系统信息 -->
@@ -337,6 +461,61 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
         <p class="diag-line">云端记录数：{{ diag.cloudRecords }}（-1=未连接 / -2=旧Worker / -3=请求失败）· 云端maxTs={{ diag.cloudMaxTs }}</p>
         <p class="diag-line">上次推送：{{ diag.lastSync }}</p>
         <p class="diag-line diag-raw">本地 b_inbox 值：{{ diag.localInboxSample }}</p>
+      </div>
+    </div>
+
+    <!-- Obsidian Vault：显式差异预览与决策后写回 -->
+    <div class="beryl-card hoverable block">
+      <h3 class="font-title sec">🗃️ Obsidian Vault</h3>
+      <p class="info">{{ vaultName ? `当前 Vault：${vaultName}` : '未连接 Vault' }}</p>
+      <p class="info">只扫描和写入 Calmy Open Format 文件；Vault 独有实体的删除必须明确选择，并会留下 tombstone。</p>
+      <div class="btns">
+        <el-button @click="connectVault">选择 Vault</el-button>
+        <el-button :disabled="!vaultAdapter" :loading="vaultBusy" @click="scanVault">扫描差异</el-button>
+        <el-button type="primary" :disabled="!vaultPlan" :loading="vaultBusy" @click="applyVault">应用同步</el-button>
+      </div>
+      <p v-if="vaultReport" class="info diag-raw">{{ vaultReport }}</p>
+      <div v-if="vaultPlan && vaultPlan.conflicts.length" class="vault-list">
+        <p class="mods-line">字段级冲突（可选择保留 Vault、本地版本，或逐字段合并）</p>
+        <div v-for="conflict in vaultPlan.conflicts" :key="conflict.calmyId" class="vault-item">
+          <div class="vault-item-head">
+            <span>{{ conflict.calmyType }} · {{ conflict.calmyId }}</span>
+            <el-select :model-value="conflictMode(conflict.calmyId)" size="small" @change="setConflictMode(conflict.calmyId, String($event))">
+              <el-option label="保留 Vault" value="keep-vault" />
+              <el-option label="使用本地" value="use-local" />
+              <el-option label="逐字段合并" value="merge" />
+            </el-select>
+          </div>
+          <div v-if="conflictMode(conflict.calmyId) === 'merge'" class="vault-fields">
+            <div v-for="field in conflict.fields" :key="field.key" class="vault-field">
+              <span>{{ field.key }}</span>
+              <el-select :model-value="fieldMode(conflict.calmyId, field.key)" size="small" @change="setFieldMode(conflict.calmyId, field.key, String($event) as VaultFieldDecision)">
+                <el-option label="Vault" value="keep-vault" />
+                <el-option label="本地" value="use-local" />
+              </el-select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="vaultPlan && vaultPlan.vaultOnlyEntities.length" class="vault-list">
+        <p class="mods-line">Vault 独有实体</p>
+        <div v-for="entity in vaultPlan.vaultOnlyEntities" :key="entity.calmyId" class="vault-item vault-item-head">
+          <span>{{ entity.calmyType }} · {{ entity.calmyId }}</span>
+          <el-select v-model="vaultDecisions[entity.calmyId]" size="small">
+            <el-option label="保留 Vault" value="keep-vault" />
+            <el-option label="删除并写 tombstone" value="delete-vault" />
+          </el-select>
+        </div>
+      </div>
+      <div v-if="vaultPlan && vaultPlan.vaultDeletedEntities.length" class="vault-list">
+        <p class="mods-line">Vault 已删除但本地仍存在</p>
+        <div v-for="entity in vaultPlan.vaultDeletedEntities" :key="entity.calmyId" class="vault-item vault-item-head">
+          <span>{{ entity.calmyType }} · {{ entity.calmyId }}</span>
+          <el-select v-model="vaultDecisions[entity.calmyId]" size="small">
+            <el-option label="接受 Vault 删除" value="keep-vault" />
+            <el-option label="恢复本地实体" value="use-local" />
+          </el-select>
+        </div>
       </div>
     </div>
 
@@ -411,4 +590,9 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 }
 .diag-line { font-size: 10px; color: var(--c-text-2); margin: 2px 0; line-height: 1.6; word-break: break-all; }
 .diag-raw { color: var(--c-text); }
+.vault-list { margin-top: 12px; display: grid; gap: 8px; }
+.vault-item { padding: 10px; border: 1px solid var(--c-border-soft); border-radius: 10px; background: var(--c-bg-soft); }
+.vault-item-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--c-text-2); }
+.vault-fields { display: grid; gap: 6px; margin-top: 8px; }
+.vault-field { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--c-text-3); }
 </style>

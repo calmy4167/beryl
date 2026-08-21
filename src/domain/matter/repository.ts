@@ -14,10 +14,11 @@ const matters = createCollectionRepository<Matter>('matters', item => item.calmy
 const mutations = createCollectionRepository<MatterMutation>('matterMutations')
 const commands = createCollectionRepository<{ id: string; result: Matter }>('matterCommands')
 
-function metaOf(meta: MatterCommandMeta = {}): Required<Pick<MatterCommandMeta, 'commandId' | 'actor' | 'sourceIds'>> {
+function metaOf(meta: MatterCommandMeta = {}): Required<Pick<MatterCommandMeta, 'commandId' | 'actor' | 'sourceIds'>> & { actorId: string } {
   return {
     commandId: meta.commandId || createEntityId(),
     actor: meta.actor || 'user',
+    actorId: meta.actorId || 'local-user',
     sourceIds: meta.sourceIds || []
   }
 }
@@ -32,10 +33,10 @@ function assertRevision(matter: Matter, expectedRevision?: number): void {
   }
 }
 
-function appendMutation(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], sourceIds: string[], fromRevision: number, patch?: unknown): void {
+function appendMutation(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): void {
   mutations.create({
     id: createEntityId(), entity: 'matter', entityId: matter.calmyId, operation, commandId, actor, sourceIds,
-    fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch
+    actorId, fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch
   })
 }
 
@@ -62,7 +63,7 @@ export const matterRepository = {
       throw new MatterDomainError('REVISION_CONFLICT', 'Matter ' + item.calmyId + ' has local changes')
     }
     matters.create(item)
-    appendMutation(item, 'create', 'import:' + item.calmyId + ':' + item.revision, 'import', [], 0, item)
+    appendMutation(item, 'create', 'import:' + item.calmyId + ':' + item.revision, 'import', 'import', [], 0, item)
     return 'created'
   },
   replaceImported(item: Matter): 'replaced' | 'unchanged' {
@@ -70,7 +71,7 @@ export const matterRepository = {
     if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
     if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
     if (!matters.update(item.calmyId, () => item)) throw new MatterDomainError('NOT_FOUND', 'Matter import target disappeared')
-    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', [], current.revision, item)
+    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item)
     return 'replaced'
   },
   mutations(calmyId?: string): MatterMutation[] {
@@ -88,7 +89,7 @@ export const matterRepository = {
       createdAt: now, updatedAt: now, revision: 1
     }
     matters.create(matter)
-    appendMutation(matter, 'create', command.commandId, command.actor, command.sourceIds, 0, matter)
+    appendMutation(matter, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, matter)
     return saveCommand(command.commandId, matter)
   },
   update(calmyId: string, patch: MatterUpdatePatch, meta: MatterCommandMeta = {}): Matter {
@@ -101,7 +102,7 @@ export const matterRepository = {
     if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
     const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-    appendMutation(next, 'update', command.commandId, command.actor, command.sourceIds, current.revision, patch)
+    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
     return saveCommand(command.commandId, next)
   },
   bindCycle(calmyId: string, cycleId: string, meta: MatterCommandMeta = {}): Matter {
@@ -119,7 +120,7 @@ export const matterRepository = {
     }
     const next: Matter = { ...current, status, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-    appendMutation(next, 'transition', command.commandId, command.actor, command.sourceIds, current.revision, { status })
+    appendMutation(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status })
     return saveCommand(command.commandId, next)
   },
   pause(calmyId: string, meta?: MatterCommandMeta): Matter { return this.transition(calmyId, 'paused', meta) },

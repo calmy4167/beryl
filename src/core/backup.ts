@@ -1,6 +1,6 @@
 import { SYNC_KEYS } from './sync'
 
-export const BACKUP_SENSITIVE_KEYS = new Set(['b_auth', 'b_cloud', 'b_s3', 'b_session', 'b_pull_cursor', 'b_push_cursor', 'b_sync_ts', 'b_last_sync'])
+export const BACKUP_SENSITIVE_KEYS = new Set(['b_auth', 'b_cloud', 'b_s3', 'b_session', 'b_pull_cursor', 'b_push_cursor', 'b_sync_ts', 'b_last_sync', 'b_db_outbox'])
 export const BACKUP_ALLOWED_KEYS = new Set([...SYNC_KEYS, 'b_theme', 'b_version'])
 
 export function createBackup(source: Storage = localStorage): Record<string, string> {

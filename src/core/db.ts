@@ -3,8 +3,9 @@
  *   - kv 表：localStorage 全部 b_* 键的持久镜像（防止 localStorage 被清理丢数据）
  *   - changes 表：append-only 变更日志（{ seq, ts, key, value }，为阶段 3 增量同步铺路）
  *   - meta 表：元数据（最近镜像时间、设备 id）
- * UI 层仍走 localStorage 同步层（快照缓存），IndexedDB 为异步持久层，
- * 启动时全量迁移，运行期 0.8s 防抖增量镜像。IndexedDB 不可用时静默降级。
+ * UI 层仍走 localStorage 同步层（同步快照缓存），IndexedDB 为异步持久层，
+ * 启动时先恢复再镜像；写入先进入可恢复 outbox，再串行提交到 IndexedDB。
+ * IndexedDB 暂不可用时不阻断页面，但会保留 outbox 并在下次启动重试。
  */
 const DB_NAME = 'beryl-db'
 const DB_VERSION = 2
@@ -12,6 +13,7 @@ const KV = 'kv'
 const CHANGES = 'changes'
 const META = 'meta'
 const ENTITY_CHANGES = 'entity_changes'
+const OUTBOX = 'b_db_outbox'
 
 const DEVICE_STORAGE_KEY = 'beryl_device_id'
 
@@ -29,12 +31,85 @@ function getDeviceId(): string {
 
 export const DEVICE_ID = getDeviceId()
 
+export type DbRuntimeState = 'cold' | 'recovering' | 'ready' | 'degraded'
+
+export interface DbRuntimeStatus {
+  state: DbRuntimeState
+  available: boolean
+  pendingWrites: number
+  restoredKeys: number
+  lastMirrorAt: number | null
+  lastError: string | null
+}
+
 let dbPromise: Promise<IDBDatabase> | null = null
+let dbWriteChain: Promise<void> = Promise.resolve()
+let entityChangeNonce = 0
+let dbStatus: DbRuntimeStatus = {
+  state: 'cold',
+  available: false,
+  pendingWrites: 0,
+  restoredKeys: 0,
+  lastMirrorAt: null,
+  lastError: null
+}
+
+interface PendingDbWrite { key: string; value: string }
+
+function readPendingWrites(): PendingDbWrite[] {
+  try {
+    const raw = localStorage.getItem(OUTBOX)
+    const parsed = raw ? JSON.parse(raw) : []
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((item): item is PendingDbWrite => Boolean(item) && typeof item === 'object' && typeof item.key === 'string' && typeof item.value === 'string')
+  } catch { return [] }
+}
+
+function writePendingWrites(items: PendingDbWrite[]): void {
+  dbStatus.pendingWrites = items.length
+  try {
+    if (items.length) localStorage.setItem(OUTBOX, JSON.stringify(items))
+    else localStorage.removeItem(OUTBOX)
+  } catch {
+    dbStatus.lastError = 'outbox-write-failed'
+  }
+}
+
+function enqueuePendingWrite(key: string, value: string): void {
+  const items = readPendingWrites()
+  const index = items.findIndex(item => item.key === key)
+  if (index >= 0) items[index] = { key, value }
+  else items.push({ key, value })
+  writePendingWrites(items)
+}
+
+function removePendingWrite(key: string, value: string): void {
+  const items = readPendingWrites().filter(item => item.key !== key || item.value !== value)
+  writePendingWrites(items)
+}
+
+function markDbFailure(error: unknown): void {
+  dbStatus.state = 'degraded'
+  dbStatus.available = false
+  dbStatus.lastError = error instanceof Error ? error.message : String(error || 'indexedDB unavailable')
+}
+
+export function getDbStatus(): DbRuntimeStatus {
+  return { ...dbStatus, pendingWrites: readPendingWrites().length }
+}
+
+function enqueueDbWork(work: () => Promise<void>): Promise<void> {
+  const next = dbWriteChain.then(work, work)
+  dbWriteChain = next.catch(() => undefined)
+  return next
+}
 
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') {
+      markDbFailure('indexedDB unavailable')
+      dbPromise = null
       reject(new Error('indexedDB unavailable'))
       return
     }
@@ -54,8 +129,22 @@ function openDb(): Promise<IDBDatabase> {
         s.createIndex('updatedAt', 'updatedAt', { unique: false })
       }
     }
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error || new Error('indexedDB open failed'))
+    req.onsuccess = () => {
+      const opened = req.result
+      opened.onclose = () => {
+        dbPromise = null
+        markDbFailure('indexedDB connection closed')
+      }
+      dbStatus.available = true
+      dbStatus.lastError = null
+      resolve(opened)
+    }
+    req.onerror = () => {
+      dbPromise = null
+      const error = req.error || new Error('indexedDB open failed')
+      markDbFailure(error)
+      reject(error)
+    }
   })
   return dbPromise
 }
@@ -72,7 +161,7 @@ export async function fullMirror(): Promise<void> {
     const keys: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i)
-      if (k && k.startsWith('b_')) keys.push(k)
+      if (k && k.startsWith('b_') && k !== OUTBOX) keys.push(k)
     }
     const existing = await new Promise<IDBValidKey[]>((resolve, reject) => {
       const req = db.transaction(KV, 'readonly').objectStore(KV).getAllKeys()
@@ -95,32 +184,76 @@ export async function fullMirror(): Promise<void> {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
     })
+    dbStatus.state = 'ready'
+    dbStatus.available = true
+    dbStatus.lastMirrorAt = now
+    dbStatus.lastError = null
     await pruneChanges()
   } catch {
-    /* 镜像失败不阻断主流程 */
+    markDbFailure('full-mirror-failed')
   }
 }
 
 /** 单键变更（store.set 路径） */
 export async function dbPut(key: string, value: string): Promise<void> {
-  let db: IDBDatabase
-  try {
-    db = await openDb()
-  } catch {
-    return
+  // 先写 outbox，确保 tab 在异步事务完成前关闭时仍有下一次启动可恢复的凭据。
+  enqueuePendingWrite(key, value)
+  await enqueueDbWork(async () => {
+    try {
+      const db = await openDb()
+      const tx = db.transaction([KV, CHANGES], 'readwrite')
+      tx.objectStore(KV).put(value, key)
+      tx.objectStore(CHANGES).add({ ts: Date.now(), key, value, device: DEVICE_ID })
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve()
+        tx.onerror = () => reject(tx.error)
+      })
+      removePendingWrite(key, value)
+      dbStatus.state = 'ready'
+      dbStatus.available = true
+      dbStatus.lastError = null
+      await pruneChanges()
+    } catch (error) {
+      markDbFailure(error)
+      // 留在 outbox，下一次 initDb 或 flushPendingDbWrites 会重试。
+    }
+  })
+}
+
+/** 启动恢复前把尚未提交的最新键值写回同步缓存。 */
+function restorePendingWritesToLocalStorage(): number {
+  let restored = 0
+  for (const item of readPendingWrites()) {
+    try {
+      if (localStorage.getItem(item.key) !== item.value) {
+        localStorage.setItem(item.key, item.value)
+        restored++
+      }
+    } catch { /* ignore */ }
   }
-  try {
-    const tx = db.transaction([KV, CHANGES], 'readwrite')
-    tx.objectStore(KV).put(value, key)
-    tx.objectStore(CHANGES).add({ ts: Date.now(), key, value, device: DEVICE_ID })
-    await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error)
-    })
-    await pruneChanges()
-  } catch {
-    /* ignore */
-  }
+  return restored
+}
+
+/** 串行重放 outbox；单项失败不会丢弃后续项目。 */
+export async function flushPendingDbWrites(): Promise<void> {
+  await enqueueDbWork(async () => {
+    for (const item of readPendingWrites()) {
+      try {
+        const db = await openDb()
+        const tx = db.transaction([KV, CHANGES], 'readwrite')
+        tx.objectStore(KV).put(item.value, item.key)
+        tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: item.value, device: DEVICE_ID })
+        await new Promise<void>((resolve, reject) => {
+          tx.oncomplete = () => resolve()
+          tx.onerror = () => reject(tx.error)
+        })
+        removePendingWrite(item.key, item.value)
+      } catch (error) {
+        markDbFailure(error)
+        break
+      }
+    }
+  })
 }
 
 /** 远端应用专用：只更新持久镜像，不追加本地变更日志，避免把云端数据再次当成本地写入推回。 */
@@ -133,6 +266,8 @@ export async function dbMirrorPut(key: string, value: string): Promise<void> {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
     })
+    try { localStorage.removeItem(OUTBOX) } catch { /* ignore */ }
+    dbStatus = { state: 'cold', available: false, pendingWrites: 0, restoredKeys: 0, lastMirrorAt: null, lastError: null }
   } catch { /* ignore */ }
 }
 
@@ -173,9 +308,15 @@ export function scheduleMirror(): void {
 
 /** 启动迁移：localStorage → IndexedDB 全量镜像；localStorage 为空而镜像有数据时恢复 */
 export async function initDb(): Promise<void> {
-  // 必须先恢复再镜像，否则 localStorage 被清空时会把空快照写回 IDB。
+  dbStatus.state = 'recovering'
+  dbStatus.restoredKeys = 0
+  dbStatus.lastError = null
+  // 必须先恢复 outbox 和既有镜像，再镜像当前缓存，否则清空缓存会把空快照写回 IDB。
+  restorePendingWritesToLocalStorage()
   await restoreFromDb()
   await fullMirror()
+  await flushPendingDbWrites()
+  if (!dbStatus.available) dbStatus.state = 'degraded'
 }
 
 /** 从 IndexedDB 恢复：localStorage 缺失的 b_* 键写回（防 localStorage 被清理） */
@@ -202,7 +343,7 @@ export async function restoreFromDb(): Promise<void> {
     })
     let restored = 0
     all.forEach(({ key, value }) => {
-      if (typeof key !== 'string' || !key.startsWith('b_')) return
+      if (typeof key !== 'string' || !key.startsWith('b_') || key === OUTBOX) return
       try {
         if (localStorage.getItem(key) == null && value != null) {
           localStorage.setItem(key, value)
@@ -210,9 +351,10 @@ export async function restoreFromDb(): Promise<void> {
         }
       } catch { /* ignore */ }
     })
+    dbStatus.restoredKeys += restored
     if (restored > 0) console.log('[beryl-db] restored', restored, 'keys from IndexedDB')
   } catch {
-    /* ignore */
+    markDbFailure('restore-failed')
   }
 }
 
@@ -252,14 +394,15 @@ export async function recordEntityChanges(key: string, before: unknown, after: u
   const previous = asMap(before)
   const next = asMap(after)
   const now = Date.now()
+  const changeId = (entityId: string) => `${DEVICE_ID}:${now}:${entityChangeNonce++}:${entityId}`
   const changes: EntityChange[] = []
   for (const [entityId, value] of next) {
     const old = previous.get(entityId)
-    if (!old) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'create', updatedAt: now, device: DEVICE_ID, value })
-    else if (JSON.stringify(old) !== JSON.stringify(value)) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'update', updatedAt: now, device: DEVICE_ID, value })
+    if (!old) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'create', updatedAt: now, device: DEVICE_ID, value })
+    else if (JSON.stringify(old) !== JSON.stringify(value)) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'update', updatedAt: now, device: DEVICE_ID, value })
   }
   for (const entityId of previous.keys()) {
-    if (!next.has(entityId)) changes.push({ id: `${DEVICE_ID}:${now}:${entityId}`, entity: key.slice(2), entityId, operation: 'delete', updatedAt: now, device: DEVICE_ID })
+    if (!next.has(entityId)) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'delete', updatedAt: now, device: DEVICE_ID })
   }
   if (!changes.length) return
   try {

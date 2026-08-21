@@ -112,7 +112,7 @@ describe('unified Personal OS domain', () => {
     expect(unifiedRepository.listRelationshipsForMatter('matter-shared')).toHaveLength(1)
     expect(unifiedRepository.listRelationshipsForMatter('matter-blocked')).toHaveLength(0)
     expect(unifiedRepository.listRelationshipsForMatter('matter-allowed')).toEqual([expect.objectContaining({ calmyId: relationship.calmyId, allowedMatterIds: ['matter-allowed'] })])
-    expect(unifiedRepository.listSharedSpacesForMatter('matter-blocked')).toEqual([expect.objectContaining({ calmyId: space.calmyId, boundary: '需要协商' })])
+    expect(unifiedRepository.listSharedSpacesForMatter('matter-blocked')).toEqual([])
     expect(unifiedRepository.listSharedSpacesForMatter('matter-shared')).toEqual([expect.objectContaining({ calmyId: space.calmyId, matterIds: ['matter-shared'], relationshipIds: [relationship.calmyId] })])
     expect(unifiedRepository.mutations('relationship', relationship.calmyId)).toHaveLength(2)
   })

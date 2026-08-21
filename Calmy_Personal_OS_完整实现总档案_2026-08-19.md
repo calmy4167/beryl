@@ -1,7 +1,7 @@
 # Calmy Personal OS 完整实现总档案
 
 版本：v1.0
-日期：2026-08-19
+日期：2026-08-22（文件名保留原始建档日期）
 性质：实现主档案 / 唯一执行基线
 上游设计源：`Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`
 
@@ -25,6 +25,9 @@
 | 骨架 | 已有类型、接口或占位页面，但不能形成完整闭环 |
 | 部分实现 | 主路径可用，但存在明显缺口、旧模型或未覆盖场景 |
 | 已实现 | 代码、测试、导入导出和主要边界均通过验收 |
+| 已实现当前切片 | 当前验收范围已有代码、测试和实际入口，但原始设计总范围仍有明确缺口 |
+| 本地规则 MVP | 已有离线规则建议和人工决策流程，生产级模型或服务层尚未完成 |
+| PWA 已验证，主存储未完成 | PWA 构建和静态资源验证通过，但 IndexedDB 主存储链路尚未完成 |
 | 待复核 | 已实现，但需要产品试用或真实 Vault/跨设备验证 |
 
 ## 1. 产品宪法
@@ -261,27 +264,27 @@ source: calmy
 
 | 原文章节 | 设计项 | 当前状态 | 目标实现 | 验收条件 | 实现批次 |
 |---|---|---|---|---|---|
-| 0–1 | 单一事实源、One Reality Multiple Views | 部分实现 | 所有视图基于统一实体查询 | 同一实体在 Today/Matters/导出中一致 | P0 |
-| 2 | Person | 部分实现 | Person 模型、仓储、People 视图 | 可创建、编辑、归档、导出并保留历史 | P1 |
-| 2 | Relationship | 部分实现 | 关系模型与边界字段 | 两人关系可关联 Matter/Record/Space | P1 |
-| 2 | Shared Space | 部分实现 | 多人共同空间模型 | 成员、共同 Matter、权限边界可追溯 | P1 |
-| 2–3 | Matter/Action/Record/Resource/Relation | 部分实现 | 统一核心模型替代 legacy 平行模型 | 每类对象有稳定 ID、历史和导入导出 | P1/P2 |
-| 4–6 | Cycle/Stage、并行/暂停/回退/重开 | 部分实现 | 一等 Cycle/Stage 模型与命令 | 可并行、暂停、回退、重开并保留历史 | P1 |
-| 7 | 显性土/隐性土与资产库 | 部分实现 | Resource/Asset 生命周期 | 可标记过期、退休、版本和来源 | P1/P2 |
+| 0–1 | 单一事实源、One Reality Multiple Views | 已实现当前查询切片 | 统一 Reality 查询层连接主要页面 | 同一实体可在 Today/Matters/搜索等视图读取 | P0 |
+| 2 | Person | 已实现当前切片 | Person 模型、仓储、People 视图 | 可创建、搜索、归档并保留稳定 ID | P1 |
+| 2 | Relationship | 已实现当前协作切片 | 关系模型、边界、共享上下文和协作写入 | 可创建关系；成员权限、共同 Matter / Action / Record 写入、blocked 隔离和操作者历史可追溯 | P1 |
+| 2 | Shared Space | 已实现当前协作切片 | 多人共同空间、边界、共享上下文和协作写入 | 可创建空间；成员/owner 权限、共同实体写入、blocked 隔离和操作者历史可追溯 | P1 |
+| 2–3 | Matter/Action/Record/Resource/Relation | 已实现当前切片 | 统一核心模型与兼容旧仓储 | 主要实体有稳定 ID、查询、导入导出和测试 | P1/P2 |
+| 4–6 | Cycle/Stage、并行/暂停/回退/重开 | 已实现当前切片 | 一等 Cycle/Stage 模型与命令 | Matter 页可创建、绑定、流转，并按 Cycle 隔离 Action / Record，保留来源和历史 | P1 |
+| 7 | 显性土/隐性土与资产库 | 已实现当前切片 | Resource/Asset 生命周期 | 可创建、过期、退休并关联二进制 Asset | P1/P2 |
 | 8–9 | 生克流、冲突/约束引擎 | 骨架 | 可解释约束检测与建议 | 有证据、严重度、最小调整且不自动改事实 | P3 |
-| 10–11 | Outcome/Practice/Insight/Seed | 骨架 | 结果、练习、洞察、种子分离 | Action 完成后可分别沉淀四类内容 | P1/P3 |
-| 12–13 | 长期方向、节律、双时间轴 | 部分实现 | Direction/Calendar/Review 视图 | 日历时间轴与成长轴可交叉查看 | P3/P4 |
-| 14–17 | Daily Opening、Today、复盘、停止 | 部分实现 | Today 与 DailyState 完整闭环 | 身体/心理/负荷影响建议；复盘可生成 Seed | P3 |
-| 18–20 | 哲学产品化、身体优先、心理负荷 | 骨架 | 可配置 policy 与负荷规则 | 规则可解释、可关闭、可测试 | P3 |
-| 21–23 | 负向记录、娱乐区分、Trajectory | 部分实现 | negative record、趋势推断与手动覆盖 | 趋势有证据；娱乐不被默认判废 | P3 |
-| 24–25 | 十神、五行行为流、Luhmann、旧模块回归 | 未开始 | Library/Knowledge/Graph | 可从记录形成卡片、关系和反向链接 | P4 |
-| 26 | Capture 低摩擦 | 部分实现 | Inbox → 分类建议 → 确认落库 | 记录原文不丢失，分类可改可退回 | P4 |
-| 27 | AI 理解层和隐私边界 | 未开始 | AI suggestion pipeline | 可接受/修改/拒绝；离线核心流程不受影响 | P4 |
-| 28–29 | IA、交互、性能、无障碍 | 部分实现 | Today/Matters/People/Library/Search/Capture | 键盘操作、响应时间、移动端布局通过测试 | P4/P5 |
-| 30 | PWA、local-first、离线 | 部分实现 | IndexedDB 主存储、同步队列、恢复 | 断网读写和重启恢复通过测试 | P5 |
-| 31 | Repository/Domain、历史、迁移 | 部分实现 | 全域仓储、迁移和审计日志 | 版本升级不丢数据，历史可回放 | P1/P5 |
-| 31 | Open Format Markdown/YAML/Assets | 部分实现 | 全核心实体 Open Format | 所有核心实体可无插件往返导入导出 | P2 |
-| 31 | Obsidian Adapter/Bridge | 部分实现 | 全实体增量双向同步 | 字段级冲突预览、无静默覆盖 | P2/P5 |
+| 10–11 | Outcome/Practice/Insight/Seed | 已实现当前切片 | 结果、练习、洞察、种子分离 | 已完成 Action 可沉淀 Outcome/Practice；Insight/Seed 可在 Library 管理 | P1/P3 |
+| 12–13 | 长期方向、节律、双时间轴 | 已实现当前切片 | Direction/Calendar/Review 视图 | Calendar/Review 已接入 DailyState、Trajectory 和 Matter | P3/P4 |
+| 14–17 | Daily Opening、Today、复盘、停止 | 已实现当前切片 | Today 与 DailyState 现实承载 | Today 已接入容量、约束、负向记录与状态保存 | P3 |
+| 18–20 | 哲学产品化、身体优先、心理负荷 | 已实现基础切片 | 可解释 policy 与负荷规则 | 约束和容量建议可解释；策略配置仍需深化 | P3 |
+| 21–23 | 负向记录、娱乐区分、Trajectory | 已实现当前切片 | negative record、趋势推断与手动覆盖 | 有证据的趋势推断和 Review 展示；手动覆盖仍需深化 | P3 |
+| 24–25 | 十神、五行行为流、Luhmann、旧模块回归 | 部分实现 | Library/Knowledge/Graph | Library/Graph/Relation 与旧模块已有统一读取入口；知识语义仍需深化 | P4 |
+| 26 | Capture 低摩擦 | 已实现当前切片 | Inbox → 分类建议 → 确认落库 | 原文保留，建议可接受/修改/拒绝，兼容统一实体 | P4 |
+| 27 | AI 理解层和隐私边界 | 本地规则 MVP | AI suggestion pipeline | 本地规则建议、隐私边界和人工决策已存在；模型/服务层仍待接入 | P4 |
+| 28–29 | IA、交互、性能、无障碍 | 已实现当前切片 | Today/Matters/People/Library/Search/Capture | 主要表单、导航和状态控件已补标签；完整手工审计仍需完成 | P4/P5 |
+| 30 | PWA、local-first、离线 | PWA 已验证，主存储未完成 | IndexedDB 主存储、同步队列、恢复 | 当前 PWA 资源与本地读取通过；主存储仍需迁移 | P5 |
+| 31 | Repository/Domain、历史、迁移 | 已实现当前切片 | 核心仓储、历史和兼容边界 | 主要领域命令/查询有仓储与测试；全域迁移仍需完成 | P1/P5 |
+| 31 | Open Format Markdown/YAML/Assets | 已实现当前切片 | 全核心实体 Open Format | 可读 Frontmatter 已覆盖支持实体，payload_json 保留兼容兜底 | P2 |
+| 31 | Obsidian Adapter/Bridge | 已实现当前切片 | 全实体增量双向同步 | 浏览器目录适配器、manifest、Asset、MessagePort、跨设备协议级回归、并发重复消息幂等、tombstone、增量差异、字段级冲突决策和 Admin 写回入口已覆盖；真实 Obsidian 实机验证仍需完成 | P2/P5 |
 | 32–34 | 演进规则、Must Protect、产品宪法 | 部分实现 | 发布门槛与回归清单 | 每次发布执行矩阵与全量测试 | P5 |
 
 ## 11. 实现批次
@@ -337,25 +340,74 @@ source: calmy
 
 ## 13. 当前执行状态
 
-截至 2026-08-19，现有代码已经具备 Matter、Action、Record、Today 的局部领域骨架、旧模块、统一核心实体模型/Repository 初版、统一实体 Open Format 往返初版、Obsidian Adapter/Companion Bridge 初版、约束引擎初版、Today 容量承载、负向记录、People/Library 初版页面、Relationship/Shared Space 创建入口、Cycle/Stage 非线性状态命令和基础测试；但 Outcome/Practice 自动沉淀、完整 AI 理解层、趋势推断、全量同步冲突 UI、IndexedDB 主存储和真实 Vault 验证仍未完成。
+截至 2026-08-22，代码已经验证具备统一核心实体与 Reality 查询切片、Matter/Cycle/Stage 创建绑定与状态流转、并行 Cycle 的 Action / Record 隔离、Stage → Record 来源 ID / 查询 / 修订历史 / Open Format 导出、Relationship / Shared Space 的共同 Matter / Action / Record 查询、成员/owner 协作写入、blocked 边界隔离、操作者级共享历史审计、Outcome/Practice 当前沉淀入口、Today/DailyState/约束/负向记录、People/Relationship/Shared Space 基础边界、Resource/Asset 生命周期、Library/Review/Calendar/Graph/搜索接入、Capture 本地规则建议、可读 Open Format Frontmatter、Obsidian Adapter/Companion Bridge、浏览器目录 Vault 读写、全实体增量差异、字段级冲突决策、显式删除 tombstone 写回、PWA 构建和主要页面无障碍静态修复。
 
-因此，本项目当前不能宣称“原始设计全部实现”。本档案的作用是把剩余内容固定下来，并按 P1–P5 逐批实现、测试、复核和更新。
+因此，本项目当前仍不能宣称“原始设计全部实现”。当前完成的是一组有代码、测试和构建证据的产品切片；全量共享边界、生产级 AI、真实 Vault 冲突流程、IndexedDB 主存储、发布级 UI E2E 与手工可访问性审计仍需继续。
 
 ## 14. 防遗漏清单
 
-- [ ] Person / Relationship / Shared Space
-- [ ] Matter / Cycle / Stage 的真实一等模型
-- [ ] Action / Record / Resource / Relation
-- [ ] Outcome / Practice / Insight / Seed
-- [ ] DailyState / Today / Review / Calendar
-- [ ] Trajectory / negative record / entertainment distinction
-- [ ] constraint engine / inter-generation / anti-generation
-- [ ] Capture / AI understanding / privacy boundary
-- [ ] People / Matters / Library / Search / Capture / Review / Graph
-- [ ] Open Format 全实体、目录、资产、manifest、版本和 hash
-- [ ] Obsidian Adapter / Bridge 全实体双向同步和冲突历史
-- [ ] local-first / offline / IndexedDB / backup / migration
-- [ ] Repository / Domain 分离、历史、稳定 ID、数据所有权
-- [ ] 性能、移动端、键盘、无障碍、E2E 和真实 Vault 验证
+### 已有代码与测试证据
 
-本清单只有在代码、测试和导出数据均有证据时才能逐项勾选。
+- [x] Person / Relationship / Shared Space 模型、页面、共同上下文查询、成员/owner 写入权限、blocked 隔离和操作者历史审计测试
+- [x] Matter / Cycle / Stage 创建、绑定、状态流转与并行 Cycle 隔离
+- [x] Action / Record / Resource / Relation 当前查询、命令或页面切片
+- [x] Outcome / Practice 当前沉淀入口，以及 Insight / Seed 的 Library 管理
+- [x] DailyState / Today / Review / Calendar 当前闭环
+- [x] Trajectory / negative record / entertainment distinction 当前推断与展示切片
+- [x] constraint engine 当前规则、证据和建议切片
+- [x] Capture / 本地规则 suggestion / privacy boundary / accept-modify-reject
+- [x] People / Matters / Library / Search / Capture / Review / Graph 主要入口
+- [x] Open Format 可读 Frontmatter、payload_json 兼容兜底、Asset 和 manifest 基础能力
+- [x] Obsidian Adapter / Bridge、真实目录读写、增量差异、字段级冲突决策、tombstone 写回和同步测试
+- [x] IndexedDB 持久镜像、启动恢复、durable outbox、失败重试、状态和备份边界测试
+- [x] PWA 构建、类型检查、Node/E2E/PWA/全量测试证据
+- [x] 主要页面导航、表单和状态控件的静态无障碍修复
+
+### 仍需实现或深化
+
+- [x] Stage → Record 来源 ID、创建入口、按 Cycle / Stage 查询、修订历史回放与 Open Format 导出
+- [x] Relationship / Shared Space 的多人协作写入、共同实体编辑权限和操作者级共享历史审计
+- [ ] Insight / Seed 从 Review 到知识网络的完整沉淀链
+- [ ] AI provider/offline model、过期历史与更细隐私策略
+- [ ] 真实 Obsidian Vault 实机验证、Companion Bridge 端到端冲突流程和跨设备回归
+- [ ] IndexedDB 主存储、离线写入队列、恢复、备份和迁移
+- [ ] 发布级 UI E2E、性能基线、移动端实机与手工屏幕阅读器审计
+
+本清单的 `[x]` 只表示当前切片已有代码和验证证据，不表示原始设计的全部范围已经完成。
+
+## 15. 2026-08-22 实现对齐快照
+
+本节覆盖并刷新第 10、13、14 节中截至 2026-08-19 的旧状态。原始需求源仍是 `Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`；本 Markdown 总档案是实现状态的唯一维护入口，不修改原始 DOCX。
+
+### 已验证完成的当前切片
+
+- 统一实体、兼容旧仓储和 Reality 只读查询层已接入主要页面及搜索。
+- Matter 详情页已支持 Cycle/Stage 创建、Matter 绑定、状态流转和按 Cycle 隔离 Action / Record；Record 创建时校验 Stage → Cycle → Matter 归属、同步 Stage.recordIds，并展示历史回放。
+- 已完成 Action 的 Outcome/Practice 当前沉淀入口；Library 可管理 Resource、Insight、Seed。
+- Today 已接入 DailyState、容量、约束、负向记录和现实状态；Review/Calendar 已接入趋势与复盘切片。
+- People 已覆盖 Person、Relationship、Shared Space 的基础创建和展示；Resource/Asset 已覆盖创建、退休、过期和资产引用切片。
+- People / Matter 已接入 Shared Context：共同 Matter / Action / Record 查询、blocked 隔离、边界状态和共享历史展示。
+- Relationship / Shared Space 已接入协作 Gateway：成员/owner 权限、共同 Matter / Action / Record 写入、blocked 拒绝、revision 冲突边界和操作者级共享审计；People / Matter 页面会使用该 Gateway 写入共享上下文。
+- Capture 已保留原文，并支持本地规则建议、隐私边界及接受/修改/拒绝。
+- Open Format 已覆盖支持实体的可读 Frontmatter；`payload_json` 仍作为兼容旧数据和未展开字段的兜底。
+- Obsidian Adapter/Companion Bridge 已有 manifest、Asset、MessagePort、session、attach/detach；浏览器目录适配器已支持递归读写，Vault 同步已覆盖全实体增量差异、字段级冲突决策和显式删除 tombstone 写回；跨设备协议级回归已覆盖重连、并发重复消息幂等和 tombstone 回传，真实 Obsidian 实机仍待验证。
+- 主要页面已完成一轮静态无障碍修复；这不等同于完整人工审计。
+
+### 当前验证证据
+
+- IndexedDB 已补启动恢复、durable outbox、串行重试 flush、运行状态和内部备份边界；同步 Repository 的纯 IndexedDB 主存储迁移仍未完成。
+- Admin 已展示 IndexedDB ready/degraded、恢复键数、待重试写入和最近镜像，并提供手动持久化重试入口。
+- `npm test -- --run`：35 个测试文件、169 个测试通过。
+- `npx vue-tsc --noEmit`：通过。
+- `npm run test:node`：15/15 通过。
+- `npm run test:e2e`：19/19 通过。
+- `npm run build`：通过，生成 75 个 PWA precache URLs。
+- `npm run test:pwa`：通过，75 个本地文件可用。
+- `git diff --check`：通过；仅有既存 CRLF 提示。
+
+### 下一阶段未完成项
+
+1. 在可用环境完成真实 Obsidian Vault 和 Companion Bridge 端到端冲突、跨设备手工回归；协议级模拟回归已完成，当前环境无实机证据。
+2. 将 IndexedDB 从镜像提升为主存储，补离线队列、恢复、备份和迁移。
+3. 增加发布级 UI E2E、性能/移动端实机验证和手工可访问性审计。
+4. 深化 AI provider/offline model、建议过期历史与知识网络沉淀。

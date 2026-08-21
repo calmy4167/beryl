@@ -28,6 +28,8 @@ export interface RealityDocument {
   updatedAt: number
   occurredAt?: number
   matterId?: string
+  cycleId?: string
+  stageId?: string
   date?: string
   status?: string
   type?: string
@@ -160,7 +162,7 @@ function legacyDocuments(): RealityDocument[] {
     id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
     summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
     route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt, matterId: item.matterId,
-    type: item.type, recordType: item.type, impact: item.impact
+    cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type, impact: item.impact
   }))
   const today = todayRepository.list().map((item: TodayPlan) => document({
     id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,

@@ -18,7 +18,7 @@ const action: ActionItem = {
 
 const record: RealityRecord = {
   calmyId: 'record-stable-1', type: 'fact', body: '对方在 15:30 回复：本周可以确认。', occurredAt: 1723900003000,
-  createdAt: 1723900003000, updatedAt: 1723900003000, matterId: matter.calmyId, source: 'user',
+  createdAt: 1723900003000, updatedAt: 1723900003000, matterId: matter.calmyId, cycleId: 'cycle-stable-1', stageId: 'stage-stable-1', source: 'user',
   evidenceIds: [], revision: 1
 }
 

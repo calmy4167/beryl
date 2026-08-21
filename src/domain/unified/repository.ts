@@ -40,8 +40,8 @@ function storeFor(type: CoreEntityType) {
   return store
 }
 
-function metaOf(meta: CoreCommandMeta = {}): Required<Pick<CoreCommandMeta, 'commandId' | 'actor' | 'sourceIds'>> {
-  return { commandId: meta.commandId || createEntityId(), actor: meta.actor || 'user', sourceIds: meta.sourceIds || [] }
+function metaOf(meta: CoreCommandMeta = {}): Required<Pick<CoreCommandMeta, 'commandId' | 'actor' | 'sourceIds'>> & { actorId: string } {
+  return { commandId: meta.commandId || createEntityId(), actor: meta.actor || 'user', actorId: meta.actorId || 'local-user', sourceIds: meta.sourceIds || [] }
 }
 
 function requireText(value: string | undefined, label: string): string {
@@ -55,10 +55,10 @@ function assertEntity(entity: RepositoryItem): void {
   if (!Number.isFinite(entity.revision) || entity.revision < 1) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity revision must be positive')
 }
 
-function appendMutation(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, sourceIds: string[], fromRevision: number, patch?: unknown): void {
+function appendMutation(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): void {
   mutations.create({
     id: createEntityId(), entityType: entity.entityType, entityId: entity.calmyId, operation, commandId,
-    actor, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch
+    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch
   })
 }
 
@@ -77,6 +77,11 @@ function assertRevision(entity: RepositoryItem, expectedRevision?: number): void
   }
 }
 
+function matterBoundaryAllows(entity: Pick<Relationship, 'matterIds' | 'allowedMatterIds' | 'blockedMatterIds'> | Pick<SharedSpace, 'matterIds' | 'allowedMatterIds' | 'blockedMatterIds'>, matterId: string): boolean {
+  if (entity.blockedMatterIds?.includes(matterId)) return false
+  return entity.matterIds.includes(matterId) || !!entity.allowedMatterIds?.includes(matterId)
+}
+
 export const unifiedRepository = {
   list<T extends RepositoryItem>(entityType: T['entityType']): T[] {
     return storeFor(entityType).list().filter(item => item.entityType === entityType) as T[]
@@ -93,12 +98,12 @@ export const unifiedRepository = {
   },
   listRelationshipsForMatter(matterId: string): Relationship[] {
     return this.list<Relationship>('relationship')
-      .filter(item => item.status === 'active' && (item.matterIds.includes(matterId) || item.blockedMatterIds?.includes(matterId) || item.allowedMatterIds?.includes(matterId)))
+      .filter(item => item.status === 'active' && matterBoundaryAllows(item, matterId))
       .sort((a, b) => b.updatedAt - a.updatedAt)
   },
   listSharedSpacesForMatter(matterId: string): SharedSpace[] {
     return this.list<SharedSpace>('shared_space')
-      .filter(item => item.status === 'active' && (item.matterIds.includes(matterId) || item.blockedMatterIds?.includes(matterId) || item.allowedMatterIds?.includes(matterId)))
+      .filter(item => item.status === 'active' && matterBoundaryAllows(item, matterId))
       .sort((a, b) => b.updatedAt - a.updatedAt)
   },
   listOutcomesForAction(actionId: string): Outcome[] {
@@ -122,7 +127,7 @@ export const unifiedRepository = {
     const current = storeFor(entity.entityType).find(entity.calmyId)
     if (current) throw new CoreDomainError('VALIDATION_FAILED', `${entity.entityType} ${entity.calmyId} already exists`)
     storeFor(entity.entityType).create(entity)
-    appendMutation(entity, 'create', command.commandId, command.actor, command.sourceIds, 0, entity)
+    appendMutation(entity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, entity)
     return saveCommand(command.commandId, entity) as T
   },
   update<T extends RepositoryItem>(entityType: T['entityType'], calmyId: string, patch: Partial<T>, meta: CoreCommandMeta = {}): T {
@@ -135,7 +140,7 @@ export const unifiedRepository = {
     const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 } as T
     assertEntity(next)
     storeFor(entityType).update(calmyId, () => next)
-    appendMutation(next, 'update', command.commandId, command.actor, command.sourceIds, current.revision, patch)
+    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
     return saveCommand(command.commandId, next) as T
   },
   transitionCycle(calmyId: string, status: CycleStatus, meta: CoreCommandMeta = {}): Cycle {
@@ -200,7 +205,7 @@ export const unifiedRepository = {
       throw new CoreDomainError('REVISION_CONFLICT', `${entity.entityType} ${entity.calmyId} has local changes`)
     }
     storeFor(entity.entityType).create(entity)
-    appendMutation(entity, 'create', `import:${entity.calmyId}:${entity.revision}`, 'import', [], 0, entity)
+    appendMutation(entity, 'create', `import:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], 0, entity)
     return 'created'
   },
   replaceImported<T extends RepositoryItem>(entity: T): 'replaced' | 'unchanged' | 'created' {
@@ -209,7 +214,7 @@ export const unifiedRepository = {
     if (!current) return this.importEntity(entity)
     if (JSON.stringify(current) === JSON.stringify(entity)) return 'unchanged'
     storeFor(entity.entityType).update(entity.calmyId, () => entity)
-    appendMutation(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', [], current.revision, entity)
+    appendMutation(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity)
     return 'replaced'
   },
   mutations(entityType?: CoreEntityType, calmyId?: string): CoreEntityMutation[] {

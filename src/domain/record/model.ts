@@ -15,6 +15,8 @@ export interface RealityRecord {
   createdAt: number
   updatedAt: number
   matterId?: string
+  cycleId?: string
+  stageId?: string
   actionId?: string
   source: RecordSource
   evidenceIds: string[]
@@ -28,10 +30,20 @@ export interface RecordCreateInput {
   body: string
   occurredAt?: number
   matterId?: string
+  cycleId?: string
+  stageId?: string
   actionId?: string
   source?: RecordSource
   evidenceIds?: string[]
   impact?: NegativeRecordImpact
+}
+
+export interface RecordCommandMeta {
+  commandId?: string
+  actor?: RecordSource
+  actorId?: string
+  sourceIds?: string[]
+  expectedRevision?: number
 }
 
 export interface RecordRevision {
@@ -39,8 +51,13 @@ export interface RecordRevision {
   recordId: string
   revision: number
   body: string
+  matterId?: string
+  cycleId?: string
+  stageId?: string
+  actionId?: string
   reason: string
   actor: RecordSource
+  actorId?: string
   changedAt: number
 }
 

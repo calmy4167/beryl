@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { RecordDomainError } from '@/domain/record/model'
 import { recordRepository } from '@/domain/record/repository'
+import { unifiedRepository } from '@/domain/unified'
 
 describe('recordRepository', () => {
   beforeEach(() => {
@@ -47,5 +48,67 @@ describe('recordRepository', () => {
     expect(redacted.redactedAt).toBeTruthy()
     expect(recordRepository.find(record.calmyId)?.calmyId).toBe(record.calmyId)
     expect(recordRepository.revisions(record.calmyId)).toHaveLength(2)
+  })
+
+  it('links a Record to its Stage and derives the owning Cycle and Matter', () => {
+    const cycle = unifiedRepository.createCycleForMatter({
+      matterId: 'matter-stage-source', title: '恢复周期', theme: '恢复节奏', currentStage: 'wood',
+      status: 'active', trajectory: 'stable', stageIds: []
+    })
+    const stage = unifiedRepository.createStageForCycle({
+      cycleId: cycle.calmyId, title: '观察现实', element: 'wood', status: 'active', actionIds: [], recordIds: [], order: 1
+    })
+
+    const record = recordRepository.create({ body: '连续三天在 23:00 前入睡', stageId: stage.calmyId })
+
+    expect(record).toMatchObject({ matterId: 'matter-stage-source', cycleId: cycle.calmyId, stageId: stage.calmyId })
+    expect(recordRepository.listForMatter('matter-stage-source')).toEqual([record])
+    expect(recordRepository.listForCycle(cycle.calmyId)).toEqual([record])
+    expect(recordRepository.listForStage(stage.calmyId)).toEqual([record])
+    expect(unifiedRepository.find<typeof stage>('stage', stage.calmyId)?.recordIds).toContain(record.calmyId)
+    expect(recordRepository.history(record.calmyId)[0]).toMatchObject({ stageId: stage.calmyId, cycleId: cycle.calmyId })
+  })
+
+  it('keeps Records from parallel Cycles isolated and rejects mismatched source ownership', () => {
+    const firstCycle = unifiedRepository.createCycleForMatter({
+      matterId: 'matter-parallel', title: '周期 A', theme: 'A', currentStage: 'wood', status: 'active', trajectory: 'stable', stageIds: []
+    })
+    const secondCycle = unifiedRepository.createCycleForMatter({
+      matterId: 'matter-parallel', title: '周期 B', theme: 'B', currentStage: 'fire', status: 'active', trajectory: 'stable', stageIds: []
+    })
+    const firstStage = unifiedRepository.createStageForCycle({
+      cycleId: firstCycle.calmyId, title: 'A 阶段', element: 'wood', status: 'active', actionIds: [], recordIds: [], order: 1
+    })
+    const secondStage = unifiedRepository.createStageForCycle({
+      cycleId: secondCycle.calmyId, title: 'B 阶段', element: 'fire', status: 'active', actionIds: [], recordIds: [], order: 1
+    })
+    const firstRecord = recordRepository.create({ body: 'A 的现实证据', stageId: firstStage.calmyId })
+    const secondRecord = recordRepository.create({ body: 'B 的现实证据', stageId: secondStage.calmyId })
+
+    expect(recordRepository.listForCycle(firstCycle.calmyId)).toEqual([firstRecord])
+    expect(recordRepository.listForStage(secondStage.calmyId)).toEqual([secondRecord])
+    expect(() => recordRepository.create({ body: '错误归属', matterId: 'other-matter', stageId: firstStage.calmyId })).toThrowError(/does not belong to Matter/)
+  })
+
+  it('moves the reverse Stage index when an imported Record changes source Stage', () => {
+    const firstCycle = unifiedRepository.createCycleForMatter({
+      matterId: 'matter-import-move', title: '旧周期', theme: '旧', currentStage: 'wood', status: 'active', trajectory: 'stable', stageIds: []
+    })
+    const secondCycle = unifiedRepository.createCycleForMatter({
+      matterId: 'matter-import-move', title: '新周期', theme: '新', currentStage: 'fire', status: 'active', trajectory: 'stable', stageIds: []
+    })
+    const firstStage = unifiedRepository.createStageForCycle({
+      cycleId: firstCycle.calmyId, title: '旧阶段', element: 'wood', status: 'active', actionIds: [], recordIds: [], order: 1
+    })
+    const secondStage = unifiedRepository.createStageForCycle({
+      cycleId: secondCycle.calmyId, title: '新阶段', element: 'fire', status: 'active', actionIds: [], recordIds: [], order: 1
+    })
+    const record = recordRepository.create({ body: '来源待迁移', stageId: firstStage.calmyId })
+
+    recordRepository.replaceImported({ ...record, body: '来源已迁移', cycleId: secondCycle.calmyId, stageId: secondStage.calmyId, revision: 2, updatedAt: record.updatedAt + 1 })
+
+    expect(unifiedRepository.find<typeof firstStage>('stage', firstStage.calmyId)?.recordIds).not.toContain(record.calmyId)
+    expect(unifiedRepository.find<typeof secondStage>('stage', secondStage.calmyId)?.recordIds).toContain(record.calmyId)
+    expect(recordRepository.listForStage(secondStage.calmyId).map(item => item.body)).toEqual(['来源已迁移'])
   })
 })
