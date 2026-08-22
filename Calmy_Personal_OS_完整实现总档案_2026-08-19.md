@@ -419,17 +419,23 @@ source: calmy
 - 新增安全回滚入口 `rollbackLegacyMigration()`：仅删除 revision=1 且时间戳仍与源记录一致的迁移产物；用户已修改的 Matter/Action/Capture 会保留，映射也保留以避免旧数据重新形成双事实源。
 - Social 已新增异步 Repository 入口，支持帖子、点赞、评论树和删除的 durable 写入；Action/Unified 异步 facade 的 mutation/command 日志已迁移到 durable async repositories，并保留同步 API 兼容。
 - Capture suggestion 已支持默认 30 天的显式过期与批量过期，过期只改变 suggestion 历史状态，不写入实体、不改变原始 Capture。
-- 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
+- 新增 `CaptureText` 应用用例：原文先保存，suggestion 失败时返回已保存原文与待重试错误；新增 3 个用例回归测试。
+- 新增 `AddActionToToday` 应用用例：创建行动与更新 Today 计划的跨仓储部分成功会显式返回；新增 3 个用例回归测试。
+- 新增 `OpenToday` 应用用例：并行聚合 Today、Action、Matter、关系、共享空间和 Daily State，并由 Today 页面消费；新增 3 个用例回归测试。
+- 新增 `RecordActionResult` 应用用例：关联行动完成与结果 Reality Record，空结果在写入前拒绝，记录失败显式返回半成功；Today 记录区已支持关联行动；`recordCommands` 已支持 command ID 幂等重试。
+- 新增 `CompleteReview` 应用用例：只负责清理并保存四段 Today Review，保留 revision 乐观并发边界。
+- 备份白名单已覆盖当前领域集合，导入删除键会同步删除 IndexedDB 镜像并等待 durable flush。
+- 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、关联行动→结果 Record 闭环、侧边栏收起/展开、390×844 移动布局、820px 平板无横向溢出与 44px 触控目标、More 抽屉展开和真实 Escape 关闭、Capture/Review 路由 active 状态、真实 Tab/Enter 键盘路径、记录区无横向溢出、Capture 原文保存、建议拒绝后原文保留、导出→清空→导入数据往返、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
 - 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；本轮运行首屏 690.5ms、DOMContentLoaded 402.9ms、load 409.5ms、Today→Today 18.4ms、Today→Capture 165.2ms，允许外部请求数为 0。
 - 桌面 AppShell 已形成四边工作台：左侧主导航、顶部上下文/保存状态、右侧快捷动作、底部快捷命令；窄桌面自动收起右栏，移动端保留底部主导航。
 - 新增 AppShell/Admin/Scene/旧入口静态无障碍回归测试，5/5 通过；完整移动端与屏幕阅读器人工审计仍未完成。
 - 键级云端同步已接入删除 tombstone：本地删除写入 changes，推送 `deleted:true`，远端拉取删除本地快照且不再次生成本地 changes。
-- `npm test -- --run`：48 个测试文件、241 个测试通过。
+- `npm test -- --run`：53 个测试文件、260 个测试通过。
 - `npx vue-tsc --noEmit`：通过。
 - `npm run test:node`：15/15 通过。
 - `npm run test:e2e`：22/22 通过，新增键级 tombstone 的 push、pull 和旧值不复活回归。
 - `npm run test:idb`：浏览器运行时通过，覆盖 v2→v3 升级、`pending_writes` 重放、KV 写入、删除和 tombstone changes、未 await 写入后立即 backup/migration 的 durable flush，以及真实浏览器中的 async Repository durable snapshot。
-- `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Home/Today 路由、刷新恢复本地数据和外部网络阻断。
+- `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Home/Today 路由、侧边栏收起/展开、Capture 流程、导出→清空→导入数据往返、刷新恢复本地数据和外部网络阻断。
 - `node test/performance-runtime.mjs`：浏览器性能基线通过，首屏、导航、路由切换均低于阈值，外部网络允许请求数为 0。
 - `accessibility-static.test.ts`：5/5 通过，覆盖导航当前项、抽屉语义、状态区域、场景语义标签和旧入口重定向。
 - `legacy-migration.test.ts`：1/1 通过，覆盖旧 Case/Task/inbox 增量复制、稳定映射、关联 Matter、源集合不变和修改后安全回滚。

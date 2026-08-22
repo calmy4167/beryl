@@ -158,6 +158,15 @@ describe('recordAsyncRepository', () => {
     expect(isolated.values.get('b_realityRecords')).toContain('确认是睡眠影响学习')
   })
 
+  it('keeps repeated command IDs idempotent for record creation', async () => {
+    const first = await recordAsyncRepository.create({ body: '只保存一次' }, { commandId: 'record-command-1' })
+    const repeated = await recordAsyncRepository.create({ body: '不应重复保存' }, { commandId: 'record-command-1' })
+
+    expect(repeated).toEqual(first)
+    expect(await recordAsyncRepository.list()).toHaveLength(1)
+    expect(JSON.parse(isolated.values.get('b_recordCommands') || '[]')).toEqual([{ id: 'record-command-1', result: first }])
+  })
+
   it('rejects invalid bodies, unsupported AI observations, missing Stages, and stale revisions', async () => {
     await expect(recordAsyncRepository.create({ body: '   ' })).rejects.toMatchObject({ code: 'VALIDATION_FAILED' })
     await expect(recordAsyncRepository.create({ type: 'observation', source: 'ai', body: '无证据' }))

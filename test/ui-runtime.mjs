@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -170,6 +170,8 @@ async function waitForCondition(cdp, label, expression, timeoutMs = 20000) {
       href: location.href,
       title: document.title,
       seedStatus: document.querySelector('#result')?.textContent || null,
+      sidebarState: localStorage.getItem('b_sidebar_collapsed'),
+      sidebarClass: document.querySelector('.app-shell')?.className || null,
       body: (document.body?.innerText || '').slice(0, 500)
     }))()`)
   } catch (error) {
@@ -185,11 +187,22 @@ async function stopProcess(child) {
   await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 2500))])
 }
 
+async function waitForDownload(directory, timeoutMs = 10000) {
+  const started = Date.now()
+  while (Date.now() - started <= timeoutMs) {
+    const files = readdirSync(directory).filter(name => name.endsWith('.json'))
+    if (files.length) return join(directory, files[0])
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  throw new Error(`download-timeout directory=${directory}`)
+}
+
 async function run() {
   const [serverPort, debugPort] = await Promise.all([getFreePort(), getFreePort()])
   const baseUrl = `http://127.0.0.1:${serverPort}`
   const testUrl = `${baseUrl}/test/ui-runtime.html`
   const profile = mkdtempSync(join(tmpdir(), 'beryl-ui-runtime-'))
+  const downloadDir = mkdtempSync(join(tmpdir(), 'beryl-ui-download-'))
   const vite = spawnWithLogs(process.execPath, [viteScript, '--host', '127.0.0.1', '--port', String(serverPort)], {
     cwd: root,
     stdio: ['ignore', 'pipe', 'pipe']
@@ -213,6 +226,7 @@ async function run() {
     await cdp.opened
     await cdp.call('Page.enable')
     await cdp.call('Runtime.enable')
+    await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
     await cdp.call('Page.addScriptToEvaluateOnNewDocument', {
       source: `(() => {
         window.__uiSmokeExternalAttempts = [];
@@ -242,6 +256,27 @@ async function run() {
       };
     })()`)
 
+    await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
+    const collapsedSidebar = await waitForCondition(cdp, 'sidebar-collapse', `(() => ({
+      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏' && Math.round(document.querySelector('.sidebar')?.getBoundingClientRect().width || 0) === 72 && getComputedStyle(document.querySelector('.nav-label')).display === 'none'
+    }))()`)
+    await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
+    const expandedSidebar = await waitForCondition(cdp, 'sidebar-expand', `(() => ({
+      ok: !document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') && localStorage.getItem('calmy_sidebar_collapsed') === '0' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '收起侧边栏'
+    }))()`)
+    await evaluateStable(cdp, `(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, bubbles: true })); return true })()`)
+    const keyboardCollapsed = await waitForCondition(cdp, 'sidebar-keyboard-collapse', `(() => ({
+      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1'
+    }))()`)
+    await evaluateStable(cdp, `(() => { const input = document.querySelector('.create-row input'); input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, bubbles: true })); return true })()`)
+    const typingGuard = await waitForCondition(cdp, 'sidebar-keyboard-typing-guard', `(() => ({
+      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1'
+    }))()`)
+    await evaluateStable(cdp, `(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, bubbles: true })); return true })()`)
+    await waitForCondition(cdp, 'sidebar-keyboard-expand', `(() => ({
+      ok: !document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') && localStorage.getItem('calmy_sidebar_collapsed') === '0'
+    }))()`)
+
     await evaluateStable(cdp, `(() => {
       const input = document.querySelector('.create-row input');
       if (!input) return false;
@@ -255,10 +290,237 @@ async function run() {
       ok: [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task'))
     }))()`)
 
+    const recordedAction = await evaluateStable(cdp, `(() => {
+      const actions = JSON.parse(localStorage.getItem('b_mvpActions') || '[]')
+      const action = actions.find(item => item.title === 'UI smoke synthetic task')
+      const body = document.querySelector('.record-row textarea')
+      const relation = document.querySelector('select[aria-label="结果关联行动"]')
+      if (!action || !body || !relation) return { ok: false }
+      const bodySetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
+      bodySetter?.call(body, 'UI smoke action result')
+      body.dispatchEvent(new Event('input', { bubbles: true }))
+      relation.value = action.calmyId
+      relation.dispatchEvent(new Event('change', { bubbles: true }))
+      document.querySelector('.record-row button')?.click()
+      return { ok: true, actionId: action.calmyId }
+    })()`)
+    const actionResult = await waitForCondition(cdp, 'today-action-result', `(() => {
+      const records = JSON.parse(localStorage.getItem('b_realityRecords') || '[]')
+      const action = JSON.parse(localStorage.getItem('b_mvpActions') || '[]').find(item => item.title === 'UI smoke synthetic task')
+      return {
+        ok: !!action && action.status === 'done' && records.some(item => item.body === 'UI smoke action result' && item.actionId === action.calmyId) && !!document.querySelector('[aria-label="重新打开行动"]') && document.querySelector('.save-state')?.textContent?.includes('已保存'),
+        persisted: records.some(item => item.body === 'UI smoke action result' && item.actionId === action?.calmyId),
+        actionDone: action?.status === 'done',
+        saveLabel: document.querySelector('.save-state')?.textContent || null
+      }
+    })()`)
+
     await evaluateStable(cdp, `(() => { location.hash = '#/app/today'; return true })()`)
     const today = await waitForCondition(cdp, 'today-route', `(() => ({
       ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.body.innerText.includes('今天先定向'),
       route: location.hash
+    }))()`)
+
+    await evaluateStable(cdp, `(() => { location.hash = '#/app/capture'; return true })()`)
+    const capture = await waitForCondition(cdp, 'capture-mount', `(() => ({
+      ok: location.hash.includes('/app/capture') && !!document.querySelector('.capture-page') && !!document.querySelector('.capture-box textarea'),
+      route: location.hash
+    }))()`)
+
+    await evaluateStable(cdp, `(() => {
+      const input = document.querySelector('.capture-box textarea');
+      if (!input) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(input, 'UI smoke capture：需要确认一个真实下一步');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.capture-footer button')?.click();
+      return true;
+    })()`)
+    const captured = await waitForCondition(cdp, 'capture-write-and-suggestion', `(() => ({
+      ok: [...document.querySelectorAll('.history-card p')].some(node => node.textContent?.includes('UI smoke capture')) && !!document.querySelector('.suggestion-card'),
+      saveLabel: document.querySelector('.save-state')?.textContent || null,
+      persistedCapture: localStorage.getItem('b_calmyCaptures')?.includes('UI smoke capture') || false
+    }))()`)
+
+    await evaluateStable(cdp, `(() => { document.querySelector('.suggestion-actions .reject')?.click(); return true })()`)
+    const rejected = await waitForCondition(cdp, 'capture-reject-preserves-source', `(() => ({
+      ok: [...document.querySelectorAll('.history-card p')].some(node => node.textContent?.includes('UI smoke capture')) && document.querySelectorAll('.suggestion-card').length === 0,
+      persistedCapture: localStorage.getItem('b_calmyCaptures')?.includes('UI smoke capture') || false
+    }))()`)
+
+    await evaluateStable(cdp, `(() => { location.hash = '#/app/admin'; return true })()`)
+    await waitForCondition(cdp, 'admin-data-management', `(() => ({
+      ok: location.hash.includes('/app/admin') && !!document.querySelector('#file-import') && document.body.innerText.includes('数据管理')
+    }))()`)
+    await cdp.call('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDir })
+    await evaluateStable(cdp, `(() => { [...document.querySelectorAll('.btns button')].find(button => button.textContent?.includes('导出'))?.click(); return true })()`)
+    const backupPath = await waitForDownload(downloadDir)
+    const exported = JSON.parse(readFileSync(backupPath, 'utf8'))
+    const exportRoundTrip = {
+      ok: exported.b_mvpActions?.includes('UI smoke synthetic task') === true &&
+        !Object.prototype.hasOwnProperty.call(exported, 'b_auth') &&
+        !Object.prototype.hasOwnProperty.call(exported, 'b_session') &&
+        !Object.prototype.hasOwnProperty.call(exported, 'b_cloud'),
+      sensitiveKeysExcluded: !Object.keys(exported).some(key => ['b_auth', 'b_session', 'b_cloud', 'b_s3'].includes(key))
+    }
+
+    await cdp.call('Storage.clearDataForOrigin', { origin: baseUrl, storageTypes: 'all' })
+    await cdp.call('Page.navigate', { url: testUrl })
+    await waitForCondition(cdp, 'fixture-after-data-clear', `(() => ({
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') && !localStorage.getItem('b_mvpActions')
+    }))()`)
+    await evaluateStable(cdp, `(() => { location.hash = '#/app/admin'; return true })()`)
+    await waitForCondition(cdp, 'admin-after-data-clear', `(() => ({
+      ok: location.hash.includes('/app/admin') && !!document.querySelector('#file-import')
+    }))()`)
+    const documentTree = await cdp.call('DOM.getDocument', { depth: -1 })
+    const fileInput = await cdp.call('DOM.querySelector', { nodeId: documentTree.root.nodeId, selector: '#file-import' })
+    if (!fileInput?.nodeId) throw new Error('file-input-not-found-after-data-clear')
+    await cdp.call('DOM.setFileInputFiles', { nodeId: fileInput.nodeId, files: [backupPath] })
+    await evaluateStable(cdp, `(() => { document.querySelector('#file-import')?.dispatchEvent(new Event('change', { bubbles: true })); return true })()`)
+    const imported = await waitForCondition(cdp, 'backup-imported', `(() => ({
+      ok: localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') === true &&
+        localStorage.getItem('b_calmyCaptures')?.includes('UI smoke capture') === true,
+      restoredActions: localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') || false,
+      restoredCaptures: localStorage.getItem('b_calmyCaptures')?.includes('UI smoke capture') || false
+    }))()`)
+    await evaluateStable(cdp, `(() => { location.hash = '#/app/today'; return true })()`)
+    const importedToday = await waitForCondition(cdp, 'backup-visible-in-today', `(() => ({
+      ok: location.hash.includes('/app/today') && [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task'))
+    }))()`)
+    const accessibilityTree = await cdp.call('Accessibility.getFullAXTree')
+    const accessibilityNames = new Set((accessibilityTree?.nodes || []).map(node => node.name?.value).filter(Boolean))
+    const accessibilityTreeVisible = {
+      ok: ['Today', 'Capture', '课题', '复盘', '保存记录', '现实记录内容'].every(name => accessibilityNames.has(name)),
+      names: ['Today', 'Capture', '课题', '复盘', '保存记录', '现实记录内容'].filter(name => accessibilityNames.has(name))
+    }
+
+    await evaluateStable(cdp, `(() => {
+      const field = document.querySelector('.record-row textarea')
+      field?.focus()
+      return document.activeElement === field
+    })()`)
+    const dispatchKey = async (key, code, keyCode) => {
+      await cdp.call('Input.dispatchKeyEvent', { type: 'keyDown', key, code, windowsVirtualKeyCode: keyCode, nativeVirtualKeyCode: keyCode })
+      await cdp.call('Input.dispatchKeyEvent', { type: 'keyUp', key, code, windowsVirtualKeyCode: keyCode, nativeVirtualKeyCode: keyCode })
+    }
+    const navigateHashWithRetry = async (label, path, expression) => {
+      let lastError
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        await evaluateStable(cdp, `(() => { location.hash = ${JSON.stringify(path)}; return true })()`)
+        try { return await waitForCondition(cdp, label, expression, 5000) } catch (error) {
+          lastError = error
+          await new Promise(resolve => setTimeout(resolve, 200))
+        }
+      }
+      throw lastError
+    }
+    const keyboardTrace = []
+    for (let index = 0; index < 4; index += 1) {
+      await dispatchKey('Tab', 'Tab', 9)
+      keyboardTrace.push(await evaluateStable(cdp, `(() => ({
+        tag: document.activeElement?.tagName || null,
+        aria: document.activeElement?.getAttribute('aria-label') || null,
+        text: document.activeElement?.textContent?.trim().slice(0, 20) || null
+      }))()`))
+    }
+    await evaluateStable(cdp, `(() => {
+      const button = document.querySelector('.record-row button')
+      window.__uiSmokeEnter = false
+      button?.addEventListener('keydown', event => { if (event.key === 'Enter') window.__uiSmokeEnter = true }, { once: true })
+      button?.focus()
+      return true
+    })()`)
+    await dispatchKey('Enter', 'Enter', 13)
+    const keyboardEnter = await waitForCondition(cdp, 'keyboard-enter-event', `(() => ({ ok: window.__uiSmokeEnter === true }))()`)
+    const keyboardFocus = {
+      ok: keyboardTrace.some(item => item?.aria === '记录类型') &&
+        keyboardTrace.some(item => item?.aria === '结果关联行动') &&
+        keyboardTrace.some(item => item?.aria === '记录关联 Matter') &&
+        keyboardTrace.some(item => item?.tag === 'BUTTON' && item?.text === '保存记录') &&
+        keyboardEnter.ok,
+      trace: keyboardTrace
+    }
+
+    await cdp.call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
+    const mobileLayout = await waitForCondition(cdp, 'mobile-layout', `(() => {
+      const width = window.innerWidth
+      const record = document.querySelector('.record-row')?.getBoundingClientRect()
+      const bottomButtons = [...document.querySelectorAll('.bottom-nav button')]
+      return {
+        ok: width === 390 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && !document.querySelector('.sidebar') && document.documentElement.scrollWidth <= width + 1 && (!record || record.right <= width + 1) && bottomButtons.length === 5 && bottomButtons.every(button => button.getBoundingClientRect().height >= 44),
+        width,
+        scrollWidth: document.documentElement.scrollWidth,
+        bottomNav: !!document.querySelector('.bottom-nav'),
+        recordRight: record?.right || null
+      }
+    })()`)
+
+    await evaluateStable(cdp, `(() => { document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.click(); return true })()`)
+    const mobileDrawer = await waitForCondition(cdp, 'mobile-more-drawer', `(() => {
+      const drawer = document.querySelector('#mobile-more-drawer')
+      const panel = drawer?.closest('.el-drawer')
+      const rect = panel?.getBoundingClientRect()
+      return {
+        ok: !!drawer && !!panel && !!rect && rect.width > 0 && rect.height > 0 && getComputedStyle(panel).visibility !== 'hidden' && !!document.querySelector('.drawer-close') && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'true',
+        width: rect?.width || 0,
+        expanded: document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') || null
+      }
+    })()`)
+    const mobileDrawerAccessibilityTree = await cdp.call('Accessibility.getFullAXTree')
+    const mobileDrawerAccessibilityNames = new Set((mobileDrawerAccessibilityTree?.nodes || []).map(node => node.name?.value).filter(Boolean))
+    const mobileDialogs = (mobileDrawerAccessibilityTree?.nodes || []).filter(node => node.role?.value === 'dialog' && node.ignored !== true)
+    const mobileDialog = mobileDialogs.find(node => node.name?.value === '更多入口')
+    const mobileDialogIsModal = mobileDialog?.properties?.some(property => property.name === 'modal' && property.value?.value === true) === true
+    const mobileDrawerDomState = await evaluateStable(cdp, `(() => ({
+      text: document.querySelector('#mobile-more-drawer')?.textContent || '',
+      hasDialogTrigger: document.querySelector('[aria-controls="mobile-more-drawer"]')?.getAttribute('aria-haspopup') === 'dialog'
+    }))()`)
+    const mobileDrawerAccessibilityVisible = {
+      ok: ['更多入口', '搜索课题', '关闭更多入口'].every(name => mobileDrawerAccessibilityNames.has(name)) && !!mobileDialog && mobileDialogIsModal && ['设置与同步', '日历视图'].every(name => mobileDrawerDomState.text.includes(name)) && mobileDrawerDomState.hasDialogTrigger,
+      names: ['更多入口', '搜索课题', '设置与同步', '日历视图', '关闭更多入口'].filter(name => mobileDrawerAccessibilityNames.has(name)),
+      dialogs: mobileDialogs.map(node => ({ role: node.role?.value || null, name: node.name?.value || null, ignored: node.ignored, properties: node.properties?.map(property => ({ name: property.name, value: property.value?.value })) || [] }))
+    }
+    await dispatchKey('Escape', 'Escape', 27)
+    const mobileDrawerClosed = await waitForCondition(cdp, 'mobile-more-drawer-closed', `(() => ({
+      ok: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'false' && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'false'
+    }))()`)
+    await waitForCondition(cdp, 'mobile-more-drawer-settled', `(() => {
+      const panel = document.querySelector('#mobile-more-drawer')?.closest('.el-drawer')
+      const rect = panel?.getBoundingClientRect()
+      const style = panel ? getComputedStyle(panel) : null
+      return { ok: !panel || style?.visibility === 'hidden' || (rect?.width || 0) === 0 }
+    })()`, 5000)
+
+    await cdp.call('Emulation.setDeviceMetricsOverride', { width: 820, height: 900, deviceScaleFactor: 1, mobile: true })
+    const tabletLayout = await waitForCondition(cdp, 'tablet-layout', `(() => ({
+      ok: window.innerWidth === 820 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && document.documentElement.scrollWidth <= window.innerWidth + 1 && [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 }).every(node => node.getBoundingClientRect().height >= 44),
+      width: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      undersizedControls: [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 && rect.height < 44 }).length
+    }))()`)
+    const tabletToday = await waitForCondition(cdp, 'tablet-today-route', `(() => ({
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Today')
+    }))()`)
+    const tabletCapture = await navigateHashWithRetry('tablet-capture-route', '#/app/capture', `(() => ({
+      ok: location.hash.includes('/app/capture') && !!document.querySelector('.capture-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Capture'),
+      active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
+    }))()`)
+    const tabletReview = await navigateHashWithRetry('tablet-review-route', '#/app/review', `(() => ({
+      ok: location.hash.includes('/app/review') && !!document.querySelector('.review-page') && !!document.querySelector('.today-review') && document.querySelectorAll('.today-review textarea[aria-label]').length === 4 && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('复盘'),
+      active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
+    }))()`)
+    const tabletTodayRestored = await navigateHashWithRetry('tablet-today-route-restored', '#/app/today', `(() => ({
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Today')
+    }))()`)
+    const tabletMatters = await navigateHashWithRetry('tablet-matters-route', '#/app/matters', `(() => ({
+      ok: location.hash.includes('/app/matters') && !!document.querySelector('.matters-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('课题'),
+      active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
+    }))()`)
+
+    await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
+    await waitForCondition(cdp, 'desktop-layout-restored', `(() => ({
+      ok: !!document.querySelector('.sidebar') && !!document.querySelector('.desktop-topbar') && !document.querySelector('.bottom-nav')
     }))()`)
 
     await evaluateStable(cdp, `(() => { location.hash = '#/app/home'; return true })()`)
@@ -266,28 +528,59 @@ async function run() {
       ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page')
     }))()`)
 
+    await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
+    await waitForCondition(cdp, 'sidebar-collapse-before-refresh', `(() => ({
+      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1'
+    }))()`)
+
     await cdp.call('Page.reload', { ignoreCache: true })
     const refreshed = await waitForCondition(cdp, 'refresh-recovery', `(() => ({
       ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') &&
-        [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task')),
+        [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task')) &&
+        document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true &&
+        document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
+      sidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
       route: location.hash,
       persistedTask: localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') || false,
       externalAttempts: window.__uiSmokeExternalAttempts?.length || 0
     }))()`)
 
+    const checks = {
+      appMounted: home.ok,
+        sidebarCollapseVisible: collapsedSidebar.ok,
+        sidebarExpandVisible: expandedSidebar.ok,
+        sidebarKeyboardVisible: keyboardCollapsed.ok && typingGuard.ok,
+      todayDefaultViewVisible: home.ok,
+      syntheticLocalDataVisible: seeded.ok,
+      recordActionResultVisible: recordedAction?.ok === true && actionResult.ok,
+      todayRouteViewVisible: today.ok,
+      captureFlowVisible: capture.ok && captured.ok,
+      captureSaveStateVisible: captured.saveLabel?.includes('已保存') || false,
+      captureRejectPreservesSource: rejected.ok && rejected.persistedCapture,
+      refreshRestoredLocalData: refreshed.ok && refreshed.persistedTask,
+      sidebarStateRestoredAfterRefresh: refreshed.sidebarCollapsed,
+      mobileLayoutVisible: mobileLayout.ok,
+      mobileDrawerVisible: mobileDrawer.ok,
+      mobileDrawerClosed: mobileDrawerClosed.ok,
+      mobileDrawerAccessibilityVisible: mobileDrawerAccessibilityVisible.ok,
+      tabletLayoutVisible: tabletLayout.ok && tabletToday.ok && tabletMatters.ok && tabletCapture.ok && tabletReview.ok && tabletTodayRestored.ok,
+      keyboardFocusVisible: keyboardFocus.ok,
+      keyboardEnterVisible: keyboardEnter.ok,
+      accessibilityTreeVisible: accessibilityTreeVisible.ok
+    }
     const report = {
-      ok: true,
-      checks: {
-        appMounted: home.ok,
-        todayDefaultViewVisible: home.ok,
-        syntheticLocalDataVisible: seeded.ok,
-        todayRouteViewVisible: today.ok,
-        refreshRestoredLocalData: refreshed.ok && refreshed.persistedTask
-      },
+      ok: Object.values(checks).every(Boolean),
+      checks,
+      exportImport: exportRoundTrip,
+      mobileDrawerAccessibility: mobileDrawerAccessibilityVisible,
       route: refreshed.route,
       externalNetworkAttemptsBlocked: refreshed.externalAttempts,
       note: 'External fetch is blocked in-page; the app must use its offline fallback.'
     }
+    report.checks.exportImportSafe = exportRoundTrip.ok && exportRoundTrip.sensitiveKeysExcluded
+    report.checks.importedDataVisible = imported.ok && importedToday.ok
+    report.ok = Object.values(report.checks).every(Boolean)
+    if (!report.ok) throw new Error(`UI smoke checks failed: ${JSON.stringify(report)}`)
     console.log('UI browser smoke passed:', JSON.stringify(report))
   } catch (error) {
     const chromeLogs = chrome?.logs?.() || {}
@@ -299,6 +592,7 @@ async function run() {
     await stopProcess(chrome?.child)
     await stopProcess(vite.child)
     rmSync(profile, { recursive: true, force: true })
+    rmSync(downloadDir, { recursive: true, force: true })
   }
 }
 

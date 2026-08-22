@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
+import { captureText } from '@/application/use-cases'
 import { listRealityDocuments } from '@/domain/reality'
 import { withSaveState } from '@/core/save-state'
 
@@ -35,16 +36,11 @@ async function capture(): Promise<void> {
   if (!body.value.trim()) { ElMessage.warning('先写下一段原文'); return }
   saving.value = true
   try {
-    const item = await withSaveState(() => captureAsyncRepository.create(body.value))
-    try {
-      await withSaveState(() => captureAsyncRepository.suggest(item.calmyId))
-    } catch (error) {
-      ElMessage.warning(error instanceof Error ? `原文已保存，但 suggestion 生成失败：${error.message}` : '原文已保存，但 suggestion 生成失败')
-      body.value = ''
-      await refresh()
-      return
-    }
-    body.value = ''; await refresh(); ElMessage.success('已保存原文，并生成一条本地 suggestion')
+    const result = await withSaveState(() => captureText(body.value))
+    body.value = ''
+    await refresh()
+    if (result.suggestionError) ElMessage.warning(result.suggestionError instanceof Error ? `原文已保存，但 suggestion 生成失败：${result.suggestionError.message}` : '原文已保存，但 suggestion 生成失败')
+    else ElMessage.success('已保存原文，并生成一条本地 suggestion')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Capture 保存失败') }
   finally { saving.value = false }
 }
@@ -79,4 +75,8 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 <style scoped>
 .capture-page{max-width:1050px;margin:0 auto}.page-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:6px 0 28px}.eyebrow{font-size:10px;letter-spacing:.13em;color:var(--scene);font-weight:700;margin:0 0 8px}.page-head h1{font-size:clamp(35px,4vw,50px);line-height:1;margin:0;letter-spacing:-.04em}.page-head p:last-child{margin:11px 0 0;font-size:13px;color:var(--c-text-2)}.pending-count{display:grid;border-left:1px solid var(--c-border);padding-left:18px}.pending-count b{font:600 34px/1 var(--font-title);color:var(--scene)}.pending-count span{font-size:10px;color:var(--c-text-3);margin-top:4px}.capture-box{display:flex;gap:13px;padding:16px}.capture-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--scene-soft);color:var(--scene);font-size:22px}.capture-input{flex:1}.capture-input textarea{width:100%;min-height:100px;resize:vertical;border:0;background:transparent;color:var(--c-text);font:inherit;font-size:14px;line-height:1.7;outline:none}.capture-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--c-border-soft);padding-top:10px}.capture-footer small,.section-head>span{font-size:10px;color:var(--c-text-3)}.capture-footer button,.accept,.reject{border:1px solid var(--c-border);background:var(--c-card);color:var(--c-text);border-radius:8px;padding:8px 12px;font-size:11px;cursor:pointer}.capture-footer button,.accept{border-color:var(--scene-border-strong);background:var(--scene-soft);color:var(--scene)}.suggestion-section,.capture-history{margin-top:28px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}.section-head h2{font-size:24px;margin:0}.suggestion-list{display:grid;gap:13px}.suggestion-card{padding:16px}.suggestion-head{display:flex;align-items:start;justify-content:space-between;gap:12px}.suggestion-head h3{font-size:17px;margin:5px 0 0}.suggestion-type{font-size:10px;color:var(--scene);font-weight:700}.confidence{font-size:10px;color:var(--c-text-3)}.source-copy,.reason-copy{border-top:1px solid var(--c-border-soft);margin-top:13px;padding-top:10px}.source-copy small,.reason-copy small{font-size:10px;color:var(--c-text-3)}.source-copy p,.reason-copy p{font-size:12px;line-height:1.6;color:var(--c-text-2);margin:5px 0 0;white-space:pre-wrap}.reason-copy p{color:var(--scene)}.candidate-editor{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-top:12px}.candidate-editor label{display:grid;gap:5px;font-size:10px;color:var(--c-text-2)}.candidate-editor label:first-child{grid-column:1/-1}.candidate-editor label:has(textarea){grid-column:1/-1}.candidate-editor input,.candidate-editor textarea{border:1px solid var(--c-border);border-radius:7px;background:var(--c-bg);color:var(--c-text);padding:8px;font:inherit;font-size:12px}.candidate-editor textarea{min-height:52px;resize:vertical}.suggestion-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:14px}.reject{color:var(--c-text-2)}.reject:hover{border-color:#bb665d;color:#bb665d}.accept:hover{border-color:var(--scene);color:var(--scene)}.empty{text-align:center;padding:50px;color:var(--c-text-2)}.empty span{font-size:28px;color:var(--scene)}.empty h3{font-size:22px;margin:10px 0 4px}.empty p,.muted{font-size:12px;color:var(--c-text-3)}.history-list{display:grid;gap:7px}.history-card{display:flex;align-items:start;justify-content:space-between;gap:12px;padding:12px 14px}.history-card small{font-size:10px;color:var(--c-text-3)}.history-card p{font-size:12px;line-height:1.6;margin:5px 0 0;white-space:pre-wrap}.history-card>span{font-size:10px;color:var(--scene);white-space:nowrap}@media(max-width:620px){.page-head{align-items:start}.capture-footer{display:block}.capture-footer button{margin-top:9px}.candidate-editor{grid-template-columns:1fr}.candidate-editor label,.candidate-editor label:first-child,.candidate-editor label:has(textarea){grid-column:1}.suggestion-head{display:block}.confidence{display:block;margin-top:8px}.suggestion-actions{justify-content:stretch}.suggestion-actions button{flex:1}}
 .capture-mark{flex:none}.capture-footer button:disabled{opacity:.55;cursor:wait}
+@media(max-width:900px){.capture-footer{flex-wrap:wrap}.capture-footer small{flex:1 1 100%}.candidate-editor{grid-template-columns:1fr}.source-copy p,.reason-copy p,.history-card p{overflow-wrap:anywhere}}
+</style>
+<style scoped>
+.capture-footer button{font-size:0}.capture-footer button::after{content:'保存原文';font-size:11px}.capture-footer button:disabled::after{content:'保存中…'}.confidence{font-size:0;padding:6px 8px;border-radius:999px;background:var(--c-hover);color:var(--c-text-3)}.confidence::after{content:'待确认';font-size:11px}.reason-copy{background:var(--c-bg-soft);border:0;border-radius:9px;padding:10px 12px}.reason-copy small{font-size:0}.reason-copy small::after{content:'为什么会这样建议';font-size:10px}.capture-footer small{font-size:0}.capture-footer small::after{content:'原文先保存，建议不会自动写入事实';font-size:11px}
 </style>

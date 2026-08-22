@@ -49,6 +49,12 @@ export function applySceneTheme(id: string): void {
   }
   root.setProperty('--scene', s.color)
   root.setProperty('--scene-light', lighten(s.color, 0.35))
+  root.setProperty('--el-color-primary', s.color)
+  root.setProperty('--el-color-primary-light-3', lighten(s.color, 0.2))
+  root.setProperty('--el-color-primary-light-5', lighten(s.color, 0.35))
+  root.setProperty('--el-color-primary-light-7', lighten(s.color, 0.55))
+  root.setProperty('--el-color-primary-light-8', lighten(s.color, 0.68))
+  root.setProperty('--el-color-primary-light-9', lighten(s.color, 0.82))
   root.setProperty('--glow-a', rgba(s.color, 0.08))
   root.setProperty('--glow-b', rgba(s.color, 0.04))
   root.setProperty('--scene-focus', rgba(s.color, 0.5))

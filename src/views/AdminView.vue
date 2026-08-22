@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
-import { store, lsSet } from '@/core/storage'
+import { store, lsSet, lsRemove } from '@/core/storage'
 import { clearSession } from '@/core/auth'
 import { clearDb, flushPendingDbWrites, getDbStatus, type DbRuntimeStatus } from '@/core/db'
 import { BACKUP_SENSITIVE_KEYS, createDurableBackup, parseBackup } from '@/core/backup'
@@ -73,7 +73,7 @@ async function exportData() {
 
 function importData(file: File) {
   const reader = new FileReader()
-  reader.onload = () => {
+  reader.onload = async () => {
     try {
       const incoming = parseBackup(JSON.parse(String(reader.result)))
       const previous: Record<string, string | null> = {}
@@ -82,13 +82,14 @@ function importData(file: File) {
         if (k && k.startsWith('b_') && !BACKUP_SENSITIVE_KEYS.has(k)) previous[k] = localStorage.getItem(k)
       }
       try {
-        Object.keys(previous).filter(k => !(k in incoming)).forEach(k => localStorage.removeItem(k))
+        Object.keys(previous).filter(k => !(k in incoming)).forEach(k => lsRemove(k))
         for (const [k, v] of Object.entries(incoming)) if (!lsSet(k, v)) throw new Error('write')
+        await flushPendingDbWrites()
       } catch (error) {
         Object.keys(previous).forEach(k => {
           const value = previous[k]
-          if (value == null) localStorage.removeItem(k)
-          else localStorage.setItem(k, value)
+          if (value == null) lsRemove(k)
+          else lsSet(k, value)
         })
         throw error
       }

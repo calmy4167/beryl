@@ -6,6 +6,7 @@ const records = createCollectionRepository<RealityRecord>('realityRecords', item
 const revisions = createCollectionRepository<RecordRevision>('realityRecordRevisions')
 const asyncRecords = createAsyncCollectionRepository<RealityRecord>('realityRecords', item => item.calmyId)
 const asyncRevisions = createAsyncCollectionRepository<RecordRevision>('realityRecordRevisions')
+const asyncCommands = createAsyncCollectionRepository<{ id: string; result: RealityRecord }>('recordCommands')
 
 function assertBody(body: string): string {
   const value = body.trim()
@@ -126,7 +127,7 @@ async function detachRecordFromStageAsync(recordId: string, stageId?: string): P
 }
 
 async function recordAsyncReady(): Promise<RepositoryReadyStatus> {
-  const statuses = await Promise.all([asyncRecords.ready(), asyncRevisions.ready()])
+  const statuses = await Promise.all([asyncRecords.ready(), asyncRevisions.ready(), asyncCommands.ready()])
   const firstError = statuses.find(status => status.lastError)?.lastError || null
   return {
     durable: statuses.every(status => status.durable),
@@ -248,6 +249,10 @@ export const recordAsyncRepository = {
     return 'replaced'
   },
   async create(input: RecordCreateInput, meta: RecordCommandMeta = {}): Promise<RealityRecord> {
+    if (meta.commandId) {
+      const duplicate = await asyncCommands.find(meta.commandId)
+      if (duplicate) return duplicate.result
+    }
     const now = Date.now()
     const type = input.type || 'fact'
     const source = input.source || 'user'
@@ -264,6 +269,7 @@ export const recordAsyncRepository = {
     await asyncRecords.create(record)
     await appendRevisionAsync(record, 'created', source, now, meta.actorId)
     await attachRecordToStageAsync(record)
+    if (meta.commandId) await asyncCommands.create({ id: meta.commandId, result: record })
     return record
   },
   async revise(calmyId: string, body: string, reason: string, actor: RecordSource = 'user', expectedRevision?: number, actorId = 'local-user'): Promise<RealityRecord> {

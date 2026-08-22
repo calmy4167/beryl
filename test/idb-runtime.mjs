@@ -137,5 +137,5 @@ try {
   cdp?.socket.close()
   await stopProcess(chrome)
   await stopProcess(server)
-  rmSync(profile, { recursive: true, force: true })
+  rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 250 })
 }

@@ -191,7 +191,7 @@ export const actionAsyncRepository = {
     return saveCommandAsync(command.commandId, next)
   },
   start(calmyId: string, expectedRevision?: number): Promise<ActionItem> { return this.transition(calmyId, 'in_progress', expectedRevision) },
-  complete(calmyId: string, resultNote?: string, expectedRevision?: number): Promise<ActionItem> { return this.transition(calmyId, 'done', expectedRevision, resultNote) },
+  complete(calmyId: string, resultNote?: string, expectedRevision?: number, meta: ActionCommandMeta = {}): Promise<ActionItem> { return this.transition(calmyId, 'done', expectedRevision, resultNote, meta) },
   skip(calmyId: string, resultNote?: string, expectedRevision?: number): Promise<ActionItem> { return this.transition(calmyId, 'skipped', expectedRevision, resultNote) },
   cancel(calmyId: string, expectedRevision?: number): Promise<ActionItem> { return this.transition(calmyId, 'cancelled', expectedRevision) },
   reopen(calmyId: string, expectedRevision?: number): Promise<ActionItem> { return this.transition(calmyId, 'planned', expectedRevision) },

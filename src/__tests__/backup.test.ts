@@ -21,6 +21,28 @@ describe('backup contract', () => {
     expect(backup).not.toHaveProperty('b_session')
   })
 
+  it('includes current domain collections in the portable backup', () => {
+    const source = new StorageMock({
+      b_matters: '[{"calmyId":"m1"}]',
+      b_calmyCaptures: '[{"calmyId":"c1"}]',
+      'b_core:person': '[{"calmyId":"p1"}]',
+      b_realityRecords: '[{"calmyId":"r1"}]',
+      b_recordCommands: '[{"id":"cmd-1"}]',
+      b_unknown: '[]'
+    })
+
+    const backup = createBackup(source)
+
+    expect(backup).toEqual({
+      b_matters: '[{"calmyId":"m1"}]',
+      b_calmyCaptures: '[{"calmyId":"c1"}]',
+      'b_core:person': '[{"calmyId":"p1"}]',
+      b_realityRecords: '[{"calmyId":"r1"}]',
+      b_recordCommands: '[{"id":"cmd-1"}]'
+    })
+    expect(parseBackup(backup)).toEqual(backup)
+  })
+
   it('falls back to the synchronous cache when IndexedDB is unavailable', async () => {
     vi.stubGlobal('indexedDB', undefined)
     const source = new StorageMock({ b_tasks: '[{"id":"t1"}]', b_db_outbox: '[]' })

@@ -1,6 +1,7 @@
 const output = document.querySelector('#result')
 
 function seedSyntheticSession() {
+  const sidebarState = localStorage.getItem('calmy_sidebar_collapsed')
   localStorage.clear()
   sessionStorage.clear()
 
@@ -14,6 +15,7 @@ function seedSyntheticSession() {
   localStorage.setItem('b_auth', JSON.stringify(auth))
   localStorage.setItem('b_session', JSON.stringify({ u: auth.u, ts: Date.now() }))
   localStorage.setItem('b_scene', JSON.stringify('personal'))
+  if (sidebarState !== null) localStorage.setItem('calmy_sidebar_collapsed', sidebarState)
 }
 
 try {

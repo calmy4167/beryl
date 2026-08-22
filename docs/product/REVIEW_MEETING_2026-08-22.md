@@ -115,8 +115,8 @@ P0 意见：
 
 ## 7. 实施跟进（2026-08-22）
 
-本轮已完成产品壳收敛：默认入口改为 Today，主导航固定为 Today、Capture、Matters、Review，Home、Cases、inbox、Graph、场景和旧工具箱不再占用默认路径；Calmy 品牌已进入主界面，旧路由与 `b_*` / `beryl-*` 存储键保留兼容。桌面 AppShell 进一步形成四边工作台：左侧导航、顶部上下文、右侧快捷动作、底部命令条，窄桌面和移动端自动降级。
+本轮已完成产品壳收敛：默认入口改为 Today，主导航固定为 Today、Capture、Matters、Review，Home、Cases、inbox、Graph、场景和旧工具箱不再占用默认路径；Calmy 品牌已进入主界面，旧路由与 `b_*` / `beryl-*` 存储键保留兼容。桌面 AppShell 进一步形成四边工作台：左侧导航、顶部上下文、右侧快捷动作、底部命令条，左侧导航支持图标化收起/展开与 Ctrl/⌘ B，窄桌面和移动端自动降级。
 
 核心页面已完成第一轮异步持久化迁移：Today、Capture、Review、Matters 列表和 Matter 主路径使用异步 Repository 读取与主要写入，Action 状态命令和 Capture suggestion 接受也已补齐异步入口。Calendar、People 的主要读取、人物主写入以及 Matter 高级过程的主要创建/状态/绑定命令也已接入 async facade；共享协作、历史查询和部分兼容写入仍明确标为边界，不视为全域纯异步完成。
 
-验证结果已更新为：48 个 Vitest 文件 / 241 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；当前 PWA precache 为 67 个本地文件。剩余停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。
+验证结果已更新为：53 个 Vitest 文件 / 260 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；UI smoke 已覆盖侧边栏收起/展开、真实 Tab/Enter 键盘路径与刷新恢复、390×844 移动布局、820px 平板布局与 44px 触控目标、Today/Matters/Capture/Review 路由 active 状态、More 抽屉 dialog 名称/modal 语义、显式关闭按钮、过渡完成后 Escape 关闭、AX tree 核心名称、记录区无横向溢出、导出→清空→导入数据往返，以及 Today 行动写入、Capture 原文保存、建议拒绝后原文保留、保存状态可见性和刷新恢复；当前 PWA precache 为 67 个本地文件。OpenToday、CaptureText、AddActionToToday、RecordActionResult、CompleteReview 应用用例、Record command 幂等和当前领域备份白名单已补齐。剩余停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。

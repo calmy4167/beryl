@@ -91,7 +91,7 @@ IndexedDB authoritative store
 
 ## 7. 测试事实的正确表述
 
-截至本轮结束，已有自动化结果记录为 48 个 Vitest 文件、241 个测试通过，Node 验证 15/15、E2E 22/22，并有浏览器 IndexedDB、UI、性能和 PWA 验证记录。这些结果证明已覆盖的代码路径没有检测到回归；它们不证明：
+截至本轮结束，已有自动化结果记录为 53 个 Vitest 文件、260 个测试通过，Node 验证 15/15、E2E 22/22，并有浏览器 IndexedDB、UI、性能和 PWA 验证记录。UI browser smoke 当前覆盖 App 挂载、Today 默认路由、行动真实写入、桌面侧边栏收起/展开、Ctrl/⌘ B 与输入框误触防护、侧栏状态刷新恢复、390×844 移动布局、820px 平板无横向溢出与 44px 触控目标、Today/Matters/Capture/Review 路由与底部导航 active 状态、移动端 More 抽屉 dialog 名称/modal 语义、显式关闭按钮、真实 Escape 关闭及过渡收起、真实 Tab 焦点顺序与 Enter 键事件、AX tree 核心入口和保存控件名称、记录区无横向溢出、Capture 原文保存、建议拒绝后原文保留、保存状态可见性、导出→清空→导入数据往返和刷新恢复本地数据。这些结果证明已覆盖的代码路径没有检测到回归；它们不证明：
 
 - 所有页面已经使用纯异步 Application Use Case 和 IndexedDB 权威写入；
 - Companion Bridge 已与真实外部服务联调；
