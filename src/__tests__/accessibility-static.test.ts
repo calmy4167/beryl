@@ -1,0 +1,49 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { describe, expect, it } from 'vitest'
+
+const source = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
+const appShell = source('src/views/AppShell.vue')
+const admin = source('src/views/AdminView.vue')
+const scene = source('src/views/SceneView.vue')
+
+describe('静态无障碍语义', () => {
+  it('为 AppShell 的核心导航、更多入口和图标提供名称与状态', () => {
+    expect(appShell).toContain('<nav class="primary-nav" aria-label="主导航">')
+    expect(appShell).toContain(':aria-current="active === \'today\' ? \'page\' : undefined"')
+    expect(appShell).toContain('aria-label="打开更多入口"')
+    expect(appShell).toContain('<nav class="drawer-links" aria-label="更多入口">')
+    expect(appShell).toContain('<span class="brand-mark" aria-hidden="true">C</span>')
+    expect(appShell).toContain('Today')
+    expect(appShell).toContain('Capture')
+    expect(appShell).toContain('课题')
+    expect(appShell).toContain('复盘')
+  })
+
+  it('为 AdminView 的返回、文件输入、场景和动态状态提供语义', () => {
+    expect(admin).toContain('aria-label="返回工作台"')
+    expect(admin).toContain('aria-label="选择要导入的 JSON 数据文件"')
+    expect(admin).toContain('role="status" aria-live="polite"')
+    expect(admin).toContain(':aria-pressed="scene === s.id"')
+    expect(admin).toContain('role="region" aria-label="同步诊断结果"')
+    expect(admin).toContain(':aria-label="`冲突 ${conflict.calmyId} 的处理方式`"')
+  })
+
+  it('为 SceneView 的场景组、选择状态和装饰内容提供语义', () => {
+    expect(scene).toContain('id="scene-title"')
+    expect(scene).toContain('role="group" aria-labelledby="scene-title"')
+    expect(scene).toContain(':aria-pressed="selected === s.id"')
+    expect(scene).toContain(':aria-describedby="`scene-description-${s.id}`"')
+    expect(scene).toContain('<div class="logo" aria-hidden="true">')
+    expect(scene).toContain('class="bar" aria-hidden="true"')
+  })
+
+  it('将缺失可访问名称识别为失败边界', () => {
+    const unlabeledIconButton = '<button>⌂</button>'
+    const unlabeledFileInput = '<input type="file">'
+    expect(/aria-label|aria-labelledby/.test(unlabeledIconButton)).toBe(false)
+    expect(/aria-label|aria-labelledby/.test(unlabeledFileInput)).toBe(false)
+    expect(/aria-label="返回工作台"/.test(admin)).toBe(true)
+    expect(/aria-label="选择要导入的 JSON 数据文件"/.test(admin)).toBe(true)
+  })
+})

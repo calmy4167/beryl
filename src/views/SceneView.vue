@@ -14,7 +14,7 @@ function pick(id: string) {
 
 function start() {
   applySceneTheme(selected.value)
-  router.replace('/app/home')
+  router.replace('/app/today')
 }
 
 onMounted(() => applySceneTheme(currentSceneId()))
@@ -23,26 +23,28 @@ onMounted(() => applySceneTheme(currentSceneId()))
 <template>
   <div class="scene-wrap">
     <div class="text-center mb-8">
-      <div class="logo">⬡</div>
-      <h1 class="font-title title">选择使用场景</h1>
+      <div class="logo" aria-hidden="true">⬡</div>
+      <h1 id="scene-title" class="font-title title">选择使用场景</h1>
       <p class="subtitle">不同场景拥有不同的使用氛围与主题色</p>
     </div>
 
-    <div class="grid">
+    <div class="grid" role="group" aria-labelledby="scene-title">
       <button
         v-for="s in SCENES"
         :key="s.id"
         class="beryl-card hoverable card"
         :class="{ sel: selected === s.id }"
         :aria-pressed="selected === s.id"
+        :aria-label="`选择${s.name}场景`"
+        :aria-describedby="`scene-description-${s.id}`"
         :style="selected === s.id ? { borderColor: s.color, boxShadow: `0 0 0 1px ${s.color}44, 0 8px 24px ${s.color}1a` } : {}"
         @click="pick(s.id)"
       >
-        <div class="icon" :style="{ background: s.color + '1a', borderColor: s.color + '33' }">{{ s.icon }}</div>
+        <div class="icon" aria-hidden="true" :style="{ background: s.color + '1a', borderColor: s.color + '33' }">{{ s.icon }}</div>
         <div class="font-title name">{{ s.name }}</div>
-        <p class="desc">{{ s.desc }}</p>
+        <p :id="`scene-description-${s.id}`" class="desc">{{ s.desc }}</p>
         <p class="mods">{{ s.mods.length }} 个模块</p>
-        <div class="bar" :style="{ background: s.color }" />
+        <div class="bar" aria-hidden="true" :style="{ background: s.color }" />
         <p v-if="selected === s.id" class="cur" :style="{ color: s.color }">✓ 当前选择</p>
       </button>
     </div>

@@ -52,7 +52,7 @@ async function submit() {
     writeSession(u)
     if (mode.value === 'first') sessionStorage.removeItem('beryl_first_pass')
     ElMessage.success('密码已更新，请牢记 🔒')
-    if (mode.value === 'first') router.replace('/scene')
+    if (mode.value === 'first') router.replace('/app/today')
     else router.replace('/app/admin')
   } catch {
     ElMessage.error('当前环境不支持安全加密，请通过 HTTPS 或本机文件访问')

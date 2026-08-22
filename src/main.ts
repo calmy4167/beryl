@@ -6,7 +6,8 @@ import 'element-plus/theme-chalk/dark/css-vars.css'
 import './styles/main.css'
 import App from './App.vue'
 import router from './router'
-import { initDb } from './core/db'
+import { initDb, readKvSnapshot } from './core/db'
+import { hydrateStoreCache } from './core/storage'
 import { migrateData } from './core/migrate'
 import { purgeCorruptedEncryptedKeys } from './core/sync'
 import { setModuleRealityReader } from './core/modules'
@@ -28,8 +29,11 @@ try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }
 document.documentElement.classList.toggle('dark', savedTheme === 'dark')
 
 async function bootstrap() {
-  migrateData()
   await initDb()
+  // 让挂载后的同步 Repository 优先读 IndexedDB 持久快照；不可用时由 storage 自己回退到 localStorage。
+  hydrateStoreCache(await readKvSnapshot())
+  // 数据迁移必须在持久快照 hydrate 后执行，避免用过期 localStorage 覆盖 IndexedDB 主读取路径。
+  migrateData()
   // 清除本地密文残留（历史同步 bug 写入的密文字符串，幂等安全）
   purgeCorruptedEncryptedKeys()
   app.mount('#app')

@@ -83,7 +83,7 @@ describe('数据版本迁移（阶段 2）', async () => {
 })
 
 describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新数据）', async () => {
-  const { applyIncremental } = await import('@/core/sync')
+  const { applyIncremental, incomingDeletedKeys } = await import('@/core/sync')
 
   it('ts 不大于本地时间线的记录全部跳过（本地新数据不被云端旧数据覆盖）', async () => {
     const out = await applyIncremental([
@@ -151,12 +151,15 @@ describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新
   })
 
   it('deleted 记录与非 b_ 前缀键跳过', async () => {
-    const out = await applyIncremental([
+    const records = [
       { key: 'b_inbox', value: 'x', ts: 300, deleted: true },
       { key: 'b_scene', value: '"personal"', ts: 300 },
       { key: 'other-key', value: 'y', ts: 300 }
-    ], 'p', 0)
+    ]
+    const out = await applyIncremental(records, 'p', 0)
     expect(Object.keys(out)).toEqual(['b_scene'])
+    expect(incomingDeletedKeys(records, 0)).toEqual(['b_inbox'])
+    expect(incomingDeletedKeys(records, { b_inbox: 300 })).toEqual([])
   })
 })
 

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { todayKey } from '@/core/storage'
-import { actionRepository } from '@/domain/action/repository'
+import { actionAsyncRepository } from '@/domain/action/repository'
 import type { ActionItem } from '@/domain/action/model'
-import { matterRepository } from '@/domain/matter/repository'
-import { recordRepository } from '@/domain/record/repository'
+import { matterAsyncRepository, matterRepository } from '@/domain/matter/repository'
+import { recordAsyncRepository, recordRepository } from '@/domain/record/repository'
+import type { Matter } from '@/domain/matter/model'
 import type { RealityRecord } from '@/domain/record/model'
 import { MatterDomainError } from '@/domain/matter/model'
 import { canTransitionCycle, canTransitionStage, unifiedRepository, type Cycle, type CycleStatus, type Outcome, type Practice, type Stage, type StageStatus } from '@/domain/unified'
@@ -14,19 +15,22 @@ import { listRealityDocuments } from '@/domain/reality'
 import { listSharedBoundariesForMatter, type SharedMatterAccess } from '@/domain/social/shared-context'
 import { createSharedAction, createSharedRecord, currentCollaboratorId, sharedWriteAccess, updateSharedMatter } from '@/domain/social/collaboration'
 
-const route = useRoute(); const router = useRouter(); const tick = ref(0)
+const route = useRoute(); const router = useRouter(); const tick = ref(0); const loading = ref(true)
+const matterItem = ref<Matter>()
+const actionItems = ref<ActionItem[]>([])
+const recordItems = ref<RealityRecord[]>([])
 const recordBody = ref(''); const contradiction = ref(''); const why = ref('')
 const cycleTitle = ref(''); const cycleTheme = ref(''); const selectedCycleId = ref('')
 const stageTitle = ref(''); const stageElement = ref<Stage['element']>('wood'); const recordStageId = ref('')
 const actionTitle = ref(''); const actionDate = ref(todayKey()); const actionStageId = ref('')
 const outcomeActionId = ref(''); const outcomeSummary = ref(''); const outcomeResult = ref(''); const practiceOutcomeId = ref(''); const practiceTitle = ref(''); const practiceDescription = ref('')
-const matter = computed(() => { void tick.value; return matterRepository.find(String(route.params.id)) })
+const matter = computed(() => { void tick.value; return matterItem.value })
 const history = computed(() => { void tick.value; return matter.value ? matterRepository.mutations(matter.value.calmyId) : [] })
 const records = computed(() => {
   void tick.value
   const matterId = matter.value?.calmyId
   if (!matterId) return []
-  return recordRepository.listForMatter(matterId)
+  return recordItems.value.filter(item => item.matterId === matterId)
 })
 const cycles = computed(() => { void tick.value; return matter.value ? unifiedRepository.listCyclesForMatter(matter.value.calmyId) : [] })
 const selectedCycle = computed(() => cycles.value.find(item => item.calmyId === selectedCycleId.value) || cycles.value.find(item => item.calmyId === matter.value?.currentCycleId) || cycles.value[0])
@@ -36,12 +40,12 @@ const matterActions = computed(() => {
   const matterId = matter.value?.calmyId
   if (!matterId) return []
   const actionIds = new Set(listRealityDocuments({ types: ['action'] }).filter(item => item.matterId === matterId).map(item => item.id))
-  return actionRepository.listForMatter(matterId).filter(item => actionIds.has(item.calmyId))
+  return actionItems.value.filter(item => item.matterId === matterId).filter(item => actionIds.has(item.calmyId))
 })
 const actions = computed(() => {
   void tick.value
   const cycleId = selectedCycle.value?.calmyId
-  const cycleActionIds = cycleId ? new Set(actionRepository.listForCycle(cycleId).map(item => item.calmyId)) : new Set<string>()
+  const cycleActionIds = cycleId ? new Set(actionItems.value.filter(item => item.cycleId === cycleId).map(item => item.calmyId)) : new Set<string>()
   return matterActions.value.filter(item => cycleActionIds.has(item.calmyId))
 })
 const outcomes = computed(() => { void tick.value; const matterId = matter.value?.calmyId; const actionIds = new Set(actions.value.map(item => item.calmyId)); return unifiedRepository.list<Outcome>('outcome').filter(item => actionIds.has(item.actionId) || item.matterId === matterId) })
@@ -56,40 +60,50 @@ const cycleStatusNames: Record<CycleStatus, string> = { planned: '计划中', ac
 const stageStatusNames: Record<StageStatus, string> = { planned: '计划中', active: '进行中', paused: '暂停', completed: '完成', skipped: '跳过' }
 const elementNames: Record<Stage['element'], string> = { wood: '木 · 发起', fire: '火 · 推进', earth: '土 · 承载', metal: '金 · 收束', water: '水 · 沉淀' }
 
-function refresh() { tick.value++ }
-function saveContext() {
+async function refresh(): Promise<void> {
+  loading.value = true
+  try {
+    const id = String(route.params.id)
+    const [nextMatter, nextActions, nextRecords] = await Promise.all([matterAsyncRepository.find(id), actionAsyncRepository.listForMatter(id), recordAsyncRepository.list()])
+    matterItem.value = nextMatter; actionItems.value = nextActions; recordItems.value = nextRecords
+    if (nextMatter) { why.value = nextMatter.why; contradiction.value = nextMatter.primaryContradiction }
+    tick.value++
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Matter 读取失败') }
+  finally { loading.value = false }
+}
+async function saveContext(): Promise<void> {
   if (!matter.value) return
   try {
     const target = sharedWriteTargets.value[0]
     if (target) updateSharedMatter(target.owner, target.ownerId, matter.value.calmyId, { why: why.value, primaryContradiction: contradiction.value }, matter.value.revision, currentCollaboratorId())
-    else matterRepository.update(matter.value.calmyId, { why: why.value, primaryContradiction: contradiction.value }, { expectedRevision: matter.value.revision })
-    ElMessage.success(target ? '已保存，并记录到共享审计' : '已保存'); refresh()
+    else await matterAsyncRepository.update(matter.value.calmyId, { why: why.value, primaryContradiction: contradiction.value }, { expectedRevision: matter.value.revision })
+    ElMessage.success(target ? '已保存，并记录到共享审计' : '已保存'); await refresh()
   }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : '保存失败') }
 }
-function transition(status: 'active' | 'paused' | 'archived') {
+async function transition(status: 'active' | 'paused' | 'archived'): Promise<void> {
   if (!matter.value) return
-  try { matterRepository.transition(matter.value.calmyId, status, { expectedRevision: matter.value.revision }); refresh() }
+  try { await matterAsyncRepository.transition(matter.value.calmyId, status, { expectedRevision: matter.value.revision }); await refresh() }
   catch (error) { ElMessage.error(error instanceof MatterDomainError ? error.message : '状态更新失败') }
 }
-function addRecord() {
+async function addRecord(): Promise<void> {
   if (!matter.value || !recordBody.value.trim()) { ElMessage.warning('先写下一条真实记录'); return }
   try {
     const input = { body: recordBody.value, matterId: matter.value.calmyId, cycleId: selectedCycle.value?.calmyId, stageId: recordStageId.value || undefined }
     const target = sharedWriteTargets.value[0]
     if (target) createSharedRecord(target.owner, target.ownerId, input, currentCollaboratorId())
-    else recordRepository.create(input)
-    recordBody.value = ''; refresh(); ElMessage.success(recordStageId.value ? '已记录现实，并归入 Stage' : '已记录现实')
+    else await recordAsyncRepository.create(input)
+    recordBody.value = ''; await refresh(); ElMessage.success(recordStageId.value ? '已记录现实，并归入 Stage' : '已记录现实')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '记录失败') }
 }
 function selectCycle(cycle: Cycle): void { selectedCycleId.value = cycle.calmyId; actionStageId.value = ''; recordStageId.value = '' }
 function selectStage(stage: Stage): void { actionStageId.value = stage.calmyId; recordStageId.value = stage.calmyId }
-function createCycle(): void {
+async function createCycle(): Promise<void> {
   if (!matter.value || !cycleTitle.value.trim()) { ElMessage.warning('先写下周期标题'); return }
   try {
     const cycle = unifiedRepository.createCycleForMatter({ matterId: matter.value.calmyId, title: cycleTitle.value, theme: cycleTheme.value || cycleTitle.value, currentStage: 'wood', status: 'planned', trajectory: 'stable', stageIds: [] })
-    matterRepository.bindCycle(matter.value.calmyId, cycle.calmyId, { expectedRevision: matter.value.revision })
-    cycleTitle.value = ''; cycleTheme.value = ''; selectedCycleId.value = cycle.calmyId; refresh(); ElMessage.success('Cycle 已绑定到 Matter')
+    await matterAsyncRepository.bindCycle(matter.value.calmyId, cycle.calmyId, { expectedRevision: matter.value.revision })
+    cycleTitle.value = ''; cycleTheme.value = ''; selectedCycleId.value = cycle.calmyId; await refresh(); ElMessage.success('Cycle 已绑定到 Matter')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '创建 Cycle 失败') }
 }
 function createStage(): void {
@@ -107,16 +121,16 @@ function transitionStage(stage: Stage, status: StageStatus): void {
   try { unifiedRepository.transitionStage(stage.calmyId, status, { expectedRevision: stage.revision }); refresh() }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Stage 状态更新失败') }
 }
-function createAction(): void {
+async function createAction(): Promise<void> {
   if (!matter.value || !selectedCycle.value || !actionTitle.value.trim() || !actionDate.value.trim()) { ElMessage.warning('先选择 Cycle 并填写行动和日期'); return }
   try {
     const target = sharedWriteTargets.value[0]
     const action = target
       ? createSharedAction(target.owner, target.ownerId, { title: actionTitle.value, date: actionDate.value, cycleId: selectedCycle.value.calmyId }, matter.value.calmyId, currentCollaboratorId())
-      : actionRepository.create({ title: actionTitle.value, date: actionDate.value, matterId: matter.value.calmyId, cycleId: selectedCycle.value.calmyId })
+      : await actionAsyncRepository.create({ title: actionTitle.value, date: actionDate.value, matterId: matter.value.calmyId, cycleId: selectedCycle.value.calmyId })
     const stage = stages.value.find(item => item.calmyId === actionStageId.value)
     if (stage && !stage.actionIds.includes(action.calmyId)) unifiedRepository.update<Stage>('stage', stage.calmyId, { actionIds: [...stage.actionIds, action.calmyId] }, { expectedRevision: stage.revision })
-    actionTitle.value = ''; refresh(); ElMessage.success('Action 已绑定到 Matter / Cycle')
+    actionTitle.value = ''; await refresh(); ElMessage.success('Action 已绑定到 Matter / Cycle')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '创建 Action 失败') }
 }
 function stageForAction(action: ActionItem): Stage | undefined { return stages.value.find(item => item.actionIds.includes(action.calmyId)) }
@@ -152,10 +166,14 @@ function activatePractice(practice: Practice): void {
 }
 function cycleTargets(status: CycleStatus): CycleStatus[] { return (['planned', 'active', 'paused', 'completed', 'archived'] as CycleStatus[]).filter(target => target !== status && canTransitionCycle(status, target)) }
 function stageTargets(status: StageStatus): StageStatus[] { return (['planned', 'active', 'paused', 'completed', 'skipped'] as StageStatus[]).filter(target => target !== status && canTransitionStage(status, target)) }
+function onDataSynced(): void { void refresh() }
+onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 
 <template>
-  <div v-if="matter" class="matter-page">
+  <div v-if="loading" class="empty beryl-card" role="status" aria-live="polite"><h2 class="font-title">正在读取 Matter…</h2></div>
+  <div v-else-if="matter" class="matter-page">
     <button class="back" @click="router.push('/app/matters')">← 返回 Matters</button>
     <header class="matter-head"><div><p class="eyebrow">MATTER · REVISION {{ matter.revision }}</p><h1 class="font-title">{{ matter.title }}</h1><p>{{ matter.why || '还没有写下为什么值得处理。' }}</p></div><span class="status">{{ matter.status }}</span></header>
     <section class="actions"><button v-if="matter.status === 'active'" @click="transition('paused')">暂停</button><button v-if="matter.status === 'paused'" @click="transition('active')">恢复</button><button v-if="matter.status !== 'archived'" @click="transition('archived')">归档</button><button v-if="matter.status === 'archived'" @click="transition('paused')">恢复为暂停</button></section>

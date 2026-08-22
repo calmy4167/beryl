@@ -1,5 +1,7 @@
 # Beryl 个人管理体系 — 设计与维护文档
 
+> **历史参考**：这是 Beryl 旧体系与迁移来源，不再作为 Calmy 当前产品或 UI 基线。当前入口见 [`docs/README.md`](docs/README.md)，状态说明见 [`docs/product/DOCUMENT_REGISTER.md`](docs/product/DOCUMENT_REGISTER.md)。
+
 > 本文档是 `index.html` 的完整设计说明与维护日志。
 > **维护约定：每次网页有任何改动，必须同步更新本文档**（详见 [第 9 节 维护规范](#9-维护规范强制约定)）。
 >

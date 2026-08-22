@@ -1,4 +1,5 @@
 import { SYNC_KEYS } from './sync'
+import { flushPendingDbWrites, readKvSnapshot } from './db'
 
 export const BACKUP_SENSITIVE_KEYS = new Set(['b_auth', 'b_cloud', 'b_s3', 'b_session', 'b_pull_cursor', 'b_push_cursor', 'b_sync_ts', 'b_last_sync', 'b_db_outbox'])
 export const BACKUP_ALLOWED_KEYS = new Set([...SYNC_KEYS, 'b_theme', 'b_version'])
@@ -10,6 +11,14 @@ export function createBackup(source: Storage = localStorage): Record<string, str
     if (key && key.startsWith('b_') && !BACKUP_SENSITIVE_KEYS.has(key)) out[key] = source.getItem(key) || ''
   }
   return out
+}
+
+/** 优先从 IndexedDB 持久快照导出；IndexedDB 不可用时回退到同步缓存。 */
+export async function createDurableBackup(source: Storage = localStorage): Promise<Record<string, string>> {
+  await flushPendingDbWrites()
+  const snapshot = await readKvSnapshot()
+  if (!snapshot) return createBackup(source)
+  return Object.fromEntries(Object.entries(snapshot).filter(([key]) => key.startsWith('b_') && !BACKUP_SENSITIVE_KEYS.has(key)))
 }
 
 export function parseBackup(input: unknown): Record<string, string> {

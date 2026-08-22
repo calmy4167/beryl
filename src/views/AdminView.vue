@@ -7,8 +7,8 @@ import { MODS } from '@/core/modules'
 import { store, lsSet } from '@/core/storage'
 import { clearSession } from '@/core/auth'
 import { clearDb, flushPendingDbWrites, getDbStatus, type DbRuntimeStatus } from '@/core/db'
-import { BACKUP_SENSITIVE_KEYS, createBackup, parseBackup } from '@/core/backup'
-import { createEntityMigrationPlan, migrationBackupExists, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
+import { BACKUP_SENSITIVE_KEYS, createDurableBackup, parseBackup } from '@/core/backup'
+import { createDurableEntityMigrationPlan, createEntityMigrationPlan, migrationBackupExists, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
 import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
 import { apiFetch } from '@/core/api/client'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
@@ -60,8 +60,8 @@ function switchScene(id: string) {
   refreshCounts()
 }
 
-function exportData() {
-  const out = createBackup()
+async function exportData() {
+  const out = await createDurableBackup()
   const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -314,15 +314,18 @@ async function runDiag() {
   catch { diag.value = null }
   diagLoading.value = false
 }
-function prepareEntityMigration() {
-  migrationPlan.value = createEntityMigrationPlan()
-  migrationReport.value = `可迁移 ${migrationPlan.value.records.length} 个实体${migrationPlan.value.skipped.length ? `，跳过 ${migrationPlan.value.skipped.length} 项异常数据` : ''}`
+async function prepareEntityMigration() {
+  migrationBusy.value = true
+  try {
+    migrationPlan.value = await createDurableEntityMigrationPlan()
+    migrationReport.value = `可迁移 ${migrationPlan.value.records.length} 个实体${migrationPlan.value.skipped.length ? `，跳过 ${migrationPlan.value.skipped.length} 项异常数据` : ''}`
+  } finally { migrationBusy.value = false }
 }
 async function scanEntityConflicts() {
   if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
   migrationBusy.value = true
   try {
-    const plan = migrationPlan.value || createEntityMigrationPlan()
+    const plan = migrationPlan.value || await createDurableEntityMigrationPlan()
     const remote = []
     let cursor = { ts: 0, device: '', entity: '', entityId: '' }
     do {
@@ -379,8 +382,8 @@ onUnmounted(() => {
 <template>
   <div>
     <div class="head">
-      <el-button circle text @click="router.push('/app/home')">←</el-button>
-      <span class="mod-icon">⚙️</span>
+      <el-button circle text aria-label="返回工作台" @click="router.push('/app/home')">←</el-button>
+      <span class="mod-icon" aria-hidden="true">⚙️</span>
       <h2 class="font-title mod-name">后台管理</h2>
     </div>
 
@@ -401,8 +404,10 @@ onUnmounted(() => {
           :key="s.id"
           class="pill"
           :style="scene === s.id ? { color: s.color, borderColor: s.color + '66', background: s.color + '1a' } : {}"
+          :aria-pressed="scene === s.id"
+          :aria-label="`切换至${s.name}场景`"
           @click="switchScene(s.id)"
-        >{{ s.icon }} {{ s.name }}</button>
+        ><span aria-hidden="true">{{ s.icon }}</span> {{ s.name }}</button>
       </div>
       <p class="mods-line">当前场景模块：{{ SCENES[scene].mods.map(m => MODS[m].icon + ' ' + MODS[m].name).join(' · ') }}</p>
     </div>
@@ -413,13 +418,13 @@ onUnmounted(() => {
       <div class="btns">
         <el-button @click="exportData">📤 导出</el-button>
         <el-button @click="openImport">📥 导入</el-button>
-        <input id="file-import" type="file" accept="application/json,.json" style="display:none" @change="onImportChange" />
+        <input id="file-import" type="file" accept="application/json,.json" aria-label="选择要导入的 JSON 数据文件" style="display:none" @change="onImportChange" />
         <el-button type="danger" plain @click="resetData">🗑️ 重置</el-button>
       </div>
-      <div class="persistence-status" :style="{ color: persistenceStatus.state === 'degraded' ? 'var(--c-danger)' : persistenceStatus.state === 'ready' ? 'var(--c-success)' : 'var(--c-text-2)' }">
-        <p class="info">💾 {{ persistenceStatusText }}</p>
+      <div class="persistence-status" role="status" aria-live="polite" aria-atomic="false" :style="{ color: persistenceStatus.state === 'degraded' ? 'var(--c-danger)' : persistenceStatus.state === 'ready' ? 'var(--c-success)' : 'var(--c-text-2)' }">
+        <p id="persistence-status-text" class="info"><span aria-hidden="true">💾</span> {{ persistenceStatusText }}</p>
         <p class="info">待重试写入：{{ persistenceStatus.pendingWrites }} · 最近镜像：{{ persistenceStatus.lastMirrorAt ? new Date(persistenceStatus.lastMirrorAt).toLocaleString() : '暂无' }}</p>
-        <el-button size="small" :loading="persistenceBusy" @click="retryPersistence">重试持久化</el-button>
+        <el-button size="small" aria-describedby="persistence-status-text" :loading="persistenceBusy" @click="retryPersistence">重试持久化</el-button>
       </div>
     </div>
 
@@ -439,7 +444,7 @@ onUnmounted(() => {
     <!-- 数据同步 -->
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">🔄 数据同步</h3>
-      <p class="info" :style="{ color: syncStatus.color }">{{ syncStatus.text }}</p>
+      <p class="info" role="status" aria-live="polite" :style="{ color: syncStatus.color }">{{ syncStatus.text }}</p>
       <div class="btns">
         <template v-if="syncStatus.actions">
           <el-button @click="syncNow()">💾 立即同步</el-button>
@@ -455,7 +460,7 @@ onUnmounted(() => {
       <div class="btns" style="margin-top: 8px">
         <el-button size="small" :loading="diagLoading" @click="runDiag">🔍 同步诊断</el-button>
       </div>
-      <div v-if="diag" class="diag">
+      <div v-if="diag" class="diag" role="region" aria-label="同步诊断结果">
         <p class="diag-line">云端地址：{{ diag.url }}</p>
         <p class="diag-line">游标：pull={{ diag.pullCursor }} · localTs={{ diag.localTs }} · push={{ diag.pushCursor }} · dirty={{ diag.dirty }}</p>
         <p class="diag-line">云端记录数：{{ diag.cloudRecords }}（-1=未连接 / -2=旧Worker / -3=请求失败）· 云端maxTs={{ diag.cloudMaxTs }}</p>
@@ -474,13 +479,13 @@ onUnmounted(() => {
         <el-button :disabled="!vaultAdapter" :loading="vaultBusy" @click="scanVault">扫描差异</el-button>
         <el-button type="primary" :disabled="!vaultPlan" :loading="vaultBusy" @click="applyVault">应用同步</el-button>
       </div>
-      <p v-if="vaultReport" class="info diag-raw">{{ vaultReport }}</p>
+      <p v-if="vaultReport" class="info diag-raw" role="status" aria-live="polite" aria-atomic="true">{{ vaultReport }}</p>
       <div v-if="vaultPlan && vaultPlan.conflicts.length" class="vault-list">
         <p class="mods-line">字段级冲突（可选择保留 Vault、本地版本，或逐字段合并）</p>
         <div v-for="conflict in vaultPlan.conflicts" :key="conflict.calmyId" class="vault-item">
           <div class="vault-item-head">
             <span>{{ conflict.calmyType }} · {{ conflict.calmyId }}</span>
-            <el-select :model-value="conflictMode(conflict.calmyId)" size="small" @change="setConflictMode(conflict.calmyId, String($event))">
+            <el-select :model-value="conflictMode(conflict.calmyId)" :aria-label="`冲突 ${conflict.calmyId} 的处理方式`" size="small" @change="setConflictMode(conflict.calmyId, String($event))">
               <el-option label="保留 Vault" value="keep-vault" />
               <el-option label="使用本地" value="use-local" />
               <el-option label="逐字段合并" value="merge" />
@@ -489,7 +494,7 @@ onUnmounted(() => {
           <div v-if="conflictMode(conflict.calmyId) === 'merge'" class="vault-fields">
             <div v-for="field in conflict.fields" :key="field.key" class="vault-field">
               <span>{{ field.key }}</span>
-              <el-select :model-value="fieldMode(conflict.calmyId, field.key)" size="small" @change="setFieldMode(conflict.calmyId, field.key, String($event) as VaultFieldDecision)">
+              <el-select :model-value="fieldMode(conflict.calmyId, field.key)" :aria-label="`冲突 ${conflict.calmyId} 的字段 ${field.key} 处理方式`" size="small" @change="setFieldMode(conflict.calmyId, field.key, String($event) as VaultFieldDecision)">
                 <el-option label="Vault" value="keep-vault" />
                 <el-option label="本地" value="use-local" />
               </el-select>
@@ -501,7 +506,7 @@ onUnmounted(() => {
         <p class="mods-line">Vault 独有实体</p>
         <div v-for="entity in vaultPlan.vaultOnlyEntities" :key="entity.calmyId" class="vault-item vault-item-head">
           <span>{{ entity.calmyType }} · {{ entity.calmyId }}</span>
-          <el-select v-model="vaultDecisions[entity.calmyId]" size="small">
+          <el-select v-model="vaultDecisions[entity.calmyId]" :aria-label="`${entity.calmyId} 的 Vault 独有实体处理方式`" size="small">
             <el-option label="保留 Vault" value="keep-vault" />
             <el-option label="删除并写 tombstone" value="delete-vault" />
           </el-select>
@@ -511,7 +516,7 @@ onUnmounted(() => {
         <p class="mods-line">Vault 已删除但本地仍存在</p>
         <div v-for="entity in vaultPlan.vaultDeletedEntities" :key="entity.calmyId" class="vault-item vault-item-head">
           <span>{{ entity.calmyType }} · {{ entity.calmyId }}</span>
-          <el-select v-model="vaultDecisions[entity.calmyId]" size="small">
+          <el-select v-model="vaultDecisions[entity.calmyId]" :aria-label="`${entity.calmyId} 的 Vault 删除处理方式`" size="small">
             <el-option label="接受 Vault 删除" value="keep-vault" />
             <el-option label="恢复本地实体" value="use-local" />
           </el-select>
@@ -531,7 +536,7 @@ onUnmounted(() => {
         <el-button :loading="migrationBusy" @click="runKvStatus">检查 KV 退役条件</el-button>
       </div>
       <p v-if="migrationPlan" class="mods-line">计划：{{ migrationPlan.records.length }} 个实体 · 创建于 {{ new Date(migrationPlan.createdAt).toLocaleString() }} · 备份{{ migrationBackupExists() ? '已存在' : '未生成' }}</p>
-      <p v-if="migrationReport" class="info diag-raw">{{ migrationReport }}</p>
+      <p v-if="migrationReport" class="info diag-raw" role="status" aria-live="polite" aria-atomic="true">{{ migrationReport }}</p>
       <p v-if="kvStatus" class="mods-line">D1 records={{ kvStatus.d1Records }} · D1 auth={{ kvStatus.d1Auth }} · KV bound={{ kvStatus.kvBound }} · KV legacy={{ kvStatus.legacyKvPresent }}</p>
     </div>
 

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { createEntityMigrationPlan, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts } from '@/core/entity-migration'
+import { describe, expect, it, vi } from 'vitest'
+import { createDurableEntityMigrationPlan, createEntityMigrationPlan, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts } from '@/core/entity-migration'
 
 describe('entity migration safety', () => {
   it('creates a deterministic entity seed plan and backup', () => {
@@ -21,6 +21,16 @@ describe('entity migration safety', () => {
     const local = [{ entity: 'tasks', entityId: 't1', value: { title: 'local' }, updatedAt: 10, device: 'a' }]
     const remote = [{ entity: 'tasks', entityId: 't1', value: { title: 'remote' }, updatedAt: 11, device: 'b' }]
     expect(summarizeEntityConflicts(local, remote)).toEqual({ conflicts: 1, newerRemote: 1, newerLocal: 0 })
+  })
+
+  it('falls back to the local cache when the durable migration snapshot is unavailable', async () => {
+    vi.stubGlobal('indexedDB', undefined)
+    const storage = new StorageMock({ b_tasks: '[{"id":"t1","title":"任务"}]' })
+
+    const plan = await createDurableEntityMigrationPlan(storage)
+
+    expect(plan.records.map(item => `${item.entity}:${item.entityId}`)).toEqual(['tasks:t1'])
+    vi.unstubAllGlobals()
   })
 })
 

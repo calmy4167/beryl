@@ -1,20 +1,29 @@
-import { createCollectionRepository, createEntityId } from '@/core/repository'
+import { createAsyncCollectionRepository, createCollectionRepository, createEntityId } from '@/core/repository'
 import type { CaseDecision, CaseItem, CasePhase, CaseRelation, CaseReview, CaseStatus } from './model'
 
 const cases = createCollectionRepository<CaseItem>('cases')
+const asyncCases = createAsyncCollectionRepository<CaseItem>('cases')
 const relations = createCollectionRepository<CaseRelation>('caseRelations')
+
+type CaseCreateInput = Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>
+
+function createCaseItem(input: CaseCreateInput): CaseItem {
+  const now = Date.now()
+  return {
+    id: createEntityId(), title: input.title.trim(), problem: input.problem || '', desiredOutcome: input.desiredOutcome || '',
+    status: input.status || 'active', currentPhase: input.currentPhase || 'wood', priority: input.priority || 2,
+    createdAt: now, updatedAt: now, phaseNotes: {}, wood: { constraints: '', paths: '' }, decisions: [], reviews: []
+  }
+}
+
+function sameCase(left: CaseItem, right: CaseItem): boolean {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
 
 export const caseRepository = {
   list: cases.list,
   find: cases.find,
-  create(input: Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>): CaseItem {
-    const now = Date.now()
-    return cases.create({
-      id: createEntityId(), title: input.title.trim(), problem: input.problem || '', desiredOutcome: input.desiredOutcome || '',
-      status: input.status || 'active', currentPhase: input.currentPhase || 'wood', priority: input.priority || 2,
-      createdAt: now, updatedAt: now, phaseNotes: {}, wood: { constraints: '', paths: '' }, decisions: [], reviews: []
-    })
-  },
+  create(input: CaseCreateInput): CaseItem { return cases.create(createCaseItem(input)) },
   update(id: string, patch: Partial<Omit<CaseItem, 'id' | 'createdAt'>>): boolean {
     return cases.update(id, item => ({ ...item, ...patch, updatedAt: Date.now() }))
   },
@@ -37,6 +46,32 @@ export const caseRepository = {
     if (removed) relations.list().filter(item => item.caseId === id).forEach(item => relations.remove(item.id))
     return removed
   }
+}
+
+export const caseAsyncRepository = {
+  list: asyncCases.list,
+  async get(id: string): Promise<CaseItem | undefined> { return asyncCases.find(id) },
+  async create(input: CaseCreateInput): Promise<CaseItem> { return asyncCases.create(createCaseItem(input)) },
+  update(id: string, patch: Partial<Omit<CaseItem, 'id' | 'createdAt'>>): Promise<boolean> {
+    return asyncCases.update(id, item => ({ ...item, ...patch, updatedAt: Date.now() }))
+  },
+  async importEntity(item: CaseItem): Promise<'created' | 'unchanged'> {
+    const current = await asyncCases.find(item.id)
+    if (current) {
+      if (sameCase(current, item)) return 'unchanged'
+      throw new Error('Case ' + item.id + ' has local changes')
+    }
+    await asyncCases.create(item)
+    return 'created'
+  },
+  async replaceImported(item: CaseItem): Promise<'replaced' | 'unchanged'> {
+    const current = await asyncCases.find(item.id)
+    if (!current) return (await this.importEntity(item)) === 'created' ? 'replaced' : 'unchanged'
+    if (sameCase(current, item)) return 'unchanged'
+    if (!await asyncCases.update(item.id, () => item)) throw new Error('Case import target disappeared')
+    return 'replaced'
+  },
+  ready: asyncCases.ready
 }
 
 export const caseRelationRepository = {

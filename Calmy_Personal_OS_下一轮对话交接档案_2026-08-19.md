@@ -1,5 +1,7 @@
 # Calmy Personal OS 下一轮对话交接档案
 
+> **历史交接**：当前续接入口为 [`Calmy_Personal_OS_下一轮对话交接档案_2026-08-22.md`](Calmy_Personal_OS_下一轮对话交接档案_2026-08-22.md)，产品文档入口为 [`docs/README.md`](docs/README.md)。
+
 日期：2026-08-19
 工作目录：`D:\dsharness`
 原始设计源：`D:\dsharness\Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`

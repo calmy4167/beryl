@@ -2,10 +2,10 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { dateKey, todayKey } from '@/core/storage'
-import { matterRepository } from '@/domain/matter/repository'
-import { todayRepository } from '@/domain/today/repository'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayPlan } from '@/domain/today/model'
-import { unifiedRepository, type DailyState } from '@/domain/unified'
+import { unifiedAsyncRepository, type DailyState } from '@/domain/unified'
 import { listMatterTrajectoryInsights } from '@/domain/trajectory'
 import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
 
@@ -22,6 +22,9 @@ const router = useRouter()
 const rangeDays = ref<RangeDays>(7)
 const selectedDate = ref(todayKey())
 const tick = ref(0)
+const plans = ref<Awaited<ReturnType<typeof todayAsyncRepository.list>>>([])
+const states = ref<DailyState[]>([])
+const matterItems = ref<Awaited<ReturnType<typeof matterAsyncRepository.list>>>([])
 
 function addDays(date: Date, amount: number): Date {
   const next = new Date(date)
@@ -41,12 +44,12 @@ function realityForDate(date: string, type: 'action' | 'record'): RealityDocumen
 }
 const days = computed<ReviewDay[]>(() => {
   void tick.value
-  const plans = new Map(todayRepository.list().map(item => [item.date, item]))
-  const states = new Map(unifiedRepository.list<DailyState>('daily_state').map(item => [item.date, item]))
-  return dateRange(rangeDays.value).map(date => ({ date, plan: plans.get(date), state: states.get(date), actions: realityForDate(date, 'action'), records: realityForDate(date, 'record') }))
+  const planMap = new Map(plans.value.map(item => [item.date, item]))
+  const stateMap = new Map(states.value.map(item => [item.date, item]))
+  return dateRange(rangeDays.value).map(date => ({ date, plan: planMap.get(date), state: stateMap.get(date), actions: realityForDate(date, 'action'), records: realityForDate(date, 'record') }))
 })
 const selected = computed(() => days.value.find(item => item.date === selectedDate.value) || days.value[days.value.length - 1])
-const activeMatters = computed(() => { void tick.value; return matterRepository.list().filter(item => item.status === 'active' || item.status === 'paused') })
+const activeMatters = computed(() => { void tick.value; return matterItems.value.filter(item => item.status === 'active' || item.status === 'paused') })
 const trajectoryByMatter = computed(() => { void tick.value; return new Map(listMatterTrajectoryInsights(30).map(item => [item.matterId, item])) })
 const stats = computed(() => {
   const actionItems = days.value.flatMap(item => item.actions)
@@ -65,8 +68,12 @@ const mentalNames = { clear: '清晰', normal: '普通', heavy: '沉重', overlo
 function dayLabel(date: string): string { return new Date(`${date}T12:00:00`).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' }) }
 function selectDate(date: string): void { selectedDate.value = date }
 function setRange(daysCount: RangeDays): void { rangeDays.value = daysCount; if (!days.value.some(item => item.date === selectedDate.value)) selectedDate.value = days.value[days.value.length - 1]?.date || todayKey() }
-function onDataSynced(): void { tick.value++ }
-onMounted(() => window.addEventListener('beryl-data-synced', onDataSynced))
+async function refresh(): Promise<void> {
+  const [nextPlans, nextStates, nextMatters] = await Promise.all([todayAsyncRepository.list(), unifiedAsyncRepository.list<DailyState>('daily_state'), matterAsyncRepository.list()])
+  plans.value = nextPlans; states.value = nextStates; matterItems.value = nextMatters; tick.value++
+}
+function onDataSynced(): void { void refresh() }
+onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
 onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 

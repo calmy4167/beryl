@@ -31,10 +31,10 @@ export async function handleSyncPush(request, env) {
   const changes = Array.isArray(body?.changes) ? body.changes : []
   if (!changes.length) return { body: { ok: true, maxTs: await maxTs(env) } }
   const stmts = changes.filter(c => c && typeof c.key === 'string' && c.key.startsWith('b_') && typeof c.ts === 'number').map(c => env.BERYL_D1.prepare(
-    'INSERT INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, 0) ' +
+    'INSERT INTO records (key, value, ts, device, deleted) VALUES (?, ?, ?, ?, ?) ' +
     'ON CONFLICT(key) DO UPDATE SET value = excluded.value, ts = excluded.ts, device = excluded.device, deleted = excluded.deleted ' +
     'WHERE excluded.ts > records.ts OR (excluded.ts = records.ts AND excluded.device > records.device)'
-  ).bind(c.key, typeof c.value === 'string' ? c.value : JSON.stringify(c.value), c.ts, String(c.device || 'unknown')))
+  ).bind(c.key, typeof c.value === 'string' ? c.value : JSON.stringify(c.value), c.ts, String(c.device || 'unknown'), c.deleted ? 1 : 0))
   if (stmts.length) await env.BERYL_D1.batch(stmts)
   return { body: { ok: true, maxTs: await maxTs(env) } }
 }

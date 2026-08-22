@@ -1,5 +1,7 @@
 # Beryl v2 · 当前设计与实现基线
 
+> **历史参考**：本文件记录 Beryl v2 基线，不再定义 Calmy 当前产品范围。当前入口见 [`README.md`](README.md)，历史与权威状态见 [`product/DOCUMENT_REGISTER.md`](product/DOCUMENT_REGISTER.md)。
+
 > 本文以仓库当前代码为准，描述已经存在的系统边界。历史 v1 方案不再作为当前实现说明。
 
 ## 1. 当前技术边界

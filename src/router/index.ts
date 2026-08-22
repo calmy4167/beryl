@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { ensureAuth, readSession } from '@/core/auth'
-import { lsGet } from '@/core/storage'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -14,8 +13,9 @@ const router = createRouter({
       name: 'app',
       component: () => import('@/views/AppShell.vue'),
       children: [
-        { path: '', redirect: '/app/home' },
-        { path: 'home', name: 'home', component: () => import('@/views/HomeView.vue') },
+        { path: '', redirect: '/app/today' },
+        // Home is kept as a compatibility redirect so old bookmarks do not create a second product center.
+        { path: 'home', name: 'home', redirect: '/app/today' },
         { path: 'capture', name: 'capture', component: () => import('@/views/CaptureView.vue') },
         { path: 'today', name: 'today', component: () => import('@/views/TodayView.vue') },
         { path: 'review', name: 'review', component: () => import('@/views/ReviewView.vue') },
@@ -54,7 +54,7 @@ router.beforeEach(async (to) => {
     try {
       const rec = await ensureAuth()
       if (rec._d) return { path: '/pass', query: { mode: 'first' }, replace: true }
-      return { path: lsGet('b_scene') != null ? '/app/home' : '/scene', replace: true }
+      return { path: '/app/today', replace: true }
     } catch { /* allow login */ }
   }
   return true

@@ -1,29 +1,27 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { todayKey } from '@/core/storage'
-import { matterRepository } from '@/domain/matter/repository'
-import { actionRepository } from '@/domain/action/repository'
-import { recordRepository } from '@/domain/record/repository'
-import { todayRepository } from '@/domain/today/repository'
-import type { TodayLoad } from '@/domain/today/model'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import { actionAsyncRepository } from '@/domain/action/repository'
+import { recordAsyncRepository } from '@/domain/record/repository'
+import { todayAsyncRepository } from '@/domain/today/repository'
+import type { TodayLoad, TodayPatch, TodayPlan } from '@/domain/today/model'
 import { evaluateConstraints } from '@/domain/constraints'
-import { unifiedFactories, unifiedRepository, type DailyState } from '@/domain/unified'
+import { unifiedFactories, unifiedAsyncRepository, type DailyState } from '@/domain/unified'
 import type { NegativeRecordImpact } from '@/domain/record/model'
 import { listRealityDocuments } from '@/domain/reality'
 
-const router = useRouter(); const date = todayKey(); const tick = ref(0)
-const plan = ref(todayRepository.get(date)); const actionTitle = ref(''); const selectedMatterId = ref(''); const recordBody = ref(''); const recordMatterId = ref('')
-const existingDailyState = unifiedRepository.list<DailyState>('daily_state').find(item => item.date === date)
-const dailyState = ref<DailyState>(existingDailyState || unifiedFactories.dailyState({ date, bodyState: plan.value.load || 'normal', mentalState: 'normal', load: plan.value.load === 'bad' ? 90 : plan.value.load === 'tired' ? 65 : plan.value.load === 'good' ? 20 : 40, trajectory: 'stable', protectedItems: [] }))
+const router = useRouter(); const date = todayKey(); const tick = ref(0); const loading = ref(true); const saving = ref(false)
+function emptyPlan(): TodayPlan { return { date, load: null, focusActionIds: [], why: '', mustProtect: [], letGo: [], review: { observation: '', analysis: '', adjustment: '', seed: '' }, revision: 1, updatedAt: Date.now() } }
+const plan = ref<TodayPlan>(emptyPlan()); const actionItems = ref<Awaited<ReturnType<typeof actionAsyncRepository.listForDate>>>([]); const matterItems = ref<Awaited<ReturnType<typeof matterAsyncRepository.list>>>([]); const relationships = ref<import('@/domain/unified').Relationship[]>([]); const sharedSpaces = ref<import('@/domain/unified').SharedSpace[]>([]); const actionTitle = ref(''); const selectedMatterId = ref(''); const recordBody = ref(''); const recordMatterId = ref('')
+const dailyState = ref<DailyState>(unifiedFactories.dailyState({ date, bodyState: 'normal', mentalState: 'normal', load: 40, trajectory: 'stable', protectedItems: [] }))
 const bodyState = ref(dailyState.value.bodyState); const mentalState = ref(dailyState.value.mentalState)
 const recordType = ref<'fact' | 'negative'>('fact'); const negativeImpact = ref<NegativeRecordImpact>('other')
 const why = ref(plan.value.why); const mustProtect = ref(plan.value.mustProtect.join('\n')); const letGo = ref(plan.value.letGo.join('\n'))
 const observation = ref(plan.value.review.observation); const analysis = ref(plan.value.review.analysis); const adjustment = ref(plan.value.review.adjustment); const seed = ref(plan.value.review.seed)
-const matters = computed(() => { void tick.value; return matterRepository.list().filter(item => item.status === 'active' || item.status === 'paused') })
-const relationships = computed(() => { void tick.value; return unifiedRepository.list<import('@/domain/unified').Relationship>('relationship').filter(item => item.status === 'active') })
-const sharedSpaces = computed(() => { void tick.value; return unifiedRepository.list<import('@/domain/unified').SharedSpace>('shared_space').filter(item => item.status === 'active') })
+const matters = computed(() => { void tick.value; return matterItems.value.filter(item => item.status === 'active' || item.status === 'paused') })
 function dayStart(value: string): number { const [year, month, day] = value.split('-').map(Number); return new Date(year, month - 1, day).getTime() }
 function dayEnd(value: string): number { return dayStart(value) + 24 * 60 * 60 * 1000 - 1 }
 const realityDocuments = computed(() => {
@@ -33,44 +31,67 @@ const realityDocuments = computed(() => {
 const actions = computed(() => {
   void tick.value
   const actionIds = new Set(realityDocuments.value.filter(item => item.entityType === 'action').map(item => item.id))
-  return actionRepository.listForDate(date).filter(item => actionIds.has(item.calmyId))
+  return actionItems.value.filter(item => actionIds.has(item.calmyId))
 })
 const focusActions = computed(() => actions.value.filter(item => plan.value.focusActionIds.includes(item.calmyId)))
 const optionalActions = computed(() => actions.value.filter(item => !plan.value.focusActionIds.includes(item.calmyId)))
 
-function savePlan(patch: Parameters<typeof todayRepository.update>[1]) {
-  try { plan.value = todayRepository.update(date, patch, plan.value.revision); tick.value++ }
+async function refresh(): Promise<void> {
+  loading.value = true
+  try {
+    const [nextPlan, nextActions, nextMatters, nextRelationships, nextSpaces, nextDailyStates] = await Promise.all([
+      todayAsyncRepository.get(date), actionAsyncRepository.listForDate(date), matterAsyncRepository.list(),
+      unifiedAsyncRepository.list<import('@/domain/unified').Relationship>('relationship'), unifiedAsyncRepository.list<import('@/domain/unified').SharedSpace>('shared_space'), unifiedAsyncRepository.list<DailyState>('daily_state')
+    ])
+    plan.value = nextPlan; actionItems.value = nextActions; matterItems.value = nextMatters
+    relationships.value = nextRelationships.filter(item => item.status === 'active'); sharedSpaces.value = nextSpaces.filter(item => item.status === 'active')
+    const nextState = nextDailyStates.find(item => item.date === date)
+    if (nextState) dailyState.value = nextState
+    bodyState.value = dailyState.value.bodyState; mentalState.value = dailyState.value.mentalState
+    why.value = plan.value.why; mustProtect.value = plan.value.mustProtect.join('\n'); letGo.value = plan.value.letGo.join('\n')
+    observation.value = plan.value.review.observation; analysis.value = plan.value.review.analysis; adjustment.value = plan.value.review.adjustment; seed.value = plan.value.review.seed
+    tick.value++
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Today 读取失败') }
+  finally { loading.value = false }
+}
+async function savePlan(patch: TodayPatch): Promise<void> {
+  saving.value = true
+  try { plan.value = await todayAsyncRepository.update(date, patch, plan.value.revision); tick.value++ }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Today 保存失败') }
+  finally { saving.value = false }
 }
 function loadScore(load: TodayLoad | null): number { return load === 'bad' ? 90 : load === 'tired' ? 65 : load === 'good' ? 20 : 40 }
-function saveDailyState(patch: Partial<Pick<DailyState, 'bodyState' | 'mentalState' | 'load' | 'protectedItems' | 'trajectory'>>) {
+async function saveDailyState(patch: Partial<Pick<DailyState, 'bodyState' | 'mentalState' | 'load' | 'protectedItems' | 'trajectory'>>): Promise<void> {
   try {
-    const current = unifiedRepository.list<DailyState>('daily_state').find(item => item.date === date)
+    const current = (await unifiedAsyncRepository.list<DailyState>('daily_state')).find(item => item.date === date)
     dailyState.value = current
-      ? unifiedRepository.update<DailyState>('daily_state', current.calmyId, patch, { expectedRevision: current.revision })
-      : unifiedRepository.create(unifiedFactories.dailyState({ ...dailyState.value, ...patch }))
+      ? await unifiedAsyncRepository.update<DailyState>('daily_state', current.calmyId, patch, { expectedRevision: current.revision })
+      : await unifiedAsyncRepository.create(unifiedFactories.dailyState({ ...dailyState.value, ...patch }))
     bodyState.value = dailyState.value.bodyState; mentalState.value = dailyState.value.mentalState; tick.value++
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '今日容量保存失败') }
 }
-function setLoad(load: TodayLoad) { savePlan({ load }); saveDailyState({ bodyState: load, load: loadScore(load) }) }
-function setBodyState(value: DailyState['bodyState']) { bodyState.value = value; saveDailyState({ bodyState: value, load: loadScore(value) }); savePlan({ load: value }) }
-function setMentalState(value: DailyState['mentalState']) { mentalState.value = value; saveDailyState({ mentalState: value }) }
-function saveOpening() { savePlan({ why: why.value.trim(), mustProtect: lines(mustProtect.value), letGo: lines(letGo.value) }); ElMessage.success('今日方向已保存') }
+async function setLoad(load: TodayLoad): Promise<void> { await savePlan({ load }); await saveDailyState({ bodyState: load, load: loadScore(load) }) }
+async function setBodyState(value: DailyState['bodyState']): Promise<void> { bodyState.value = value; await saveDailyState({ bodyState: value, load: loadScore(value) }); await savePlan({ load: value }) }
+async function setMentalState(value: DailyState['mentalState']): Promise<void> { mentalState.value = value; await saveDailyState({ mentalState: value }) }
+async function saveOpening(): Promise<void> { await savePlan({ why: why.value.trim(), mustProtect: lines(mustProtect.value), letGo: lines(letGo.value) }); ElMessage.success('今日方向已保存') }
 function lines(value: string): string[] { return value.split('\n').map(item => item.trim()).filter(Boolean) }
-function addAction() {
+async function addAction(): Promise<void> {
   if (!actionTitle.value.trim()) { ElMessage.warning('先写下一个行动'); return }
-  const action = actionRepository.create({ title: actionTitle.value, date, matterId: selectedMatterId.value || undefined })
+  const action = await actionAsyncRepository.create({ title: actionTitle.value, date, matterId: selectedMatterId.value || undefined })
   const focus = plan.value.focusActionIds.length < 3 ? [...plan.value.focusActionIds, action.calmyId] : plan.value.focusActionIds
-  savePlan({ focusActionIds: focus }); actionTitle.value = ''; selectedMatterId.value = ''; ElMessage.success(focus.includes(action.calmyId) ? '已加入今日核心行动' : '已加入候选行动')
+  await savePlan({ focusActionIds: focus }); await refresh(); actionTitle.value = ''; selectedMatterId.value = ''; ElMessage.success(focus.includes(action.calmyId) ? '已加入今日核心行动' : '已加入候选行动')
 }
 function toggleFocus(id: string) {
   const focus = plan.value.focusActionIds.includes(id) ? plan.value.focusActionIds.filter(item => item !== id) : plan.value.focusActionIds.length < 3 ? [...plan.value.focusActionIds, id] : plan.value.focusActionIds
   savePlan({ focusActionIds: focus })
 }
-function complete(actionId: string) { const item = actionRepository.find(actionId); if (!item) return; if (item.status === 'done') actionRepository.reopen(actionId, item.revision); else actionRepository.complete(actionId, undefined, item.revision); tick.value++ }
-function skip(actionId: string) { const item = actionRepository.find(actionId); if (!item) return; if (item.status === 'skipped') actionRepository.reopen(actionId, item.revision); else actionRepository.skip(actionId, undefined, item.revision); tick.value++ }
-function addRecord() { if (!recordBody.value.trim()) { ElMessage.warning('先写下今天实际发生了什么'); return }; recordRepository.create({ body: recordBody.value, type: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, matterId: recordMatterId.value || undefined }); recordBody.value = ''; recordMatterId.value = ''; ElMessage.success(recordType.value === 'negative' ? '已记录负向变化' : '已记录现实'); tick.value++ }
-function saveReview() { savePlan({ review: { observation: observation.value.trim(), analysis: analysis.value.trim(), adjustment: adjustment.value.trim(), seed: seed.value.trim() } }); ElMessage.success('复盘已保存') }
+async function complete(actionId: string): Promise<void> { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; if (item.status === 'done') await actionAsyncRepository.reopen(actionId, item.revision); else await actionAsyncRepository.complete(actionId, undefined, item.revision); await refresh() }
+async function skip(actionId: string): Promise<void> { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; if (item.status === 'skipped') await actionAsyncRepository.reopen(actionId, item.revision); else await actionAsyncRepository.skip(actionId, undefined, item.revision); await refresh() }
+async function addRecord(): Promise<void> { if (!recordBody.value.trim()) { ElMessage.warning('先写下今天实际发生了什么'); return }; await recordAsyncRepository.create({ body: recordBody.value, type: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, matterId: recordMatterId.value || undefined }); recordBody.value = ''; recordMatterId.value = ''; ElMessage.success(recordType.value === 'negative' ? '已记录负向变化' : '已记录现实'); await refresh() }
+async function saveReview(): Promise<void> { await savePlan({ review: { observation: observation.value.trim(), analysis: analysis.value.trim(), adjustment: adjustment.value.trim(), seed: seed.value.trim() } }); ElMessage.success('复盘已保存') }
+function onDataSynced(): void { void refresh() }
+onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 const constraintEvaluation = computed(() => {
   void tick.value
   const preferredMatter = focusActions.value.map(item => item.matterId).find(Boolean)
@@ -105,7 +126,7 @@ const constraintEvaluation = computed(() => {
 
 <template>
   <div class="today-page">
-    <header class="page-head"><div><p class="eyebrow">MVP TODAY · {{ date }}</p><h1 class="font-title">今天先定向</h1><p>知道为什么做，也知道今天什么可以不做。</p></div><div class="load-pill" :class="plan.load || 'unset'">{{ plan.load ? ({ good: '很好', normal: '普通', tired: '疲惫', bad: '很差' } as Record<string, string>)[plan.load] : '还没设置承载' }}</div></header>
+    <header class="page-head"><div><p class="eyebrow">TODAY · {{ date }}</p><h1 class="font-title">今天先定向</h1><p>知道为什么做，也知道今天什么可以不做。</p></div><div class="today-status"><span v-if="loading" role="status" aria-live="polite">正在读取本机数据…</span><span v-else-if="saving" role="status" aria-live="polite">正在保存…</span><div class="load-pill" :class="plan.load || 'unset'">{{ plan.load ? ({ good: '很好', normal: '普通', tired: '疲惫', bad: '很差' } as Record<string, string>)[plan.load] : '还没设置承载' }}</div></div></header>
 
 <section class="opening beryl-card"><div class="panel-head"><div><p class="eyebrow">MORNING OPENING</p><h2 class="font-title">今天的三问</h2></div><button @click="saveOpening">保存方向</button></div><label>为什么今天值得做？<textarea v-model="why" aria-label="为什么今天值得做" placeholder="它向上连接哪个 Matter 或长期方向？" /></label><div class="two-col"><label>必须守住<textarea v-model="mustProtect" aria-label="今天必须守住的事项" placeholder="吃饭&#10;睡眠&#10;工作责任" /></label><label>今天可以不做<textarea v-model="letGo" aria-label="今天可以不做的事项" placeholder="新教程&#10;算法&#10;额外整理" /></label></div><div class="load-row" role="group" aria-label="今日承载状态"><span>今日承载</span><button v-for="item in ([['good','很好'],['normal','普通'],['tired','疲惫'],['bad','很差']] as const)" :key="item[0]" :class="{ on: plan.load === item[0] }" :aria-pressed="plan.load === item[0]" @click="setLoad(item[0])">{{ item[1] }}</button></div></section>
 
@@ -123,4 +144,5 @@ const constraintEvaluation = computed(() => {
 
 <style scoped>
 .page-head{display:flex;align-items:end;justify-content:space-between;margin:6px 0 28px}.eyebrow{font-size:10px;letter-spacing:.13em;color:var(--scene);font-weight:700;margin:0 0 8px}.page-head h1{font-size:clamp(34px,4vw,48px);line-height:1;margin:0;letter-spacing:-.035em}.page-head p:last-child{margin:11px 0 0;font-size:13px;color:var(--c-text-2)}.load-pill{font-size:11px;padding:8px 12px;border-radius:99px;background:var(--scene-soft);color:var(--scene)}.load-pill.unset{color:var(--c-text-3);background:var(--c-hover)}.opening,.action-create,.capacity-panel{padding:18px;margin-bottom:18px}.panel-head,.section-head{display:flex;align-items:start;justify-content:space-between;gap:12px}.panel-head h2,.section-head h2{font-size:23px;margin:0}.panel-head>span,.section-head>span{font-size:10px;color:var(--c-text-3)}.panel-head button,.record-footer button,.create-row button,.record-row button{border:1px solid var(--c-border);background:var(--c-card);border-radius:8px;padding:7px 11px;color:var(--c-text);cursor:pointer;font-size:12px}.panel-head button:hover,.create-row button:hover,.record-row button:hover{border-color:var(--scene);color:var(--scene)}label{display:grid;gap:6px;font-size:11px;color:var(--c-text-2);margin-top:14px}textarea{width:100%;min-height:54px;resize:vertical;border:1px solid var(--c-border);border-radius:9px;background:var(--c-bg);color:var(--c-text);padding:9px;font:inherit;font-size:12px;line-height:1.55;box-sizing:border-box}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.load-row{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:11px;color:var(--c-text-2)}.load-row span{margin-right:5px}.load-row button{border:1px solid var(--c-border);background:transparent;color:var(--c-text-2);border-radius:99px;padding:5px 9px;font-size:11px;cursor:pointer}.load-row button.on{background:var(--scene-soft);border-color:var(--scene-border-strong);color:var(--scene);font-weight:700}.capacity-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.capacity-grid>div>small{font-size:11px;color:var(--c-text-3)}.choice-row{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}.choice-row button{border:1px solid var(--c-border);background:transparent;color:var(--c-text-2);border-radius:99px;padding:5px 9px;font-size:11px;cursor:pointer}.choice-row button.on{background:var(--scene-soft);border-color:var(--scene-border-strong);color:var(--scene);font-weight:700}.constraint-note{display:grid;gap:7px;margin-top:14px;padding:10px 12px;border-radius:9px;background:var(--scene-soft);color:var(--c-text-2);font-size:11px}.constraint-note b{color:var(--scene)}.constraint-note small{color:var(--scene)}.constraint-finding{display:grid;gap:2px;padding-top:5px;border-top:1px solid var(--scene-border)}.constraint-finding em{font-size:9px;color:var(--c-text-3);font-style:normal}.create-row{display:flex;gap:8px;margin-top:14px}.create-row :deep(.el-input){flex:1}.create-row select{width:180px;border:1px solid var(--c-border);border-radius:8px;background:var(--c-bg);color:var(--c-text);padding:0 8px}.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.action-section{min-width:0}.section-head{align-items:end;margin:8px 0 11px}.action-card{display:grid;grid-template-columns:25px 1fr auto;align-items:center;gap:10px;padding:13px 14px;margin-bottom:8px}.action-card.optional{opacity:.82}.check{width:20px;height:20px;border:1.5px solid var(--c-border);border-radius:50%;background:transparent;color:white;cursor:pointer}.check.done{border-color:var(--scene);background:var(--scene)}.check.in_progress{border-color:var(--scene);box-shadow:inset 0 0 0 4px var(--c-card)}.action-copy{display:grid;gap:4px;min-width:0}.action-copy b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.action-copy small{font-size:10px;color:var(--c-text-3);cursor:pointer}.skip{border:0;background:transparent;color:var(--c-text-3);font-size:10px;cursor:pointer}.skip:hover{color:var(--scene)}.empty-copy{font-size:12px;color:var(--c-text-3);padding:22px 4px}.record-panel,.review-panel{padding:18px;margin-top:18px}.record-row{display:grid;grid-template-columns:1fr 130px 150px 180px auto;gap:8px;margin-top:14px}.record-row select{border:1px solid var(--c-border);border-radius:8px;background:var(--c-bg);color:var(--c-text);padding:0 8px}.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.review-grid textarea{min-height:75px}.review-grid label{margin-top:14px}@media(max-width:680px){.two-col,.action-grid,.review-grid,.capacity-grid{grid-template-columns:1fr}.create-row{flex-wrap:wrap}.create-row :deep(.el-input){width:100%;flex:none}.create-row select{flex:1;height:34px}.create-row button{height:34px}.record-row{grid-template-columns:1fr}.record-row select,.record-row button{height:34px}.page-head{display:block}.load-pill{display:inline-block;margin-top:14px}.load-row{flex-wrap:wrap}}
+.today-status{display:grid;justify-items:end;gap:7px}.today-status>span{font-size:12px;color:var(--c-text-2)}.check{width:44px;height:44px;display:grid;place-items:center;padding:0}
 </style>

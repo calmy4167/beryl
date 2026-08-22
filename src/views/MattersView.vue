@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { matterRepository } from '@/domain/matter/repository'
-import type { MatterStatus } from '@/domain/matter/model'
-import { listRealityDocuments } from '@/domain/reality'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import type { Matter, MatterStatus } from '@/domain/matter/model'
 import { applyOpenAssets, applyOpenEntities, currentOpenAssets, currentOpenEntities, currentOpenOrphanAssets, exportCurrentOpenWorkspace, removeOpenAssets, type OpenConflictDecision } from '@/core/content/open-workspace'
 import { compareOpenAssets, compareOpenEntities, compareOpenEntityFields, importOpenWorkspace, type OpenEntityComparison, type OpenFieldConflict, type OpenFieldDecision, type OpenImportResult } from '@/core/content/open-format'
 
@@ -13,6 +12,8 @@ const title = ref('')
 const why = ref('')
 const status = ref<'all' | MatterStatus>('active')
 const tick = ref(0)
+const loading = ref(true)
+const matterItems = ref<Matter[]>([])
 const vaultInput = ref<HTMLInputElement>()
 const pendingImport = ref<OpenImportResult>()
 const pendingComparison = ref<OpenEntityComparison>()
@@ -20,7 +21,7 @@ const conflictDecisions = ref<Record<string, OpenConflictDecision>>({})
 const manualConflictId = ref<string>()
 const manualFields = ref<OpenFieldConflict[]>([])
 const manualDecisions = ref<Record<string, OpenFieldDecision>>({})
-const all = computed(() => { void tick.value; return listRealityDocuments({ types: ['matter'] }) })
+const all = computed(() => { void tick.value; return matterItems.value })
 const orphanAssets = computed(() => { void tick.value; return currentOpenOrphanAssets() })
 const items = computed(() => all.value.filter(item => status.value === 'all' || item.status === status.value))
 const counts = computed(() => ({
@@ -30,12 +31,21 @@ const counts = computed(() => ({
   archived: all.value.filter(item => item.status === 'archived').length
 }))
 
-function create() {
+async function refreshMatters(): Promise<void> {
+  loading.value = true
+  try { matterItems.value = await matterAsyncRepository.list(); tick.value++ }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : '课题读取失败') }
+  finally { loading.value = false }
+}
+async function create(): Promise<void> {
   if (!title.value.trim()) { ElMessage.warning('先写下一个现实事项'); return }
-  const matter = matterRepository.create({ title: title.value, why: why.value })
-  title.value = ''; why.value = ''; tick.value++
+  const matter = await matterAsyncRepository.create({ title: title.value, why: why.value })
+  title.value = ''; why.value = ''; await refreshMatters()
   router.push('/app/matters/' + matter.calmyId)
 }
+function onDataSynced(): void { void refreshMatters() }
+onMounted(() => { void refreshMatters(); window.addEventListener('beryl-data-synced', onDataSynced) })
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 
 interface DirectoryHandleLike {
   getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandleLike>
@@ -234,7 +244,7 @@ async function cleanupOrphans(): Promise<void> {
     <header class="page-head">
       <div><p class="eyebrow">MVP MATTERS</p><h1 class="font-title">现实事项</h1><p>围绕一个现实问题，决定今天最小必要行动。</p></div>
 <div class="head-actions"><input ref="vaultInput" aria-label="选择 Open Vault 文件夹或文件" type="file" multiple accept=".md,.json" webkitdirectory directory hidden @change="importVault"><el-button plain size="small" @click="exportVault">导出 Open Vault</el-button><el-button plain size="small" @click="vaultInput?.click()">导入 Vault</el-button></div>
-      <div class="head-number"><b>{{ counts.active }}</b><span>进行中</span></div>
+      <div class="head-number"><b>{{ counts.active }}</b><span>{{ loading ? '读取中' : '进行中' }}</span></div>
     </header>
 
     <form class="new-matter beryl-card" @submit.prevent="create">

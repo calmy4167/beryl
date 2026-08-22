@@ -8,9 +8,9 @@
    ================================================================ */
 import { reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { lsGet, lsSet, safeParse, setSyncWriteHook } from './storage.ts'
+import { lsGet, lsRemove, lsSet, safeParse, setSyncWriteHook } from './storage.ts'
 import { SCENES, currentSceneId } from './scenes.ts'
-import { readChanges, DEVICE_ID, dbMirrorPut } from './db.ts'
+import { readChanges, DEVICE_ID, dbMirrorDelete, dbMirrorPut } from './db.ts'
 import { encryptValue, decryptValue } from './crypto.ts'
 import { apiFetch } from './api/client.ts'
 import { syncEntityData } from './entity-sync'
@@ -232,6 +232,15 @@ export async function applyIncremental(
   return incoming
 }
 
+/** 返回仍然新于本地时间线的键级 tombstone。 */
+export function incomingDeletedKeys(records: PullRecord[], lts: number | Record<string, number>): string[] {
+  return records.filter(rec => {
+    if (!rec.deleted || !rec.key || !rec.key.startsWith('b_')) return false
+    const localVersion = typeof lts === 'number' ? lts : Number(lts[rec.key] || lts['*'] || 0)
+    return rec.ts > localVersion
+  }).map(rec => rec.key)
+}
+
 /** 增量拉取；404 → 旧 Worker（返回 null，调用方回退） */
 async function cloudPull(since: SyncCursor): Promise<{ records: PullRecord[]; nextCursor: SyncCursor; hasMore: boolean; maxTs: number } | null> {
   if (!sync.cloud) throw new Error('not-connected')
@@ -274,12 +283,12 @@ async function cloudPullAll(since: SyncCursor): Promise<{ records: PullRecord[];
 
 function markIncomingVersions(records: PullRecord[], acceptedKeys?: Set<string>) {
   records.forEach(rec => {
-    if (!rec.deleted && rec.key.startsWith('b_') && (!acceptedKeys || acceptedKeys.has(rec.key))) setLocalTs(rec.ts, rec.key)
+    if (rec.key.startsWith('b_') && (!acceptedKeys || acceptedKeys.has(rec.key))) setLocalTs(rec.ts, rec.key)
   })
 }
 
 /** 增量推送；false = 旧 Worker（需回退全量） */
-async function cloudPush(changes: { key: string; ts: number; device: string; value: unknown }[]): Promise<boolean> {
+async function cloudPush(changes: { key: string; ts: number; device: string; value: unknown; deleted?: boolean }[]): Promise<boolean> {
   if (!sync.cloud) throw new Error('not-connected')
   const res = await apiFetch(sync.cloud.url, '/api/sync/push', {
     method: 'POST',
@@ -323,14 +332,14 @@ export function purgeCorruptedEncryptedKeys(): number {
 
 /** 收集本地变更：优先 IndexedDB 变更日志增量；只有显式首次连接时才生成全量快照。 */
 let forceFullSnapshot = false
-async function collectLocalChanges(): Promise<{ key: string; ts: number; device: string; value: string; lastSeq: number }[]> {
+async function collectLocalChanges(): Promise<{ key: string; ts: number; device: string; value: string; deleted?: boolean; lastSeq: number }[]> {
   const cursor = getNum('b_push_cursor')
   const changes = await readChanges(cursor, 500)
   if (changes.length) {
     const latest = new Map<string, (typeof changes)[number]>()
     let maxSeq = cursor
     changes.filter(c => c.key.startsWith('b_')).forEach(c => { latest.set(c.key, c); if (c.seq > maxSeq) maxSeq = c.seq })
-    if (latest.size) return Array.from(latest.values()).filter(c => !ENTITY_SYNC_KEYS.has(c.key)).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, lastSeq: maxSeq }))
+    if (latest.size) return Array.from(latest.values()).filter(c => !ENTITY_SYNC_KEYS.has(c.key)).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, deleted: c.deleted, lastSeq: maxSeq }))
   }
   if (!forceFullSnapshot) return []
   const out: { key: string; ts: number; device: string; value: string; lastSeq: number }[] = []
@@ -358,13 +367,16 @@ async function cloudWrite() {
       await syncEntityData(sync.cloud.url, sync.cloud.key)
       sync.dirty = false; sync.phase = 'idle'; return
     }
-    const encChanges: { key: string; ts: number; device: string; value: unknown }[] = []
+    const encChanges: { key: string; ts: number; device: string; value: unknown; deleted?: boolean }[] = []
     let maxSeq = 0
     for (const c of changes) {
       if (c.lastSeq > maxSeq) maxSeq = c.lastSeq
-       const v = await encryptValue(sync.cloud.key, c.value)
-       if (!v) throw new Error('encrypt-failed')
-       encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: v })
+       if (c.deleted) encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: null, deleted: true })
+       else {
+         const v = await encryptValue(sync.cloud.key, c.value)
+         if (!v) throw new Error('encrypt-failed')
+         encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: v })
+       }
     }
     const ok = await cloudPush(encChanges)
     if (!ok) { await cloudWriteLegacy(); await syncEntityData(sync.cloud.url, sync.cloud.key); return }
@@ -474,11 +486,20 @@ async function s3Write() {
 }
 
 /* ---------- 数据应用 ---------- */
-export function applySyncData(data: Record<string, string>) {
-  sync.fileData = data
+export function applySyncData(data: Record<string, string>, deletedKeys: string[] = []) {
+  const next = { ...data }
+  deletedKeys.forEach(key => { delete next[key] })
+  sync.fileData = next
   sync.mode = sync.cloud ? 'cloud' : sync.s3 ? 's3' : 'file'
   sync.dirty = false
-  for (const k of SYNC_KEYS) if (k in data && lsSet(k, data[k])) void dbMirrorPut(k, data[k])
+  for (const k of SYNC_KEYS) {
+    if (k in next) {
+      if (lsSet(k, next[k], false)) void dbMirrorPut(k, next[k])
+    } else if (deletedKeys.includes(k)) {
+      lsRemove(k, false)
+      void dbMirrorDelete(k)
+    }
+  }
   sync.lastTouch = Date.now()
   startPolling()
   renderHomeHook()
@@ -515,11 +536,13 @@ export async function pollCheck() {
           ElMessage.success('已同步云端更新 ☁️')
         }
       } else if (r.records.length) {
-        const incoming = await applyIncremental(r.records, sync.cloud.key, localVersions())
-        markIncomingVersions(r.records, new Set(Object.keys(incoming)))
+        const lts = localVersions()
+        const incoming = await applyIncremental(r.records, sync.cloud.key, lts)
+        const deletedKeys = incomingDeletedKeys(r.records, lts)
+        markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
         setPullCursor(r.nextCursor)
-        if (Object.keys(incoming).length) {
-          applySyncData({ ...buildLocalData(), ...incoming })
+        if (Object.keys(incoming).length || deletedKeys.length) {
+          applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
           ElMessage.success('已同步云端更新 ☁️')
         }
       } else {
@@ -549,8 +572,10 @@ export async function syncNow() {
     if (sync.mode === 'cloud' && sync.cloud) {
       const r = await cloudPullAll({ ts: 0, device: '', key: '' })
       if (r !== null) {
-        const incoming = await applyIncremental(r.records, sync.cloud.key, localVersions())
-        const remoteNew = Object.keys(incoming).length > 0
+        const lts = localVersions()
+        const incoming = await applyIncremental(r.records, sync.cloud.key, lts)
+        const deletedKeys = incomingDeletedKeys(r.records, lts)
+        const remoteNew = Object.keys(incoming).length > 0 || deletedKeys.length > 0
         if (remoteNew && sync.dirty) {
           try {
             await ElMessageBox.confirm('本机与远端都有新改动，以哪边为准？', '发现两处数据', {
@@ -558,8 +583,8 @@ export async function syncNow() {
               cancelButtonText: '使用本机数据（覆盖远端）',
               distinguishCancelAndClose: true
             })
-            applySyncData({ ...buildLocalData(), ...incoming })
-            markIncomingVersions(r.records, new Set(Object.keys(incoming)))
+            applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
+            markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
             setPullCursor(r.nextCursor)
           } catch (action) {
             if (action === 'cancel' || action === 'close') {
@@ -572,8 +597,8 @@ export async function syncNow() {
           return
         }
         if (remoteNew) {
-          applySyncData({ ...buildLocalData(), ...incoming })
-          markIncomingVersions(r.records, new Set(Object.keys(incoming)))
+          applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
+          markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
           setPullCursor(r.nextCursor)
           ElMessage.success('已拉取远端最新数据 ⬇️')
           return
@@ -666,16 +691,21 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
   try {
     const r = await cloudPullAll({ ts: 0, device: '', key: '' })
     if (r !== null) {
+      const lts = localVersions()
       const data = await decryptRecords(r.records, key)
+      const deletedKeys = incomingDeletedKeys(r.records, lts)
       sync.cloud.updatedAt = r.maxTs
       setPullCursor(r.nextCursor)
       lsSet('b_cloud', JSON.stringify({ url: sync.cloud.url, key: sync.cloud.key }))
       sync.saved.cloud = { url: sync.cloud.url, key: sync.cloud.key }
       const localHasData = SYNC_KEYS.some(k => lsGet(k) != null)
-      const remoteHasData = Object.keys(data).length > 0
+      const remoteHasData = Object.keys(data).length > 0 || deletedKeys.length > 0
       if (localHasData && remoteHasData) {
         const choose = await askDataSource('云端')
-        if (choose === 'remote') { applySyncData(data); markIncomingVersions(r.records, new Set(Object.keys(data))) }
+        if (choose === 'remote') {
+          applySyncData(data, deletedKeys)
+          markIncomingVersions(r.records, new Set([...Object.keys(data), ...deletedKeys]))
+        }
         else {
           sync.mode = 'cloud' // ← 必须设置，否则推送/轮询永远不会触发
           sync.fileData = buildLocalData()
@@ -684,8 +714,8 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
           scheduleWrite()
         }
       } else if (remoteHasData) {
-        applySyncData(data)
-        markIncomingVersions(r.records, new Set(Object.keys(data)))
+        applySyncData(data, deletedKeys)
+        markIncomingVersions(r.records, new Set([...Object.keys(data), ...deletedKeys]))
       } else if (localHasData) {
         sync.mode = 'cloud' // ← 同上
         sync.fileData = buildLocalData()
@@ -796,11 +826,13 @@ export async function restoreSync() {
       if (r !== null) {
         sync.mode = 'cloud' // ← 连上即云端模式，推送/轮询/立即同步全部生效
         // 刷新自动重连：增量 LWW 合并，绝不覆盖本地更新的数据
-         const incoming = await applyIncremental(r.records, cfg.key, localVersions())
-         markIncomingVersions(r.records, new Set(Object.keys(incoming)))
+         const lts = localVersions()
+         const incoming = await applyIncremental(r.records, cfg.key, lts)
+         const deletedKeys = incomingDeletedKeys(r.records, lts)
+         markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
          setPullCursor(r.nextCursor)
-        if (Object.keys(incoming).length) {
-          applySyncData({ ...buildLocalData(), ...incoming })
+        if (Object.keys(incoming).length || deletedKeys.length) {
+          applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
         }
         // 把本地新数据推上云端（首次连接 / 上次未推成功的增量）
          if (Object.keys(buildLocalData()).length && getNum('b_push_cursor') === 0) {

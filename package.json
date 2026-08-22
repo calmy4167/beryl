@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:node": "node test/node/core.test.ts",
     "test:e2e": "node test/e2e-sync.mjs",
+    "test:idb": "node test/idb-runtime.mjs",
     "test:pwa": "node scripts/verify-pwa-drill.mjs",
     "deploy:api": "npx wrangler deploy --config backend/wrangler.toml"
   },

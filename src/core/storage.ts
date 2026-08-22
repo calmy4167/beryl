@@ -1,20 +1,61 @@
-/* ---------- 存储层（平移 v1：localStorage 统一容错封装；阶段 2 迁 IndexedDB） ---------- */
-import { dbPut, recordEntityChanges, DEVICE_ID } from './db.ts'
+/* ---------- 存储层（同步快照 API；启动后优先读取 IndexedDB hydrate 快照） ---------- */
+import { dbPut, dbDelete, recordEntityChanges, DEVICE_ID } from './db.ts'
+
+const PREFIX = 'b_'
+let persistedCache = new Map<string, string>()
+let persistedCacheReady = false
 
 export function lsGet(key: string): string | null {
+  if (persistedCacheReady && key.startsWith(PREFIX)) return persistedCache.get(key) ?? null
   try { return localStorage.getItem(key); } catch { return null; }
 }
-export function lsSet(key: string, val: string): boolean {
-  try { localStorage.setItem(key, val); return true; }
-  catch { return false; }
+export function lsSet(key: string, val: string, persist = true): boolean {
+  const isSyncKey = key.startsWith(PREFIX)
+  let localWriteSucceeded = false
+  try {
+    localStorage.setItem(key, val)
+    localWriteSucceeded = true
+  } catch { /* hydrated durable cache may still accept the write */ }
+  if (persistedCacheReady && isSyncKey) persistedCache.set(key, val)
+  if (persist && isSyncKey) void dbPut(key, val)
+  // After hydrate, Repository writes remain valid if localStorage is quota-blocked;
+  // the durable dbPut path is still attempted, with its existing fallback behavior.
+  return localWriteSucceeded || (persistedCacheReady && isSyncKey)
+}
+export function lsRemove(key: string, persist = true): void {
+  try { localStorage.removeItem(key) } catch { /* ignore */ }
+  if (persistedCacheReady && key.startsWith(PREFIX)) persistedCache.delete(key)
+  if (persist && key.startsWith(PREFIX)) void dbDelete(key)
+}
+
+/** 在 app mount 前用 IndexedDB 的 KV 快照初始化同步读缓存。空快照也是有效的持久结果。 */
+export function hydrateStoreCache(snapshot?: Record<string, string>): void {
+  persistedCache = new Map(Object.entries(snapshot || {}).filter(([key]) => key.startsWith(PREFIX)))
+  // 只有读取 IndexedDB 失败（undefined）时才回退 localStorage；空对象表示持久层明确没有业务键。
+  if (snapshot === undefined) {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key?.startsWith(PREFIX) && key !== 'b_db_outbox') {
+          const value = localStorage.getItem(key)
+          if (value != null) persistedCache.set(key, value)
+        }
+      }
+    } catch { /* use an empty cache */ }
+  }
+  persistedCacheReady = true
+}
+
+/** 清空同步读缓存；下一次读取回到 localStorage 降级路径。 */
+export function resetStoreCache(): void {
+  persistedCache.clear()
+  persistedCacheReady = false
 }
 
 export function safeParse<T>(v: string | null): T | undefined {
   if (v == null) return undefined;
   try { return JSON.parse(v) as T; } catch { return undefined; }
 }
-
-const PREFIX = 'b_';
 
 /* 同步引擎写入钩子：store.set 时同步到 fileData + 标记 dirty（由 sync.ts 注册） */
 let syncWriteHook: ((key: string, str: string) => void) | null = null;
@@ -32,8 +73,7 @@ export const store = {
     const ok = lsSet(fullKey, str);
     if (ok) {
       syncWriteHook?.(fullKey, str);
-      // 阶段 2：单键镜像进 IndexedDB + 追加变更日志（失败静默，不阻断主流程）
-      void dbPut(fullKey, str);
+      // lsSet 已进入 IndexedDB durable outbox；此处只追加实体级变更日志。
       void recordEntityChanges(fullKey, previous, v);
     }
     return ok;

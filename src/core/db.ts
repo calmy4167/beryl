@@ -1,6 +1,7 @@
 /* ============ v2 阶段 2：IndexedDB 持久镜像 + 变更日志 ============
  * 目标（对应 v1 文档 §14.2/14.3）：
  *   - kv 表：localStorage 全部 b_* 键的持久镜像（防止 localStorage 被清理丢数据）
+ *   - pending_writes 表：IndexedDB 自身的可恢复写入队列（localStorage 不可用时仍可重放）
  *   - changes 表：append-only 变更日志（{ seq, ts, key, value }，为阶段 3 增量同步铺路）
  *   - meta 表：元数据（最近镜像时间、设备 id）
  * UI 层仍走 localStorage 同步层（同步快照缓存），IndexedDB 为异步持久层，
@@ -8,12 +9,14 @@
  * IndexedDB 暂不可用时不阻断页面，但会保留 outbox 并在下次启动重试。
  */
 const DB_NAME = 'beryl-db'
-const DB_VERSION = 2
+const DB_VERSION = 3
 const KV = 'kv'
 const CHANGES = 'changes'
 const META = 'meta'
 const ENTITY_CHANGES = 'entity_changes'
 const OUTBOX = 'b_db_outbox'
+const PENDING_WRITES = 'pending_writes'
+const DB_INITIALIZED_AT = 'initializedAt'
 
 const DEVICE_STORAGE_KEY = 'beryl_device_id'
 
@@ -45,6 +48,7 @@ export interface DbRuntimeStatus {
 let dbPromise: Promise<IDBDatabase> | null = null
 let dbWriteChain: Promise<void> = Promise.resolve()
 let entityChangeNonce = 0
+const indexedPendingKeys = new Set<string>()
 let dbStatus: DbRuntimeStatus = {
   state: 'cold',
   available: false,
@@ -54,14 +58,14 @@ let dbStatus: DbRuntimeStatus = {
   lastError: null
 }
 
-interface PendingDbWrite { key: string; value: string }
+interface PendingDbWrite { key: string; value?: string; deleted?: boolean }
 
 function readPendingWrites(): PendingDbWrite[] {
   try {
     const raw = localStorage.getItem(OUTBOX)
     const parsed = raw ? JSON.parse(raw) : []
     if (!Array.isArray(parsed)) return []
-    return parsed.filter((item): item is PendingDbWrite => Boolean(item) && typeof item === 'object' && typeof item.key === 'string' && typeof item.value === 'string')
+    return parsed.filter((item): item is PendingDbWrite => Boolean(item) && typeof item === 'object' && typeof item.key === 'string' && (item.deleted === true || typeof item.value === 'string'))
   } catch { return [] }
 }
 
@@ -75,16 +79,17 @@ function writePendingWrites(items: PendingDbWrite[]): void {
   }
 }
 
-function enqueuePendingWrite(key: string, value: string): void {
+function enqueuePendingWrite(key: string, value?: string, deleted = false): void {
   const items = readPendingWrites()
   const index = items.findIndex(item => item.key === key)
-  if (index >= 0) items[index] = { key, value }
-  else items.push({ key, value })
+  const next = deleted ? { key, deleted: true } : { key, value }
+  if (index >= 0) items[index] = next
+  else items.push(next)
   writePendingWrites(items)
 }
 
-function removePendingWrite(key: string, value: string): void {
-  const items = readPendingWrites().filter(item => item.key !== key || item.value !== value)
+function removePendingWrite(key: string, value?: string, deleted = false): void {
+  const items = readPendingWrites().filter(item => item.key !== key || item.value !== value || (item.deleted === true) !== deleted)
   writePendingWrites(items)
 }
 
@@ -95,7 +100,7 @@ function markDbFailure(error: unknown): void {
 }
 
 export function getDbStatus(): DbRuntimeStatus {
-  return { ...dbStatus, pendingWrites: readPendingWrites().length }
+  return { ...dbStatus, pendingWrites: Math.max(readPendingWrites().length, indexedPendingKeys.size) }
 }
 
 function enqueueDbWork(work: () => Promise<void>): Promise<void> {
@@ -128,6 +133,7 @@ function openDb(): Promise<IDBDatabase> {
         s.createIndex('entity', 'entity', { unique: false })
         s.createIndex('updatedAt', 'updatedAt', { unique: false })
       }
+      if (!db.objectStoreNames.contains(PENDING_WRITES)) db.createObjectStore(PENDING_WRITES, { keyPath: 'key' })
     }
     req.onsuccess = () => {
       const opened = req.result
@@ -147,6 +153,50 @@ function openDb(): Promise<IDBDatabase> {
     }
   })
   return dbPromise
+}
+
+function waitForTransaction(tx: IDBTransaction): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error || new Error('indexedDB transaction aborted'))
+  })
+}
+
+async function queueIndexedDbWrite(db: IDBDatabase, item: PendingDbWrite): Promise<void> {
+  const tx = db.transaction(PENDING_WRITES, 'readwrite')
+  tx.objectStore(PENDING_WRITES).put(item)
+  await waitForTransaction(tx)
+  indexedPendingKeys.add(item.key)
+}
+
+async function readIndexedDbWrites(db: IDBDatabase): Promise<PendingDbWrite[]> {
+  const tx = db.transaction(PENDING_WRITES, 'readonly')
+  const all = await new Promise<PendingDbWrite[]>((resolve, reject) => {
+    const req = tx.objectStore(PENDING_WRITES).getAll()
+    req.onsuccess = () => resolve(req.result as PendingDbWrite[])
+    req.onerror = () => reject(req.error)
+  })
+  await waitForTransaction(tx)
+  const filtered = all.filter(item => Boolean(item) && typeof item.key === 'string' && (item.deleted === true || typeof item.value === 'string'))
+  indexedPendingKeys.clear()
+  filtered.forEach(item => indexedPendingKeys.add(item.key))
+  return filtered
+}
+
+async function applyIndexedDbWrite(db: IDBDatabase, item: PendingDbWrite): Promise<void> {
+  const tx = db.transaction([KV, CHANGES, PENDING_WRITES], 'readwrite')
+  if (item.deleted) {
+    tx.objectStore(KV).delete(item.key)
+    tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: '', device: DEVICE_ID, deleted: true })
+  }
+  else {
+    tx.objectStore(KV).put(item.value, item.key)
+    tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: item.value || '', device: DEVICE_ID })
+  }
+  tx.objectStore(PENDING_WRITES).delete(item.key)
+  await waitForTransaction(tx)
+  indexedPendingKeys.delete(item.key)
 }
 
 /** 把当前 localStorage 的全部 b_* 键镜像进 kv，并追加一条变更日志 */
@@ -180,6 +230,7 @@ export async function fullMirror(): Promise<void> {
     const now = Date.now()
     changes.add({ ts: now, key: '*', value: keys.length, device: DEVICE_ID })
     tx.objectStore(META).put(now, 'lastMirrorAt')
+    tx.objectStore(META).put(now, DB_INITIALIZED_AT)
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
@@ -194,6 +245,29 @@ export async function fullMirror(): Promise<void> {
   }
 }
 
+/** 读取 IndexedDB KV 持久快照；失败返回 undefined，让启动层选择 localStorage 降级。 */
+export async function readKvSnapshot(): Promise<Record<string, string> | undefined> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction(KV, 'readonly')
+    const all = await new Promise<Record<string, string>>((resolve, reject) => {
+      const req = tx.objectStore(KV).openCursor()
+      const result: Record<string, string> = {}
+      req.onsuccess = () => {
+        const cursor = req.result
+        if (!cursor) { resolve(result); return }
+        if (typeof cursor.key === 'string' && cursor.key.startsWith('b_') && cursor.key !== OUTBOX) result[cursor.key] = String(cursor.value)
+        cursor.continue()
+      }
+      req.onerror = () => reject(req.error)
+    })
+    return all
+  } catch (error) {
+    markDbFailure(error)
+    return undefined
+  }
+}
+
 /** 单键变更（store.set 路径） */
 export async function dbPut(key: string, value: string): Promise<void> {
   // 先写 outbox，确保 tab 在异步事务完成前关闭时仍有下一次启动可恢复的凭据。
@@ -201,13 +275,10 @@ export async function dbPut(key: string, value: string): Promise<void> {
   await enqueueDbWork(async () => {
     try {
       const db = await openDb()
-      const tx = db.transaction([KV, CHANGES], 'readwrite')
-      tx.objectStore(KV).put(value, key)
-      tx.objectStore(CHANGES).add({ ts: Date.now(), key, value, device: DEVICE_ID })
-      await new Promise<void>((resolve, reject) => {
-        tx.oncomplete = () => resolve()
-        tx.onerror = () => reject(tx.error)
-      })
+      const item = { key, value }
+      // 先落 IndexedDB pending_writes，再应用 KV；两步之间崩溃也能在下次启动重放。
+      await queueIndexedDbWrite(db, item)
+      await applyIndexedDbWrite(db, item)
       removePendingWrite(key, value)
       dbStatus.state = 'ready'
       dbStatus.available = true
@@ -220,13 +291,35 @@ export async function dbPut(key: string, value: string): Promise<void> {
   })
 }
 
+/** 删除 IndexedDB KV 键并把删除意图留在 outbox，避免启动恢复旧值。 */
+export async function dbDelete(key: string): Promise<void> {
+  if (!key.startsWith('b_') || key === OUTBOX) return
+  enqueuePendingWrite(key, undefined, true)
+  await enqueueDbWork(async () => {
+    try {
+      const db = await openDb()
+      const item = { key, deleted: true }
+      await queueIndexedDbWrite(db, item)
+      await applyIndexedDbWrite(db, item)
+      removePendingWrite(key, undefined, true)
+      dbStatus.state = 'ready'
+      dbStatus.available = true
+      dbStatus.lastError = null
+    } catch (error) {
+      markDbFailure(error)
+    }
+  })
+}
+
 /** 启动恢复前把尚未提交的最新键值写回同步缓存。 */
 function restorePendingWritesToLocalStorage(): number {
   let restored = 0
   for (const item of readPendingWrites()) {
     try {
-      if (localStorage.getItem(item.key) !== item.value) {
-        localStorage.setItem(item.key, item.value)
+      if (item.deleted) {
+        if (localStorage.getItem(item.key) != null) { localStorage.removeItem(item.key); restored++ }
+      } else if (localStorage.getItem(item.key) !== item.value) {
+        localStorage.setItem(item.key, item.value || '')
         restored++
       }
     } catch { /* ignore */ }
@@ -237,21 +330,22 @@ function restorePendingWritesToLocalStorage(): number {
 /** 串行重放 outbox；单项失败不会丢弃后续项目。 */
 export async function flushPendingDbWrites(): Promise<void> {
   await enqueueDbWork(async () => {
-    for (const item of readPendingWrites()) {
-      try {
-        const db = await openDb()
-        const tx = db.transaction([KV, CHANGES], 'readwrite')
-        tx.objectStore(KV).put(item.value, item.key)
-        tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: item.value, device: DEVICE_ID })
-        await new Promise<void>((resolve, reject) => {
-          tx.oncomplete = () => resolve()
-          tx.onerror = () => reject(tx.error)
-        })
-        removePendingWrite(item.key, item.value)
-      } catch (error) {
-        markDbFailure(error)
-        break
+    try {
+      const db = await openDb()
+      const merged = new Map<string, PendingDbWrite>()
+      for (const item of await readIndexedDbWrites(db)) merged.set(item.key, item)
+      // localStorage outbox may contain a newer write made while the IDB queue was unavailable.
+      for (const item of readPendingWrites()) merged.set(item.key, item)
+      for (const item of merged.values()) {
+        await queueIndexedDbWrite(db, item)
+        await applyIndexedDbWrite(db, item)
+        removePendingWrite(item.key, item.value, item.deleted === true)
       }
+      dbStatus.state = 'ready'
+      dbStatus.available = true
+      dbStatus.lastError = null
+    } catch (error) {
+      markDbFailure(error)
     }
   })
 }
@@ -266,8 +360,19 @@ export async function dbMirrorPut(key: string, value: string): Promise<void> {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
     })
-    try { localStorage.removeItem(OUTBOX) } catch { /* ignore */ }
-    dbStatus = { state: 'cold', available: false, pendingWrites: 0, restoredKeys: 0, lastMirrorAt: null, lastError: null }
+  } catch { /* ignore */ }
+}
+
+/** 远端应用专用：只删除持久镜像，不追加本地 changes/outbox。 */
+export async function dbMirrorDelete(key: string): Promise<void> {
+  try {
+    const db = await openDb()
+    const tx = db.transaction(KV, 'readwrite')
+    tx.objectStore(KV).delete(key)
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
   } catch { /* ignore */ }
 }
 
@@ -306,20 +411,21 @@ export function scheduleMirror(): void {
   }, 800)
 }
 
-/** 启动迁移：localStorage → IndexedDB 全量镜像；localStorage 为空而镜像有数据时恢复 */
+/** 启动迁移：首次从 localStorage 建立持久层，后续以 IndexedDB 快照恢复同步缓存。 */
 export async function initDb(): Promise<void> {
   dbStatus.state = 'recovering'
   dbStatus.restoredKeys = 0
   dbStatus.lastError = null
   // 必须先恢复 outbox 和既有镜像，再镜像当前缓存，否则清空缓存会把空快照写回 IDB。
   restorePendingWritesToLocalStorage()
+  await flushPendingDbWrites()
   await restoreFromDb()
   await fullMirror()
   await flushPendingDbWrites()
   if (!dbStatus.available) dbStatus.state = 'degraded'
 }
 
-/** 从 IndexedDB 恢复：localStorage 缺失的 b_* 键写回（防 localStorage 被清理） */
+/** 从 IndexedDB 恢复：已初始化后持久快照是权威来源，outbox 键除外。 */
 export async function restoreFromDb(): Promise<void> {
   let db: IDBDatabase
   try {
@@ -328,6 +434,12 @@ export async function restoreFromDb(): Promise<void> {
     return
   }
   try {
+    const pending = new Map(readPendingWrites().map(item => [item.key, item]))
+    const initialized = await new Promise<boolean>((resolve, reject) => {
+      const req = db.transaction(META, 'readonly').objectStore(META).get(DB_INITIALIZED_AT)
+      req.onsuccess = () => resolve(typeof req.result === 'number')
+      req.onerror = () => reject(req.error)
+    })
     const tx = db.transaction(KV, 'readonly')
     const store = tx.objectStore(KV)
     const all = await new Promise<{ key: string; value: string }[]>((resolve, reject) => {
@@ -344,13 +456,27 @@ export async function restoreFromDb(): Promise<void> {
     let restored = 0
     all.forEach(({ key, value }) => {
       if (typeof key !== 'string' || !key.startsWith('b_') || key === OUTBOX) return
+      if (pending.has(key)) return
       try {
-        if (localStorage.getItem(key) == null && value != null) {
+        if (initialized && localStorage.getItem(key) !== value && value != null) {
+          localStorage.setItem(key, value)
+          restored++
+        } else if (!initialized && localStorage.getItem(key) == null && value != null) {
           localStorage.setItem(key, value)
           restored++
         }
       } catch { /* ignore */ }
     })
+    if (initialized) {
+      const durableKeys = new Set(all.map(item => item.key))
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key?.startsWith('b_') && key !== OUTBOX && !durableKeys.has(key) && !pending.has(key)) {
+          localStorage.removeItem(key)
+          restored++
+        }
+      }
+    }
     dbStatus.restoredKeys += restored
     if (restored > 0) console.log('[beryl-db] restored', restored, 'keys from IndexedDB')
   } catch {
@@ -362,18 +488,18 @@ export async function restoreFromDb(): Promise<void> {
 export async function clearDb(): Promise<void> {
   try {
     const db = await openDb()
-    const tx = db.transaction([KV, CHANGES, META, ENTITY_CHANGES], 'readwrite')
-    ;[KV, CHANGES, META, ENTITY_CHANGES].forEach(name => tx.objectStore(name).clear())
-    await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve()
-      tx.onerror = () => reject(tx.error)
-    })
+    const tx = db.transaction([KV, CHANGES, META, ENTITY_CHANGES, PENDING_WRITES], 'readwrite')
+    ;[KV, CHANGES, META, ENTITY_CHANGES, PENDING_WRITES].forEach(name => tx.objectStore(name).clear())
+    await waitForTransaction(tx)
+    try { localStorage.removeItem(OUTBOX) } catch { /* ignore */ }
+    indexedPendingKeys.clear()
+    dbStatus = { state: 'cold', available: false, pendingWrites: 0, restoredKeys: 0, lastMirrorAt: null, lastError: null }
   } catch { /* ignore */ }
 }
 
 /* ---------- 变更日志读取（阶段 3 增量同步使用） ---------- */
 
-export interface DbChange { seq: number; ts: number; key: string; value: string }
+export interface DbChange { seq: number; ts: number; key: string; value: string; deleted?: boolean }
 
 /** 本地实体级操作日志；暂不改变既有云端键级协议，作为平滑迁移基础。 */
 export interface EntityChange {

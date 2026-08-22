@@ -1,4 +1,4 @@
-import { createCollectionRepository, createEntityId } from '@/core/repository'
+import { createAsyncCollectionRepository, createCollectionRepository, createEntityId } from '@/core/repository'
 import {
   canTransitionMatter,
   MatterDomainError,
@@ -11,6 +11,7 @@ import {
 } from './model'
 
 const matters = createCollectionRepository<Matter>('matters', item => item.calmyId)
+const asyncMatters = createAsyncCollectionRepository<Matter>('matters', item => item.calmyId)
 const mutations = createCollectionRepository<MatterMutation>('matterMutations')
 const commands = createCollectionRepository<{ id: string; result: Matter }>('matterCommands')
 
@@ -127,4 +128,102 @@ export const matterRepository = {
   resume(calmyId: string, meta?: MatterCommandMeta): Matter { return this.transition(calmyId, 'active', meta) },
   archive(calmyId: string, meta?: MatterCommandMeta): Matter { return this.transition(calmyId, 'archived', meta) },
   restore(calmyId: string, meta?: MatterCommandMeta): Matter { return this.transition(calmyId, 'paused', meta) }
+}
+
+function sameMatter(left: Matter, right: Matter): boolean {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+async function asyncUpdateMatter(calmyId: string, patch: MatterUpdatePatch, meta: MatterCommandMeta = {}): Promise<Matter> {
+  const command = metaOf(meta)
+  const duplicate = duplicateResult(command.commandId)
+  if (duplicate) return duplicate
+  const current = await asyncMatters.find(calmyId)
+  if (!current) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
+  assertRevision(current, meta.expectedRevision)
+  if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
+  const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
+  if (!await asyncMatters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
+  appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+  return saveCommand(command.commandId, next)
+}
+
+async function asyncTransitionMatter(calmyId: string, status: MatterStatus, meta: MatterCommandMeta = {}): Promise<Matter> {
+  const command = metaOf(meta)
+  const duplicate = duplicateResult(command.commandId)
+  if (duplicate) return duplicate
+  const current = await asyncMatters.find(calmyId)
+  if (!current) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
+  assertRevision(current, meta.expectedRevision)
+  if (!canTransitionMatter(current.status, status)) {
+    throw new MatterDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
+  }
+  const next: Matter = { ...current, status, updatedAt: Date.now(), revision: current.revision + 1 }
+  if (!await asyncMatters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
+  appendMutation(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status })
+  return saveCommand(command.commandId, next)
+}
+
+/**
+ * Async migration facade for Matter records.
+ *
+ * Matter records use the durable async collection boundary. Mutation and
+ * command journals intentionally remain on the existing synchronous
+ * compatibility repositories until those side collections receive their own
+ * migration slice.
+ */
+export const matterAsyncRepository = {
+  async list(): Promise<Matter[]> {
+    return (await asyncMatters.list()).slice().sort((a, b) => b.updatedAt - a.updatedAt)
+  },
+  async find(calmyId: string): Promise<Matter | undefined> {
+    return asyncMatters.find(calmyId)
+  },
+  async create(input: MatterCreateInput, meta: MatterCommandMeta = {}): Promise<Matter> {
+    const command = metaOf(meta)
+    const duplicate = duplicateResult(command.commandId)
+    if (duplicate) return duplicate
+    const now = Date.now()
+    const matter: Matter = {
+      calmyId: createEntityId(), title: assertTitle(input.title), why: input.why?.trim() || '',
+      primaryContradiction: input.primaryContradiction?.trim() || '', status: 'active',
+      currentStage: input.currentStage || 'wood', trajectory: input.trajectory || 'stable', evidenceIds: [],
+      createdAt: now, updatedAt: now, revision: 1
+    }
+    await asyncMatters.create(matter)
+    appendMutation(matter, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, matter)
+    return saveCommand(command.commandId, matter)
+  },
+  update(calmyId: string, patch: MatterUpdatePatch, meta: MatterCommandMeta = {}): Promise<Matter> {
+    return asyncUpdateMatter(calmyId, patch, meta)
+  },
+  async importEntity(item: Matter): Promise<'created' | 'unchanged'> {
+    const current = await asyncMatters.find(item.calmyId)
+    if (current) {
+      if (sameMatter(current, item)) return 'unchanged'
+      throw new MatterDomainError('REVISION_CONFLICT', 'Matter ' + item.calmyId + ' has local changes')
+    }
+    await asyncMatters.create(item)
+    appendMutation(item, 'create', 'import:' + item.calmyId + ':' + item.revision, 'import', 'import', [], 0, item)
+    return 'created'
+  },
+  async replaceImported(item: Matter): Promise<'replaced' | 'unchanged'> {
+    const current = await asyncMatters.find(item.calmyId)
+    if (!current) return (await this.importEntity(item)) === 'created' ? 'replaced' : 'unchanged'
+    if (sameMatter(current, item)) return 'unchanged'
+    if (!await asyncMatters.update(item.calmyId, () => item)) throw new MatterDomainError('NOT_FOUND', 'Matter import target disappeared')
+    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item)
+    return 'replaced'
+  },
+  bindCycle(calmyId: string, cycleId: string, meta: MatterCommandMeta = {}): Promise<Matter> {
+    return asyncUpdateMatter(calmyId, { currentCycleId: cycleId }, meta)
+  },
+  transition(calmyId: string, status: MatterStatus, meta: MatterCommandMeta = {}): Promise<Matter> {
+    return asyncTransitionMatter(calmyId, status, meta)
+  },
+  pause(calmyId: string, meta?: MatterCommandMeta): Promise<Matter> { return asyncTransitionMatter(calmyId, 'paused', meta) },
+  resume(calmyId: string, meta?: MatterCommandMeta): Promise<Matter> { return asyncTransitionMatter(calmyId, 'active', meta) },
+  archive(calmyId: string, meta?: MatterCommandMeta): Promise<Matter> { return asyncTransitionMatter(calmyId, 'archived', meta) },
+  restore(calmyId: string, meta?: MatterCommandMeta): Promise<Matter> { return asyncTransitionMatter(calmyId, 'paused', meta) },
+  ready: asyncMatters.ready
 }

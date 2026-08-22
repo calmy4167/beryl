@@ -2,8 +2,10 @@
 
 版本：v1.0
 日期：2026-08-22（文件名保留原始建档日期）
-性质：实现主档案 / 唯一执行基线
+性质：工程实现主档案 / 实现事实基线
 上游设计源：`Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`
+
+> 2026-08-22 产品重审：当前产品范围、UI、工程停止线与路线图统一从 [`docs/README.md`](docs/README.md) 进入。本文件继续维护实现证据，但不再单独决定产品优先级。
 
 ## 0. 文档定位
 
@@ -11,7 +13,7 @@
 
 后续约束：
 
-- 原始 DOCX 是产品意图的上游来源，本文件是工程执行的唯一基线。
+- 原始 DOCX 是产品意图的上游来源，本文件是工程实现事实基线；产品执行优先级由产品决策记录和 2026-08-22 重设计包共同决定。
 - 所有产品设计必须落到“领域模型、命令、视图、开放格式、同步、测试”中的至少一项。
 - 设计项没有验收条件，就视为尚未完成。
 - 旧模块可以保留兼容，但不得继续形成独立数据模型和独立产品入口。
@@ -340,7 +342,7 @@ source: calmy
 
 ## 13. 当前执行状态
 
-截至 2026-08-22，代码已经验证具备统一核心实体与 Reality 查询切片、Matter/Cycle/Stage 创建绑定与状态流转、并行 Cycle 的 Action / Record 隔离、Stage → Record 来源 ID / 查询 / 修订历史 / Open Format 导出、Relationship / Shared Space 的共同 Matter / Action / Record 查询、成员/owner 协作写入、blocked 边界隔离、操作者级共享历史审计、Outcome/Practice 当前沉淀入口、Today/DailyState/约束/负向记录、People/Relationship/Shared Space 基础边界、Resource/Asset 生命周期、Library/Review/Calendar/Graph/搜索接入、Capture 本地规则建议、可读 Open Format Frontmatter、Obsidian Adapter/Companion Bridge、浏览器目录 Vault 读写、全实体增量差异、字段级冲突决策、显式删除 tombstone 写回、PWA 构建和主要页面无障碍静态修复。
+截至 2026-08-22，代码已经验证具备统一核心实体与 Reality 查询切片、Matter/Cycle/Stage 创建绑定与状态流转、并行 Cycle 的 Action / Record 隔离、Stage → Record 来源 ID / 查询 / 修订历史 / Open Format 导出、Relationship / Shared Space 的共同 Matter / Action / Record 查询、成员/owner 协作写入、blocked 边界隔离、操作者级共享历史审计、Outcome/Practice 当前沉淀入口、Today/DailyState/约束/负向记录、People/Relationship/Shared Space 基础边界、Resource/Asset 生命周期、Library/Review/Calendar/Graph/搜索接入、Capture 本地规则建议、可读 Open Format Frontmatter、Obsidian Adapter/Companion Bridge、浏览器目录 Vault 读写、全实体增量差异、字段级冲突决策、显式删除 tombstone 写回、PWA 构建、性能基线、八个领域异步 Repository 迁移入口和主要页面无障碍静态修复。
 
 因此，本项目当前仍不能宣称“原始设计全部实现”。当前完成的是一组有代码、测试和构建证据的产品切片；全量共享边界、生产级 AI、真实 Vault 冲突流程、IndexedDB 主存储、发布级 UI E2E 与手工可访问性审计仍需继续。
 
@@ -371,7 +373,7 @@ source: calmy
 - [ ] AI provider/offline model、过期历史与更细隐私策略
 - [ ] 真实 Obsidian Vault 实机验证、Companion Bridge 端到端冲突流程和跨设备回归
 - [ ] IndexedDB 主存储、离线写入队列、恢复、备份和迁移
-- [ ] 发布级 UI E2E、性能基线、移动端实机与手工屏幕阅读器审计
+- [ ] 发布级 UI E2E、移动端实机与手工屏幕阅读器审计
 
 本清单的 `[x]` 只表示当前切片已有代码和验证证据，不表示原始设计的全部范围已经完成。
 
@@ -384,30 +386,59 @@ source: calmy
 - 统一实体、兼容旧仓储和 Reality 只读查询层已接入主要页面及搜索。
 - Matter 详情页已支持 Cycle/Stage 创建、Matter 绑定、状态流转和按 Cycle 隔离 Action / Record；Record 创建时校验 Stage → Cycle → Matter 归属、同步 Stage.recordIds，并展示历史回放。
 - 已完成 Action 的 Outcome/Practice 当前沉淀入口；Library 可管理 Resource、Insight、Seed。
-- Today 已接入 DailyState、容量、约束、负向记录和现实状态；Review/Calendar 已接入趋势与复盘切片。
+- Today 已接入 DailyState、容量、约束、负向记录和现实状态；Review/Calendar 已接入趋势与复盘切片；Today/Capture/Review/Matters 已有异步页面读取与核心写入路径。
 - People 已覆盖 Person、Relationship、Shared Space 的基础创建和展示；Resource/Asset 已覆盖创建、退休、过期和资产引用切片。
 - People / Matter 已接入 Shared Context：共同 Matter / Action / Record 查询、blocked 隔离、边界状态和共享历史展示。
 - Relationship / Shared Space 已接入协作 Gateway：成员/owner 权限、共同 Matter / Action / Record 写入、blocked 拒绝、revision 冲突边界和操作者级共享审计；People / Matter 页面会使用该 Gateway 写入共享上下文。
-- Capture 已保留原文，并支持本地规则建议、隐私边界及接受/修改/拒绝。
+- Capture 已保留原文，并支持本地规则建议、隐私边界及接受/修改/拒绝；接受 suggestion 的跨领域写入已切换为异步路径。
 - Open Format 已覆盖支持实体的可读 Frontmatter；`payload_json` 仍作为兼容旧数据和未展开字段的兜底。
-- Obsidian Adapter/Companion Bridge 已有 manifest、Asset、MessagePort、session、attach/detach；浏览器目录适配器已支持递归读写，Vault 同步已覆盖全实体增量差异、字段级冲突决策和显式删除 tombstone 写回；跨设备协议级回归已覆盖重连、并发重复消息幂等和 tombstone 回传，真实 Obsidian 实机仍待验证。
+- Obsidian Adapter/Companion Bridge 已有 manifest、Asset、MessagePort、session、attach/detach；浏览器目录适配器已支持递归读写，Vault 同步已覆盖全实体增量差异、字段级冲突决策和显式删除 tombstone 写回；跨设备协议级回归已覆盖重连、并发重复消息幂等和 tombstone 回传。
+- 新增 `obsidian-rest-adapter.ts`：对 Obsidian Local REST API 提供递归目录、文本和二进制读取；默认只读，PUT/DELETE 只有显式关闭 `readOnly` 才会暴露，避免误写用户 Vault。
+- 实机探测记录：当前环境检测到 Obsidian 1.13.7 正在运行并存在打开 Vault，未发现本项目 Companion Bridge/MessagePort 插件 manifest；但现有 Local REST API 4.1.3 健康检查和鉴权后 `/vault/` 读取均成功，递归入口返回 10 项。此次只读探测未修改用户 Vault，因此仍不能把协议模拟写成真实 Bridge 实机证据。
 - 主要页面已完成一轮静态无障碍修复；这不等同于完整人工审计。
 
 ### 当前验证证据
 
-- IndexedDB 已补启动恢复、durable outbox、串行重试 flush、运行状态和内部备份边界；同步 Repository 的纯 IndexedDB 主存储迁移仍未完成。
+- IndexedDB 已补启动恢复、IndexedDB 原生 `pending_writes` durable outbox、localStorage 兼容 outbox 合并、串行重试 flush、运行状态和内部备份边界；同步 Repository 的纯 IndexedDB 主存储迁移仍未完成。
+- 启动后 Repository 读取路径已使用 IndexedDB 持久快照作为权威同步缓存；空快照不会错误回退旧 localStorage，数据迁移也在 hydrate 后执行。完全异步 Repository API、无 localStorage 兼容层的写入主存储仍未完成。
 - Admin 已展示 IndexedDB ready/degraded、恢复键数、待重试写入和最近镜像，并提供手动持久化重试入口。
-- `npm test -- --run`：35 个测试文件、169 个测试通过。
+- 启动后同步 Repository 读取优先使用 IndexedDB KV hydrate 快照；IndexedDB 不可用时回退 localStorage，并由 `lsSet/lsRemove` 保持缓存一致。
+- Admin 数据导出优先读取 IndexedDB 持久快照，IndexedDB 不可用时回退 localStorage 备份。
+- 实体同步迁移计划和冲突扫描也优先使用 IndexedDB 持久快照，失败时回退同步缓存。
+- KV 删除也进入 durable outbox，启动恢复会跳过 pending deletion，避免旧 IndexedDB 值复活。
+- durable backup 和实体迁移计划读取前会先 flush pending writes，避免刚发生的 Repository 写入因异步事务尚未完成而被导出/迁移遗漏。
+- Repository 已新增 `ready()` / `flushRepositoryWrites()` durable 边界：调用方可等待当前写入链，并获得 ready/degraded、pendingWrites 和错误状态；同步 API 仍保持兼容。
+- 新增 `createAsyncCollectionRepository()` 迁移入口：读取优先 IndexedDB 快照，写入串行化并等待 durable flush；旧同步 Repository 仍作为兼容层保留。
+- Today 已新增 `todayAsyncRepository`：在保持现有同步 API 兼容的同时，提供基于 IndexedDB durable snapshot 的异步 list/get/update/import/replaceImported/ready 迁移接口，并有专门回归测试。
+- Action、Case、Unified 已分别新增异步 Repository 迁移入口，均保持原同步 API，并覆盖 durable snapshot、写入、导入/替换和 revision 边界测试；当前异步入口已覆盖 Today/Action/Case/Unified 四个领域。
+- Capture、Record、Matter 已分别新增异步 Repository 迁移入口，均保持原同步 API，并覆盖 durable snapshot、写入、导入/替换和 revision/状态边界测试；当前异步入口已覆盖七个领域。
+- Capture 的 `acceptSuggestion` 已支持异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排仍保留同步兼容边界，部分历史查询仍通过兼容 Repository。
+- Social 已新增异步 Repository 入口，支持帖子、点赞、评论树和删除的 durable 写入；Action/Unified 异步 facade 的 mutation/command 日志已迁移到 durable async repositories，并保留同步 API 兼容。
+- Capture suggestion 已支持默认 30 天的显式过期与批量过期，过期只改变 suggestion 历史状态，不写入实体、不改变原始 Capture。
+- 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
+- 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；当前运行首屏 649.5ms、DOMContentLoaded 391.5ms、load 400.2ms、Today→Today 17.5ms、Today→Capture 151.2ms，允许外部请求数为 0。
+- 新增 AppShell/Admin/Scene 静态无障碍回归测试，4/4 通过；完整移动端与屏幕阅读器人工审计仍未完成。
+- 键级云端同步已接入删除 tombstone：本地删除写入 changes，推送 `deleted:true`，远端拉取删除本地快照且不再次生成本地 changes。
+- `npm test -- --run`：46 个测试文件、233 个测试通过。
 - `npx vue-tsc --noEmit`：通过。
 - `npm run test:node`：15/15 通过。
-- `npm run test:e2e`：19/19 通过。
-- `npm run build`：通过，生成 75 个 PWA precache URLs。
-- `npm run test:pwa`：通过，75 个本地文件可用。
+- `npm run test:e2e`：22/22 通过，新增键级 tombstone 的 push、pull 和旧值不复活回归。
+- `npm run test:idb`：浏览器运行时通过，覆盖 v2→v3 升级、`pending_writes` 重放、KV 写入、删除和 tombstone changes、未 await 写入后立即 backup/migration 的 durable flush，以及真实浏览器中的 async Repository durable snapshot。
+- `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Home/Today 路由、刷新恢复本地数据和外部网络阻断。
+- `node test/performance-runtime.mjs`：浏览器性能基线通过，首屏、导航、路由切换均低于阈值，外部网络允许请求数为 0。
+- `accessibility-static.test.ts`：4/4 通过，覆盖导航当前项、抽屉语义、状态区域和场景语义标签。
+- `capture-async-repository.test.ts`、`record-async-repository.test.ts`、`matter-async-repository.test.ts`：17/17 通过，覆盖 Capture/Record/Matter 的 durable snapshot、写入、建议过期、Stage 关联、导入替换、revision/状态冲突和 degraded fallback。
+- `social-async-repository.test.ts`：5/5 通过，覆盖 Social durable snapshot、帖子、点赞、评论和删除边界；Action/Unified 异步日志回归已纳入对应异步 Repository 测试。
+- `action-async-repository.test.ts`、`case-async-repository.test.ts`、`unified-async-repository.test.ts`：9/9 通过，覆盖三个领域异步 Repository 的 durable snapshot、写入、导入/替换和 revision 冲突边界。
+- `obsidian-rest-adapter.test.ts`：3/3 通过，覆盖递归目录、鉴权、URL 编码、二进制读取、路径穿越拒绝和显式写入开关。
+- `npm run build`：通过，生成 72 个 PWA precache URLs。
+- `npm run test:pwa`：通过，72 个本地文件可用。
 - `git diff --check`：通过；仅有既存 CRLF 提示。
 
 ### 下一阶段未完成项
 
-1. 在可用环境完成真实 Obsidian Vault 和 Companion Bridge 端到端冲突、跨设备手工回归；协议级模拟回归已完成，当前环境无实机证据。
-2. 将 IndexedDB 从镜像提升为主存储，补离线队列、恢复、备份和迁移。
-3. 增加发布级 UI E2E、性能/移动端实机验证和手工可访问性审计。
-4. 深化 AI provider/offline model、建议过期历史与知识网络沉淀。
+1. 制定并执行 Case→Matter、Task→Action、inbox→Capture 的旧模型只读、数据迁移和回滚方案，停止双事实源新增写入。
+2. 将 Matter 详情中的 Cycle/Stage/Outcome/Practice 高级过程编排、Calendar/People 等二级页面继续迁移到异步应用用例；当前核心四页的主要读取与写入已切换，兼容查询仍存在。
+3. 扩展核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工读屏审计；当前已有独立 smoke harness、性能基线和静态无障碍检查。
+4. 在可用环境补齐真实 Companion Bridge 端到端冲突与跨设备手工回归；当前真实 Vault 的 Local REST 只读访问已验证，但仍没有本项目 Bridge 插件实机证据。
+5. AI provider/offline model、知识网络、共享空间和高级理论视图在核心闭环试点通过前暂缓。

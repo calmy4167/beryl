@@ -2,6 +2,8 @@
 
 更新时间：2026-08-22
 
+> 产品重审后的唯一文档入口：[`docs/README.md`](docs/README.md)。本文件只交接工程状态；产品范围、导航和发布门槛以 `docs/product/` 为准。
+
 ## 1. 下一轮唯一上下文
 
 项目目录：`D:\dsharness`
@@ -10,7 +12,7 @@
 
 原始设计需求源：`D:\dsharness\Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`
 
-规则：原始 DOCX 只读，不修改；实现状态以 Markdown 总档案为准；不要从旧拆分文档重新推断需求，也不要把当前切片宣称为全部完成。
+规则：原始 DOCX 只读，不修改；实现状态以 Markdown 总档案为准；产品优先级以产品决策记录和 2026-08-22 重设计包为准；不要从旧拆分文档重新推断需求，也不要把当前切片宣称为全部完成。
 
 ## 2. 当前已完成的实现切片
 
@@ -26,9 +28,26 @@
 - Capture 原文保留、本地规则建议、隐私边界、接受/修改/拒绝。
 - Open Format 可读 Frontmatter；`payload_json` 作为兼容兜底。
 - Obsidian Adapter/Companion Bridge 的 manifest、Asset、MessagePort、session、attach/detach；浏览器目录 Vault 递归读写、全实体增量差异、字段级冲突决策和显式删除 tombstone 写回；已补跨设备协议级重连、并发重复消息幂等和 tombstone 回传回归。
+- 新增 Obsidian Local REST Vault 适配器：默认只读，支持递归目录、文本/二进制读取；PUT/DELETE 仅在显式关闭 `readOnly` 时启用。
 - IndexedDB 已补启动恢复、durable outbox、串行重试 flush、运行状态和内部备份边界；同步 Repository 的纯 IndexedDB 主存储迁移尚未完成。
 - Admin 已展示持久层 ready/degraded、恢复键数、待重试写入和最近镜像，并提供手动重试入口。
-- 主要页面导航、表单和状态控件的一轮静态无障碍修复。
+- 启动后同步 Repository 读取优先使用 IndexedDB KV hydrate 快照；IndexedDB 不可用时回退 localStorage，并由 `lsSet/lsRemove` 保持缓存一致。
+- Admin 数据导出优先读取 IndexedDB 持久快照，IndexedDB 不可用时回退 localStorage 备份。
+- 实体同步迁移计划和冲突扫描也优先使用 IndexedDB 持久快照，失败时回退同步缓存。
+- KV 删除也进入 durable outbox，启动恢复会跳过 pending deletion，避免旧 IndexedDB 值复活。
+- durable backup 和实体迁移计划读取前会先 flush pending writes，避免刚发生的 Repository 写入因异步事务尚未完成而被导出/迁移遗漏。
+- Repository 已新增 `ready()` / `flushRepositoryWrites()` durable 边界：调用方可等待当前写入链，并获得 ready/degraded、pendingWrites 和错误状态；同步 API 仍保持兼容。
+- 新增 `createAsyncCollectionRepository()` 迁移入口：读取优先 IndexedDB 快照，写入串行化并等待 durable flush；旧同步 Repository 仍作为兼容层保留。
+- Today 已新增 `todayAsyncRepository`：保持现有同步 API 兼容，同时提供基于 IndexedDB durable snapshot 的异步迁移接口，并有专门回归测试。
+- Action、Case、Unified 已分别新增异步 Repository 迁移入口；四个领域均保持同步 API，并有 durable snapshot、写入、导入/替换和 revision 边界测试。
+- Capture、Record、Matter 已分别新增异步 Repository 迁移入口；当前七个领域均保持同步 API，并有 durable snapshot、写入、导入/替换和 revision/状态边界测试。
+- Capture 的 `acceptSuggestion` 已切换为异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排和部分历史查询仍保留兼容层边界。
+- Social 已新增异步 Repository 入口，覆盖帖子、点赞、评论树和删除；Action/Unified 异步 facade 的 mutation/command 日志已迁移到 durable async repositories。
+- Capture suggestion 已支持默认 30 天的显式过期与批量过期，过期只改变 suggestion 历史状态，不写入实体、不改变原始 Capture。
+- 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
+- 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，当前基线通过且外部网络允许请求数为 0。
+- 键级云端同步已接入删除 tombstone：本地删除写入 changes，推送 `deleted:true`，远端拉取删除本地快照且不再次生成本地 changes。
+- 主要页面导航、表单和状态控件的一轮静态无障碍修复，并新增 4/4 静态回归测试。
 
 ## 3. 本轮文档对齐内容
 
@@ -40,17 +59,28 @@
 - 新增第 15 节“2026-08-22 实现对齐快照”，固定当前完成切片、验证结果和下一阶段顺序。
 - 补充 Companion Bridge 跨设备协议级回归、并发重复消息幂等和真实实机验证边界。
 - 补充 IndexedDB 启动恢复、durable outbox、失败重试和状态/备份边界。
+- 补充 IndexedDB 原生 `pending_writes` 队列、旧 localStorage outbox 合并及启动重放边界。
+- 补充键级云端 tombstone 的 Worker 持久化及跨设备删除回归。
+- 补充 IndexedDB 持久快照权威读取、空快照防回退和 hydrate 后数据迁移边界。
+- 补充 Today 异步 Repository 首个迁移切片、浏览器性能基线和静态无障碍回归证据。
+- 补充 Action、Case、Unified 三个领域异步 Repository 迁移入口和 9 个回归测试。
+- 补充 Capture、Record、Matter 三个领域异步 Repository 迁移入口和 17 个回归测试。
 
 本文件替代旧的 2026-08-19 交接档案作为下一轮启动入口；旧文件保留作历史记录。
 
 ## 4. 当前验证结果
 
-- `npm test -- --run`：35 个测试文件、169 个测试通过。
+- `npm test -- --run`：46 个测试文件、233 个测试通过。
 - `npx vue-tsc --noEmit`：通过。
 - `npm run test:node`：15/15 通过。
-- `npm run test:e2e`：19/19 通过。
-- `npm run build`：通过，75 个 PWA precache URLs。
-- `npm run test:pwa`：通过，75 个本地文件可用。
+- `npm run test:e2e`：22/22 通过，覆盖键级 tombstone 的 push、pull 和旧值不复活。
+- `npm run test:idb`：Chrome 浏览器运行时通过，覆盖 v2→v3 升级、`pending_writes` 重放、KV 写入、删除和 tombstone changes、未 await 写入后立即 backup/migration 的 durable flush，以及真实浏览器中的 async Repository durable snapshot。
+- `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Today 默认路由、真实行动写入、刷新恢复本地数据和外部网络阻断。
+- `node test/performance-runtime.mjs`：浏览器性能基线通过，首屏、导航、路由切换均低于阈值，外部网络允许请求数为 0。
+- `accessibility-static.test.ts`：4/4 通过，覆盖导航当前项、抽屉语义、状态区域和场景语义标签。
+- `obsidian-rest-adapter.test.ts`：3/3 通过，覆盖递归目录、鉴权、URL 编码、二进制读取、路径穿越拒绝和显式写入开关。
+- `npm run build`：通过，72 个 PWA precache URLs。
+- `npm run test:pwa`：通过，72 个本地文件可用。
 - `git diff --check`：通过；仅有既存 CRLF 提示。
 
 代码变更可能与用户已有工作区改动混合，下一轮开始必须先执行 `git status --short`，不得使用破坏性回滚操作。
@@ -59,26 +89,27 @@
 
 按优先级排序：
 
-1. Obsidian：真实 Obsidian 实机、Companion Bridge 端到端冲突流程和跨设备手工回归；协议级模拟已完成，当前环境无实机证据。
-2. 存储可靠性：将现有 IndexedDB 持久层推进为同步 Repository 的主存储，并补离线队列、恢复、备份和迁移。
-3. 发布质量：UI E2E、性能基线、移动端实机和手工屏幕阅读器审计。
-4. 理解层深化：真实 AI provider/offline model、建议过期历史、知识网络沉淀和更细隐私策略。
+1. 事实源收敛：制定 Case→Matter、Task→Action、inbox→Capture 的迁移、只读兼容和回滚方案，停止向旧模型新增写入。
+2. 存储边界深化：继续迁移 Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排，以及 Calendar、People 等二级页面；当前核心四页的主要读取与写入已切换，兼容查询仍存在。
+3. 发布质量：完成核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工屏幕阅读器审计；性能基线、独立 UI smoke 和静态无障碍检查已完成。
+4. Obsidian / Bridge：Local REST 只读入口已经验证，但未发现本项目 Companion Bridge/MessagePort 插件；真实 Bridge 联调继续标为实验和阻塞，不进入当前核心路径。
+5. 理解层深化：真实 AI provider/offline model、知识网络和共享空间在小规模试点证明核心闭环前暂缓。
 
 ## 6. 下一轮推荐执行顺序
 
-先确认第 1 项是否有真实客户端；若当前环境仍无 Obsidian/插件实机，则保留阻塞证据并继续第 2 项，不要重新审计已完成的 Cycle/Stage/Record/Shared Context/Relationship/Shared Space 协作/Obsidian 同步当前切片；协议级 Bridge 回归已经完成，不能把它写成真实实机证据：
+按 `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md` 执行，不再以 Bridge 或新领域能力作为首要任务：
 
-1. 使用真实浏览器目录选择 Obsidian Vault，并接入实际 Companion Bridge / MessagePort，准备两台设备或两个客户端的最小测试数据。
-2. 手工验证全实体增量同步、tombstone、字段级冲突决策、权限边界、断线和重连行为。
-3. 记录真实 Obsidian/插件/浏览器版本、设备和结果；若环境不可用，记录阻塞原因，不把协议级模拟宣称为实机证据。
-4. 继续 IndexedDB 主存储迁移：让 Repository 读取路径使用持久层快照，并明确启动 readiness、离线写入队列、恢复、备份和迁移回滚边界。
-5. 运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建。
+1. 先完成 Case→Matter、Task→Action、inbox→Capture 的迁移与旧写入停止方案，并保留可回滚兼容入口。
+2. 继续定义并落地 CaptureText、OpenToday、AddActionToToday、RecordActionResult、CompleteReview 五个异步应用用例的统一结果。
+3. 迁移 Matter 高级过程编排与 Calendar/People 二级页面，在 UI 区分本地已保存、同步等待、冲突和失败。
+4. 建立核心闭环浏览器测试与数据往返测试，再进行移动端、键盘和读屏人工验收。
+5. 完成后运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建。
 
 ## 7. 下一轮开场提示词
 
 可直接复制以下内容作为新对话第一条消息：
 
-> 继续执行 `D:\dsharness\Calmy_Personal_OS_下一轮对话交接档案_2026-08-22.md`。设计基线是 `D:\dsharness\Calmy_Personal_OS_完整实现总档案_2026-08-19.md`，原始需求源是 `D:\dsharness\Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`。先检查 `git status --short`，保留现有工作区改动，不修改原始 DOCX。先确认是否有真实浏览器、Obsidian Vault 和实际 Companion Bridge；若没有，就记录实机阻塞，不把协议级模拟宣称为实机证据，并继续 IndexedDB 主存储迁移：推进 Repository 持久读取、readiness、离线队列、恢复、备份和迁移回滚。不要重新从头做 Cycle/Stage/Record/Shared Context/Relationship/Shared Space 协作当前切片。完成后运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建；不要宣称原始设计全部完成。
+> 继续执行 `D:\dsharness\Calmy_Personal_OS_下一轮对话交接档案_2026-08-22.md`，先读 `D:\dsharness\docs\README.md` 和 `D:\dsharness\docs\product\ROADMAP_AND_ACCEPTANCE_2026-08-22.md`。保留现有工作区改动，不修改原始 DOCX。当前第一优先级是收敛 Calmy 产品壳与事实源：默认进入 Today，主导航只保留 Today/Capture/Matters/Review，旧入口只读兼容；随后让四个核心页面统一走异步应用用例和 IndexedDB 权威路径。Bridge、Graph、共享空间和新领域能力暂缓，不把协议模拟宣称为真实联调。完成后运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建；不要宣称原始设计全部完成。
 
 ## 8. 工作纪律
 

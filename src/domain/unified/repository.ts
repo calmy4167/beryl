@@ -1,4 +1,4 @@
-import { createCollectionRepository, createEntityId } from '@/core/repository'
+import { createAsyncCollectionRepository, createCollectionRepository, createEntityId, flushRepositoryWrites, type RepositoryReadyStatus } from '@/core/repository'
 import {
   CoreDomainError,
   canTransitionCycle,
@@ -28,14 +28,26 @@ import {
 type RepositoryItem = CoreEntity
 
 const entityStores = new Map<CoreEntityType, ReturnType<typeof createCollectionRepository<RepositoryItem>>>()
+const asyncEntityStores = new Map<CoreEntityType, ReturnType<typeof createAsyncCollectionRepository<RepositoryItem>>>()
 const mutations = createCollectionRepository<CoreEntityMutation>('coreEntityMutations')
 const commands = createCollectionRepository<{ id: string; result: RepositoryItem }>('coreEntityCommands')
+const asyncMutations = createAsyncCollectionRepository<CoreEntityMutation>('coreEntityMutations')
+const asyncCommands = createAsyncCollectionRepository<{ id: string; result: RepositoryItem }>('coreEntityCommands')
 
 function storeFor(type: CoreEntityType) {
   let store = entityStores.get(type)
   if (!store) {
     store = createCollectionRepository<RepositoryItem>(`core:${type}`, item => item.calmyId)
     entityStores.set(type, store)
+  }
+  return store
+}
+
+function asyncStoreFor(type: CoreEntityType) {
+  let store = asyncEntityStores.get(type)
+  if (!store) {
+    store = createAsyncCollectionRepository<RepositoryItem>(`core:${type}`, item => item.calmyId)
+    asyncEntityStores.set(type, store)
   }
   return store
 }
@@ -69,6 +81,38 @@ function duplicateResult(commandId: string): RepositoryItem | undefined {
 function saveCommand(commandId: string, result: RepositoryItem): RepositoryItem {
   commands.create({ id: commandId, result })
   return result
+}
+
+async function appendMutationAsync(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): Promise<void> {
+  await asyncMutations.create({
+    id: createEntityId(), entityType: entity.entityType, entityId: entity.calmyId, operation, commandId,
+    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch
+  })
+}
+
+async function duplicateResultAsync(commandId: string): Promise<RepositoryItem | undefined> {
+  return (await asyncCommands.find(commandId))?.result
+}
+
+async function saveCommandAsync(commandId: string, result: RepositoryItem): Promise<RepositoryItem> {
+  await asyncCommands.create({ id: commandId, result })
+  return result
+}
+
+async function asyncRepositoryReady(entityType?: CoreEntityType): Promise<RepositoryReadyStatus> {
+  const statuses = await Promise.all([
+    entityType ? asyncStoreFor(entityType).ready() : flushRepositoryWrites(),
+    asyncMutations.ready(),
+    asyncCommands.ready()
+  ])
+  const firstError = statuses.find(status => status.lastError)?.lastError || null
+  return {
+    durable: statuses.every(status => status.durable),
+    state: statuses.some(status => status.state === 'degraded') ? 'degraded' : 'ready',
+    available: statuses.every(status => status.available),
+    pendingWrites: Math.max(...statuses.map(status => status.pendingWrites)),
+    lastError: firstError
+  }
 }
 
 function assertRevision(entity: RepositoryItem, expectedRevision?: number): void {
@@ -222,6 +266,72 @@ export const unifiedRepository = {
   },
   remove(entityType: CoreEntityType, calmyId: string): boolean {
     return storeFor(entityType).remove(calmyId)
+  }
+}
+
+export const unifiedAsyncRepository = {
+  async list<T extends RepositoryItem>(entityType: T['entityType']): Promise<T[]> {
+    return (await asyncStoreFor(entityType).list()).filter(item => item.entityType === entityType) as T[]
+  },
+  async find<T extends RepositoryItem>(entityType: T['entityType'], calmyId: string): Promise<T | undefined> {
+    const item = await asyncStoreFor(entityType).find(calmyId)
+    return item?.entityType === entityType ? item as T : undefined
+  },
+  async create<T extends RepositoryItem>(entity: T, meta: CoreCommandMeta = {}): Promise<T> {
+    assertEntity(entity)
+    const command = metaOf(meta)
+    const duplicate = await duplicateResultAsync(command.commandId)
+    if (duplicate) return duplicate as T
+    const current = await asyncStoreFor(entity.entityType).find(entity.calmyId)
+    if (current) throw new CoreDomainError('VALIDATION_FAILED', `${entity.entityType} ${entity.calmyId} already exists`)
+    await asyncStoreFor(entity.entityType).create(entity)
+    await appendMutationAsync(entity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, entity)
+    return await saveCommandAsync(command.commandId, entity) as T
+  },
+  async update<T extends RepositoryItem>(entityType: T['entityType'], calmyId: string, patch: Partial<T>, meta: CoreCommandMeta = {}): Promise<T> {
+    const command = metaOf(meta)
+    const duplicate = await duplicateResultAsync(command.commandId)
+    if (duplicate) return duplicate as T
+    const current = await asyncStoreFor(entityType).find(calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
+    assertRevision(current, meta.expectedRevision)
+    const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 } as T
+    assertEntity(next)
+    const updated = await asyncStoreFor(entityType).update(calmyId, () => next)
+    if (!updated) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
+    await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+    return await saveCommandAsync(command.commandId, next) as T
+  },
+  async importEntity<T extends RepositoryItem>(entity: T): Promise<'created' | 'unchanged'> {
+    assertEntity(entity)
+    const store = asyncStoreFor(entity.entityType)
+    const current = await store.find(entity.calmyId)
+    if (current) {
+      if (JSON.stringify(current) === JSON.stringify(entity)) return 'unchanged'
+      throw new CoreDomainError('REVISION_CONFLICT', `${entity.entityType} ${entity.calmyId} has local changes`)
+    }
+    await store.create(entity)
+    await appendMutationAsync(entity, 'create', `import:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], 0, entity)
+    return 'created'
+  },
+  async replaceImported<T extends RepositoryItem>(entity: T): Promise<'replaced' | 'unchanged' | 'created'> {
+    assertEntity(entity)
+    const store = asyncStoreFor(entity.entityType)
+    const current = await store.find(entity.calmyId)
+    if (!current) return this.importEntity(entity)
+    if (JSON.stringify(current) === JSON.stringify(entity)) return 'unchanged'
+    const replaced = await store.update(entity.calmyId, () => entity)
+    if (!replaced) return this.importEntity(entity)
+    await appendMutationAsync(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity)
+    return 'replaced'
+  },
+  async mutations(entityType?: CoreEntityType, calmyId?: string): Promise<CoreEntityMutation[]> {
+    return (await asyncMutations.list())
+      .filter(item => (!entityType || item.entityType === entityType) && (!calmyId || item.entityId === calmyId))
+      .sort((a, b) => a.occurredAt - b.occurredAt)
+  },
+  ready(entityType?: CoreEntityType): Promise<RepositoryReadyStatus> {
+    return asyncRepositoryReady(entityType)
   }
 }
 

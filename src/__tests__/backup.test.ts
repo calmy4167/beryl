@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createBackup, parseBackup } from '@/core/backup'
+import { createBackup, createDurableBackup, parseBackup } from '@/core/backup'
+import { vi } from 'vitest'
 
 describe('backup contract', () => {
   it('excludes credentials and sync cursors', () => {
@@ -18,6 +19,14 @@ describe('backup contract', () => {
     const backup = createBackup(source)
     expect(parseBackup(backup)).toEqual(backup)
     expect(backup).not.toHaveProperty('b_session')
+  })
+
+  it('falls back to the synchronous cache when IndexedDB is unavailable', async () => {
+    vi.stubGlobal('indexedDB', undefined)
+    const source = new StorageMock({ b_tasks: '[{"id":"t1"}]', b_db_outbox: '[]' })
+
+    await expect(createDurableBackup(source)).resolves.toEqual({ b_tasks: '[{"id":"t1"}]' })
+    vi.unstubAllGlobals()
   })
 })
 

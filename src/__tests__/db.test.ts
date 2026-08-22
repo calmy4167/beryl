@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPendingDbWrites, getDbStatus, initDb, dbPut } from '@/core/db'
+import { dbDelete, flushPendingDbWrites, getDbStatus, initDb, dbPut } from '@/core/db'
 import { createBackup } from '@/core/backup'
 
 describe('IndexedDB durable layer', () => {
@@ -38,5 +38,13 @@ describe('IndexedDB durable layer', () => {
 
     expect(createBackup()).toEqual({ b_tasks: '[]' })
     await flushPendingDbWrites()
+  })
+
+  it('keeps a durable deletion intent when IndexedDB is unavailable', async () => {
+    localStorage.setItem('b_tasks', '[]')
+    await dbDelete('b_tasks')
+
+    expect(JSON.parse(localStorage.getItem('b_db_outbox') || '[]')).toEqual([{ key: 'b_tasks', deleted: true }])
+    expect(getDbStatus().pendingWrites).toBe(1)
   })
 })

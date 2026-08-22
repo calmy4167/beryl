@@ -98,7 +98,8 @@ async function call(env, method, path, body, password) {
 async function clientPush(env, password, changes) {
   const body = { changes: await Promise.all(changes.map(async c => ({
     key: c.key, ts: c.ts, device: c.device,
-    value: await encryptValue(password, c.value)
+    value: c.deleted ? null : await encryptValue(password, c.value),
+    deleted: Boolean(c.deleted)
   }))) }
   const r = await call(env, 'POST', '/api/sync/push', body, password)
   return r
@@ -174,6 +175,21 @@ console.log('场景 3：LWW 决胜（旧 ts 不覆盖）')
   await clientPush(env, 'pass1234', [{ key: 'b_tasks', ts: 1000, device: 'devA', value: '["old-task"]' }])
   const pull = await clientPull(env, 'pass1234', 0)
   check('新数据保留（旧 ts 被拒绝）', pull.data.b_tasks === '["new-task"]')
+}
+
+/* 场景 3b：键级 tombstone——删除可上云、可下发，且旧值不能复活 */
+console.log('场景 3b：键级 tombstone（删除跨设备传播）')
+{
+  const env = makeEnv(makeD1())
+  await call(env, 'POST', '/api/setup', { password: 'delete-pass' })
+  await clientPush(env, 'delete-pass', [{ key: 'b_tasks', ts: 3000, device: 'devA', value: '["keep"]' }])
+  const deleted = await clientPush(env, 'delete-pass', [{ key: 'b_tasks', ts: 3001, device: 'devA', value: null, deleted: true }])
+  check('键级删除 push 成功', deleted.status === 200 && deleted.json.ok === true)
+  await clientPush(env, 'delete-pass', [{ key: 'b_tasks', ts: 3000, device: 'devA', value: '["stale"]' }])
+  const pull = await clientPull(env, 'delete-pass', 0)
+  const tombstone = pull.raw?.records?.find(r => r.key === 'b_tasks')
+  check('手机 pull 收到键级 tombstone', tombstone?.deleted === true)
+  check('旧值不能在 tombstone 后复活', pull.data.b_tasks === undefined)
 }
 
 /* 场景 4：前端合并——本地新数据不被云端旧数据覆盖（applyIncremental 规则） */

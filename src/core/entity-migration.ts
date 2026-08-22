@@ -1,5 +1,5 @@
 import { createBackup } from './backup'
-import { DEVICE_ID } from './db'
+import { DEVICE_ID, flushPendingDbWrites, readKvSnapshot } from './db'
 import type { EntitySyncRecord } from './entity-sync'
 
 export interface EntityMigrationPlan {
@@ -17,13 +17,12 @@ function entityId(key: string, item: Record<string, unknown>): string | undefine
   return undefined
 }
 
-export function createEntityMigrationPlan(source: Storage = localStorage): EntityMigrationPlan {
-  const snapshot = createBackup(source)
+function createPlanFromSnapshot(snapshot: Record<string, string>): EntityMigrationPlan {
   const records: EntitySyncRecord[] = []
   const skipped: string[] = []
   const updatedAt = Date.now()
   for (const key of COLLECTION_KEYS) {
-    const raw = source.getItem(key)
+    const raw = snapshot[key]
     if (!raw) continue
     let value: unknown
     try { value = JSON.parse(raw) } catch { skipped.push(key); continue }
@@ -36,6 +35,17 @@ export function createEntityMigrationPlan(source: Storage = localStorage): Entit
     }
   }
   return { createdAt: updatedAt, snapshot, records, skipped }
+}
+
+export function createEntityMigrationPlan(source: Storage = localStorage): EntityMigrationPlan {
+  return createPlanFromSnapshot(createBackup(source))
+}
+
+/** 优先从 IndexedDB 持久快照生成迁移计划，失败时回退同步缓存。 */
+export async function createDurableEntityMigrationPlan(source: Storage = localStorage): Promise<EntityMigrationPlan> {
+  await flushPendingDbWrites()
+  const snapshot = await readKvSnapshot()
+  return snapshot ? createPlanFromSnapshot(snapshot) : createEntityMigrationPlan(source)
 }
 
 export function saveMigrationBackup(plan: EntityMigrationPlan, source: Storage = localStorage): boolean {

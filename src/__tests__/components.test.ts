@@ -29,7 +29,7 @@ describe('组件冒烟', () => {
   it('LoginView 渲染品牌与表单', async () => {
     const router = await makeRouter()
     const wrapper = mount(LoginView, { global: { plugins: [router, ElementPlus] } })
-    expect(wrapper.text()).toContain('Beryl')
+    expect(wrapper.text()).toContain('Calmy')
     expect(wrapper.find('input').exists()).toBe(true)
     expect(wrapper.find('button').text()).toContain('登 录')
   })

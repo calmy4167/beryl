@@ -45,7 +45,7 @@ async function submit() {
         sessionStorage.setItem('beryl_first_pass', '1')
         router.replace({ path: '/pass', query: { mode: 'first' } })
       }
-      else router.replace('/scene')
+      else router.replace('/app/today')
     } else {
       if (registerFail()) { startLockTick(); ElMessage.warning('登录失败 5 次，锁定 30 秒'); }
       else err.value = '用户名或密码错误'
@@ -63,8 +63,8 @@ onUnmounted(() => clearInterval(lockTimer))
   <div class="login-wrap">
     <div class="text-center mb-8">
       <div class="logo">⬡</div>
-      <h1 class="font-title title">Beryl</h1>
-      <p class="subtitle">个 人 管 理 体 系</p>
+      <h1 class="font-title title">Calmy</h1>
+      <p class="subtitle">现实行动系统</p>
     </div>
 
     <form class="beryl-card card" @submit.prevent="submit">
