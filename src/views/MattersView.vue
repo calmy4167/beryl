@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter, MatterStatus } from '@/domain/matter/model'
 import { applyOpenAssets, applyOpenEntities, currentOpenAssets, currentOpenEntities, currentOpenOrphanAssets, exportCurrentOpenWorkspace, removeOpenAssets, type OpenConflictDecision } from '@/core/content/open-workspace'
 import { compareOpenAssets, compareOpenEntities, compareOpenEntityFields, importOpenWorkspace, type OpenEntityComparison, type OpenFieldConflict, type OpenFieldDecision, type OpenImportResult } from '@/core/content/open-format'
+import { usePageRefresh } from '@/core/page-refresh'
 
 const router = useRouter()
 const title = ref('')
@@ -43,9 +44,7 @@ async function create(): Promise<void> {
   title.value = ''; why.value = ''; await refreshMatters()
   router.push('/app/matters/' + matter.calmyId)
 }
-function onDataSynced(): void { void refreshMatters() }
-onMounted(() => { void refreshMatters(); window.addEventListener('beryl-data-synced', onDataSynced) })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
+usePageRefresh(refreshMatters)
 
 interface DirectoryHandleLike {
   getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<DirectoryHandleLike>
@@ -293,4 +292,7 @@ async function cleanupOrphans(): Promise<void> {
 .data-tools{display:grid;justify-items:end;align-self:start}.data-tools summary{list-style:none;cursor:pointer;color:var(--c-text-3);font-size:11px;padding:7px 9px;border:1px solid var(--c-border-soft);border-radius:8px}.data-tools summary::-webkit-details-marker{display:none}.data-tools[open] summary{color:var(--scene);border-color:var(--scene-border)}.data-tools .head-actions{margin:8px 0 0}
 .matter-list{grid-template-columns:1fr;gap:0;border-top:1px solid var(--c-border-soft)}.matter-card{min-height:0;display:grid;grid-template-columns:minmax(170px,.8fr) minmax(220px,1.5fr) auto;align-items:center;gap:20px;border:0;border-bottom:1px solid var(--c-border-soft);border-radius:0;background:transparent;box-shadow:none;padding:16px 4px}.matter-card.hoverable:hover{transform:none;border-color:var(--c-border-soft);box-shadow:none;background:var(--c-hover)}.matter-card .card-top{display:grid;gap:6px;justify-items:start}.matter-card h2{margin:0;font-size:20px}.matter-card p{margin:0}.matter-card .card-bottom{margin:0;padding:0;display:flex;justify-content:flex-end;gap:12px}.matter-card .card-bottom span{display:none}
 @media(max-width:620px){.data-tools{width:100%;justify-items:start}.data-tools .head-actions{width:100%;flex-wrap:wrap}.matter-list{border-top:0;gap:12px}.matter-card{display:flex;min-height:180px;border:1px solid var(--c-border-soft);border-radius:12px;background:var(--c-card);padding:17px;text-align:left;align-items:stretch;gap:0}.matter-card .card-top{display:flex;align-items:center;justify-content:space-between;width:100%}.matter-card h2{margin:28px 0 8px}.matter-card .card-bottom{margin-top:auto;padding-top:18px;justify-content:space-between}.matter-card .card-bottom span{display:block}}
+@media(max-width:1100px) and (min-width:621px){.matter-card{grid-template-columns:minmax(140px,.8fr) minmax(0,1.2fr) auto;gap:14px}.matter-card h2{font-size:18px}}
+@media(max-width:900px) and (min-width:621px){.field-conflict{grid-template-columns:1fr 1fr}.field-name{grid-column:1/-1}.field-choice{grid-column:1/-1;display:flex}.manual-head{display:block}.manual-head span{display:block;margin-top:4px}}
+@media(max-width:900px){.decision-row{white-space:normal;flex-wrap:wrap}.manual-button{margin-left:auto}}
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { todayKey } from '@/core/storage'
@@ -13,6 +13,7 @@ import { unifiedFactories, unifiedAsyncRepository, type DailyState } from '@/dom
 import type { NegativeRecordImpact } from '@/domain/record/model'
 import { listRealityDocuments } from '@/domain/reality'
 import { withSaveState } from '@/core/save-state'
+import { usePageRefresh } from '@/core/page-refresh'
 import { addActionToToday, completeReview, openToday, recordActionResult } from '@/application/use-cases'
 
 const router = useRouter(); const date = todayKey(); const tick = ref(0); const loading = ref(true); const saving = ref(false)
@@ -90,9 +91,7 @@ async function complete(actionId: string): Promise<void> { try { const item = ac
 async function skip(actionId: string): Promise<void> { try { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; await persist(() => item.status === 'skipped' ? actionAsyncRepository.reopen(actionId, item.revision) : actionAsyncRepository.skip(actionId, undefined, item.revision)); await refresh() } catch (error) { ElMessage.error(error instanceof Error ? error.message : '行动更新失败') } }
 async function addRecord(): Promise<void> { if (!recordBody.value.trim()) { ElMessage.warning('先写下今天实际发生了什么'); return }; try { if (recordActionId.value) { const action = actionItems.value.find(item => item.calmyId === recordActionId.value); if (!action) { ElMessage.warning('关联行动已不存在'); return }; const result = await persist(() => recordActionResult({ actionId: action.calmyId, recordBody: recordBody.value, recordType: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, expectedActionRevision: action.revision })); recordBody.value = ''; recordMatterId.value = ''; recordActionId.value = ''; await refresh(); if (result.recordError) ElMessage.warning('行动已完成，但结果记录未保存'); else ElMessage.success('行动已完成，并保存了结果记录'); return } await persist(() => recordAsyncRepository.create({ body: recordBody.value, type: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, matterId: recordMatterId.value || undefined })); recordBody.value = ''; recordMatterId.value = ''; ElMessage.success(recordType.value === 'negative' ? '已记录负向变化' : '已记录现实'); await refresh() } catch (error) { ElMessage.error(error instanceof Error ? error.message : '记录失败') } }
 async function saveReview(): Promise<void> { try { const result = await persist(() => completeReview({ date, review: { observation: observation.value, analysis: analysis.value, adjustment: adjustment.value, seed: seed.value }, expectedRevision: plan.value.revision })); plan.value = result.plan; tick.value++; ElMessage.success('复盘已保存') } catch (error) { ElMessage.error(error instanceof Error ? error.message : '复盘保存失败') } }
-function onDataSynced(): void { void refresh() }
-onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
+usePageRefresh(refresh)
 const constraintEvaluation = computed(() => {
   void tick.value
   const preferredMatter = focusActions.value.map(item => item.matterId).find(Boolean)
@@ -164,8 +163,9 @@ const constraintEvaluation = computed(() => {
 .today-flow .beryl-card{border-radius:12px;box-shadow:none}
 .today-flow .action-card{border-radius:10px}
 .today-flow .action-create{background:var(--scene-soft);border-color:var(--scene-border)}
-@media(max-width:980px){.today-flow{display:block}.today-flow>.opening,.today-flow>.capacity-panel,.today-flow>.action-create,.today-flow>.action-grid,.today-flow>.record-panel,.today-flow>.review-panel{margin-top:0;margin-bottom:18px}.today-flow>.review-panel{margin-bottom:0}}
+@media(max-width:1100px){.today-flow{display:block}.today-flow>.opening,.today-flow>.capacity-panel,.today-flow>.action-create,.today-flow>.action-grid,.today-flow>.record-panel,.today-flow>.review-panel{margin-top:0;margin-bottom:18px}.today-flow>.review-panel{margin-bottom:0}}
 </style>
 <style scoped>
 .opening-details{margin-top:14px;border-top:1px solid var(--c-border-soft);padding-top:10px}.opening-details summary{list-style:none;cursor:pointer;color:var(--c-text-2);font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.opening-details summary::-webkit-details-marker{display:none}.opening-details summary::after{content:'+';font-size:18px;color:var(--scene);line-height:1}.opening-details[open] summary::after{content:'−'}.opening-details summary small{font-size:11px;color:var(--c-text-3);margin-left:auto}.opening-details .two-col{margin-top:2px}.today-flow>.action-grid{padding:4px 0}.today-flow>.review-panel{background:color-mix(in srgb,var(--c-card) 76%,var(--c-bg));border-color:var(--c-border-soft)}.today-flow>.capacity-panel{background:color-mix(in srgb,var(--c-card) 78%,var(--c-bg));border-color:var(--c-border-soft)}
+.create-row :deep(.el-input){min-width:0}.record-row{grid-template-columns:minmax(0,2fr) 120px 140px 160px 160px auto}.record-row>*{min-width:0}.record-row select{min-width:0}@media(max-width:1100px) and (min-width:681px){.record-row{grid-template-columns:repeat(2,minmax(0,1fr))}.record-row textarea{grid-column:1/-1}.record-row select,.record-row button{min-height:44px}.record-row button{grid-column:1/-1}.create-row{display:grid;grid-template-columns:minmax(0,1fr) auto}.create-row :deep(.el-input){width:auto}.create-row select{grid-column:1/-1;width:100%;min-height:44px}.create-row button{grid-column:2;min-height:44px}}
 </style>

@@ -512,6 +512,7 @@ export function setRenderHomeHook(fn: () => void) { renderHomeHook = fn }
 /* ---------- 轮询（前台 5s；切回/聚焦立即） ---------- */
 export const POLL_MS = 5000
 let pollTimer: number | undefined
+let pollInFlight: Promise<void> | null = null
 export function startPolling() {
   clearInterval(pollTimer)
   if (document.hidden) return
@@ -524,7 +525,8 @@ export function stopPolling() {
 export async function pollCheck() {
   if (!sync.cloud && !sync.s3 && !fileHandle) return
   if (sync.dirty) return
-  try {
+  if (pollInFlight) return pollInFlight
+  pollInFlight = (async () => { try {
     if (sync.mode === 'cloud' && sync.cloud) {
       const r = await cloudPullAll(pullCursor())
       if (r === null) {
@@ -563,7 +565,8 @@ export async function pollCheck() {
         if (r.data && Object.keys(r.data).length) { applySyncData(r.data); ElMessage.success('已同步其他设备的更新 🔄') }
       }
     }
-  } catch { /* 瞬时错误忽略 */ }
+  } catch { /* 瞬时错误忽略 */ } })()
+  try { await pollInFlight } finally { pollInFlight = null }
 }
 
 /* ---------- 立即同步（双向：先拉后推；两端都有改动弹窗选择） ---------- */

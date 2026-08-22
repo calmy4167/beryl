@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { dateKey, todayKey } from '@/core/storage'
@@ -11,6 +11,7 @@ import { listMatterTrajectoryInsights } from '@/domain/trajectory'
 import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
 import { completeReview } from '@/application/use-cases'
 import { withSaveState } from '@/core/save-state'
+import { usePageRefresh } from '@/core/page-refresh'
 
 type RangeDays = 7 | 30 | 90
 interface ReviewDay {
@@ -47,14 +48,27 @@ function dayStart(date: string): number {
   const [year, month, day] = date.split('-').map(Number)
   return new Date(year, month - 1, day).getTime()
 }
-function realityForDate(date: string, type: 'action' | 'record'): RealityDocument[] {
-  return listRealityDocuments({ types: [type], from: dayStart(date), to: dayStart(date) + 24 * 60 * 60 * 1000 - 1 })
-}
+const realityByDate = computed(() => {
+  void tick.value
+  const dates = dateRange(rangeDays.value)
+  const start = dayStart(dates[0])
+  const end = dayStart(dates[dates.length - 1]) + 24 * 60 * 60 * 1000 - 1
+  const grouped = new Map<string, { actions: RealityDocument[]; records: RealityDocument[] }>()
+  dates.forEach(date => grouped.set(date, { actions: [], records: [] }))
+  for (const item of listRealityDocuments({ types: ['action', 'record'], from: start, to: end })) {
+    const date = item.date?.slice(0, 10) || (item.occurredAt || item.updatedAt ? dateKey(new Date(item.occurredAt || item.updatedAt)) : '')
+    const bucket = grouped.get(date)
+    if (!bucket) continue
+    if (item.entityType === 'action') bucket.actions.push(item)
+    else if (item.entityType === 'record') bucket.records.push(item)
+  }
+  return grouped
+})
 const days = computed<ReviewDay[]>(() => {
   void tick.value
   const planMap = new Map(plans.value.map(item => [item.date, item]))
   const stateMap = new Map(states.value.map(item => [item.date, item]))
-  return dateRange(rangeDays.value).map(date => ({ date, plan: planMap.get(date), state: stateMap.get(date), actions: realityForDate(date, 'action'), records: realityForDate(date, 'record') }))
+  return dateRange(rangeDays.value).map(date => ({ date, plan: planMap.get(date), state: stateMap.get(date), actions: realityByDate.value.get(date)?.actions || [], records: realityByDate.value.get(date)?.records || [] }))
 })
 const selected = computed(() => days.value.find(item => item.date === selectedDate.value) || days.value[days.value.length - 1])
 const activeMatters = computed(() => { void tick.value; return matterItems.value.filter(item => item.status === 'active' || item.status === 'paused') })
@@ -99,9 +113,7 @@ async function saveTodayReview(): Promise<void> {
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : '今日复盘保存失败') }
   finally { reviewSaving.value = false }
 }
-function onDataSynced(): void { void refresh() }
-onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
+usePageRefresh(refresh)
 </script>
 
 <template>
@@ -124,4 +136,6 @@ onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </style>
 <style scoped>
 .review-start{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 2px;color:var(--c-text-2);font-size:12px}.review-start button{border:0;background:transparent;color:var(--scene);font-size:12px;font-weight:600;cursor:pointer}.today-review{padding:18px;margin-bottom:16px;border-color:var(--scene-border);background:color-mix(in srgb,var(--c-card) 88%,var(--scene-soft))}.today-review .panel-head{margin-bottom:4px}.today-review .panel-head h2{font-size:25px}.review-intro{margin:8px 0 0;font-size:12px;color:var(--c-text-2)}.review-dirty{color:var(--scene)!important;font-size:11px!important}.today-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.today-review-grid label{display:grid;gap:6px;margin-top:14px;font-size:12px;color:var(--c-text-2)}.today-review-grid textarea{width:100%;min-height:76px;resize:vertical;border:1px solid var(--c-border);border-radius:9px;background:var(--c-bg);color:var(--c-text);padding:10px;font:inherit;font-size:13px;line-height:1.6;box-sizing:border-box}.today-review-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--c-border-soft)}.today-review-footer small{font-size:11px;color:var(--c-text-3)}.today-review-footer button{border:1px solid var(--scene-border-strong);background:var(--scene);color:#fff;border-radius:8px;padding:9px 13px;font-size:12px;cursor:pointer}.today-review-footer button:disabled{opacity:.55;cursor:wait}@media(max-width:580px){.review-start{align-items:start;display:grid}.today-review-grid{grid-template-columns:1fr}.today-review-footer{align-items:stretch;display:grid}.today-review-footer button{min-height:44px}}
+.stats-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.stats-grid::before{content:'历史回看';flex-basis:100%;font:600 22px/1.1 var(--font-title);color:var(--c-text);margin:4px 0 2px}.stat-card{flex:1 1 160px;display:flex;align-items:baseline;gap:8px;padding:11px 13px;min-height:0}.stat-card small{font-size:11px;white-space:nowrap}.stat-card b{font-size:23px}.stat-card span{font-size:11px}
+@media(max-width:1050px){.review-layout{grid-template-columns:1fr}}
 </style>

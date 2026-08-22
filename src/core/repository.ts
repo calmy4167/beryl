@@ -6,7 +6,7 @@
  * 以后切换 IndexedDB 主存储时，调用方无需改变。
  */
 import { flushPendingDbWrites, getDbStatus, readKvSnapshot, type DbRuntimeStatus } from './db.ts'
-import { nextId, store } from './storage.ts'
+import { isStoreCacheReady, nextId, store } from './storage.ts'
 
 export type EntityId = string | number
 
@@ -136,6 +136,10 @@ export function createAsyncCollectionRepository<T>(
 ): AsyncCollectionRepository<T> {
   const fullKey = 'b_' + key
   const read = async (): Promise<T[]> => {
+    if (isStoreCacheReady()) {
+      const value = store.get<unknown>(key, [])
+      return Array.isArray(value) ? value as T[] : []
+    }
     await flushPendingDbWrites()
     const snapshot = await readKvSnapshot()
     const raw = snapshot === undefined ? null : snapshot[fullKey] ?? null

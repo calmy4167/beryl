@@ -52,6 +52,9 @@ export function resetStoreCache(): void {
   persistedCacheReady = false
 }
 
+/** 页面挂载后，所有同步读取都来自已恢复的内存快照。 */
+export function isStoreCacheReady(): boolean { return persistedCacheReady }
+
 export function safeParse<T>(v: string | null): T | undefined {
   if (v == null) return undefined;
   try { return JSON.parse(v) as T; } catch { return undefined; }

@@ -242,6 +242,21 @@ async function run() {
           } catch { /* Let native fetch report malformed URLs. */ }
           return nativeFetch(input, init);
         };
+        window.__auditLayout = selector => {
+          const container = document.querySelector(selector)
+          if (!container) return { ok: true, missing: true }
+          const boundary = container.getBoundingClientRect()
+          const controls = [...container.querySelectorAll('input,textarea,select,button')].filter(node => {
+            const rect = node.getBoundingClientRect(); const style = getComputedStyle(node)
+            return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+          })
+          const inside = controls.every(node => { const rect = node.getBoundingClientRect(); return rect.left >= boundary.left - 1 && rect.right <= boundary.right + 1 })
+          const overlap = controls.some((left, index) => controls.slice(index + 1).some(right => {
+            const a = left.getBoundingClientRect(); const b = right.getBoundingClientRect()
+            return Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
+          }))
+          return { ok: inside && !overlap && controls.every(node => node.getBoundingClientRect().width > 0), controls: controls.length, inside, overlap }
+        }
       })();`
     })
 
@@ -254,6 +269,28 @@ async function run() {
         ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') && !!document.querySelector('.today-page'),
         route: location.hash,
       };
+    })()`)
+    await evaluateStable(cdp, `(() => {
+      window.__auditLayout = selector => {
+        const container = document.querySelector(selector)
+        if (!container) return { ok: true, missing: true }
+        const containerRect = container.getBoundingClientRect()
+        const controls = [...container.querySelectorAll('input, textarea, select, button')].filter(node => {
+          const rect = node.getBoundingClientRect()
+          const style = getComputedStyle(node)
+          return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+        })
+        const inside = controls.every(node => {
+          const rect = node.getBoundingClientRect()
+          return rect.left >= containerRect.left - 1 && rect.right <= containerRect.right + 1
+        })
+        const overlap = controls.some((left, index) => controls.slice(index + 1).some(right => {
+          const a = left.getBoundingClientRect(); const b = right.getBoundingClientRect()
+          return Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
+        }))
+        return { ok: inside && !overlap && controls.every(node => node.getBoundingClientRect().width > 0), controls: controls.length, inside, overlap }
+      }
+      return true
     })()`)
 
     await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
@@ -494,7 +531,7 @@ async function run() {
 
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 820, height: 900, deviceScaleFactor: 1, mobile: true })
     const tabletLayout = await waitForCondition(cdp, 'tablet-layout', `(() => ({
-      ok: window.innerWidth === 820 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && document.documentElement.scrollWidth <= window.innerWidth + 1 && [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 }).every(node => node.getBoundingClientRect().height >= 44),
+      ok: window.innerWidth === 820 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && document.documentElement.scrollWidth <= window.innerWidth + 1 && [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 }).every(node => node.getBoundingClientRect().height >= 44) && ['.record-row', '.create-row', '.today-review'].map(selector => window.__auditLayout(selector)).every(result => result.ok),
       width: window.innerWidth,
       scrollWidth: document.documentElement.scrollWidth,
       undersizedControls: [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 && rect.height < 44 }).length
@@ -516,6 +553,18 @@ async function run() {
     const tabletMatters = await navigateHashWithRetry('tablet-matters-route', '#/app/matters', `(() => ({
       ok: location.hash.includes('/app/matters') && !!document.querySelector('.matters-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('课题'),
       active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
+    }))()`)
+
+    await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1024, height: 900, deviceScaleFactor: 1, mobile: false })
+    const mediumToday = await navigateHashWithRetry('medium-today-route', '#/app/today', `(() => ({
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && !!document.querySelector('.sidebar') && !document.querySelector('.bottom-nav') && getComputedStyle(document.querySelector('.right-rail')).display === 'none' && document.documentElement.scrollWidth <= window.innerWidth + 1 && ['.record-row', '.create-row'].map(selector => window.__auditLayout(selector)).every(result => result.ok),
+      width: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth
+    }))()`)
+    const mediumReview = await navigateHashWithRetry('medium-review-route', '#/app/review', `(() => ({
+      ok: location.hash.includes('/app/review') && !!document.querySelector('.review-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && window.__auditLayout('.today-review').ok,
+      width: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth
     }))()`)
 
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
@@ -564,6 +613,7 @@ async function run() {
       mobileDrawerClosed: mobileDrawerClosed.ok,
       mobileDrawerAccessibilityVisible: mobileDrawerAccessibilityVisible.ok,
       tabletLayoutVisible: tabletLayout.ok && tabletToday.ok && tabletMatters.ok && tabletCapture.ok && tabletReview.ok && tabletTodayRestored.ok,
+      mediumLayoutVisible: mediumToday.ok && mediumReview.ok,
       keyboardFocusVisible: keyboardFocus.ok,
       keyboardEnterVisible: keyboardEnter.ok,
       accessibilityTreeVisible: accessibilityTreeVisible.ok

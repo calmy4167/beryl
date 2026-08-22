@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
 import { captureText } from '@/application/use-cases'
 import { listRealityDocuments } from '@/domain/reality'
 import { withSaveState } from '@/core/save-state'
+import { usePageRefresh } from '@/core/page-refresh'
 
 const body = ref('')
 const tick = ref(0)
@@ -56,9 +57,7 @@ async function reject(suggestion: AiSuggestion): Promise<void> {
   catch (error) { ElMessage.error(error instanceof Error ? error.message : '拒绝 suggestion 失败') }
 }
 function typeName(type: AiSuggestion['candidates'][number]['entityType']): string { return ({ matter: 'Matter', action: 'Action', record: 'Record', resource: 'Resource', seed: 'Seed' })[type] }
-function onDataSynced(): void { void refresh() }
-onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
-onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
+usePageRefresh(refresh)
 </script>
 
 <template>
