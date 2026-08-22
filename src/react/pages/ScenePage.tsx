@@ -1,0 +1,6 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { SCENES, applySceneTheme, currentSceneId } from '@/core/scenes'
+import { store } from '@/core/storage'
+
+export function ScenePage() { const navigate = useNavigate(); const [selected, setSelected] = useState(currentSceneId()); function pick(id: string) { setSelected(id); store.set('scene', id) } function start() { applySceneTheme(selected); navigate('/app/today', { replace: true }) } return <div className="scene-page"><div className="scene-intro"><div className="login-logo">⬡</div><h1 className="font-title">选择使用场景</h1><p>不同场景拥有不同的使用氛围与主题色</p></div><div className="scene-grid" role="group" aria-label="使用场景">{Object.values(SCENES).map(scene => <button key={scene.id} className={`beryl-card scene-card ${selected === scene.id ? 'selected' : ''}`} aria-pressed={selected === scene.id} aria-label={`选择${scene.name}场景`} onClick={() => pick(scene.id)}><span className="scene-icon">{scene.icon}</span><b className="font-title">{scene.name}</b><p>{scene.desc}</p><small>{scene.mods.length} 个模块</small>{selected === scene.id && <em>✓ 当前选择</em>}</button>)}</div><button className="primary scene-start" onClick={start}>开始使用</button></div> }

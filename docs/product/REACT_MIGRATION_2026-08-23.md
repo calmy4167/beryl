@@ -23,8 +23,9 @@
 - React 入口 `src/react/main.tsx` 已接管应用启动和生产环境 Service Worker 注册；
 - React Router 已接管 Hash 路由、登录守卫、旧 `/app/home` 书签兼容和扩展模块入口；
 - React AppShell 已接管桌面侧栏、侧栏收起/展开、移动底部导航、更多入口抽屉、右侧上下文边、主题和保存状态；
-- Today、Capture、Matters、Review、Admin 已切换到 React，并继续复用原有领域仓储和应用用例；
-- 旧 Vue 入口和兼容桥仍保留在仓库中，供未迁移扩展页面回退，不再作为主入口渲染；
+- Today、Capture、Matters、Review、日历、人物、资料、图谱和场景已接入 React 路由，并继续复用原有领域仓储和应用用例；
+- Admin 的完整同步/Vault/实体迁移能力通过隔离兼容桥接回 React 工作台，避免迁移期间丢失高风险功能；
+- 旧 Vue 入口和兼容桥仍保留在仓库中，但不再作为整个应用的主入口渲染；
 - UI smoke、53 个 Vitest 文件/260 个测试、生产构建和 PWA 预缓存均通过。
 
 ## 当前阶段

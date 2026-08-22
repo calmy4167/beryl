@@ -20,6 +20,12 @@ import type { TodayPlan } from '@/domain/today/model'
 import type { RealityDocument } from '@/domain/reality/query'
 import { listRealityDocuments } from '@/domain/reality'
 import { bootstrapData } from './bootstrap'
+import { LibraryPage } from './pages/LibraryPage'
+import { ScenePage } from './pages/ScenePage'
+import { CalendarPage } from './pages/CalendarPage'
+import { PeoplePage } from './pages/PeoplePage'
+import { GraphPage } from './pages/GraphPage'
+import { LegacyAdminHost } from './LegacyAdminHost'
 
 const date = todayKey()
 const labels: Record<string, string> = { good: '很好', normal: '普通', tired: '疲惫', bad: '很差', planned: '待办', in_progress: '进行中', done: '完成', skipped: '跳过', cancelled: '取消' }
@@ -34,7 +40,7 @@ function App() {
   const [ready, setReady] = useState(false)
   useEffect(() => { void bootstrapData().finally(() => setReady(true)) }, [bootstrapData])
   if (!ready) return <div className="boot-screen"><div className="brand-mark">C</div><h1 className="font-title">正在恢复本机数据</h1><p>Calmy 即将准备好。</p></div>
-  return <HashRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/pass" element={<PassPage />} /><Route element={<ProtectedRoute />}><Route path="/app" element={<AppShell />}><Route index element={<Navigate to="today" replace />} /><Route path="home" element={<Navigate to="/app/today" replace />} /><Route path="today" element={<TodayPage />} /><Route path="capture" element={<CapturePage />} /><Route path="matters" element={<MattersPage />} /><Route path="matters/:id" element={<MatterDetailPage />} /><Route path="review" element={<ReviewPage />} /><Route path="admin" element={<AdminPage />} /><Route path="calendar" element={<PlaceholderPage title="日历视图" description="按时间回看行动与记录，正在接入统一现实证据查询。" />} /><Route path="people" element={<PlaceholderPage title="人物上下文" description="关系与共同背景正在迁移到 React 工作台。" />} /><Route path="library" element={<PlaceholderPage title="资料与记录" description="资料与现实记录的统一浏览正在迁移。" />} /><Route path="graph" element={<PlaceholderPage title="图谱" description="关系图谱保留为实验入口，正在迁移。" />} /><Route path="module/*" element={<PlaceholderPage title="模块入口" description="旧模块入口已经统一收敛到 React 工作台。" />} /><Route path="*" element={<PlaceholderPage />} /></Route><Route path="/scene" element={<PlaceholderPage title="场景" description="场景配置正在迁移到设置与同步。" />} /></Route><Route path="/" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} /><Route path="*" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} /></Routes></HashRouter>
+  return <HashRouter><Routes><Route path="/login" element={<LoginPage />} /><Route path="/pass" element={<PassPage />} /><Route element={<ProtectedRoute />}><Route path="/app" element={<AppShell />}><Route index element={<Navigate to="today" replace />} /><Route path="home" element={<Navigate to="/app/today" replace />} /><Route path="today" element={<TodayPage />} /><Route path="capture" element={<CapturePage />} /><Route path="matters" element={<MattersPage />} /><Route path="matters/:id" element={<MatterDetailPage />} /><Route path="review" element={<ReviewPage />} /><Route path="admin" element={<LegacyAdminHost />} /><Route path="calendar" element={<CalendarPage />} /><Route path="people" element={<PeoplePage />} /><Route path="library" element={<LibraryPage />} /><Route path="graph" element={<GraphPage />} /><Route path="module/*" element={<PlaceholderPage title="模块入口" description="旧模块入口已经统一收敛到 React 工作台。" />} /><Route path="*" element={<PlaceholderPage />} /></Route><Route path="/scene" element={<ScenePage />} /></Route><Route path="/" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} /><Route path="*" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} /></Routes></HashRouter>
 }
 
 function ProtectedRoute() { return readSession() ? <Outlet /> : <Navigate to="/login" replace /> }
@@ -94,4 +100,4 @@ function MatterDetailPage() { const { pathname } = useLocation(); const id = pat
 
 function PlaceholderPage({ title = '这个模块正在迁移', description = '核心 Today、Capture、课题、复盘与设置已经由 React 接管，其余入口保留在迁移队列中。' }: { title?: string; description?: string }) { return <div className="simple-page"><section className="beryl-card empty-state"><p className="eyebrow">REACT MIGRATION</p><h1 className="font-title">{title}</h1><p>{description}</p></section></div> }
 
-export { App }
+export { App, AdminPage }
