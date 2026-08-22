@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
 const appShell = source('src/views/AppShell.vue')
+const router = source('src/router/index.ts')
 const admin = source('src/views/AdminView.vue')
 const scene = source('src/views/SceneView.vue')
 
@@ -13,6 +14,12 @@ describe('静态无障碍语义', () => {
     expect(appShell).toContain(':aria-current="active === \'today\' ? \'page\' : undefined"')
     expect(appShell).toContain('aria-label="打开更多入口"')
     expect(appShell).toContain('<nav class="drawer-links" aria-label="更多入口">')
+    expect(appShell).toContain('<header v-if="!isMobile" class="desktop-topbar" aria-label="当前工作上下文">')
+    expect(appShell).toContain('<aside v-if="!isMobile" class="right-rail" aria-label="上下文快捷动作">')
+    expect(appShell).toContain('<nav v-if="!isMobile" class="command-bar" aria-label="快捷命令">')
+    expect(appShell).toContain('role="status" aria-live="polite"')
+    expect(appShell).toContain("SAVE_STATE_EVENT")
+    expect(appShell).toContain('保存冲突，需要确认')
     expect(appShell).toContain('<span class="brand-mark" aria-hidden="true">C</span>')
     expect(appShell).toContain('Today')
     expect(appShell).toContain('Capture')
@@ -27,6 +34,13 @@ describe('静态无障碍语义', () => {
     expect(admin).toContain(':aria-pressed="scene === s.id"')
     expect(admin).toContain('role="region" aria-label="同步诊断结果"')
     expect(admin).toContain(':aria-label="`冲突 ${conflict.calmyId} 的处理方式`"')
+  })
+
+  it('将旧 Case、Task、inbox 路径限制为兼容重定向', () => {
+    expect(router).toContain("{ path: 'cases', name: 'cases', redirect: '/app/matters' }")
+    expect(router).toContain("{ path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' }")
+    expect(router).toContain("{ path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' }")
+    expect(router).not.toContain("component: () => import('@/views/CasesView.vue')")
   })
 
   it('为 SceneView 的场景组、选择状态和装饰内容提供语义', () => {

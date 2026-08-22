@@ -412,33 +412,40 @@ source: calmy
 - Today 已新增 `todayAsyncRepository`：在保持现有同步 API 兼容的同时，提供基于 IndexedDB durable snapshot 的异步 list/get/update/import/replaceImported/ready 迁移接口，并有专门回归测试。
 - Action、Case、Unified 已分别新增异步 Repository 迁移入口，均保持原同步 API，并覆盖 durable snapshot、写入、导入/替换和 revision 边界测试；当前异步入口已覆盖 Today/Action/Case/Unified 四个领域。
 - Capture、Record、Matter 已分别新增异步 Repository 迁移入口，均保持原同步 API，并覆盖 durable snapshot、写入、导入/替换和 revision/状态边界测试；当前异步入口已覆盖七个领域。
-- Capture 的 `acceptSuggestion` 已支持异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排仍保留同步兼容边界，部分历史查询仍通过兼容 Repository。
+- Capture 的 `acceptSuggestion` 已支持异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排已切换到异步 Unified facade，旧同步 API 仍保留兼容边界。
+- Calendar、People 的主要读取、人物主写入、Relationship/Shared Space 写入和共享上下文查询已切换到 async facade。Matter 的共享 Matter/Action/Record 写入、revision/command 日志、Matter mutation 与 Record revision 历史回放也已切换到异步边界。
+- 新增 `save-state.ts` 统一广播 `saving / saved / pending / conflict / failed`，Today、Capture、Matter、People 的核心异步写入已接入；AppShell 顶部状态不再被普通同步事件覆盖，Today revision conflict 也统一带错误码。
+- 新增 Case→Matter、Task→Action、inbox→Capture 的增量迁移：旧集合不删除、不更新，新实体写入稳定映射并可重复执行；旧 Cases、Tasks、inbox 路由改为兼容重定向，Reality 查询隐藏已迁移旧记录，源数据保留以支持回滚。
+- 新增安全回滚入口 `rollbackLegacyMigration()`：仅删除 revision=1 且时间戳仍与源记录一致的迁移产物；用户已修改的 Matter/Action/Capture 会保留，映射也保留以避免旧数据重新形成双事实源。
 - Social 已新增异步 Repository 入口，支持帖子、点赞、评论树和删除的 durable 写入；Action/Unified 异步 facade 的 mutation/command 日志已迁移到 durable async repositories，并保留同步 API 兼容。
 - Capture suggestion 已支持默认 30 天的显式过期与批量过期，过期只改变 suggestion 历史状态，不写入实体、不改变原始 Capture。
 - 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
-- 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；当前运行首屏 649.5ms、DOMContentLoaded 391.5ms、load 400.2ms、Today→Today 17.5ms、Today→Capture 151.2ms，允许外部请求数为 0。
-- 新增 AppShell/Admin/Scene 静态无障碍回归测试，4/4 通过；完整移动端与屏幕阅读器人工审计仍未完成。
+- 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；本轮运行首屏 690.5ms、DOMContentLoaded 402.9ms、load 409.5ms、Today→Today 18.4ms、Today→Capture 165.2ms，允许外部请求数为 0。
+- 桌面 AppShell 已形成四边工作台：左侧主导航、顶部上下文/保存状态、右侧快捷动作、底部快捷命令；窄桌面自动收起右栏，移动端保留底部主导航。
+- 新增 AppShell/Admin/Scene/旧入口静态无障碍回归测试，5/5 通过；完整移动端与屏幕阅读器人工审计仍未完成。
 - 键级云端同步已接入删除 tombstone：本地删除写入 changes，推送 `deleted:true`，远端拉取删除本地快照且不再次生成本地 changes。
-- `npm test -- --run`：46 个测试文件、233 个测试通过。
+- `npm test -- --run`：48 个测试文件、241 个测试通过。
 - `npx vue-tsc --noEmit`：通过。
 - `npm run test:node`：15/15 通过。
 - `npm run test:e2e`：22/22 通过，新增键级 tombstone 的 push、pull 和旧值不复活回归。
 - `npm run test:idb`：浏览器运行时通过，覆盖 v2→v3 升级、`pending_writes` 重放、KV 写入、删除和 tombstone changes、未 await 写入后立即 backup/migration 的 durable flush，以及真实浏览器中的 async Repository durable snapshot。
 - `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Home/Today 路由、刷新恢复本地数据和外部网络阻断。
 - `node test/performance-runtime.mjs`：浏览器性能基线通过，首屏、导航、路由切换均低于阈值，外部网络允许请求数为 0。
-- `accessibility-static.test.ts`：4/4 通过，覆盖导航当前项、抽屉语义、状态区域和场景语义标签。
+- `accessibility-static.test.ts`：5/5 通过，覆盖导航当前项、抽屉语义、状态区域、场景语义标签和旧入口重定向。
+- `legacy-migration.test.ts`：1/1 通过，覆盖旧 Case/Task/inbox 增量复制、稳定映射、关联 Matter、源集合不变和修改后安全回滚。
 - `capture-async-repository.test.ts`、`record-async-repository.test.ts`、`matter-async-repository.test.ts`：17/17 通过，覆盖 Capture/Record/Matter 的 durable snapshot、写入、建议过期、Stage 关联、导入替换、revision/状态冲突和 degraded fallback。
 - `social-async-repository.test.ts`：5/5 通过，覆盖 Social durable snapshot、帖子、点赞、评论和删除边界；Action/Unified 异步日志回归已纳入对应异步 Repository 测试。
-- `action-async-repository.test.ts`、`case-async-repository.test.ts`、`unified-async-repository.test.ts`：9/9 通过，覆盖三个领域异步 Repository 的 durable snapshot、写入、导入/替换和 revision 冲突边界。
+- `action-async-repository.test.ts`、`case-async-repository.test.ts`、`unified-async-repository.test.ts`：异步 Repository 回归通过，覆盖三个领域的 durable snapshot、写入、导入/替换和 revision 冲突边界；Unified 当前为 7/7。
+- `collaboration.test.ts`：4/4 通过，覆盖同步兼容协作、异步共享 Gateway、成员权限、blocked 隔离、审计和 Matter/Record 历史回放。
 - `obsidian-rest-adapter.test.ts`：3/3 通过，覆盖递归目录、鉴权、URL 编码、二进制读取、路径穿越拒绝和显式写入开关。
-- `npm run build`：通过，生成 72 个 PWA precache URLs。
-- `npm run test:pwa`：通过，72 个本地文件可用。
+- `npm run build`：通过，生成 67 个 PWA precache URLs。
+- `npm run test:pwa`：通过，67 个本地文件可用。
 - `git diff --check`：通过；仅有既存 CRLF 提示。
 
 ### 下一阶段未完成项
 
-1. 制定并执行 Case→Matter、Task→Action、inbox→Capture 的旧模型只读、数据迁移和回滚方案，停止双事实源新增写入。
-2. 将 Matter 详情中的 Cycle/Stage/Outcome/Practice 高级过程编排、Calendar/People 等二级页面继续迁移到异步应用用例；当前核心四页的主要读取与写入已切换，兼容查询仍存在。
-3. 扩展核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工读屏审计；当前已有独立 smoke harness、性能基线和静态无障碍检查。
+1. 对 Case→Matter、Task→Action、inbox→Capture 迁移补充真实样本、导出再导入演练；当前增量复制、稳定映射、旧集合保留、旧路由重定向和受保护回滚已完成。
+2. 完成 Matter 高级过程与 Calendar/People 主路径的异步迁移收口；当前共享协作 Gateway、历史回放和核心保存状态协议已完成，旧同步 API 仍保留兼容层。
+3. 扩展核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工读屏审计；当前已有独立 smoke harness、性能基线、统一保存状态协议和静态无障碍检查。
 4. 在可用环境补齐真实 Companion Bridge 端到端冲突与跨设备手工回归；当前真实 Vault 的 Local REST 只读访问已验证，但仍没有本项目 Bridge 插件实机证据。
 5. AI provider/offline model、知识网络、共享空间和高级理论视图在核心闭环试点通过前暂缓。

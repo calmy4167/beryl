@@ -12,6 +12,7 @@ import { migrateData } from './core/migrate'
 import { purgeCorruptedEncryptedKeys } from './core/sync'
 import { setModuleRealityReader } from './core/modules'
 import { listRealityDocuments, type RealityEntityType } from './domain/reality'
+import { ensureLegacyMigration } from './domain/legacy/migration'
 
 setModuleRealityReader(type => listRealityDocuments({ types: [type as RealityEntityType] }))
 
@@ -36,6 +37,8 @@ async function bootstrap() {
   migrateData()
   // 清除本地密文残留（历史同步 bug 写入的密文字符串，幂等安全）
   purgeCorruptedEncryptedKeys()
+  // 旧 Case/Task/inbox 只做增量复制，原集合保持不变以支持回滚；新入口从此不再写旧模型。
+  await ensureLegacyMigration()
   app.mount('#app')
 }
 

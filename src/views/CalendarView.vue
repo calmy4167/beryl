@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { dateKey, todayKey } from '@/core/storage'
-import { matterRepository } from '@/domain/matter/repository'
-import { unifiedRepository, type Cycle, type DailyState } from '@/domain/unified'
-import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
+import { actionAsyncRepository } from '@/domain/action/repository'
+import type { ActionItem } from '@/domain/action/model'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import type { Matter } from '@/domain/matter/model'
+import { recordAsyncRepository } from '@/domain/record/repository'
+import type { RealityRecord } from '@/domain/record/model'
+import { unifiedAsyncRepository, type Cycle, type DailyState } from '@/domain/unified'
 
 interface CalendarCell {
   date: string
@@ -13,12 +18,13 @@ interface CalendarCell {
 }
 interface DayEvidence {
   state?: DailyState
-  actions: RealityDocument[]
-  records: RealityDocument[]
+  actions: ActionItem[]
+  records: RealityRecord[]
 }
 
 const route = useRoute(); const router = useRouter()
 const cursor = ref(new Date()); const selectedDate = ref(typeof route.query.date === 'string' ? route.query.date : todayKey()); const tick = ref(0)
+const loading = ref(true); const actionItems = ref<ActionItem[]>([]); const recordItems = ref<RealityRecord[]>([]); const dailyStates = ref<DailyState[]>([]); const matterItems = ref<Matter[]>([]); const cycleItems = ref<Cycle[]>([])
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 const trajectoryNames = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '退行', recovering: '恢复', diverging: '偏离' } as const
 
@@ -35,25 +41,28 @@ function dayStart(date: string): number {
   return new Date(year, month - 1, day).getTime()
 }
 function evidenceForDate(date: string): DayEvidence {
-  const documents = listRealityDocuments({ types: ['action', 'record'], from: dayStart(date), to: dayStart(date) + 24 * 60 * 60 * 1000 - 1 })
+  const start = dayStart(date); const end = start + 24 * 60 * 60 * 1000
   return {
-    state: unifiedRepository.list<DailyState>('daily_state').find(item => item.date === date),
-    actions: documents.filter(item => item.entityType === 'action'),
-    records: documents.filter(item => item.entityType === 'record')
+    state: dailyStates.value.find(item => item.date === date),
+    actions: actionItems.value.filter(item => dayStart(item.date.slice(0, 10)) >= start && dayStart(item.date.slice(0, 10)) < end),
+    records: recordItems.value.filter(item => item.occurredAt >= start && item.occurredAt < end)
   }
 }
-function monthEvidence(date: Date): RealityDocument[] {
+function monthEvidence(date: Date): Array<{ matterId?: string }> {
   const from = new Date(date.getFullYear(), date.getMonth(), 1).getTime()
   const to = new Date(date.getFullYear(), date.getMonth() + 1, 1).getTime() - 1
-  return listRealityDocuments({ types: ['action', 'record'], from, to })
+  return [
+    ...actionItems.value.filter(item => { const at = dayStart(item.date.slice(0, 10)); return at >= from && at <= to }),
+    ...recordItems.value.filter(item => item.occurredAt >= from && item.occurredAt <= to)
+  ]
 }
 const monthCellsValue = computed(() => { void tick.value; return monthCells(cursor.value) })
 const monthLabel = computed(() => cursor.value.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' }))
 const selectedEvidence = computed(() => evidenceForDate(selectedDate.value))
 const monthPrefix = computed(() => `${cursor.value.getFullYear()}-${String(cursor.value.getMonth() + 1).padStart(2, '0')}`)
 const monthEvidenceValue = computed(() => { void tick.value; return monthEvidence(cursor.value) })
-const matters = computed(() => { void tick.value; return matterRepository.list().filter(item => item.status !== 'archived') })
-const cycles = computed(() => { void tick.value; return unifiedRepository.list<Cycle>('cycle').filter(item => matters.value.some(matter => matter.calmyId === item.matterId)) })
+const matters = computed(() => { void tick.value; return matterItems.value.filter(item => item.status !== 'archived') })
+const cycles = computed(() => { void tick.value; return cycleItems.value.filter(item => matters.value.some(matter => matter.calmyId === item.matterId)) })
 const growthRows = computed(() => matters.value.map(matter => {
   const matterCycles = cycles.value.filter(cycle => cycle.matterId === matter.calmyId)
   const evidence = monthEvidenceValue.value.filter(item => item.matterId === matter.calmyId)
@@ -63,6 +72,20 @@ function selectDate(date: string): void { selectedDate.value = date; router.repl
 function shiftMonth(amount: number): void { cursor.value = dateFromParts(cursor.value.getFullYear(), cursor.value.getMonth() + amount, 1); tick.value++ }
 function goToday(): void { cursor.value = new Date(); selectDate(todayKey()) }
 function hasEvidence(date: string): DayEvidence { return evidenceForDate(date) }
+async function refresh(): Promise<void> {
+  loading.value = true
+  try {
+    const [actions, records, states, mattersValue, cyclesValue] = await Promise.all([
+      actionAsyncRepository.list(), recordAsyncRepository.list(), unifiedAsyncRepository.list<DailyState>('daily_state'),
+      matterAsyncRepository.list(), unifiedAsyncRepository.list<Cycle>('cycle')
+    ])
+    actionItems.value = actions; recordItems.value = records; dailyStates.value = states; matterItems.value = mattersValue; cycleItems.value = cyclesValue; tick.value++
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '日历数据读取失败') }
+  finally { loading.value = false }
+}
+function onDataSynced(): void { void refresh() }
+onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 
 <template>

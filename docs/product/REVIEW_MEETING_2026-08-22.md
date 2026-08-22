@@ -115,8 +115,8 @@ P0 意见：
 
 ## 7. 实施跟进（2026-08-22）
 
-本轮已完成产品壳收敛：默认入口改为 Today，主导航固定为 Today、Capture、Matters、Review，Home、Cases、inbox、Graph、场景和旧工具箱不再占用默认路径；Calmy 品牌已进入主界面，旧路由与 `b_*` / `beryl-*` 存储键保留兼容。
+本轮已完成产品壳收敛：默认入口改为 Today，主导航固定为 Today、Capture、Matters、Review，Home、Cases、inbox、Graph、场景和旧工具箱不再占用默认路径；Calmy 品牌已进入主界面，旧路由与 `b_*` / `beryl-*` 存储键保留兼容。桌面 AppShell 进一步形成四边工作台：左侧导航、顶部上下文、右侧快捷动作、底部命令条，窄桌面和移动端自动降级。
 
-核心页面已完成第一轮异步持久化迁移：Today、Capture、Review、Matters 列表和 Matter 主路径使用异步 Repository 读取与主要写入，Action 状态命令和 Capture suggestion 接受也已补齐异步入口。Matter 高级过程编排、部分二级页面和历史查询仍明确标为兼容边界，不视为全域纯异步完成。
+核心页面已完成第一轮异步持久化迁移：Today、Capture、Review、Matters 列表和 Matter 主路径使用异步 Repository 读取与主要写入，Action 状态命令和 Capture suggestion 接受也已补齐异步入口。Calendar、People 的主要读取、人物主写入以及 Matter 高级过程的主要创建/状态/绑定命令也已接入 async facade；共享协作、历史查询和部分兼容写入仍明确标为边界，不视为全域纯异步完成。
 
-验证结果已更新为：46 个 Vitest 文件 / 233 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；当前 PWA precache 为 72 个本地文件。剩余停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。
+验证结果已更新为：48 个 Vitest 文件 / 241 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；当前 PWA precache 为 67 个本地文件。剩余停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。

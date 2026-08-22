@@ -122,6 +122,20 @@ describe('unifiedAsyncRepository', () => {
     expect(JSON.parse(durable.values.get('b_coreEntityMutations') || '[]')).toHaveLength(2)
   })
 
+  it('runs async Cycle/Stage/Outcome/Practice commands with revision checks', async () => {
+    const matterId = 'matter-for-async-process'
+    const cycle = await unifiedAsyncRepository.createCycleForMatter({ matterId, title: '异步周期', theme: '验证', currentStage: 'wood', status: 'planned', trajectory: 'stable', stageIds: [] })
+    const stage = await unifiedAsyncRepository.createStageForCycle({ cycleId: cycle.calmyId, title: '异步阶段', element: 'wood', status: 'planned', actionIds: [], recordIds: [], order: 1 })
+    const actionId = 'action-for-async-outcome'
+    const outcome = await unifiedAsyncRepository.createOutcomeForAction({ actionId, matterId, summary: '已验证', result: '可以重复', status: 'observed', evidenceRecordIds: [] })
+    const practice = await unifiedAsyncRepository.createPracticeFromOutcome({ title: '重复做法', description: '保持最小验证', status: 'candidate', matterIds: [matterId], outcomeIds: [outcome.calmyId], evidenceIds: [] })
+
+    await expect(unifiedAsyncRepository.transitionCycle(cycle.calmyId, 'active', { expectedRevision: cycle.revision + 1 })).resolves.toMatchObject({ status: 'active', revision: 3 })
+    await expect(unifiedAsyncRepository.transitionStage(stage.calmyId, 'active', { expectedRevision: stage.revision })).resolves.toMatchObject({ status: 'active', revision: 2 })
+    await expect(unifiedAsyncRepository.update('practice', practice.calmyId, { status: 'active' }, { expectedRevision: practice.revision })).resolves.toMatchObject({ status: 'active', revision: 2 })
+    await expect(unifiedAsyncRepository.update('practice', practice.calmyId, { status: 'candidate' }, { expectedRevision: 1 })).rejects.toThrow('is at revision 2')
+  })
+
   it('rejects missing entities and stale revisions without writing async logs', async () => {
     await expect(unifiedAsyncRepository.update('person', 'missing-person', { displayName: '不存在' }))
       .rejects.toThrow('person missing-person not found')

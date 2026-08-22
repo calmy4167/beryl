@@ -18,7 +18,7 @@
 | 单一 Capture | Capture 与旧 inbox 并存 | 不对齐 | 导航只保留 Capture |
 | 关系系统不进 MVP | People、共享写入、四种关系场景已可见 | 范围超前 | 默认降级或实验开关 |
 | 五行默认隐藏 | 十神分类和场景模块在导航直接出现 | 不对齐 | 只在高级解释层显示 |
-| IndexedDB 为权威 | 异步 Repository 已逐步建立 | 核心页面已接入 | Today、Capture、Review、Matters/Matter 主路径已使用异步读取与主要写入；二级/高级路径仍有兼容边界 |
+| IndexedDB 为权威 | 异步 Repository 已逐步建立 | 核心页面与共享协作主路径已接入 | Today、Capture、Review、Matters/Matter、Calendar、People 及共享 Matter/Action/Record 主路径已使用异步读取与主要写入；旧同步 API 仍作为兼容层存在 |
 | AI 不自动改事实 | 协议强调建议、确认、可撤销 | 原则对齐 | 用 UI 集成测试验证，不只看协议 |
 | 开放格式可携带 | 有导入导出、Vault Adapter 和测试 | 较好 | 以真实样本往返和失败恢复验收 |
 | 实时桥接非 MVP | 存在 Bridge 协议与相关实现切片 | 易误解 | 文案明确“实验/未联调”，不宣称真实 Bridge 可用 |
@@ -28,10 +28,10 @@
 
 ### 3.1 核心页面已迁移，边界仍需显式化
 
-Today、Capture、Review、Matters 列表和 Matter 主路径已经接入 async Repository；Action 状态命令和 Capture suggestion 的跨领域接受也已补齐异步入口。仍需关注的边界包括：
+Today、Capture、Review、Matters 列表和 Matter 主路径已经接入 async Repository；Action 状态命令、Capture suggestion 的跨领域接受、共享协作 Gateway 和历史回放也已补齐异步入口。仍需关注的边界包括：
 
-- Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排仍保留统一模型兼容路径；
-- Calendar、People、Case 兼容页面及部分历史查询仍保留同步兼容查询；
+- Matter 的 Cycle/Stage/Outcome/Practice 主要创建、状态流转和绑定写入已接入 async facade；共享 Matter/Action/Record 写入、revision/command 日志和 Matter/Record 历史回放已接入 async facade；
+- Calendar、People 的主要读取、人物主写入和 Relationship/Shared Space 写入已迁移；共享上下文查询也已提供异步入口；
 - 旧同步 API 仍作为迁移层存在，因此不能宣称全域已经纯异步；
 - 测试覆盖核心页面写入仍需继续扩展到导出再导入、离线失败恢复和真实设备。
 
@@ -84,14 +84,14 @@ IndexedDB authoritative store
 
 1. 冻结新模块、新实体和新导航入口；已完成核心 AppShell 收敛，继续保持旧入口兼容但不默认展示。
 2. 完成 Case→Matter、Task→Action、inbox→Capture 的迁移、只读化和回滚策略，禁止旧模型新增写入。
-3. 将 Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排，以及 Calendar/People 二级页面迁移到异步应用用例。
-4. 建立统一保存结果：本地已保存、同步等待、冲突和失败，并覆盖核心页面的失败恢复。
+3. 收口共享协作 Gateway、历史回放与部分兼容查询的异步边界；本轮已完成核心共享路径。
+4. 建立统一保存结果：本地已保存、同步等待、冲突和失败，并覆盖核心页面的失败恢复；本轮已完成首个 UI 切片。
 5. 建立真实浏览器端闭环测试：刷新、离线、冲突、失败恢复、导出再导入；随后进行移动端、键盘和读屏人工验收。
 6. 完成品牌与存储键兼容读取的长期迁移策略，最后再删除旧入口或旧兼容实现。
 
 ## 7. 测试事实的正确表述
 
-截至本轮结束，已有自动化结果记录为 46 个 Vitest 文件、233 个测试通过，Node 验证 15/15、E2E 22/22，并有浏览器 IndexedDB、UI、性能和 PWA 验证记录。这些结果证明已覆盖的代码路径没有检测到回归；它们不证明：
+截至本轮结束，已有自动化结果记录为 48 个 Vitest 文件、241 个测试通过，Node 验证 15/15、E2E 22/22，并有浏览器 IndexedDB、UI、性能和 PWA 验证记录。这些结果证明已覆盖的代码路径没有检测到回归；它们不证明：
 
 - 所有页面已经使用纯异步 Application Use Case 和 IndexedDB 权威写入；
 - Companion Bridge 已与真实外部服务联调；
@@ -105,5 +105,5 @@ IndexedDB authoritative store
 - 核心四页导航和命名统一；
 - Today → Record → Review 真实浏览器闭环稳定；
 - 二级页面与 Matter 高级过程编排完成异步持久化迁移；
-- 旧模型只读化和迁移策略明确；
+- 旧模型迁移已经过真实样本之外的所有生产级往返和显式回滚演练；
 - 本地保存、同步等待、冲突和失败恢复在 UI 中可区分。

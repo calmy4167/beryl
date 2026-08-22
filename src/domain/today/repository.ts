@@ -84,7 +84,7 @@ export const todayAsyncRepository = {
     let next: TodayPlan | undefined
     await asyncPlans.update(date, current => {
       if (expectedRevision !== undefined && expectedRevision !== current.revision) {
-        throw new Error(`Today ${date} revision conflict`)
+        throw Object.assign(new Error(`Today ${date} revision conflict`), { code: 'REVISION_CONFLICT' as const })
       }
       next = {
         ...current,

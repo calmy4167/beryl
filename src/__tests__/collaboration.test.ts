@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
-import { matterRepository } from '@/domain/matter/repository'
-import { createCollaborativeRelationship, createCollaborativeSharedSpace, createSharedAction, createSharedRecord, listSharedAudit, reviseSharedRecord, sharedWriteAccess, SharedPermissionError, transitionSharedAction, updateCollaborativeRelationship, updateCollaborativeSharedSpace, updateSharedMatter } from '@/domain/social/collaboration'
-import { listSharedContextForRelationship } from '@/domain/social/shared-context'
+import { matterAsyncRepository, matterRepository } from '@/domain/matter/repository'
+import { recordAsyncRepository } from '@/domain/record/repository'
+import { createCollaborativeRelationship, createCollaborativeRelationshipAsync, createCollaborativeSharedSpace, createSharedAction, createSharedActionAsync, createSharedRecord, createSharedRecordAsync, listSharedAudit, listSharedAuditAsync, reviseSharedRecord, sharedWriteAccess, SharedPermissionError, transitionSharedAction, transitionSharedActionAsync, updateCollaborativeRelationship, updateCollaborativeSharedSpace, updateSharedMatter, updateSharedMatterAsync } from '@/domain/social/collaboration'
+import { listSharedContextForRelationship, listSharedContextForRelationshipAsync } from '@/domain/social/shared-context'
 
 describe('Shared collaboration writes and audit', () => {
   it('allows a relationship owner to update its boundary and records the actor in history', () => {
@@ -66,5 +67,37 @@ describe('Shared collaboration writes and audit', () => {
     expect(() => updateSharedMatter('relationship', blocked.calmyId, blockedMatter.calmyId, { why: '不应写入' }, blockedMatter.revision, ownerId)).toThrow(SharedPermissionError)
     expect(() => createSharedRecord('relationship', blocked.calmyId, { body: '不应写入', matterId: blockedMatter.calmyId }, ownerId)).toThrow(SharedPermissionError)
     expect(actionRepository.find(action.calmyId)?.status).toBe('in_progress')
+  })
+
+  it('keeps async shared writes, audit and history on the durable boundary', async () => {
+    const ownerId = 'async-shared-owner-' + Date.now()
+    const matter = await matterAsyncRepository.create({ title: '异步共享 Matter' })
+    const relationship = await createCollaborativeRelationshipAsync({
+      personAId: ownerId, personBId: ownerId + '-partner', label: '异步共同处理', status: 'active',
+      sharedSpaceIds: [], matterIds: [matter.calmyId], evidenceIds: []
+    }, ownerId)
+
+    const updatedMatter = await updateSharedMatterAsync('relationship', relationship.calmyId, matter.calmyId, { why: '异步共同更新' }, matter.revision, ownerId)
+    const action = await createSharedActionAsync('relationship', relationship.calmyId, { title: '异步行动', date: '2026-08-22' }, matter.calmyId, ownerId)
+    await transitionSharedActionAsync('relationship', relationship.calmyId, action.calmyId, 'in_progress', matter.calmyId, action.revision, ownerId)
+    const record = await createSharedRecordAsync('relationship', relationship.calmyId, { body: '异步事实', matterId: matter.calmyId }, ownerId)
+    const revised = await recordAsyncRepository.revise(record.calmyId, '异步事实修订', '补充证据', 'user', record.revision, ownerId)
+
+    expect(updatedMatter.why).toBe('异步共同更新')
+    await expect(matterAsyncRepository.mutations(matter.calmyId)).resolves.toHaveLength(2)
+    await expect(recordAsyncRepository.history(record.calmyId)).resolves.toHaveLength(2)
+    await expect(listSharedAuditAsync('relationship', relationship.calmyId, matter.calmyId)).resolves.toHaveLength(4)
+    await expect(listSharedContextForRelationshipAsync(relationship.calmyId)).resolves.toEqual([
+      expect.objectContaining({
+        matterId: matter.calmyId,
+        actions: [expect.objectContaining({ calmyId: action.calmyId, status: 'in_progress' })],
+        records: [expect.objectContaining({ calmyId: record.calmyId, body: revised.body })],
+        history: expect.arrayContaining([
+          expect.objectContaining({ scope: 'matter' }),
+          expect.objectContaining({ scope: 'record' }),
+          expect.objectContaining({ scope: 'action' })
+        ])
+      })
+    ])
   })
 })

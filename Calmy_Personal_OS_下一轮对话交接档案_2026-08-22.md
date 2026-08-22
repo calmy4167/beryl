@@ -41,13 +41,18 @@
 - Today 已新增 `todayAsyncRepository`：保持现有同步 API 兼容，同时提供基于 IndexedDB durable snapshot 的异步迁移接口，并有专门回归测试。
 - Action、Case、Unified 已分别新增异步 Repository 迁移入口；四个领域均保持同步 API，并有 durable snapshot、写入、导入/替换和 revision 边界测试。
 - Capture、Record、Matter 已分别新增异步 Repository 迁移入口；当前七个领域均保持同步 API，并有 durable snapshot、写入、导入/替换和 revision/状态边界测试。
-- Capture 的 `acceptSuggestion` 已切换为异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排和部分历史查询仍保留兼容层边界。
+- Capture 的 `acceptSuggestion` 已切换为异步跨领域创建；Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排已切换到 async facade，旧同步 API 仍保留兼容层。
+- Calendar、People 的主要读取、人物主写入、Relationship/Shared Space 写入和共享上下文查询已切换到 async facade；共享 Matter/Action/Record Gateway、Matter mutation、Record revision 和历史回放也已切换到异步边界。
+- 新增 `save-state.ts` 保存状态协议，Today、Capture、Matter、People 核心异步写入已接入 AppShell 的保存状态展示；新增 4 个协议回归测试。
+- Case→Matter、Task→Action、inbox→Capture 已新增增量迁移：旧集合不删除、不更新，新实体使用稳定映射；旧 Cases、Tasks、inbox 路由改为兼容重定向，Reality 查询隐藏已迁移旧记录。
+- 新增 `rollbackLegacyMigration()` 安全回滚入口：只删除未被用户修改的迁移产物；已修改对象保留并继续由映射隐藏旧记录，源集合始终不变。
 - Social 已新增异步 Repository 入口，覆盖帖子、点赞、评论树和删除；Action/Unified 异步 facade 的 mutation/command 日志已迁移到 durable async repositories。
 - Capture suggestion 已支持默认 30 天的显式过期与批量过期，过期只改变 suggestion 历史状态，不写入实体、不改变原始 Capture。
 - 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
 - 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，当前基线通过且外部网络允许请求数为 0。
+- 桌面 AppShell 已形成四边工作台：左侧主导航、顶部上下文/保存状态、右侧快捷动作、底部快捷命令；窄桌面自动收起右栏，移动端保留底部主导航。
 - 键级云端同步已接入删除 tombstone：本地删除写入 changes，推送 `deleted:true`，远端拉取删除本地快照且不再次生成本地 changes。
-- 主要页面导航、表单和状态控件的一轮静态无障碍修复，并新增 4/4 静态回归测试。
+- 主要页面导航、表单和状态控件的一轮静态无障碍修复，并新增 5/5 静态回归测试。
 
 ## 3. 本轮文档对齐内容
 
@@ -70,17 +75,18 @@
 
 ## 4. 当前验证结果
 
-- `npm test -- --run`：46 个测试文件、233 个测试通过。
+- `npm test -- --run`：48 个测试文件、241 个测试通过。
 - `npx vue-tsc --noEmit`：通过。
 - `npm run test:node`：15/15 通过。
 - `npm run test:e2e`：22/22 通过，覆盖键级 tombstone 的 push、pull 和旧值不复活。
 - `npm run test:idb`：Chrome 浏览器运行时通过，覆盖 v2→v3 升级、`pending_writes` 重放、KV 写入、删除和 tombstone changes、未 await 写入后立即 backup/migration 的 durable flush，以及真实浏览器中的 async Repository durable snapshot。
 - `node test/ui-runtime.mjs`：UI browser smoke 通过，覆盖 App 挂载、Today 默认路由、真实行动写入、刷新恢复本地数据和外部网络阻断。
 - `node test/performance-runtime.mjs`：浏览器性能基线通过，首屏、导航、路由切换均低于阈值，外部网络允许请求数为 0。
-- `accessibility-static.test.ts`：4/4 通过，覆盖导航当前项、抽屉语义、状态区域和场景语义标签。
+- `accessibility-static.test.ts`：5/5 通过，覆盖导航当前项、抽屉语义、状态区域、场景语义标签和旧入口重定向。
+- `legacy-migration.test.ts`：1/1 通过，覆盖旧 Case/Task/inbox 增量复制、稳定映射、关联 Matter、源集合不变和修改后安全回滚。
 - `obsidian-rest-adapter.test.ts`：3/3 通过，覆盖递归目录、鉴权、URL 编码、二进制读取、路径穿越拒绝和显式写入开关。
-- `npm run build`：通过，72 个 PWA precache URLs。
-- `npm run test:pwa`：通过，72 个本地文件可用。
+- `npm run build`：通过，67 个 PWA precache URLs。
+- `npm run test:pwa`：通过，67 个本地文件可用。
 - `git diff --check`：通过；仅有既存 CRLF 提示。
 
 代码变更可能与用户已有工作区改动混合，下一轮开始必须先执行 `git status --short`，不得使用破坏性回滚操作。
@@ -89,8 +95,8 @@
 
 按优先级排序：
 
-1. 事实源收敛：制定 Case→Matter、Task→Action、inbox→Capture 的迁移、只读兼容和回滚方案，停止向旧模型新增写入。
-2. 存储边界深化：继续迁移 Matter 的 Cycle/Stage/Outcome/Practice 高级过程编排，以及 Calendar、People 等二级页面；当前核心四页的主要读取与写入已切换，兼容查询仍存在。
+1. 事实源收敛：对 Case→Matter、Task→Action、inbox→Capture 迁移补充真实样本和导出再导入演练；当前增量复制、稳定映射、源集合保留、旧路由重定向和受保护回滚已完成。
+2. 存储边界深化：收口共享协作 Gateway、历史回放和部分兼容查询；Calendar、People 与 Matter 高级过程主路径已完成第一轮异步迁移。
 3. 发布质量：完成核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工屏幕阅读器审计；性能基线、独立 UI smoke 和静态无障碍检查已完成。
 4. Obsidian / Bridge：Local REST 只读入口已经验证，但未发现本项目 Companion Bridge/MessagePort 插件；真实 Bridge 联调继续标为实验和阻塞，不进入当前核心路径。
 5. 理解层深化：真实 AI provider/offline model、知识网络和共享空间在小规模试点证明核心闭环前暂缓。
@@ -99,11 +105,11 @@
 
 按 `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md` 执行，不再以 Bridge 或新领域能力作为首要任务：
 
-1. 先完成 Case→Matter、Task→Action、inbox→Capture 的迁移与旧写入停止方案，并保留可回滚兼容入口。
+1. 对旧模型迁移补充真实样本和导出再导入演练，继续保持旧集合只读兼容。
 2. 继续定义并落地 CaptureText、OpenToday、AddActionToToday、RecordActionResult、CompleteReview 五个异步应用用例的统一结果。
-3. 迁移 Matter 高级过程编排与 Calendar/People 二级页面，在 UI 区分本地已保存、同步等待、冲突和失败。
-4. 建立核心闭环浏览器测试与数据往返测试，再进行移动端、键盘和读屏人工验收。
-5. 完成后运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建。
+3. 继续扩展核心闭环浏览器测试、数据往返和失败恢复覆盖；统一保存状态协议首个 UI 切片已完成。
+4. 进行移动端、键盘和屏幕阅读器人工验收。
+5. 继续运行类型检查、全量测试、Node/E2E/PWA 测试和生产构建。
 
 ## 7. 下一轮开场提示词
 

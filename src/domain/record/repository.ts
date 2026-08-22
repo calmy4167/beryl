@@ -276,5 +276,10 @@ export const recordAsyncRepository = {
     await appendRevisionAsync(next, reason.trim() || 'revised', actor, now, actorId)
     return next
   },
+  async revisions(calmyId: string): Promise<RecordRevision[]> {
+    return (await asyncRevisions.list()).filter(item => item.recordId === calmyId).sort((a, b) => a.revision - b.revision)
+  },
+  async history(calmyId: string): Promise<RecordRevision[]> { return this.revisions(calmyId) },
+  async replay(calmyId: string): Promise<RecordRevision[]> { return this.revisions(calmyId) },
   ready: recordAsyncReady
 }

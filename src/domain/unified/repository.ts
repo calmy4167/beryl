@@ -302,6 +302,42 @@ export const unifiedAsyncRepository = {
     await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
     return await saveCommandAsync(command.commandId, next) as T
   },
+  async transitionCycle(calmyId: string, status: CycleStatus, meta: CoreCommandMeta = {}): Promise<Cycle> {
+    const current = await this.find<Cycle>('cycle', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `cycle ${calmyId} not found`)
+    if (!canTransitionCycle(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
+    return this.update<Cycle>('cycle', calmyId, { status }, meta)
+  },
+  async transitionStage(calmyId: string, status: StageStatus, meta: CoreCommandMeta = {}): Promise<Stage> {
+    const current = await this.find<Stage>('stage', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `stage ${calmyId} not found`)
+    if (!canTransitionStage(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
+    return this.update<Stage>('stage', calmyId, { status }, meta)
+  },
+  async createCycleForMatter(input: Omit<Cycle, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Promise<Cycle> {
+    return this.create(unifiedFactories.cycle(input), meta)
+  },
+  async createStageForCycle(input: Omit<Stage, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Promise<Stage> {
+    const cycle = await this.find<Cycle>('cycle', input.cycleId)
+    if (!cycle) throw new CoreDomainError('NOT_FOUND', `cycle ${input.cycleId} not found`)
+    const stage = await this.create(unifiedFactories.stage(input), meta)
+    if (!cycle.stageIds.includes(stage.calmyId)) {
+      await this.update<Cycle>('cycle', cycle.calmyId, { stageIds: [...cycle.stageIds, stage.calmyId] }, { expectedRevision: cycle.revision })
+    }
+    return stage
+  },
+  async createOutcomeForAction(input: Omit<Outcome, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Promise<Outcome> {
+    return this.create(unifiedFactories.outcome({ ...input, actionId: requireText(input.actionId, 'Outcome actionId'), summary: requireText(input.summary, 'Outcome summary') }), meta)
+  },
+  async createPracticeFromOutcome(input: Omit<Practice, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Promise<Practice> {
+    const title = requireText(input.title, 'Practice title')
+    const description = requireText(input.description, 'Practice description')
+    if (!input.outcomeIds.length) throw new CoreDomainError('VALIDATION_FAILED', 'Practice must reference at least one Outcome')
+    for (const outcomeId of input.outcomeIds) {
+      if (!await this.find<Outcome>('outcome', outcomeId)) throw new CoreDomainError('NOT_FOUND', `outcome ${outcomeId} not found`)
+    }
+    return this.create(unifiedFactories.practice({ ...input, title, description }), meta)
+  },
   async importEntity<T extends RepositoryItem>(entity: T): Promise<'created' | 'unchanged'> {
     assertEntity(entity)
     const store = asyncStoreFor(entity.entityType)

@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
 import { listRealityDocuments } from '@/domain/reality'
+import { withSaveState } from '@/core/save-state'
 
 const body = ref('')
 const tick = ref(0)
@@ -34,8 +35,15 @@ async function capture(): Promise<void> {
   if (!body.value.trim()) { ElMessage.warning('先写下一段原文'); return }
   saving.value = true
   try {
-    const item = await captureAsyncRepository.create(body.value)
-    await captureAsyncRepository.suggest(item.calmyId)
+    const item = await withSaveState(() => captureAsyncRepository.create(body.value))
+    try {
+      await withSaveState(() => captureAsyncRepository.suggest(item.calmyId))
+    } catch (error) {
+      ElMessage.warning(error instanceof Error ? `原文已保存，但 suggestion 生成失败：${error.message}` : '原文已保存，但 suggestion 生成失败')
+      body.value = ''
+      await refresh()
+      return
+    }
     body.value = ''; await refresh(); ElMessage.success('已保存原文，并生成一条本地 suggestion')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Capture 保存失败') }
   finally { saving.value = false }
@@ -44,11 +52,11 @@ async function accept(suggestion: AiSuggestion): Promise<void> {
   const candidate = suggestion.candidates[0]
   const draft = draftFor(suggestion)
   const overrides = Object.fromEntries(Object.entries(draft).filter(([key, value]) => value !== candidate.fields[key]))
-  try { const result = await captureAsyncRepository.acceptSuggestion(suggestion.calmyId, 0, overrides); await refresh(); ElMessage.success(`已接受 suggestion，写入 ${result.suggestion.acceptedEntityType}`) }
+  try { const result = await withSaveState(() => captureAsyncRepository.acceptSuggestion(suggestion.calmyId, 0, overrides)); await refresh(); ElMessage.success(`已接受 suggestion，写入 ${result.suggestion.acceptedEntityType}`) }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : '接受 suggestion 失败') }
 }
 async function reject(suggestion: AiSuggestion): Promise<void> {
-  try { await captureAsyncRepository.rejectSuggestion(suggestion.calmyId); await refresh(); ElMessage.info('已拒绝 suggestion，原文仍保留') }
+  try { await withSaveState(() => captureAsyncRepository.rejectSuggestion(suggestion.calmyId)); await refresh(); ElMessage.info('已拒绝 suggestion，原文仍保留') }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : '拒绝 suggestion 失败') }
 }
 function typeName(type: AiSuggestion['candidates'][number]['entityType']): string { return ({ matter: 'Matter', action: 'Action', record: 'Record', resource: 'Resource', seed: 'Seed' })[type] }

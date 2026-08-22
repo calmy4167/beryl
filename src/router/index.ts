@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { ensureAuth, readSession } from '@/core/auth'
+import { legacyTargetFor } from '@/domain/legacy/migration'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -23,8 +24,10 @@ const router = createRouter({
         { path: 'people', name: 'people', component: () => import('@/views/PeopleView.vue') },
         { path: 'library', name: 'library', component: () => import('@/views/LibraryView.vue') },
         { path: 'graph', name: 'graph', component: () => import('@/views/GraphView.vue') },
-        { path: 'cases', name: 'cases', component: () => import('@/views/CasesView.vue') },
-        { path: 'cases/:id', name: 'case', component: () => import('@/views/CaseView.vue') },
+        { path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' },
+        { path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' },
+        { path: 'cases', name: 'cases', redirect: '/app/matters' },
+        { path: 'cases/:id', name: 'case', redirect: to => { const target = legacyTargetFor('case', String(to.params.id)); return target ? `/app/matters/${target}` : '/app/matters' } },
         { path: 'matters', name: 'matters', component: () => import('@/views/MattersView.vue') },
         { path: 'matters/:id', name: 'matter', component: () => import('@/views/MatterView.vue') },
         { path: 'module/:id', name: 'module', component: () => import('@/views/ModuleView.vue') },

@@ -12,6 +12,7 @@ import { evaluateConstraints } from '@/domain/constraints'
 import { unifiedFactories, unifiedAsyncRepository, type DailyState } from '@/domain/unified'
 import type { NegativeRecordImpact } from '@/domain/record/model'
 import { listRealityDocuments } from '@/domain/reality'
+import { withSaveState } from '@/core/save-state'
 
 const router = useRouter(); const date = todayKey(); const tick = ref(0); const loading = ref(true); const saving = ref(false)
 function emptyPlan(): TodayPlan { return { date, load: null, focusActionIds: [], why: '', mustProtect: [], letGo: [], review: { observation: '', analysis: '', adjustment: '', seed: '' }, revision: 1, updatedAt: Date.now() } }
@@ -56,39 +57,45 @@ async function refresh(): Promise<void> {
 }
 async function savePlan(patch: TodayPatch): Promise<void> {
   saving.value = true
-  try { plan.value = await todayAsyncRepository.update(date, patch, plan.value.revision); tick.value++ }
-  catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Today 保存失败') }
+  try { plan.value = await withSaveState(() => todayAsyncRepository.update(date, patch, plan.value.revision)); tick.value++ }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Today 保存失败'); throw error }
   finally { saving.value = false }
 }
 function loadScore(load: TodayLoad | null): number { return load === 'bad' ? 90 : load === 'tired' ? 65 : load === 'good' ? 20 : 40 }
 async function saveDailyState(patch: Partial<Pick<DailyState, 'bodyState' | 'mentalState' | 'load' | 'protectedItems' | 'trajectory'>>): Promise<void> {
   try {
     const current = (await unifiedAsyncRepository.list<DailyState>('daily_state')).find(item => item.date === date)
-    dailyState.value = current
-      ? await unifiedAsyncRepository.update<DailyState>('daily_state', current.calmyId, patch, { expectedRevision: current.revision })
-      : await unifiedAsyncRepository.create(unifiedFactories.dailyState({ ...dailyState.value, ...patch }))
+    dailyState.value = await withSaveState(() => current
+      ? unifiedAsyncRepository.update<DailyState>('daily_state', current.calmyId, patch, { expectedRevision: current.revision })
+      : unifiedAsyncRepository.create(unifiedFactories.dailyState({ ...dailyState.value, ...patch })))
     bodyState.value = dailyState.value.bodyState; mentalState.value = dailyState.value.mentalState; tick.value++
-  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '今日容量保存失败') }
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '今日容量保存失败'); throw error }
 }
-async function setLoad(load: TodayLoad): Promise<void> { await savePlan({ load }); await saveDailyState({ bodyState: load, load: loadScore(load) }) }
-async function setBodyState(value: DailyState['bodyState']): Promise<void> { bodyState.value = value; await saveDailyState({ bodyState: value, load: loadScore(value) }); await savePlan({ load: value }) }
-async function setMentalState(value: DailyState['mentalState']): Promise<void> { mentalState.value = value; await saveDailyState({ mentalState: value }) }
-async function saveOpening(): Promise<void> { await savePlan({ why: why.value.trim(), mustProtect: lines(mustProtect.value), letGo: lines(letGo.value) }); ElMessage.success('今日方向已保存') }
+async function setLoad(load: TodayLoad): Promise<void> { try { await savePlan({ load }); await saveDailyState({ bodyState: load, load: loadScore(load) }) } catch { /* 保存状态与错误提示已由下层处理 */ } }
+async function setBodyState(value: DailyState['bodyState']): Promise<void> { try { bodyState.value = value; await saveDailyState({ bodyState: value, load: loadScore(value) }); await savePlan({ load: value }) } catch { /* 保存状态与错误提示已由下层处理 */ } }
+async function setMentalState(value: DailyState['mentalState']): Promise<void> { try { mentalState.value = value; await saveDailyState({ mentalState: value }) } catch { /* 保存状态与错误提示已由下层处理 */ } }
+async function saveOpening(): Promise<void> { try { await savePlan({ why: why.value.trim(), mustProtect: lines(mustProtect.value), letGo: lines(letGo.value) }); ElMessage.success('今日方向已保存') } catch { /* savePlan 已显示错误并广播状态 */ } }
 function lines(value: string): string[] { return value.split('\n').map(item => item.trim()).filter(Boolean) }
 async function addAction(): Promise<void> {
   if (!actionTitle.value.trim()) { ElMessage.warning('先写下一个行动'); return }
-  const action = await actionAsyncRepository.create({ title: actionTitle.value, date, matterId: selectedMatterId.value || undefined })
-  const focus = plan.value.focusActionIds.length < 3 ? [...plan.value.focusActionIds, action.calmyId] : plan.value.focusActionIds
-  await savePlan({ focusActionIds: focus }); await refresh(); actionTitle.value = ''; selectedMatterId.value = ''; ElMessage.success(focus.includes(action.calmyId) ? '已加入今日核心行动' : '已加入候选行动')
+  try {
+    const result = await withSaveState(async () => {
+      const action = await actionAsyncRepository.create({ title: actionTitle.value, date, matterId: selectedMatterId.value || undefined })
+      const focus = plan.value.focusActionIds.length < 3 ? [...plan.value.focusActionIds, action.calmyId] : plan.value.focusActionIds
+      plan.value = await todayAsyncRepository.update(date, { focusActionIds: focus }, plan.value.revision)
+      return { action, focus }
+    })
+    await refresh(); actionTitle.value = ''; selectedMatterId.value = ''; ElMessage.success(result.focus.includes(result.action.calmyId) ? '已加入今日核心行动' : '已加入候选行动')
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '添加行动失败') }
 }
-function toggleFocus(id: string) {
+async function toggleFocus(id: string): Promise<void> {
   const focus = plan.value.focusActionIds.includes(id) ? plan.value.focusActionIds.filter(item => item !== id) : plan.value.focusActionIds.length < 3 ? [...plan.value.focusActionIds, id] : plan.value.focusActionIds
-  savePlan({ focusActionIds: focus })
+  try { await savePlan({ focusActionIds: focus }) } catch { /* savePlan 已显示错误并广播状态 */ }
 }
-async function complete(actionId: string): Promise<void> { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; if (item.status === 'done') await actionAsyncRepository.reopen(actionId, item.revision); else await actionAsyncRepository.complete(actionId, undefined, item.revision); await refresh() }
-async function skip(actionId: string): Promise<void> { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; if (item.status === 'skipped') await actionAsyncRepository.reopen(actionId, item.revision); else await actionAsyncRepository.skip(actionId, undefined, item.revision); await refresh() }
-async function addRecord(): Promise<void> { if (!recordBody.value.trim()) { ElMessage.warning('先写下今天实际发生了什么'); return }; await recordAsyncRepository.create({ body: recordBody.value, type: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, matterId: recordMatterId.value || undefined }); recordBody.value = ''; recordMatterId.value = ''; ElMessage.success(recordType.value === 'negative' ? '已记录负向变化' : '已记录现实'); await refresh() }
-async function saveReview(): Promise<void> { await savePlan({ review: { observation: observation.value.trim(), analysis: analysis.value.trim(), adjustment: adjustment.value.trim(), seed: seed.value.trim() } }); ElMessage.success('复盘已保存') }
+async function complete(actionId: string): Promise<void> { try { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; await withSaveState(() => item.status === 'done' ? actionAsyncRepository.reopen(actionId, item.revision) : actionAsyncRepository.complete(actionId, undefined, item.revision)); await refresh() } catch (error) { ElMessage.error(error instanceof Error ? error.message : '行动更新失败') } }
+async function skip(actionId: string): Promise<void> { try { const item = actionItems.value.find(action => action.calmyId === actionId); if (!item) return; await withSaveState(() => item.status === 'skipped' ? actionAsyncRepository.reopen(actionId, item.revision) : actionAsyncRepository.skip(actionId, undefined, item.revision)); await refresh() } catch (error) { ElMessage.error(error instanceof Error ? error.message : '行动更新失败') } }
+async function addRecord(): Promise<void> { if (!recordBody.value.trim()) { ElMessage.warning('先写下今天实际发生了什么'); return }; try { await withSaveState(() => recordAsyncRepository.create({ body: recordBody.value, type: recordType.value, impact: recordType.value === 'negative' ? negativeImpact.value : undefined, matterId: recordMatterId.value || undefined })); recordBody.value = ''; recordMatterId.value = ''; ElMessage.success(recordType.value === 'negative' ? '已记录负向变化' : '已记录现实'); await refresh() } catch (error) { ElMessage.error(error instanceof Error ? error.message : '记录失败') } }
+async function saveReview(): Promise<void> { try { await savePlan({ review: { observation: observation.value.trim(), analysis: analysis.value.trim(), adjustment: adjustment.value.trim(), seed: seed.value.trim() } }); ElMessage.success('复盘已保存') } catch { /* savePlan 已显示错误并广播状态 */ } }
 function onDataSynced(): void { void refresh() }
 onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
 onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))

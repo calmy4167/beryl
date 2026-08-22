@@ -1,74 +1,97 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { unifiedFactories, unifiedRepository, type Person, type Relationship, type SharedSpace } from '@/domain/unified'
-import { matterRepository } from '@/domain/matter/repository'
-import { listRealityDocuments } from '@/domain/reality'
-import { listSharedContextForRelationship, listSharedContextForSpace, type SharedContextOwner, type SharedMatterAccess } from '@/domain/social/shared-context'
-import { createCollaborativeRelationship, createCollaborativeSharedSpace, currentCollaboratorId, updateCollaborativeRelationship, updateCollaborativeSharedSpace } from '@/domain/social/collaboration'
+import { unifiedAsyncRepository, unifiedFactories, type Person, type Relationship, type SharedSpace } from '@/domain/unified'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import type { Matter } from '@/domain/matter/model'
+import { listSharedContextForRelationshipAsync, listSharedContextForSpaceAsync, type SharedContextOwner, type SharedMatterAccess, type SharedMatterContext } from '@/domain/social/shared-context'
+import { createCollaborativeRelationshipAsync, createCollaborativeSharedSpaceAsync, currentCollaboratorId, updateCollaborativeRelationshipAsync, updateCollaborativeSharedSpaceAsync } from '@/domain/social/collaboration'
+import { withSaveState } from '@/core/save-state'
 
 const tick = ref(0)
 const name = ref(''); const role = ref(''); const notes = ref(''); const query = ref('')
 const relationshipPersonA = ref(''); const relationshipPersonB = ref(''); const relationshipLabel = ref('')
 const relationshipBoundary = ref(''); const relationshipRhythm = ref(''); const relationshipBlockedMatterIds = ref<string[]>([])
 const spaceTitle = ref(''); const spacePurpose = ref(''); const spaceBoundary = ref(''); const spaceMemberIds = ref<string[]>([]); const spaceBlockedMatterIds = ref<string[]>([])
-const matters = computed(() => { void tick.value; return matterRepository.list().filter(item => item.status !== 'archived') })
+const matterItems = ref<Matter[]>([]); const peopleItems = ref<Person[]>([]); const relationshipItems = ref<Relationship[]>([]); const spaceItems = ref<SharedSpace[]>([]); const loading = ref(true)
+const sharedContexts = ref<Record<string, SharedMatterContext[]>>({})
+const matters = computed(() => { void tick.value; return matterItems.value.filter(item => item.status !== 'archived') })
 const people = computed(() => {
   void tick.value
   const q = query.value.trim().toLowerCase()
-  const ids = new Set(listRealityDocuments({ types: ['person'] }).map(item => item.id))
-  return unifiedRepository.list<Person>('person').filter(item => ids.has(item.calmyId) && item.status === 'active' && (!q || `${item.displayName} ${item.roles.join(' ')} ${item.notes || ''}`.toLowerCase().includes(q)))
+  return peopleItems.value.filter(item => item.status === 'active' && (!q || `${item.displayName} ${item.roles.join(' ')} ${item.notes || ''}`.toLowerCase().includes(q)))
 })
-const relationships = computed(() => { void tick.value; const ids = new Set(listRealityDocuments({ types: ['relationship'] }).map(item => item.id)); return unifiedRepository.list<Relationship>('relationship').filter(item => ids.has(item.calmyId)) })
-const spaces = computed(() => { void tick.value; const ids = new Set(listRealityDocuments({ types: ['shared_space'] }).map(item => item.id)); return unifiedRepository.list<SharedSpace>('shared_space').filter(item => ids.has(item.calmyId)) })
-interface SharedContextCard { key: string; owner: SharedContextOwner; title: string; contexts: ReturnType<typeof listSharedContextForRelationship> }
+const relationships = computed(() => { void tick.value; return relationshipItems.value })
+const spaces = computed(() => { void tick.value; return spaceItems.value })
+interface SharedContextCard { key: string; owner: SharedContextOwner; title: string; contexts: SharedMatterContext[] }
 const sharedContextCards = computed<SharedContextCard[]>(() => {
   void tick.value
   return [
-    ...relationships.value.map(item => ({ key: `relationship:${item.calmyId}`, owner: 'relationship' as const, title: item.label, contexts: listSharedContextForRelationship(item.calmyId) })),
-    ...spaces.value.map(item => ({ key: `shared_space:${item.calmyId}`, owner: 'shared_space' as const, title: item.title, contexts: listSharedContextForSpace(item.calmyId) }))
+    ...relationships.value.map(item => ({ key: `relationship:${item.calmyId}`, owner: 'relationship' as const, title: item.label, contexts: sharedContexts.value[`relationship:${item.calmyId}`] || [] })),
+    ...spaces.value.map(item => ({ key: `shared_space:${item.calmyId}`, owner: 'shared_space' as const, title: item.title, contexts: sharedContexts.value[`shared_space:${item.calmyId}`] || [] }))
   ]
 })
 const sharedAccessLabels: Record<SharedMatterAccess, string> = { shared: '共同 Matter', allowed: '边界允许', blocked: '已阻止' }
-function addPerson() {
+async function refresh(): Promise<void> {
+  loading.value = true
+  try {
+    const [mattersValue, peopleValue, relationshipsValue, spacesValue] = await Promise.all([
+      matterAsyncRepository.list(), unifiedAsyncRepository.list<Person>('person'), unifiedAsyncRepository.list<Relationship>('relationship'), unifiedAsyncRepository.list<SharedSpace>('shared_space')
+    ])
+    const contextEntries = await Promise.all([
+      ...relationshipsValue.map(async item => [`relationship:${item.calmyId}`, await listSharedContextForRelationshipAsync(item.calmyId)] as const),
+      ...spacesValue.map(async item => [`shared_space:${item.calmyId}`, await listSharedContextForSpaceAsync(item.calmyId)] as const)
+    ])
+    matterItems.value = mattersValue; peopleItems.value = peopleValue; relationshipItems.value = relationshipsValue; spaceItems.value = spacesValue; sharedContexts.value = Object.fromEntries(contextEntries); tick.value++
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '人物上下文读取失败') }
+  finally { loading.value = false }
+}
+async function addPerson() {
   if (!name.value.trim()) { ElMessage.warning('先写下这个人的名字'); return }
-  unifiedRepository.create(unifiedFactories.person({ displayName: name.value, roles: role.value ? [role.value.trim()] : [], notes: notes.value.trim() || undefined }))
-  name.value = ''; role.value = ''; notes.value = ''; tick.value++; ElMessage.success('人物已加入上下文')
+  try {
+    await withSaveState(() => unifiedAsyncRepository.create(unifiedFactories.person({ displayName: name.value, roles: role.value ? [role.value.trim()] : [], notes: notes.value.trim() || undefined })))
+    name.value = ''; role.value = ''; notes.value = ''; await refresh(); ElMessage.success('人物已加入上下文')
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '人物创建失败') }
 }
-function archivePerson(person: Person) {
-  unifiedRepository.update<Person>('person', person.calmyId, { status: 'archived', archivedAt: Date.now() }, { expectedRevision: person.revision })
-  tick.value++; ElMessage.success('人物已归档，历史仍会保留')
+async function archivePerson(person: Person) {
+  try {
+    await withSaveState(() => unifiedAsyncRepository.update<Person>('person', person.calmyId, { status: 'archived', archivedAt: Date.now() }, { expectedRevision: person.revision }))
+    await refresh(); ElMessage.success('人物已归档，历史仍会保留')
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '人物归档失败') }
 }
-function addRelationship() {
+async function addRelationship() {
   if (!relationshipPersonA.value || !relationshipPersonB.value || relationshipPersonA.value === relationshipPersonB.value || !relationshipLabel.value.trim()) { ElMessage.warning('请选择两个不同的人，并写下关系名称'); return }
   try {
-    createCollaborativeRelationship({ personAId: relationshipPersonA.value, personBId: relationshipPersonB.value, label: relationshipLabel.value.trim(), status: 'active', boundary: relationshipBoundary.value.trim() || undefined, rhythm: relationshipRhythm.value.trim() || undefined, blockedMatterIds: [...relationshipBlockedMatterIds.value], sharedSpaceIds: [], matterIds: [], evidenceIds: [] }, currentCollaboratorId())
-    relationshipPersonA.value = ''; relationshipPersonB.value = ''; relationshipLabel.value = ''; relationshipBoundary.value = ''; relationshipRhythm.value = ''; relationshipBlockedMatterIds.value = []; tick.value++; ElMessage.success('Relationship 已建立')
+    await withSaveState(() => createCollaborativeRelationshipAsync({ personAId: relationshipPersonA.value, personBId: relationshipPersonB.value, label: relationshipLabel.value.trim(), status: 'active', boundary: relationshipBoundary.value.trim() || undefined, rhythm: relationshipRhythm.value.trim() || undefined, blockedMatterIds: [...relationshipBlockedMatterIds.value], sharedSpaceIds: [], matterIds: [], evidenceIds: [] }, currentCollaboratorId()))
+    relationshipPersonA.value = ''; relationshipPersonB.value = ''; relationshipLabel.value = ''; relationshipBoundary.value = ''; relationshipRhythm.value = ''; relationshipBlockedMatterIds.value = []; await refresh(); ElMessage.success('Relationship 已建立')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Relationship 创建失败') }
 }
-function addSpace() {
+async function addSpace() {
   if (!spaceTitle.value.trim() || !spaceMemberIds.value.length) { ElMessage.warning('共同空间至少需要一个成员'); return }
   try {
-    createCollaborativeSharedSpace({ title: spaceTitle.value.trim(), status: 'active', purpose: spacePurpose.value.trim() || undefined, boundary: spaceBoundary.value.trim() || undefined, blockedMatterIds: [...spaceBlockedMatterIds.value], memberIds: spaceMemberIds.value, relationshipIds: [], matterIds: [] }, currentCollaboratorId())
-    spaceTitle.value = ''; spacePurpose.value = ''; spaceBoundary.value = ''; spaceMemberIds.value = []; spaceBlockedMatterIds.value = []; tick.value++; ElMessage.success('Shared Space 已建立')
+    await withSaveState(() => createCollaborativeSharedSpaceAsync({ title: spaceTitle.value.trim(), status: 'active', purpose: spacePurpose.value.trim() || undefined, boundary: spaceBoundary.value.trim() || undefined, blockedMatterIds: [...spaceBlockedMatterIds.value], memberIds: spaceMemberIds.value, relationshipIds: [], matterIds: [] }, currentCollaboratorId()))
+    spaceTitle.value = ''; spacePurpose.value = ''; spaceBoundary.value = ''; spaceMemberIds.value = []; spaceBlockedMatterIds.value = []; await refresh(); ElMessage.success('Shared Space 已建立')
   } catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Shared Space 创建失败') }
 }
-function updateRelationship(item: Relationship, patch: Partial<Relationship>): void {
-  try { updateCollaborativeRelationship(item.calmyId, patch, item.revision, currentCollaboratorId()); tick.value++; ElMessage.success('Relationship 已更新') }
+async function updateRelationship(item: Relationship, patch: Partial<Relationship>): Promise<void> {
+  try { await withSaveState(() => updateCollaborativeRelationshipAsync(item.calmyId, patch, item.revision, currentCollaboratorId())); await refresh(); ElMessage.success('Relationship 已更新') }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Relationship 更新失败') }
 }
-function updateSpace(item: SharedSpace, patch: Partial<SharedSpace>): void {
-  try { updateCollaborativeSharedSpace(item.calmyId, patch, item.revision, currentCollaboratorId()); tick.value++; ElMessage.success('Shared Space 已更新') }
+async function updateSpace(item: SharedSpace, patch: Partial<SharedSpace>): Promise<void> {
+  try { await withSaveState(() => updateCollaborativeSharedSpaceAsync(item.calmyId, patch, item.revision, currentCollaboratorId())); await refresh(); ElMessage.success('Shared Space 已更新') }
   catch (error) { ElMessage.error(error instanceof Error ? error.message : 'Shared Space 更新失败') }
 }
 function inputValue(event: Event): string { return (event.target as HTMLInputElement).value.trim() }
 function selectedValues(event: Event): string[] { return Array.from((event.target as HTMLSelectElement).selectedOptions).map(option => option.value) }
 function relationshipStatus(event: Event): Relationship['status'] { const value = inputValue(event); return value === 'paused' || value === 'ended' ? value : 'active' }
 function sharedSpaceStatus(event: Event): SharedSpace['status'] { return inputValue(event) === 'archived' ? 'archived' : 'active' }
+function onDataSynced(): void { void refresh() }
+onMounted(() => { void refresh(); window.addEventListener('beryl-data-synced', onDataSynced) })
+onUnmounted(() => window.removeEventListener('beryl-data-synced', onDataSynced))
 </script>
 
 <template>
-  <div class="people-page"><header class="page-head"><div><p class="eyebrow">PEOPLE · CONTEXT</p><h1 class="font-title">人不是通讯录</h1><p>Person 是现实、关系和 Matter 的上下文。</p></div><span class="count-pill">{{ people.length }} 位活跃人物</span></header>
+  <div class="people-page"><header class="page-head"><div><p class="eyebrow">PEOPLE · CONTEXT</p><h1 class="font-title">人不是通讯录</h1><p>Person 是现实、关系和 Matter 的上下文。</p></div><span class="count-pill">{{ loading ? '读取中' : people.length + ' 位活跃人物' }}</span></header>
     <section class="create-panel beryl-card"><div class="panel-head"><div><p class="eyebrow">CAPTURE PERSON</p><h2 class="font-title">加入一个现实中的人</h2></div><span>之后可以连接 Relationship / Shared Space / Matter</span></div><div class="create-grid"><el-input v-model="name" aria-label="人物姓名或称呼" placeholder="姓名或称呼" @keyup.enter="addPerson" /><el-input v-model="role" aria-label="人物关系角色" placeholder="关系角色，例如：伙伴、客户" /><el-input v-model="notes" aria-label="人物上下文" placeholder="先写一句上下文（可选）" @keyup.enter="addPerson" /><button @click="addPerson">加入 People</button></div></section>
     <div class="secondary-grid"><section class="sub-panel"><div class="list-head"><div><p class="eyebrow">RELATIONSHIP</p><h2 class="font-title">关系</h2></div><span>{{ relationships.length }}</span></div><div class="sub-form"><select v-model="relationshipPersonA"><option value="">选择人物</option><option v-for="person in people" :key="'a-' + person.calmyId" :value="person.calmyId">{{ person.displayName }}</option></select><select v-model="relationshipPersonB"><option value="">选择另一个人</option><option v-for="person in people" :key="'b-' + person.calmyId" :value="person.calmyId">{{ person.displayName }}</option></select><el-input v-model="relationshipLabel" placeholder="关系名称，例如：伴侣、合作方" /><el-input v-model="relationshipBoundary" placeholder="边界说明（可选）" /><el-input v-model="relationshipRhythm" placeholder="节律说明，例如：每周一次（可选）" /><select v-model="relationshipBlockedMatterIds" multiple><option v-for="matter in matters" :key="matter.calmyId" :value="matter.calmyId">限制 Matter：{{ matter.title }}</option></select><button @click="addRelationship">建立关系</button></div><article v-for="item in relationships" :key="item.calmyId" class="relation-row"><b>{{ people.find(person => person.calmyId === item.personAId)?.displayName || item.personAId }} ↔ {{ people.find(person => person.calmyId === item.personBId)?.displayName || item.personBId }}</b><small>{{ item.label }}<span v-if="item.rhythm"> · {{ item.rhythm }}</span><span v-if="item.boundary"> · 边界：{{ item.boundary }}</span></small><input :value="item.boundary || ''" placeholder="编辑边界说明" @change="updateRelationship(item, { boundary: inputValue($event) || undefined })"><input :value="item.rhythm || ''" placeholder="编辑节律" @change="updateRelationship(item, { rhythm: inputValue($event) || undefined })"><select :value="item.blockedMatterIds || []" multiple @change="updateRelationship(item, { blockedMatterIds: selectedValues($event) })"><option v-for="matter in matters" :key="matter.calmyId" :value="matter.calmyId">限制：{{ matter.title }}</option></select><select :value="item.allowedMatterIds || []" multiple @change="updateRelationship(item, { allowedMatterIds: selectedValues($event) })"><option v-for="matter in matters" :key="'allowed-' + matter.calmyId" :value="matter.calmyId">允许：{{ matter.title }}</option></select><select :value="item.matterIds" multiple @change="updateRelationship(item, { matterIds: selectedValues($event) })"><option v-for="matter in matters" :key="'shared-' + matter.calmyId" :value="matter.calmyId">共同 Matter：{{ matter.title }}</option></select><select :value="item.sharedSpaceIds" multiple @change="updateRelationship(item, { sharedSpaceIds: selectedValues($event) })"><option v-for="space in spaces" :key="'space-' + space.calmyId" :value="space.calmyId">关联空间：{{ space.title }}</option></select><select :value="item.status" @change="updateRelationship(item, { status: relationshipStatus($event) })"><option value="active">活跃</option><option value="paused">暂停</option><option value="ended">结束</option></select></article><p v-if="!relationships.length" class="empty-copy">关系会在这里成为可追踪的上下文。</p></section><section class="sub-panel"><div class="list-head"><div><p class="eyebrow">SHARED SPACE</p><h2 class="font-title">共同空间</h2></div><span>{{ spaces.length }}</span></div><div class="sub-form"><el-input v-model="spaceTitle" placeholder="空间名称，例如：家庭、项目组" /><el-input v-model="spacePurpose" placeholder="空间用途（可选）" /><el-input v-model="spaceBoundary" placeholder="权限 / 边界说明（可选）" /><select v-model="spaceMemberIds" multiple><option v-for="person in people" :key="person.calmyId" :value="person.calmyId">{{ person.displayName }}</option></select><select v-model="spaceBlockedMatterIds" multiple><option v-for="matter in matters" :key="matter.calmyId" :value="matter.calmyId">限制 Matter：{{ matter.title }}</option></select><button @click="addSpace">建立空间</button></div><article v-for="item in spaces" :key="item.calmyId" class="relation-row"><b>{{ item.title }}</b><small>{{ item.memberIds.map(id => people.find(person => person.calmyId === id)?.displayName || id).join('、') }}<span v-if="item.purpose"> · {{ item.purpose }}</span><span v-if="item.boundary"> · 边界：{{ item.boundary }}</span></small><input :value="item.purpose || ''" placeholder="编辑空间用途" @change="updateSpace(item, { purpose: inputValue($event) || undefined })"><input :value="item.boundary || ''" placeholder="编辑权限 / 边界" @change="updateSpace(item, { boundary: inputValue($event) || undefined })"><select :value="item.blockedMatterIds || []" multiple @change="updateSpace(item, { blockedMatterIds: selectedValues($event) })"><option v-for="matter in matters" :key="matter.calmyId" :value="matter.calmyId">限制：{{ matter.title }}</option></select><select :value="item.allowedMatterIds || []" multiple @change="updateSpace(item, { allowedMatterIds: selectedValues($event) })"><option v-for="matter in matters" :key="'space-allowed-' + matter.calmyId" :value="matter.calmyId">允许：{{ matter.title }}</option></select><select :value="item.memberIds" multiple @change="updateSpace(item, { memberIds: selectedValues($event) })"><option v-for="person in people" :key="'member-' + person.calmyId" :value="person.calmyId">成员：{{ person.displayName }}</option></select><select :value="item.matterIds" multiple @change="updateSpace(item, { matterIds: selectedValues($event) })"><option v-for="matter in matters" :key="'space-matter-' + matter.calmyId" :value="matter.calmyId">共同 Matter：{{ matter.title }}</option></select><select :value="item.relationshipIds" multiple @change="updateSpace(item, { relationshipIds: selectedValues($event) })"><option v-for="relationship in relationships" :key="'relationship-' + relationship.calmyId" :value="relationship.calmyId">关系：{{ relationship.label }}</option></select><select :value="item.status" @change="updateSpace(item, { status: sharedSpaceStatus($event) })"><option value="active">活跃</option><option value="archived">归档</option></select></article><p v-if="!spaces.length" class="empty-copy">共同生活或工作的空间会在这里集中。</p></section></div>
     <div class="people-grid"><article v-for="person in people" :key="person.calmyId" class="person-card beryl-card"><div class="avatar">{{ person.displayName.slice(0, 1) }}</div><div class="person-copy"><h3>{{ person.displayName }}</h3><small>{{ person.roles.join(' · ') || '尚未标记角色' }}</small><p>{{ person.notes || '还没有写下更多上下文。' }}</p><em>更新于 {{ new Date(person.updatedAt).toLocaleDateString() }}</em></div><button class="archive" @click="archivePerson(person)">归档</button></article><p v-if="!people.length" class="empty-copy">还没有匹配的人。先从一个真实关系开始。</p></div>

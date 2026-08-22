@@ -12,6 +12,7 @@ import { todayRepository } from '@/domain/today/repository'
 import type { TodayPlan } from '@/domain/today/model'
 import { store } from '@/core/storage'
 import { CORE_ENTITY_TYPES, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle } from '@/domain/unified'
+import { legacyMapping } from '@/domain/legacy/migration'
 
 export type RealitySource = 'legacy' | 'unified'
 export type RealityEntityType = 'case' | 'matter' | 'action' | 'record' | 'today' | 'capture' | 'task' | 'inbox' | 'diary' | 'post' | 'transaction' | 'habit' | 'char' | 'goal' | 'pomo' | 'moment' | CoreEntityType
@@ -143,7 +144,7 @@ function document(input: Omit<RealityDocument, 'searchText' | 'calmyId'>): Reali
 }
 
 function legacyDocuments(): RealityDocument[] {
-  const cases = caseRepository.list().map((item: CaseItem) => document({
+  const cases = caseRepository.list().filter(item => !legacyMapping('case', item.id)).map((item: CaseItem) => document({
     id: item.id, source: 'legacy', entityType: 'case', title: item.title,
     summary: item.problem || item.desiredOutcome || '打开课题', route: `/app/cases/${item.id}`, updatedAt: item.updatedAt
   }))
@@ -174,7 +175,7 @@ function legacyDocuments(): RealityDocument[] {
     summary: `${item.status} · 原始收集`, body: item.body, route: '/app/capture', updatedAt: item.updatedAt
   }))
   const rawTasks = store.get<Array<{ id?: string; title?: string; priority?: string; date?: string; dueAt?: string; done?: boolean }>>('tasks', [])
-  const tasks = (Array.isArray(rawTasks) ? rawTasks : []).filter(item => item.id && item.title?.trim()).map(item => document({
+  const tasks = (Array.isArray(rawTasks) ? rawTasks : []).filter(item => item.id && item.title?.trim() && !legacyMapping('task', item.id)).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'task', title: item.title!.trim(), summary: `${item.done ? 'done' : 'open'} · ${item.priority || '中'}`,
     route: '/app/module/tasks', updatedAt: Date.parse(item.date || '') || 0, occurredAt: Date.parse(item.date || '') || undefined,
     date: item.date, status: item.done ? 'done' : 'open', priority: item.priority || '中', dueAt: item.dueAt, done: !!item.done
@@ -182,7 +183,7 @@ function legacyDocuments(): RealityDocument[] {
   const rawInbox = store.get<Array<{ id?: string; text?: string; date?: string }>>('inbox', [])
   const inbox = (Array.isArray(rawInbox) ? rawInbox : []).map((item, sourceIndex) => {
     const text = typeof item.text === 'string' ? item.text.trim() : ''
-    if (!text) return undefined
+    if (!text || legacyMapping('inbox', item.id || `row-${sourceIndex}-${encodeURIComponent(text.slice(0, 32))}`)) return undefined
     const id = item.id || hashId('inbox', `${item.date || ''}:${text}:${sourceIndex}`)
     return document({
       id, source: 'legacy', entityType: 'inbox', title: text.slice(0, 120), summary: 'open · 收集箱', body: text,

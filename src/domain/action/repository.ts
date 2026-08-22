@@ -174,6 +174,9 @@ export const actionAsyncRepository = {
     await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
     return saveCommandAsync(command.commandId, next)
   },
+  async remove(calmyId: string): Promise<boolean> {
+    return asyncActions.remove(calmyId)
+  },
   async transition(calmyId: string, status: ActionStatus, expectedRevision?: number, resultNote?: string, meta: ActionCommandMeta = {}): Promise<ActionItem> {
     const current = await asyncActions.find(calmyId)
     if (!current) throw new ActionDomainError('NOT_FOUND', `Action ${calmyId} not found`)

@@ -144,6 +144,9 @@ export const captureAsyncRepository = {
   async findSuggestion(calmyId: string): Promise<AiSuggestion | undefined> {
     return asyncSuggestions.find(calmyId)
   },
+  async remove(calmyId: string): Promise<boolean> {
+    return asyncCaptures.remove(calmyId)
+  },
   async create(body: string): Promise<CaptureItem> {
     const now = Date.now()
     const capture: CaptureItem = { calmyId: createEntityId(), body: requiredBody(body), status: 'inbox', suggestionIds: [], createdAt: now, updatedAt: now, revision: 1 }
