@@ -13,7 +13,7 @@ export interface SceneDef {
 export const ALL_MODS = ['inbox', 'diary', 'posts', 'habits', 'chars', 'tasks', 'goals', 'finance', 'pomo', 'moments']
 
 export const SCENES: Record<string, SceneDef> = {
-  personal: { id: 'personal', name: '个人', icon: '🧑', color: '#0EA5E9', desc: '专注自我提升', tagline: '写下你的想法', mods: [...ALL_MODS], stats: ['count', 'done', 'streak', 'pct'] },
+  personal: { id: 'personal', name: '个人', icon: '🧑', color: '#2F9E68', desc: '专注自我提升', tagline: '写下你的想法', mods: [...ALL_MODS], stats: ['count', 'done', 'streak', 'pct'] },
   couple: { id: 'couple', name: '情侣', icon: '💑', color: '#F472B6', desc: '共同成长', tagline: '写下你们的故事', mods: [...ALL_MODS], stats: ['count', 'done', 'streak', 'pomo'] },
   married: { id: 'married', name: '夫妻', icon: '👩❤️👨', color: '#FB923C', desc: '共建家庭', tagline: '经营你们的小家', mods: ALL_MODS.filter(m => m !== 'pomo'), stats: ['count', 'done', 'balance', 'pct'] },
   family: { id: 'family', name: '家庭', icon: '👨👩👧👦', color: '#34D399', desc: '全家共享', tagline: '记录全家人的生活', mods: ALL_MODS.filter(m => m !== 'pomo' && m !== 'chars'), stats: ['count', 'streak', 'balance', 'posts'] }

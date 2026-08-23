@@ -1,0 +1,197 @@
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { withSaveState } from '@/core/save-state'
+import { dateKey, store, todayKey } from '@/core/storage'
+import { listRealityDocuments } from '@/domain/reality'
+
+interface DiaryEntry {
+  date: string
+  content: string
+}
+
+const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success') => {
+  window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
+}
+
+function isDiaryEntry(value: unknown): value is DiaryEntry {
+  if (!value || typeof value !== 'object') return false
+  const item = value as Partial<DiaryEntry>
+  return typeof item.date === 'string' && typeof item.content === 'string'
+}
+
+function readEntries(): DiaryEntry[] {
+  const documents = listRealityDocuments({ types: ['diary'] })
+  const fallback = store.get<unknown>('diary', [])
+  const stored = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
+  const storedByDate = new Map(stored.map(item => [item.date, item.content]))
+
+  return documents
+    .map(document => {
+      const date = document.date || document.id
+      const content = storedByDate.get(date) || document.body || document.summary
+      return { date, content: content.trim() }
+    })
+    .filter(item => item.date && item.content)
+    .sort((left, right) => right.date.localeCompare(left.date))
+}
+
+function readContent(date: string): string {
+  const fallback = store.get<unknown>('diary', [])
+  const stored = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
+  const exact = stored.find(item => item.date === date)
+  if (exact) return exact.content
+
+  const document = listRealityDocuments({ types: ['diary'] }).find(item => (item.date || item.id) === date)
+  return document?.body || document?.summary || ''
+}
+
+function shiftDate(value: string, amount: number): string {
+  const date = new Date(`${value}T12:00:00`)
+  if (Number.isNaN(date.getTime())) return value
+  date.setDate(date.getDate() + amount)
+  return dateKey(date)
+}
+
+function shortContent(content: string): string {
+  const compact = content.replace(/\s+/g, ' ').trim()
+  return compact.length > 96 ? `${compact.slice(0, 96)}…` : compact
+}
+
+export function DiaryPage() {
+  const [selectedDate, setSelectedDate] = useState(todayKey())
+  const [content, setContent] = useState('')
+  const [entries, setEntries] = useState<DiaryEntry[]>([])
+  const [query, setQuery] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  function refresh(): void {
+    setEntries(readEntries())
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    setContent(readContent(selectedDate))
+  }, [selectedDate])
+
+  useEffect(() => {
+    refresh()
+    const onDataSynced = () => refresh()
+    window.addEventListener('beryl-data-synced', onDataSynced)
+    return () => window.removeEventListener('beryl-data-synced', onDataSynced)
+  }, [])
+
+  const visibleEntries = useMemo(() => {
+    const normalized = query.trim().toLocaleLowerCase()
+    if (!normalized) return entries
+    return entries.filter(entry => `${entry.date} ${entry.content}`.toLocaleLowerCase().includes(normalized))
+  }, [entries, query])
+
+  async function save(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault()
+    const value = content.trim()
+    if (!value) {
+      toast('写点什么再保存吧', 'warning')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await withSaveState(async () => {
+        const fallback = store.get<unknown>('diary', [])
+        const current = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
+        const index = current.findIndex(item => item.date === selectedDate)
+        const next = [...current]
+        if (index >= 0) next[index] = { ...next[index], content: value }
+        else next.push({ date: selectedDate, content: value })
+        if (!store.set('diary', next)) throw new Error('日记保存失败，请检查本地存储状态')
+      })
+      setContent(value)
+      refresh()
+      toast(`日记已保存 · ${selectedDate} 📓`)
+    } catch (cause) {
+      toast(cause instanceof Error ? cause.message : '日记保存失败', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function selectDate(date: string): void {
+    if (!date) return
+    setSelectedDate(date)
+  }
+
+  return (
+    <div className="diary-page">
+      <header className="page-head">
+        <div>
+          <p className="eyebrow">DIARY · DAILY REFLECTION</p>
+          <h1 className="font-title">日记</h1>
+          <p>按日期留下今天的心情、观察与收获，历史记录保存在本机 diary 数据集中。</p>
+        </div>
+        <span className="load-pill">{entries.length} 篇记录</span>
+      </header>
+
+      <section className="beryl-card" style={{ padding: 16, marginBottom: 16 }}>
+        <div className="panel-head" style={{ alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <p className="eyebrow">DAILY NOTE</p>
+            <h2 className="font-title">{selectedDate === todayKey() ? '今日日记' : '编辑日记'}</h2>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <button className="react-btn" type="button" onClick={() => selectDate(shiftDate(selectedDate, -1))} disabled={saving} aria-label="前一天">←</button>
+            <input aria-label="选择日记日期" type="date" value={selectedDate} onChange={event => selectDate(event.target.value)} disabled={saving} />
+            <button className="react-btn" type="button" onClick={() => selectDate(shiftDate(selectedDate, 1))} disabled={saving} aria-label="后一天">→</button>
+            <button className="react-btn" type="button" onClick={() => selectDate(todayKey())} disabled={saving}>今天</button>
+          </div>
+        </div>
+
+        <form onSubmit={event => void save(event)} style={{ marginTop: 16 }}>
+          <textarea
+            aria-label={`${selectedDate} 日记内容`}
+            value={content}
+            onChange={event => setContent(event.target.value)}
+            placeholder="写下今天的心情、想法与收获…"
+            rows={10}
+            disabled={saving}
+            style={{ width: '100%', resize: 'vertical', minHeight: 180, boxSizing: 'border-box' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+            <span className="muted">{content.length} 字 · 选择任意日期即可补写历史记录</span>
+            <button className="react-btn primary" type="submit" disabled={saving}>{saving ? '保存中…' : '保存日记'}</button>
+          </div>
+        </form>
+      </section>
+
+      <section className="beryl-card" style={{ padding: 16 }}>
+        <div className="panel-head" style={{ gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <p className="eyebrow">DIARY INDEX</p>
+            <h2 className="font-title">历史记录</h2>
+          </div>
+          <input aria-label="搜索日记" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索日期或内容" style={{ flex: '1 1 220px', minWidth: 0 }} />
+        </div>
+
+        {loading ? <div className="empty-state">正在读取日记…</div> : visibleEntries.length ? (
+          <div className="list" aria-live="polite" style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+            {visibleEntries.map(entry => (
+              <button
+                key={entry.date}
+                type="button"
+                className="beryl-card hoverable"
+                onClick={() => selectDate(entry.date)}
+                aria-pressed={entry.date === selectedDate}
+                style={{ padding: 12, textAlign: 'left', cursor: 'pointer', borderColor: entry.date === selectedDate ? 'var(--scene-border-strong)' : undefined }}
+              >
+                <span style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <strong>{entry.date}{entry.date === todayKey() ? ' · 今天' : ''}</strong>
+                  <span className="muted">打开编辑</span>
+                </span>
+                <span style={{ display: 'block', marginTop: 6, color: 'var(--c-text-2)', overflowWrap: 'anywhere' }}>{shortContent(entry.content)}</span>
+              </button>
+            ))}
+          </div>
+        ) : <div className="empty-state">{query ? '没有匹配的日记。' : '还没有日记，写下第一篇吧。'}</div>}
+      </section>
+    </div>
+  )
+}
