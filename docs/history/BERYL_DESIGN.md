@@ -1,6 +1,6 @@
 # Beryl v2 · 当前设计与实现基线
 
-> **历史参考**：本文件记录 Beryl v2 基线，不再定义 Calmy 当前产品范围。当前入口见 [`README.md`](README.md)，历史与权威状态见 [`product/DOCUMENT_REGISTER.md`](product/DOCUMENT_REGISTER.md)。
+> **历史参考**：本文件记录 Beryl v2 基线，不再定义 Calmy 当前产品范围。当前入口见 [`README.md`](README.md)，历史与权威状态见 [`../product/DOCUMENT_REGISTER.md`](../product/DOCUMENT_REGISTER.md)。
 
 > 本文以仓库当前代码为准，描述已经存在的系统边界。历史 v1 方案不再作为当前实现说明。
 
@@ -167,8 +167,8 @@ IndexedDB 镜像、变更日志和实体日志。
 
 ## 11. 文档维护规则
 
-代码行为、协议、测试数量、部署方式发生变化时，必须同步更新本文、`DESIGN_README.md` §17、
-`SESSION_HANDOFF.md` 和必要的 `docs/CODE_REVIEW.md` 修复状态。旧 v1 描述只能保留在明确标记的历史章节，
+代码行为、协议、测试数量、部署方式发生变化时，必须同步更新当前架构文档、实现总档案、
+`../product/OPEN_WORK.md` 和必要的 `BERYL_CODE_REVIEW.md` 修复状态。旧 v1 描述只能保留在明确标记的历史章节，
 不能继续作为当前部署或架构说明。
 ## 12. 2026-08-16 本轮实现补充
 

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { dateKey, lsGet, nextId, store, todayKey } from '@/core/storage'
+import { createAsyncCollectionRepository } from '@/core/repository'
+import { dateKey, lsGet, nextId, todayKey } from '@/core/storage'
 import { maxStreak } from '@/core/modules'
 import { withSaveState } from '@/core/save-state'
-import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
 
 interface RawHabit {
   id: string
@@ -16,6 +16,8 @@ interface RawHabit {
 interface Habit extends RawHabit {
   longest: number
 }
+
+const habitsRepository = createAsyncCollectionRepository<RawHabit>('habits', item => item.id)
 
 const PRESETS: Array<Pick<RawHabit, 'name' | 'color'>> = [
   { name: '晨间阅读', color: '#6366F1' },
@@ -32,7 +34,7 @@ const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
 }
 
-function seedIfNeeded(): void {
+async function seedIfNeeded(): Promise<void> {
   if (lsGet('b_habits') !== null) return
   const initial = PRESETS.map(preset => ({
     id: nextId(),
@@ -41,14 +43,14 @@ function seedIfNeeded(): void {
     days: 0,
     dates: [],
   }))
-  store.set('habits', initial)
+  await habitsRepository.replace(initial)
 }
 
-function normalizeHabit(item: RealityDocument): Habit {
+function normalizeHabit(item: RawHabit): Habit {
   const dates = Array.from(new Set(item.dates || [])).sort()
   return {
     id: item.id,
-    name: item.title,
+    name: item.name,
     color: item.color || DEFAULT_COLOR,
     days: dates.length,
     dates,
@@ -56,9 +58,9 @@ function normalizeHabit(item: RealityDocument): Habit {
   }
 }
 
-function loadHabits(): Habit[] {
-  seedIfNeeded()
-  return listRealityDocuments({ types: ['habit'] }).map(normalizeHabit)
+async function loadHabits(): Promise<Habit[]> {
+  await seedIfNeeded()
+  return (await habitsRepository.list()).map(normalizeHabit)
 }
 
 function currentWeek(): Array<{ key: string; day: number; weekday: string; today: boolean }> {
@@ -76,9 +78,8 @@ function currentWeek(): Array<{ key: string; day: number; weekday: string; today
 
 function writeHabits(mutator: (habits: RawHabit[]) => RawHabit[]): Promise<void> {
   return withSaveState(async () => {
-    const stored = store.get<RawHabit[]>('habits', [])
-    const current = Array.isArray(stored) ? stored : []
-    if (!store.set('habits', mutator(current.map(item => ({
+    const current = await habitsRepository.list()
+    if (!await habitsRepository.replace(mutator(current.map(item => ({
       ...item,
       dates: Array.isArray(item.dates) ? [...item.dates] : [],
     }))))) {
@@ -103,9 +104,9 @@ export function HabitsPage() {
   const [editingId, setEditingId] = useState<string>()
   const week = useMemo(() => currentWeek(), [])
 
-  function refresh(): void {
+  async function refresh(): Promise<void> {
     try {
-      setHabits(loadHabits())
+      setHabits(await loadHabits())
       setError('')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '习惯读取失败')
@@ -115,8 +116,8 @@ export function HabitsPage() {
   }
 
   useEffect(() => {
-    refresh()
-    const onDataSynced = () => refresh()
+    void refresh()
+    const onDataSynced = () => { void refresh() }
     window.addEventListener('beryl-data-synced', onDataSynced)
     return () => window.removeEventListener('beryl-data-synced', onDataSynced)
   }, [])
@@ -160,7 +161,7 @@ export function HabitsPage() {
         toast('习惯已创建')
       }
       cancelEditing()
-      refresh()
+      await refresh()
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '习惯保存失败', 'error')
     } finally {
@@ -185,7 +186,7 @@ export function HabitsPage() {
         if (!found) throw new Error('习惯已被其他操作修改，请刷新后重试')
         return next
       })
-      refresh()
+      await refresh()
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '打卡保存失败', 'error')
     } finally {

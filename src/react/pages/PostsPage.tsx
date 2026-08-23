@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { fmtDate, store } from '@/core/storage'
-import { createCollectionRepository, createEntityId } from '@/core/repository'
+import { fmtDate } from '@/core/storage'
+import { createAsyncCollectionRepository, createEntityId } from '@/core/repository'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
 import { listRealityDocuments } from '@/domain/reality'
@@ -23,21 +23,21 @@ interface PostItem {
 
 type PostFilter = 'active' | 'archived' | 'all'
 
-const postRepository = createCollectionRepository<StoredPost>('posts')
+const postRepository = createAsyncCollectionRepository<StoredPost>('posts')
 
 const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success') => {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
 }
 
-function readStoredPosts(): StoredPost[] {
-  const value = store.get<unknown>('posts', [])
+async function readStoredPosts(): Promise<StoredPost[]> {
+  const value = await postRepository.list()
   return Array.isArray(value)
     ? value.filter(item => !!item && typeof item === 'object') as StoredPost[]
     : []
 }
 
-function loadPosts(): PostItem[] {
-  const storedById = new Map(readStoredPosts().filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
+async function loadPosts(): Promise<PostItem[]> {
+  const storedById = new Map((await readStoredPosts()).filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
 
   return listRealityDocuments({ types: ['post'] })
     .map(document => {
@@ -75,9 +75,9 @@ export function PostsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  function refresh(): void {
+  async function refresh(): Promise<void> {
     try {
-      setPosts(loadPosts())
+      setPosts(await loadPosts())
       setError('')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '文章读取失败')
@@ -87,8 +87,8 @@ export function PostsPage() {
   }
 
   useEffect(() => {
-    refresh()
-    const onDataSynced = () => refresh()
+    void refresh()
+    const onDataSynced = () => { void refresh() }
     window.addEventListener('beryl-data-synced', onDataSynced)
     return () => window.removeEventListener('beryl-data-synced', onDataSynced)
   }, [])
@@ -128,7 +128,7 @@ export function PostsPage() {
     try {
       await withSaveState(async () => {
         if (editingId) {
-          const updated = postRepository.update(editingId, current => ({
+          const updated = await postRepository.update(editingId, current => ({
             ...current,
             title: nextTitle,
             content: nextContent,
@@ -136,12 +136,12 @@ export function PostsPage() {
           }))
           if (!updated) throw new Error('文章不存在，可能已被其他设备删除')
         } else {
-          postRepository.create({ id: createEntityId(), title: nextTitle, content: nextContent, date: fmtDate(Date.now()) })
+          await postRepository.create({ id: createEntityId(), title: nextTitle, content: nextContent, date: fmtDate(Date.now()) })
         }
       })
       const wasEditing = !!editingId
       resetEditor()
-      refresh()
+      await refresh()
       toast(wasEditing ? '文章已更新' : '文章已发布 ✍️')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '文章保存失败', 'error')
@@ -154,7 +154,7 @@ export function PostsPage() {
     setSaving(true)
     try {
       await withSaveState(async () => {
-        const updated = postRepository.update(post.id, current => {
+        const updated = await postRepository.update(post.id, current => {
           const next = { ...current }
           if (post.archivedAt) delete next.archivedAt
           else next.archivedAt = Date.now()
@@ -163,7 +163,7 @@ export function PostsPage() {
         if (!updated) throw new Error('文章不存在，可能已被其他设备删除')
       })
       if (reading?.id === post.id) setReading(undefined)
-      refresh()
+      await refresh()
       toast(post.archivedAt ? '文章已恢复' : '文章已归档')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '文章归档失败', 'error')
@@ -177,16 +177,16 @@ export function PostsPage() {
     setSaving(true)
     try {
       await withSaveState(async () => {
-        const raw = readStoredPosts()
+        const raw = await readStoredPosts()
         const index = raw.findIndex(item => item.id === post.id)
         const removed = index >= 0 ? raw[index] : undefined
         if (!removed) throw new Error('文章不存在，可能已被其他设备删除')
-        if (!postRepository.remove(post.id)) throw new Error('文章删除失败')
+        if (!await postRepository.remove(post.id)) throw new Error('文章删除失败')
         registerUndo('posts', removed, index, post.id)
       })
       if (reading?.id === post.id) setReading(undefined)
       if (editingId === post.id) resetEditor()
-      refresh()
+      await refresh()
       toast('文章已删除，可在提示消失前撤销')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '文章删除失败', 'error')

@@ -81,52 +81,6 @@ function offlinePick(n: number): QuoteCard[] {
   }))
 }
 
-/* ---------- 网络源（多源备用，全部失败 → 离线随机） ---------- */
-const SOURCES = [
-  'https://v1.hitokoto.cn/?c=k&c=i&c=d&c=f&min_length=8&max_length=60&encode=json',
-  'https://v1.jinrishici.com/all.json',
-]
-
-interface FetchedQuote { quote: string; author: string | null; source: string }
-
-async function fetchOne(): Promise<FetchedQuote> {
-  for (const url of SOURCES) {
-    const ctrl = new AbortController()
-    const timer = setTimeout(() => ctrl.abort(), 5000)
-    try {
-      const res = await fetch(url, { signal: ctrl.signal })
-      if (!res.ok) continue
-      const d = await res.json() as Record<string, unknown>
-      const q = typeof d.hitokoto === 'string' ? d.hitokoto : (typeof d.content === 'string' ? d.content : '')
-      if (q) {
-        const who = typeof d.from_who === 'string' && d.from_who ? d.from_who : (typeof d.author === 'string' && d.author ? d.author : null)
-        const from = typeof d.from === 'string' && d.from ? d.from : (typeof d.origin === 'string' ? d.origin : '')
-        return { quote: q, author: who, source: from }
-      }
-    } catch {
-      /* 换下一个源 */
-    } finally {
-      clearTimeout(timer)
-    }
-  }
-  throw new Error('all quote sources failed')
-}
-
-/** 拉取 count 条网络名句；有作者的 → person-quote，无作者的 → quote */
-async function fetchNetworkQuotes(count: number): Promise<QuoteCard[]> {
-  const jobs = Array.from({ length: count }, () => fetchOne())
-  const settled = await Promise.allSettled(jobs)
-  const ok = settled.filter((s): s is PromiseFulfilledResult<FetchedQuote> => s.status === 'fulfilled')
-  if (!ok.length) return offlinePick(count)
-  return ok.map((s) => {
-    const d = s.value
-    if (d.author) {
-      return { kind: 'person-quote' as const, id: uid(), quote: d.quote, author: d.author, source: d.source, fromNetwork: true }
-    }
-    return { kind: 'quote' as const, id: uid(), quote: d.quote, author: d.source || '佚名', source: d.source, fromNetwork: true }
-  })
-}
-
 /* ---------- 本地源：人物库 → person 小卡 ---------- */
 const PERSON_COLORS = ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#06B6D4']
 
@@ -154,9 +108,10 @@ function localPersonCards(): QuoteCard[] {
 const GROUP_TITLES = ['今日名言', '灵感碎片', '思考片刻', '远方与诗', '碎片拾遗', '夜读摘句']
 
 export async function buildGroups(): Promise<QuoteGroup[]> {
-  const net = await fetchNetworkQuotes(5)
-  const plain = net.filter(c => c.kind === 'quote')
-  const withAuthor = net.filter(c => c.kind === 'person-quote')
+  // 名句属于装饰性内容，不能让它成为首屏外部网络依赖；核心体验始终使用本地语料。
+  const net = offlinePick(5)
+  const plain = net
+  const withAuthor: QuoteCard[] = []
   const persons = localPersonCards()
   const groups: QuoteGroup[] = []
 

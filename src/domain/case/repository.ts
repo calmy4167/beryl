@@ -4,6 +4,7 @@ import type { CaseDecision, CaseItem, CasePhase, CaseRelation, CaseReview, CaseS
 const cases = createCollectionRepository<CaseItem>('cases')
 const asyncCases = createAsyncCollectionRepository<CaseItem>('cases')
 const relations = createCollectionRepository<CaseRelation>('caseRelations')
+const asyncRelations = createAsyncCollectionRepository<CaseRelation>('caseRelations')
 
 type CaseCreateInput = Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>
 
@@ -91,4 +92,26 @@ export const caseRelationRepository = {
     for (const relation of matches) changed = relations.remove(relation.id) || changed
     return changed
   }
+}
+
+export const caseAsyncRelationRepository = {
+  async listFor(caseId: string): Promise<CaseRelation[]> {
+    return (await asyncRelations.list()).filter(item => item.caseId === caseId)
+  },
+  async listForTarget(targetType: CaseRelation['targetType'], targetId: string): Promise<CaseRelation[]> {
+    return (await asyncRelations.list()).filter(item => item.targetType === targetType && item.targetId === targetId)
+  },
+  async link(caseId: string, targetType: CaseRelation['targetType'], targetId: string, phase?: CasePhase): Promise<CaseRelation> {
+    const exists = (await asyncRelations.list()).find(item => item.caseId === caseId && item.targetType === targetType && item.targetId === targetId)
+    if (exists) return exists
+    return asyncRelations.create({ id: createEntityId(), caseId, targetType, targetId, phase, createdAt: Date.now() })
+  },
+  async unlink(id: string): Promise<boolean> { return asyncRelations.remove(id) },
+  async unlinkForTarget(targetType: CaseRelation['targetType'], targetId: string): Promise<boolean> {
+    const matches = await this.listForTarget(targetType, targetId)
+    let changed = false
+    for (const relation of matches) changed = await asyncRelations.remove(relation.id) || changed
+    return changed
+  },
+  ready: asyncRelations.ready
 }

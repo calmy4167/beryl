@@ -75,7 +75,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
-import { caseAsyncRepository } from '../domain/case/repository'
+import { caseAsyncRelationRepository, caseAsyncRepository } from '../domain/case/repository'
 import type { CaseItem } from '../domain/case/model'
 
 function item(id: string, title: string): CaseItem {
@@ -131,5 +131,12 @@ describe('caseAsyncRepository', () => {
 
     expect(durable.values.get('b_cases')).toContain('替换案例')
     await expect(caseAsyncRepository.ready()).resolves.toMatchObject({ durable: true, state: 'ready', pendingWrites: 0 })
+  })
+
+  it('keeps case relations on the async repository path', async () => {
+    const relation = await caseAsyncRelationRepository.link('case-1', 'transaction', 'transaction-1', 'earth')
+    await expect(caseAsyncRelationRepository.listForTarget('transaction', 'transaction-1')).resolves.toEqual([relation])
+    await expect(caseAsyncRelationRepository.unlinkForTarget('transaction', 'transaction-1')).resolves.toBe(true)
+    await expect(caseAsyncRelationRepository.listForTarget('transaction', 'transaction-1')).resolves.toEqual([])
   })
 })

@@ -121,3 +121,12 @@ IndexedDB authoritative store
 - 同步轮询增加 single-flight；Review 在指定时间范围内一次读取现实文档，再按日期分组，避免近 90 天按天重复扫描全量数据。
 - Today 在 1100px 以下切单列，记录区和行动创建区在 1100px 以下改为安全的两列/分行布局；Review 在 1050px 以下切单列；回归检查覆盖 390、820、1024、1280px 的无重叠与无横向溢出。
 - 当前验证：53 个 Vitest 文件、260 个测试，类型检查、浏览器 UI smoke、性能基线、生产构建和 PWA 预缓存均通过。
+
+## 11. 2026-08-23 文件与实现状态收口
+
+- `index.html → src/react/main.tsx → src/react/App.tsx` 已确认是当前生产启动链路；`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 归类为 Vue 迁移兼容层，暂不删除。
+- React AppShell 已包含左侧主导航、顶部状态、宽屏右侧独立栏和窄桌面/移动端 More 抽屉；右侧栏默认收起、可独立记忆，相关回归已加入 UI smoke。
+- 参考产品页 Cycle、我的和目标入口已接入，旧模块路由继续保留；这些页面不改变现有领域事实源。
+- 当前已完成项不再进入活跃任务；未完成工作统一见 [`OPEN_WORK.md`](OPEN_WORK.md)，后续不再从旧 2026-08-19 任务拆解文档恢复任务。
+
+当前尚未闭合的工程边界包括：真实样本迁移演练、扩展页面的 Application Use Case/IndexedDB 收口、真实设备与读屏人工验收、外部字体/Quote 依赖、Vue 兼容层退出评估、Flow 内容能力和真实 Bridge 联调。它们不应被“页面存在”或自动化测试通过替代。

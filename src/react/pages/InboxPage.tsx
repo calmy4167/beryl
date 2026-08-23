@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createAsyncCollectionRepository } from '@/core/repository'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
 import { captureText } from '@/application'
 import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
-import { caseRepository } from '@/domain/case/repository'
-import { fmtDate, nextId, store } from '@/core/storage'
+import { caseAsyncRepository } from '@/domain/case/repository'
+import { fmtDate, nextId } from '@/core/storage'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
 
 type LegacyInboxItem = { id?: string; text?: string; date?: string }
+type LegacyTaskItem = { id?: string; title?: string; priority?: string; date?: string; done?: boolean }
 type Filter = 'all' | 'open' | 'suggested' | 'accepted' | 'rejected' | 'archived'
 
 interface InboxEntry {
@@ -43,6 +45,9 @@ const STATUS_LABELS: Record<string, string> = {
 const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success') => {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
 }
+
+const legacyInboxRepository = createAsyncCollectionRepository<LegacyInboxItem>('inbox', item => item.id)
+const legacyTasksRepository = createAsyncCollectionRepository<LegacyTaskItem>('tasks', item => item.id)
 
 function statusLabel(status: string): string {
   return STATUS_LABELS[status] || status
@@ -196,58 +201,60 @@ export function InboxPage() {
     }
   }
 
-  function updateLegacySource(item: InboxEntry, next: LegacyInboxItem[]): boolean {
-    const sourceIndex = item.sourceIndex
-    if (sourceIndex === undefined || sourceIndex < 0 || sourceIndex >= next.length) return false
+  async function updateLegacySource(item: InboxEntry, next: LegacyInboxItem[]): Promise<boolean> {
+    const idIndex = item.legacy?.id
+      ? next.findIndex(candidate => String(candidate.id) === item.legacy?.id)
+      : -1
+    const sourceIndex = idIndex >= 0 ? idIndex : item.sourceIndex ?? -1
+    if (sourceIndex < 0 || sourceIndex >= next.length) return false
     const [removed] = next.splice(sourceIndex, 1)
+    if (!await legacyInboxRepository.replace(next)) return false
     registerUndo('inbox', removed, sourceIndex, removed?.id)
-    return store.set('inbox', next)
+    return true
   }
 
-  function removeLegacy(item: InboxEntry): void {
+  async function removeLegacy(item: InboxEntry): Promise<void> {
     if (item.source !== 'legacy') return
-    const raw = store.get<LegacyInboxItem[]>('inbox', [])
-    const next = Array.isArray(raw) ? [...raw] : []
-    if (!updateLegacySource(item, next)) {
+    const next = await legacyInboxRepository.list()
+    if (!await updateLegacySource(item, [...next])) {
       toast('旧版收件项已变化，请刷新后重试', 'warning')
       return
     }
-    void refresh()
+    await refresh()
     toast('旧版收件项已移除')
   }
 
-  function convertLegacyToCase(item: InboxEntry): void {
+  async function convertLegacyToCase(item: InboxEntry): Promise<void> {
     if (item.source !== 'legacy') return
     const title = item.text.trim()
     if (!title) return
-    const created = caseRepository.create({ title, status: 'inbox' })
-    const raw = store.get<LegacyInboxItem[]>('inbox', [])
-    const next = Array.isArray(raw) ? [...raw] : []
-    if (!updateLegacySource(item, next)) {
-      toast('课题已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
-      return
+    try {
+      const created = await withSaveState(async () => {
+        const next = await legacyInboxRepository.list()
+        const created = await caseAsyncRepository.create({ title, status: 'inbox' })
+        if (!await updateLegacySource(item, [...next])) throw new Error('旧收件项未移除')
+        return created
+      })
+      await refresh()
+      toast(`已转为现实课题「${created.title}」`)
+    } catch (error) {
+      toast(error instanceof Error ? `课题已创建，但旧收件项未移除：${error.message}` : '课题已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
     }
-    void refresh()
-    toast(`已转为现实课题「${created.title}」`)
   }
 
-  function convertLegacyToTask(item: InboxEntry): void {
+  async function convertLegacyToTask(item: InboxEntry): Promise<void> {
     if (item.source !== 'legacy') return
-    const rawTasks = store.get<Array<{ id?: string; title?: string; priority?: string; date?: string; done?: boolean }>>('tasks', [])
-    const tasks = Array.isArray(rawTasks) ? rawTasks : []
-    const nextTasks = [{ id: nextId(), title: item.text, priority: '中', date: fmtDate(Date.now()), done: false }, ...tasks]
-    if (!store.set('tasks', nextTasks)) {
-      toast('转换失败：任务未保存', 'error')
-      return
+    try {
+      await withSaveState(async () => {
+        await legacyTasksRepository.create({ id: nextId(), title: item.text, priority: '中', date: fmtDate(Date.now()), done: false })
+        const nextInbox = await legacyInboxRepository.list()
+        if (!await updateLegacySource(item, [...nextInbox])) throw new Error('旧收件项未移除')
+      })
+      await refresh()
+      toast('已转为行动任务')
+    } catch (error) {
+      toast(error instanceof Error ? `任务已创建，但旧收件项未移除：${error.message}` : '任务已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
     }
-    const rawInbox = store.get<LegacyInboxItem[]>('inbox', [])
-    const nextInbox = Array.isArray(rawInbox) ? [...rawInbox] : []
-    if (!updateLegacySource(item, nextInbox)) {
-      toast('任务已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
-      return
-    }
-    void refresh()
-    toast('已转为行动任务')
   }
 
   function archiveUnavailable(): void {
@@ -281,7 +288,7 @@ export function InboxPage() {
         const busy = busyId === item.id || busyId === suggestion?.calmyId
         return <article className="history-card beryl-card" key={`${item.source}:${item.id}`}>
           <div className="panel-head"><div><p className="eyebrow">{item.source === 'capture' ? 'CAPTURE' : 'LEGACY INBOX'} · {statusLabel(item.status)}</p><h2 className="font-title">{item.text.split(/\r?\n/, 1)[0].slice(0, 120) || '未命名收件项'}</h2></div><small>{displayTime(item.updatedAt, item.date)}</small></div>
-          <div className="suggestion-actions"><button className="react-btn" onClick={() => setExpandedId(expanded ? undefined : `${item.source}:${item.id}`)}>{expanded ? '收起原文' : '查看原文'}</button>{item.source === 'capture' && <><button className="react-btn" onClick={archiveUnavailable}>归档</button><button className="react-btn danger" disabled={busy} onClick={() => void removeCapture(item)}>删除</button></>}{item.source === 'legacy' && <><button className="react-btn" onClick={() => convertLegacyToTask(item)}>→ 行动</button><button className="react-btn" onClick={() => convertLegacyToCase(item)}>→ 课题</button><button className="react-btn" onClick={() => removeLegacy(item)}>移除</button></>}</div>
+          <div className="suggestion-actions"><button className="react-btn" onClick={() => setExpandedId(expanded ? undefined : `${item.source}:${item.id}`)}>{expanded ? '收起原文' : '查看原文'}</button>{item.source === 'capture' && <><button className="react-btn" onClick={archiveUnavailable}>归档</button><button className="react-btn danger" disabled={busy} onClick={() => void removeCapture(item)}>删除</button></>}{item.source === 'legacy' && <><button className="react-btn" onClick={() => { void convertLegacyToTask(item) }}>→ 行动</button><button className="react-btn" onClick={() => { void convertLegacyToCase(item) }}>→ 课题</button><button className="react-btn" onClick={() => { void removeLegacy(item) }}>移除</button></>}</div>
           {expanded && <div className="opening-details"><p className="info" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{item.text}</p>{item.source === 'capture' && item.capture && <small className="muted">Capture ID：{item.capture.calmyId} · revision {item.capture.revision}</small>}</div>}
           {suggestion?.status === 'suggested' && <div className="suggestion-card beryl-card"><div className="panel-head"><div><p className="eyebrow">SUGGESTION · {Math.round(suggestion.confidence * 100)}%</p><h3 className="font-title">{suggestion.candidates[0]?.label || '建议'}</h3></div><span className="muted">可拒绝</span></div><p>{suggestion.rationale}</p><input aria-label={`${item.text.slice(0, 20)}处理内容`} value={drafts[suggestion.calmyId] ?? suggestion.candidates[0]?.fields.title ?? suggestion.candidates[0]?.fields.body ?? ''} onChange={event => setDrafts(current => ({ ...current, [suggestion.calmyId]: event.target.value }))} /><div className="suggestion-actions"><button className="react-btn primary" disabled={busy} onClick={() => void acceptSuggestion(suggestion)}>采纳并处理</button><button className="react-btn" disabled={busy} onClick={() => void rejectSuggestion(suggestion)}>拒绝建议</button></div></div>}
         </article>

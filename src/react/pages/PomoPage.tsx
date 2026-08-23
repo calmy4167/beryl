@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { listRealityDocuments } from '@/domain/reality'
+import { readAsyncStorageValue, writeAsyncStorageValue } from '@/core/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
-import { fmtDate, store } from '@/core/storage'
+import { fmtDate } from '@/core/storage'
 import { withSaveState } from '@/core/save-state'
 
 type PomoMode = 'focus' | 'rest'
@@ -20,11 +20,14 @@ interface PomoStats {
   count: number
 }
 
-function readStats(): PomoStats {
-  const item = listRealityDocuments({ types: ['pomo'] })[0]
+async function readStats(): Promise<PomoStats> {
+  const [minutes, count] = await Promise.all([
+    readAsyncStorageValue('pomoTotal', 0),
+    readAsyncStorageValue('pomoCount', 0),
+  ])
   return {
-    minutes: Number(item?.minutes) || 0,
-    count: Number(item?.count) || 0,
+    minutes: Number(minutes) || 0,
+    count: Number(count) || 0,
   }
 }
 
@@ -47,7 +50,7 @@ export function PomoPage() {
   const [minutes, setMinutes] = useState(DEFAULT_MINUTES)
   const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_MINUTES.focus * 60)
   const [running, setRunning] = useState(false)
-  const [stats, setStats] = useState<PomoStats>(() => readStats())
+  const [stats, setStats] = useState<PomoStats>({ minutes: 0, count: 0 })
   const [history, setHistory] = useState<RealityRecord[]>([])
   const [historyLoading, setHistoryLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -72,9 +75,9 @@ export function PomoPage() {
   }
 
   useEffect(() => {
-    void refreshHistory()
+    void Promise.all([refreshHistory(), readStats().then(setStats)])
     const onDataSynced = () => {
-      setStats(readStats())
+      void readStats().then(setStats)
       void refreshHistory()
     }
     window.addEventListener('beryl-data-synced', onDataSynced)
@@ -105,10 +108,10 @@ export function PomoPage() {
 
   useEffect(() => {
     document.title = running
-      ? `${timeText(remainingSeconds)} ${modeLabel(mode)} — Beryl`
-      : 'Beryl — 番茄钟'
+      ? `${timeText(remainingSeconds)} ${modeLabel(mode)} — Calmy`
+      : 'Calmy — 番茄钟'
     return () => {
-      document.title = 'Beryl — 个人管理体系'
+      document.title = 'Calmy — 个人现实行动系统'
     }
   }, [mode, remainingSeconds, running])
 
@@ -119,9 +122,10 @@ export function PomoPage() {
       setSaving(true)
       try {
         await withSaveState(async () => {
-          const nextMinutes = (Number(store.get('pomoTotal', 0)) || 0) + completedMinutes
-          const nextCount = (Number(store.get('pomoCount', 0)) || 0) + 1
-          if (!store.set('pomoTotal', nextMinutes) || !store.set('pomoCount', nextCount)) {
+          const current = await readStats()
+          const nextMinutes = current.minutes + completedMinutes
+          const nextCount = current.count + 1
+          if (!await writeAsyncStorageValue('pomoTotal', nextMinutes) || !await writeAsyncStorageValue('pomoCount', nextCount)) {
             throw new Error('番茄钟累计数据保存失败，请检查本地存储状态')
           }
           await recordAsyncRepository.create({
@@ -131,7 +135,7 @@ export function PomoPage() {
             source: 'user',
           })
         })
-        setStats(readStats())
+        setStats(await readStats())
         await refreshHistory()
         toast(`专注完成，已记录 ${completedMinutes} 分钟`)
       } catch (cause) {

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { buildGraphSnapshot, graphTypeLabel, type GraphNode, type GraphNodeType } from '@/domain/graph'
-import { unifiedFactories, unifiedRepository, type RelationType } from '@/domain/unified'
+import { unifiedAsyncRepository, unifiedFactories, type RelationType } from '@/domain/unified'
+import { withSaveState } from '@/core/save-state'
 
 const relationTypes: RelationType[] = [
   'supports',
@@ -80,7 +81,7 @@ export function GraphPage() {
     if (!node.placeholder) navigate(node.route)
   }
 
-  function createRelation(): void {
+  async function createRelation(): Promise<void> {
     if (!fromId || !toId || fromId === toId) {
       toast('请选择两个不同的节点', 'warning')
       return
@@ -94,7 +95,7 @@ export function GraphPage() {
     }
 
     try {
-      unifiedRepository.create(
+      await withSaveState(() => unifiedAsyncRepository.create(
         unifiedFactories.relation({
           from: { entityType: from.type, calmyId: from.id },
           to: { entityType: to.type, calmyId: to.id },
@@ -102,7 +103,7 @@ export function GraphPage() {
           directed: true,
           sourceIds: [],
         }),
-      )
+      ))
       setFromId('')
       setToId('')
       setTick(value => value + 1)
@@ -165,7 +166,7 @@ export function GraphPage() {
               </option>
             ))}
           </select>
-          <button className="primary" type="button" onClick={createRelation}>建立连接</button>
+          <button className="primary" type="button" onClick={() => void createRelation()}>建立连接</button>
         </div>
       </section>
 
@@ -292,4 +293,3 @@ export function GraphPage() {
     </div>
   )
 }
-

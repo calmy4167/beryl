@@ -7,7 +7,7 @@ const DOMAIN_COLLECTION_KEYS = [
   'b_mvpActions', 'b_actionMutations', 'b_actionCommands',
   'b_calmyCaptures', 'b_calmySuggestions',
   'b_legacyEntityMappings',
-  'b_cases', 'b_caseRelations',
+  'b_cases', 'b_caseRelations', 'b_tasks', 'b_inbox',
   'b_matters', 'b_matterMutations', 'b_matterCommands',
   'b_realityRecords', 'b_realityRecordRevisions', 'b_recordCommands',
   'b_mvpTodayPlans',

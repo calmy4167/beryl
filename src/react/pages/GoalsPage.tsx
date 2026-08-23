@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withSaveState } from '@/core/save-state'
-import { nextId, store } from '@/core/storage'
+import { createAsyncCollectionRepository } from '@/core/repository'
+import { nextId } from '@/core/storage'
 import { listRealityDocuments } from '@/domain/reality'
 
 type GoalStatus = 'open' | 'done'
@@ -25,6 +26,8 @@ interface GoalItem {
   progress: number
 }
 
+const goalsRepository = createAsyncCollectionRepository<StoredGoal>('goals', item => item.id)
+
 const filterOptions: Array<[GoalFilter, string]> = [
   ['all', '全部'],
   ['open', '进行中'],
@@ -40,13 +43,12 @@ function clampProgress(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)))
 }
 
-function readStoredGoals(): StoredGoal[] {
-  const value = store.get<unknown>('goals', [])
-  return Array.isArray(value) ? value.filter(item => !!item && typeof item === 'object') as StoredGoal[] : []
+async function readStoredGoals(): Promise<StoredGoal[]> {
+  return (await goalsRepository.list()).filter(item => !!item && typeof item === 'object')
 }
 
-function loadGoals(): GoalItem[] {
-  const storedById = new Map(readStoredGoals().filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
+async function loadGoals(): Promise<GoalItem[]> {
+  const storedById = new Map((await readStoredGoals()).filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
 
   return listRealityDocuments({ types: ['goal'] }).map(document => {
     const stored = storedById.get(document.id)
@@ -61,12 +63,10 @@ function loadGoals(): GoalItem[] {
   })
 }
 
-function updateStoredGoal(id: string, updater: (goal: StoredGoal) => StoredGoal): void {
-  const goals = readStoredGoals()
-  const index = goals.findIndex(goal => goal.id === id)
-  if (index < 0) throw new Error('目标不存在，可能已被其他设备删除')
-  goals[index] = updater(goals[index])
-  if (!store.set('goals', goals)) throw new Error('目标保存失败')
+async function updateStoredGoal(id: string, updater: (goal: StoredGoal) => StoredGoal): Promise<void> {
+  const current = await goalsRepository.find(id)
+  if (!current) throw new Error('目标不存在，可能已被其他设备删除')
+  if (!await goalsRepository.update(id, updater)) throw new Error('目标保存失败')
 }
 
 function statusLabel(status: GoalStatus): string {
@@ -83,9 +83,9 @@ export function GoalsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  function refresh() {
+  async function refresh(): Promise<void> {
     try {
-      const nextGoals = loadGoals()
+      const nextGoals = await loadGoals()
       setGoals(nextGoals)
       setProgressDrafts(Object.fromEntries(nextGoals.map(goal => [goal.id, goal.progress])))
       setError('')
@@ -97,7 +97,7 @@ export function GoalsPage() {
   }
 
   useEffect(() => {
-    refresh()
+    void refresh()
   }, [])
 
   const visibleGoals = useMemo(() => {
@@ -121,12 +121,9 @@ export function GoalsPage() {
 
     setSaving(true)
     try {
-      const goals = readStoredGoals()
-      if (!store.set('goals', [{ id: nextId(), title: value, done: false, status: 'open', progress: 0 }, ...goals])) {
-        throw new Error('目标保存失败')
-      }
+      await goalsRepository.create({ id: nextId(), title: value, done: false, status: 'open', progress: 0 })
       setTitle('')
-      refresh()
+      await refresh()
       toast('目标已添加 🥅')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标添加失败', 'error')
@@ -139,18 +136,18 @@ export function GoalsPage() {
     setSaving(true)
     try {
       await withSaveState(async () => {
-        updateStoredGoal(goal.id, current => ({
+        await updateStoredGoal(goal.id, current => ({
           ...current,
           done: status === 'done',
           status,
           progress: status === 'done' ? 100 : Math.min(goal.progress, 99)
         }))
       })
-      refresh()
+      await refresh()
       toast(status === 'done' ? '目标已完成' : '目标已重新打开')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标状态更新失败', 'error')
-      refresh()
+      await refresh()
     } finally {
       setSaving(false)
     }
@@ -164,18 +161,18 @@ export function GoalsPage() {
     setSaving(true)
     try {
       await withSaveState(async () => {
-        updateStoredGoal(goal.id, current => ({
+        await updateStoredGoal(goal.id, current => ({
           ...current,
           progress,
           done: progress === 100,
           status: progress === 100 ? 'done' : 'open'
         }))
       })
-      refresh()
+      await refresh()
       toast(`目标进度已更新为 ${progress}%`)
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标进度更新失败', 'error')
-      refresh()
+      await refresh()
     } finally {
       setSaving(false)
     }
@@ -185,9 +182,8 @@ export function GoalsPage() {
     if (!window.confirm(`确认删除目标“${goal.title}”吗？删除后无法从目标列表恢复。`)) return
     setSaving(true)
     try {
-      const next = readStoredGoals().filter(item => item.id !== goal.id)
-      if (!store.set('goals', next)) throw new Error('目标删除失败')
-      refresh()
+      if (!await goalsRepository.remove(goal.id)) throw new Error('目标删除失败')
+      await refresh()
       toast('目标已删除')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标删除失败', 'error')

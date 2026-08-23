@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createBackup, parseBackup } from '@/core/backup'
+import { legacyMigrationSample } from './fixtures/legacy-migration-sample'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -80,5 +82,46 @@ describe('legacy Case/Task/inbox migration', () => {
     expect(legacyMapping('case', 'case-1')).toBeUndefined()
     expect(legacyMapping('task', 'task-1')).toBeDefined()
     expect(legacyMapping('inbox', 'inbox-1')).toBeUndefined()
+  })
+
+  it('rehearses export, isolated clear, import, migration and protected rollback with a real-shaped sample', async () => {
+    const { cases, tasks, inbox, relations } = legacyMigrationSample
+    const source = {
+      b_cases: cases,
+      b_tasks: tasks,
+      b_inbox: inbox,
+      b_caseRelations: relations
+    }
+    for (const [key, value] of Object.entries(source)) {
+      durable.values.set(key, JSON.stringify(value))
+      localStorage.setItem(key, JSON.stringify(value))
+    }
+    resetStoreCache()
+
+    const exported = createBackup(localStorage)
+    expect(Object.keys(exported)).toEqual(expect.arrayContaining(['b_cases', 'b_tasks', 'b_inbox', 'b_caseRelations']))
+
+    Object.keys(source).forEach(key => localStorage.removeItem(key))
+    resetStoreCache()
+    expect(localStorage.getItem('b_cases')).toBeNull()
+    const imported = parseBackup(JSON.parse(JSON.stringify(exported)))
+    Object.entries(imported).forEach(([key, value]) => localStorage.setItem(key, value))
+    resetStoreCache()
+
+    const report = await ensureLegacyMigration()
+    expect(report).toMatchObject({ status: 'completed', migrated: { cases: 1, tasks: 1, inbox: 1 } })
+    expect(JSON.parse(localStorage.getItem('b_cases') || 'null')).toEqual(cases)
+    expect(JSON.parse(localStorage.getItem('b_tasks') || 'null')).toEqual(tasks)
+    expect(JSON.parse(localStorage.getItem('b_inbox') || 'null')).toEqual(inbox)
+    await expect(actionAsyncRepository.find(legacyTargetId('task', 'task-migration-sample'))).resolves.toMatchObject({
+      matterId: legacyTargetId('case', 'case-migration-sample'),
+      title: '整理本周最重要的三件事'
+    })
+
+    await actionAsyncRepository.update(legacyTargetId('task', 'task-migration-sample'), { resultNote: '用户已经补充结果' })
+    const rollback = await rollbackLegacyMigration()
+    expect(rollback.removed).toEqual({ cases: 1, tasks: 0, inbox: 1 })
+    expect(rollback.preserved).toEqual({ cases: 0, tasks: 1, inbox: 0 })
+    await expect(actionAsyncRepository.find(legacyTargetId('task', 'task-migration-sample'))).resolves.toMatchObject({ resultNote: '用户已经补充结果' })
   })
 })

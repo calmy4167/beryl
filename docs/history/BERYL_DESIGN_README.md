@@ -1,11 +1,11 @@
 # Beryl 个人管理体系 — 设计与维护文档
 
-> **历史参考**：这是 Beryl 旧体系与迁移来源，不再作为 Calmy 当前产品或 UI 基线。当前入口见 [`docs/README.md`](docs/README.md)，状态说明见 [`docs/product/DOCUMENT_REGISTER.md`](docs/product/DOCUMENT_REGISTER.md)。
+> **历史参考**：这是 Beryl 旧体系与迁移来源，不再作为 Calmy 当前产品或 UI 基线。当前入口见 [`../README.md`](../README.md)，状态说明见 [`../product/DOCUMENT_REGISTER.md`](../product/DOCUMENT_REGISTER.md)。
 
 > 本文档是 `index.html` 的完整设计说明与维护日志。
 > **维护约定：每次网页有任何改动，必须同步更新本文档**（详见 [第 9 节 维护规范](#9-维护规范强制约定)）。
 >
-> **历史文档声明（当前有效性）**：第 1–13 节主要记录 v1 单文件/旧 KV 实现；当前仓库是 `D:\dsharness` 的 Vue + 独立 Worker/D1 实现，当前事实以 `docs/DESIGN.md` 和本文 §17 为准。历史章节中的轮询、KV、QuoteWall 和阶段状态不能作为当前系统说明。
+> **历史文档声明（当前有效性）**：第 1–13 节主要记录 v1 单文件/旧 KV 实现；当前仓库是 `D:\dsharness` 的 Vue + 独立 Worker/D1 实现，当前事实以 [`../PROJECT_STRUCTURE.md`](../PROJECT_STRUCTURE.md) 和本文 §17 为准。历史章节中的轮询、KV、QuoteWall 和阶段状态不能作为当前系统说明。
 
 ---
 
@@ -1025,11 +1025,11 @@ npm test             # 组件测试（vitest，建议本机运行）
 
 **P2：产品体验与工程质量**
 
-- [ ] 其余旧模块（习惯、日记、财务、目标、人物、文章、番茄）仍未逐一按新工作台视觉与移动端细节重做；动态模块已完成首版。
+- 其余旧模块的视觉、移动端和回归收口已移入 [`../product/OPEN_WORK.md`](../product/OPEN_WORK.md) 的 OW-07/OW-08；本历史文件不再维护未完成任务。
 - [x] QuoteWall 已重新接入首页；全局课题搜索/命令面板、8 秒撤销删除、统一空状态和主要控件基础无障碍标签已加入。
 - [x] 数据 AES-GCM 传输加密已启用，构建后会把 hash 资源写入 PWA precache；`npm run test:pwa` 已执行本地离线资源完整性演练，真实设备安装仍建议再做一次人工确认。
 - [x] Worker 已拆出 `backend/src/lib/d1.js` 和 `backend/src/routes/sync.js`；更细的业务路由拆分仍属于低收益整理。
-- [x] Element Plus 改为按实际组件注册，入口 JS 约 392 KB；[ ] CSS 进一步拆分仍可优化。
+- [x] Element Plus 改为按实际组件注册，入口 JS 约 392 KB；样式和资源按需拆分的后续工作统一见 [`../product/OPEN_WORK.md`](../product/OPEN_WORK.md) 的 OW-07。
 
 ### 17.4 部署现实与注意事项
 
@@ -1043,4 +1043,4 @@ npm test             # 组件测试（vitest，建议本机运行）
 
 ### 17.5 文档维护规则
 
-任何后续代码改动必须同时更新本节：已实现项移入 §17.1，未做项保留/拆分在 §17.3，并在 `SESSION_HANDOFF.md` 更新交接摘要。不要再把旧的 v1 或 KV 描述当作当前部署说明。
+任何后续代码改动不再在本历史文件拆分任务；已实现项以实现总档案为证据，未完成项统一写入 `../product/OPEN_WORK.md`，交接摘要写入当前交接索引。不要再把旧的 v1 或 KV 描述当作当前部署说明。

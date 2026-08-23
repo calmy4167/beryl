@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withSaveState } from '@/core/save-state'
-import { dateKey, store, todayKey } from '@/core/storage'
+import { createAsyncCollectionRepository } from '@/core/repository'
+import { dateKey, todayKey } from '@/core/storage'
 import { listRealityDocuments } from '@/domain/reality'
 
 interface DiaryEntry {
   date: string
   content: string
 }
+
+const diaryRepository = createAsyncCollectionRepository<DiaryEntry>('diary', item => item.date)
 
 const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success') => {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
@@ -18,10 +21,9 @@ function isDiaryEntry(value: unknown): value is DiaryEntry {
   return typeof item.date === 'string' && typeof item.content === 'string'
 }
 
-function readEntries(): DiaryEntry[] {
+async function readEntries(): Promise<DiaryEntry[]> {
   const documents = listRealityDocuments({ types: ['diary'] })
-  const fallback = store.get<unknown>('diary', [])
-  const stored = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
+  const stored = (await diaryRepository.list()).filter(isDiaryEntry)
   const storedByDate = new Map(stored.map(item => [item.date, item.content]))
 
   return documents
@@ -34,9 +36,8 @@ function readEntries(): DiaryEntry[] {
     .sort((left, right) => right.date.localeCompare(left.date))
 }
 
-function readContent(date: string): string {
-  const fallback = store.get<unknown>('diary', [])
-  const stored = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
+async function readContent(date: string): Promise<string> {
+  const stored = (await diaryRepository.list()).filter(isDiaryEntry)
   const exact = stored.find(item => item.date === date)
   if (exact) return exact.content
 
@@ -64,18 +65,18 @@ export function DiaryPage() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  function refresh(): void {
-    setEntries(readEntries())
+  async function refresh(): Promise<void> {
+    setEntries(await readEntries())
     setLoading(false)
   }
 
   useEffect(() => {
-    setContent(readContent(selectedDate))
+    void readContent(selectedDate).then(setContent)
   }, [selectedDate])
 
   useEffect(() => {
-    refresh()
-    const onDataSynced = () => refresh()
+    void refresh()
+    const onDataSynced = () => { void refresh() }
     window.addEventListener('beryl-data-synced', onDataSynced)
     return () => window.removeEventListener('beryl-data-synced', onDataSynced)
   }, [])
@@ -97,16 +98,14 @@ export function DiaryPage() {
     setSaving(true)
     try {
       await withSaveState(async () => {
-        const fallback = store.get<unknown>('diary', [])
-        const current = Array.isArray(fallback) ? fallback.filter(isDiaryEntry) : []
-        const index = current.findIndex(item => item.date === selectedDate)
-        const next = [...current]
-        if (index >= 0) next[index] = { ...next[index], content: value }
-        else next.push({ date: selectedDate, content: value })
-        if (!store.set('diary', next)) throw new Error('日记保存失败，请检查本地存储状态')
+        const current = (await diaryRepository.list()).filter(isDiaryEntry)
+        const existing = current.find(item => item.date === selectedDate)
+        if (existing) {
+          if (!await diaryRepository.update(selectedDate, () => ({ ...existing, content: value }))) throw new Error('日记保存失败，请检查本地存储状态')
+        } else await diaryRepository.create({ date: selectedDate, content: value })
       })
       setContent(value)
-      refresh()
+      await refresh()
       toast(`日记已保存 · ${selectedDate} 📓`)
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '日记保存失败', 'error')

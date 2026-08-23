@@ -74,7 +74,7 @@ vi.mock('../core/db.ts', () => ({
   recordEntityChanges: vi.fn(async () => undefined)
 }))
 
-import { createAsyncCollectionRepository, createCollectionRepository, flushRepositoryWrites } from '../core/repository'
+import { createAsyncCollectionRepository, createCollectionRepository, flushRepositoryWrites, readAsyncStorageValue, writeAsyncStorageValue } from '../core/repository'
 import { resetStoreCache } from '../core/storage'
 
 describe('Repository durable boundary', () => {
@@ -168,5 +168,14 @@ describe('Repository durable boundary', () => {
 
     await expect(repository.find('t1')).resolves.toEqual({ id: 't1', title: '最终版' })
     expect(durable.values.get('b_tasks')).toBe('[{"id":"t1","title":"最终版"}]')
+  })
+
+  it('uses the same durable boundary for legacy scalar keys', async () => {
+    durable.values.set('b_pomoTotal', '25')
+    localStorage.setItem('b_pomoTotal', '3')
+
+    await expect(readAsyncStorageValue('pomoTotal', 0)).resolves.toBe(25)
+    await expect(writeAsyncStorageValue('pomoTotal', 50)).resolves.toBe(true)
+    expect(durable.values.get('b_pomoTotal')).toBe('50')
   })
 })

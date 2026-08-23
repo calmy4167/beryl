@@ -72,6 +72,29 @@ export function flushRepositoryWrites(): Promise<RepositoryReadyStatus> {
   return next
 }
 
+/**
+ * 读取仍以旧键保存的标量设置，但等待已存在的持久化恢复链完成。
+ * 这让计时器等非集合数据也能遵守与 Repository 相同的 durable 边界。
+ */
+export async function readAsyncStorageValue<T>(key: string, fallback: T): Promise<T> {
+  if (isStoreCacheReady()) return store.get(key, fallback)
+  await flushPendingDbWrites()
+  const snapshot = await readKvSnapshot()
+  const raw = snapshot === undefined ? null : snapshot['b_' + key] ?? null
+  if (raw == null) {
+    if (snapshot !== undefined) return fallback
+    return store.get(key, fallback)
+  }
+  try { return JSON.parse(raw) as T } catch { return fallback }
+}
+
+/** 写入旧键并等待 durable outbox 完成，兼容原有键名和导出格式。 */
+export async function writeAsyncStorageValue<T>(key: string, value: T): Promise<boolean> {
+  if (!store.set(key, value)) return false
+  await flushRepositoryWrites()
+  return true
+}
+
 function queueAsyncRepositoryWrite(key: string, work: () => Promise<void>): Promise<void> {
   const previous = asyncRepositoryWriteChains.get(key) || Promise.resolve()
   const next = previous.then(work, work)

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { applySceneTheme, currentSceneId } from '@/core/scenes'
 import { readSession } from '@/core/auth'
 import { searchAll, type SearchResult } from '@/domain/search'
-import { undoLast } from '@/core/undo'
+import { undoLastAsync } from '@/core/undo'
 import { SAVE_STATE_EVENT, type SaveStateDetail } from '@/core/save-state'
 
 const route = useRoute(); const router = useRouter()
@@ -57,7 +57,7 @@ function onSaveState(event: Event) {
   saveLabel.value = ({ saving: '正在保存…', saved: '已保存到本地', pending: '已保存，等待持久化', conflict: '保存冲突，需要确认', failed: '保存失败' }[detail.state] || '本地优先 · 离线可用')
 }
 function onUndoAvailable() { undoVisible.value = true; window.setTimeout(() => { undoVisible.value = false }, 8000) }
-function undo() { undoVisible.value = !undoLast(); }
+async function undo() { undoVisible.value = !(await undoLastAsync()); }
 onMounted(() => { applySceneTheme(currentSceneId()); window.addEventListener('resize', resize); window.addEventListener('keydown', onKeydown); window.addEventListener('beryl-data-synced', onDataSynced); window.addEventListener(SAVE_STATE_EVENT, onSaveState); window.addEventListener('beryl-undo-available', onUndoAvailable); preloadTimer = window.setTimeout(preloadPrimaryRoutes, 700) })
 onUnmounted(() => { if (preloadTimer) window.clearTimeout(preloadTimer); window.removeEventListener('resize', resize); window.removeEventListener('keydown', onKeydown); window.removeEventListener('beryl-data-synced', onDataSynced); window.removeEventListener(SAVE_STATE_EVENT, onSaveState); window.removeEventListener('beryl-undo-available', onUndoAvailable) })
 </script>

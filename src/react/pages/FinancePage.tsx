@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { store, nextId, fmtDate } from '@/core/storage'
+import { nextId, fmtDate } from '@/core/storage'
+import { createAsyncCollectionRepository } from '@/core/repository'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
-import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
-import { caseRelationRepository, caseRepository } from '@/domain/case/repository'
+import { caseAsyncRelationRepository, caseAsyncRepository } from '@/domain/case/repository'
 
 interface FinanceItem {
   id: string
@@ -14,6 +14,8 @@ interface FinanceItem {
   note: string
   date: string
 }
+
+const financeRepository = createAsyncCollectionRepository<FinanceItem>('finance', item => item.id)
 
 const CATEGORIES = ['餐饮', '交通', '购物', '娱乐', '住房', '工资', '理财', '医疗', '学习', '其他']
 
@@ -48,20 +50,20 @@ function formatCents(cents: number): string {
   return `${sign}${whole}.${fraction}`
 }
 
-function toFinanceItem(item: RealityDocument): FinanceItem {
+function toFinanceItem(item: FinanceItem): FinanceItem {
   return {
     id: item.id,
-    type: item.financeType || item.status || 'expense',
+    type: item.type || 'expense',
     amount: item.amount,
     amountCents: item.amountCents,
-    category: item.category || item.title || '其他',
-    note: item.body || '',
+    category: item.category || '其他',
+    note: item.note || '',
     date: item.date || ''
   }
 }
 
-function loadItems(): FinanceItem[] {
-  return listRealityDocuments({ types: ['transaction'] }).map(toFinanceItem)
+async function loadItems(): Promise<FinanceItem[]> {
+  return (await financeRepository.list()).filter(item => item?.id).map(toFinanceItem)
 }
 
 function PageHead({ count }: { count: number }) {
@@ -76,35 +78,45 @@ function PageHead({ count }: { count: number }) {
 }
 
 function CaseLink({ itemId, onChanged }: { itemId: string; onChanged: () => void }) {
-  const [cases, setCases] = useState(() => caseRepository.list().filter(item => item.status !== 'archived'))
-  const [selected, setSelected] = useState(() => caseRelationRepository.listForTarget('transaction', itemId)[0]?.caseId || '')
+  const [cases, setCases] = useState<Awaited<ReturnType<typeof caseAsyncRepository.list>>>([])
+  const [selected, setSelected] = useState('')
 
   useEffect(() => {
-    const refresh = () => {
-      setCases(caseRepository.list().filter(item => item.status !== 'archived'))
-      setSelected(caseRelationRepository.listForTarget('transaction', itemId)[0]?.caseId || '')
+    let cancelled = false
+    const refresh = async () => {
+      const [nextCases, relations] = await Promise.all([
+        caseAsyncRepository.list(),
+        caseAsyncRelationRepository.listForTarget('transaction', itemId),
+      ])
+      if (cancelled) return
+      setCases(nextCases.filter(item => item.status !== 'archived'))
+      setSelected(relations[0]?.caseId || '')
     }
-    window.addEventListener('beryl-data-synced', refresh)
-    return () => window.removeEventListener('beryl-data-synced', refresh)
+    void refresh()
+    const onDataSynced = () => { void refresh() }
+    window.addEventListener('beryl-data-synced', onDataSynced)
+    return () => { cancelled = true; window.removeEventListener('beryl-data-synced', onDataSynced) }
   }, [itemId])
 
-  function save(value: string): void {
-    caseRelationRepository.unlinkForTarget('transaction', itemId)
-    if (value) caseRelationRepository.link(value, 'transaction', itemId, 'earth')
+  async function save(value: string): Promise<void> {
+    await withSaveState(async () => {
+      await caseAsyncRelationRepository.unlinkForTarget('transaction', itemId)
+      if (value) await caseAsyncRelationRepository.link(value, 'transaction', itemId, 'earth')
+    })
     setSelected(value)
     onChanged()
     window.dispatchEvent(new CustomEvent('beryl-data-synced'))
     toast(value ? '已关联课题' : '已取消课题关联')
   }
 
-  return <select className="case-link" value={selected} aria-label={selected ? '已关联课题' : '关联课题'} onChange={event => save(event.target.value)}>
+  return <select className="case-link" value={selected} aria-label={selected ? '已关联课题' : '关联课题'} onChange={event => { void save(event.target.value) }}>
     <option value="">关联课题</option>
     {cases.map(item => <option key={item.id} value={item.id}>◈ {item.title}</option>)}
   </select>
 }
 
 export function FinancePage() {
-  const [items, setItems] = useState<FinanceItem[]>(loadItems)
+  const [items, setItems] = useState<FinanceItem[]>([])
   const [type, setType] = useState<'expense' | 'income'>('expense')
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState('')
@@ -112,13 +124,15 @@ export function FinancePage() {
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [busyId, setBusyId] = useState<string>()
 
-  function refresh(): void {
-    setItems(loadItems())
+  async function refresh(): Promise<void> {
+    setItems(await loadItems())
   }
 
   useEffect(() => {
-    window.addEventListener('beryl-data-synced', refresh)
-    return () => window.removeEventListener('beryl-data-synced', refresh)
+    void refresh()
+    const onDataSynced = () => { void refresh() }
+    window.addEventListener('beryl-data-synced', onDataSynced)
+    return () => window.removeEventListener('beryl-data-synced', onDataSynced)
   }, [])
 
   const stats = useMemo(() => items.reduce((result, item) => {
@@ -150,12 +164,11 @@ export function FinancePage() {
 
     try {
       await withSaveState(async () => {
-        const current = store.get<FinanceItem[]>('finance', [])
-        if (!store.set('finance', [item, ...(Array.isArray(current) ? current : [])])) throw new Error('财务记录保存失败')
+        await financeRepository.create(item)
       })
       setAmount('')
       setNote('')
-      refresh()
+      await refresh()
       window.dispatchEvent(new CustomEvent('beryl-data-synced'))
       toast(type === 'income' ? '已记录收入' : '已记录支出')
     } catch (error) {
@@ -170,15 +183,14 @@ export function FinancePage() {
 
     try {
       await withSaveState(async () => {
-        const current = store.get<FinanceItem[]>('finance', [])
-        const list = Array.isArray(current) ? [...current] : []
+        const list = await financeRepository.list()
         const index = list.findIndex(candidate => String(candidate.id) === item.id)
         if (index < 0) throw new Error('记录已不存在，请刷新后重试')
         const [removed] = list.splice(index, 1)
-        if (!store.set('finance', list)) throw new Error('删除失败，原记录未改变')
+        if (!await financeRepository.remove(item.id)) throw new Error('删除失败，原记录未改变')
         registerUndo('finance', removed, index, item.id)
       })
-      refresh()
+      await refresh()
       window.dispatchEvent(new CustomEvent('beryl-data-synced'))
       toast('财务记录已删除，可在提示出现后撤销')
     } catch (error) {
@@ -191,7 +203,7 @@ export function FinancePage() {
   function notifyCaseChanged(): void {
     // CaseLink keeps its own selection state; this refreshes the surrounding
     // page when another view changes relation data.
-    refresh()
+    void refresh()
   }
 
   return <div className="finance-page">

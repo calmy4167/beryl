@@ -3,9 +3,9 @@
 版本：v1.0
 日期：2026-08-22（文件名保留原始建档日期）
 性质：工程实现主档案 / 实现事实基线
-上游设计源：`Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`
+上游设计源：[`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)
 
-> 2026-08-22 产品重审：当前产品范围、UI、工程停止线与路线图统一从 [`docs/README.md`](docs/README.md) 进入。本文件继续维护实现证据，但不再单独决定产品优先级。
+> 2026-08-22 产品重审：当前产品范围、UI、工程停止线与路线图统一从 [`docs/README.md`](../README.md) 进入。本文件继续维护实现证据，但不再单独决定产品优先级。
 
 ## 0. 文档定位
 
@@ -365,21 +365,14 @@ source: calmy
 - [x] PWA 构建、类型检查、Node/E2E/PWA/全量测试证据
 - [x] 主要页面导航、表单和状态控件的静态无障碍修复
 
-### 仍需实现或深化
+### 活跃工作索引
 
-- [x] Stage → Record 来源 ID、创建入口、按 Cycle / Stage 查询、修订历史回放与 Open Format 导出
-- [x] Relationship / Shared Space 的多人协作写入、共同实体编辑权限和操作者级共享历史审计
-- [ ] Insight / Seed 从 Review 到知识网络的完整沉淀链
-- [ ] AI provider/offline model、过期历史与更细隐私策略
-- [ ] 真实 Obsidian Vault 实机验证、Companion Bridge 端到端冲突流程和跨设备回归
-- [ ] IndexedDB 主存储、离线写入队列、恢复、备份和迁移
-- [ ] 发布级 UI E2E、移动端实机与手工屏幕阅读器审计
-
-本清单的 `[x]` 只表示当前切片已有代码和验证证据，不表示原始设计的全部范围已经完成。
+活动中的未完成任务已经统一收口到 [docs/product/OPEN_WORK.md](../product/OPEN_WORK.md)，本节不再复制任务列表。
+本档案只保留实现事实、验证证据和已完成切片；“当前切片已实现”不表示原始设计的全部范围已经完成。
 
 ## 15. 2026-08-22 实现对齐快照
 
-本节覆盖并刷新第 10、13、14 节中截至 2026-08-19 的旧状态。原始需求源仍是 `Calmy_Personal_OS_完整产品设计主档案_2026-08-18.docx`；本 Markdown 总档案是实现状态的唯一维护入口，不修改原始 DOCX。
+本节覆盖并刷新第 10、13、14 节中截至 2026-08-19 的旧状态。原始需求源仍是 [`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)；本 Markdown 总档案是实现状态的唯一维护入口，不修改原始 DOCX。
 
 ### 已验证完成的当前切片
 
@@ -426,6 +419,9 @@ source: calmy
 - 新增 `CompleteReview` 应用用例：只负责清理并保存四段 Today Review，保留 revision 乐观并发边界。
 - 备份白名单已覆盖当前领域集合，导入删除键会同步删除 IndexedDB 镜像并等待 durable flush。
 - 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、关联行动→结果 Record 闭环、侧边栏收起/展开、390×844 移动布局、820px 平板无横向溢出与 44px 触控目标、More 抽屉展开和真实 Escape 关闭、Capture/Review 路由 active 状态、真实 Tab/Enter 键盘路径、记录区无横向溢出、Capture 原文保存、建议拒绝后原文保留、导出→清空→导入数据往返、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
+- 新增真实形态迁移样本和回归：覆盖旧 Case/Task/inbox 的备份导出、隔离清空、导入、迁移、关系保持、源集合不变和用户修改后的受保护回滚；备份白名单已包含 `b_tasks`、`b_inbox`。
+- 装饰性名句墙已改为纯本地语料源，首屏不再请求外部 Quote API，并有回归测试确认 `fetch` 不被调用。
+- Graph 建立 Relation、Posts 创建/编辑/归档/删除，以及 Diary、Goals、Habits 的读取和写入已切换到异步 Repository 和统一保存状态边界，保留旧数据键与 URL；Finance、Pomo、Inbox 等扩展兼容写入仍在收口。
 - 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；本轮运行首屏 690.5ms、DOMContentLoaded 402.9ms、load 409.5ms、Today→Today 18.4ms、Today→Capture 165.2ms，允许外部请求数为 0。
 - 桌面 AppShell 已形成四边工作台：左侧主导航、顶部上下文/保存状态、右侧快捷动作、底部快捷命令；窄桌面自动收起右栏，移动端保留底部主导航。
 - 新增 AppShell/Admin/Scene/旧入口静态无障碍回归测试，5/5 通过；完整移动端与屏幕阅读器人工审计仍未完成。
@@ -448,10 +444,14 @@ source: calmy
 - `npm run test:pwa`：通过，67 个本地文件可用。
 - `git diff --check`：通过；仅有既存 CRLF 提示。
 
-### 下一阶段未完成项
+### 活跃工作索引（统一入口）
 
-1. 对 Case→Matter、Task→Action、inbox→Capture 迁移补充真实样本、导出再导入演练；当前增量复制、稳定映射、旧集合保留、旧路由重定向和受保护回滚已完成。
-2. 完成 Matter 高级过程与 Calendar/People 主路径的异步迁移收口；当前共享协作 Gateway、历史回放和核心保存状态协议已完成，旧同步 API 仍保留兼容层。
-3. 扩展核心闭环 UI E2E、数据导出再导入、移动端实机、键盘和手工读屏审计；当前已有独立 smoke harness、性能基线、统一保存状态协议和静态无障碍检查。
-4. 在可用环境补齐真实 Companion Bridge 端到端冲突与跨设备手工回归；当前真实 Vault 的 Local REST 只读访问已验证，但仍没有本项目 Bridge 插件实机证据。
-5. AI provider/offline model、知识网络、共享空间和高级理论视图在核心闭环试点通过前暂缓。
+活跃清单统一见 [docs/product/OPEN_WORK.md](../product/OPEN_WORK.md)；本档案只保留实现事实和验证证据，避免在多个历史文档中维护不同版本的待办。
+
+## 16. 2026-08-24 P0 收口进度
+
+- OW-01 已完成当前代码范围的真实形态迁移演练：`legacy-migration-sample.ts` 覆盖 Case → Matter、Task → Action、inbox → Capture 的备份导出、隔离清空、导入、关系保持、源集合不变和用户修改后受保护回滚；迁移回归 2/2 通过。
+- OW-05 已完成：装饰性名句墙改为本地语料，核心首屏不再请求 Quote API；新增回归确认 `fetch` 调用次数为 0。
+- OW-02 已推进：Graph、Posts、Diary、Goals、Habits、Finance、Pomo、Inbox 的直接同步写入已切换到异步 Repository；Finance 课题关联、Pomo 旧标量键和 Inbox 旧版转换均保留原有键与兼容撤销。剩余是跨仓储流程的 Application Use Case 提取和幂等测试。
+- 新增 durable 边界回归：旧标量键读写、CaseRelation 异步读写均有测试覆盖。
+- 当前验证：`npm test -- --run` 通过 54 个测试文件、264 个测试；`npx vue-tsc --noEmit` 通过；`npm run build` 通过并生成 26 个 PWA precache 文件；`npm run test:pwa` 和 `node test/ui-runtime.mjs` 通过。构建仍存在既有第三方注释与大 chunk 提示，但不阻断发布。
