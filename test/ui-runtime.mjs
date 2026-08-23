@@ -572,6 +572,43 @@ async function run() {
       ok: !!document.querySelector('.sidebar') && !!document.querySelector('.desktop-topbar') && !document.querySelector('.bottom-nav')
     }))()`)
 
+    const rightSidebarDefault = await waitForCondition(cdp, 'right-sidebar-default-collapsed', `(() => {
+      const shell = document.querySelector('.app-shell')
+      const rail = document.querySelector('#app-right-sidebar')
+      const trigger = document.querySelector('.sidebar-foot [aria-controls="app-right-sidebar"]')
+      return {
+        ok: shell?.classList.contains('right-sidebar-collapsed') === true && !!rail && getComputedStyle(rail).display === 'flex' && Math.round(rail.getBoundingClientRect().width) === 72 && trigger?.getAttribute('aria-expanded') === 'false' && !trigger?.hasAttribute('aria-haspopup') && document.documentElement.scrollWidth <= window.innerWidth + 1,
+        width: rail?.getBoundingClientRect().width || 0,
+        expanded: trigger?.getAttribute('aria-expanded') || null
+      }
+    })()`)
+    await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-foot [aria-controls="app-right-sidebar"]')?.click(); return true })()`)
+    const rightSidebarExpanded = await waitForCondition(cdp, 'right-sidebar-expanded', `(() => {
+      const shell = document.querySelector('.app-shell')
+      const rail = document.querySelector('#app-right-sidebar')
+      return {
+        ok: shell?.classList.contains('right-sidebar-expanded') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '0' && Math.round(rail?.getBoundingClientRect().width || 0) === 264 && document.querySelector('.right-sidebar-toggle')?.getAttribute('aria-label') === '收起右侧栏' && document.documentElement.scrollWidth <= window.innerWidth + 1,
+        width: rail?.getBoundingClientRect().width || 0
+      }
+    })()`)
+    await evaluateStable(cdp, `(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, shiftKey: true, bubbles: true })); return true })()`)
+    const rightSidebarKeyboardCollapsed = await waitForCondition(cdp, 'right-sidebar-keyboard-collapse', `(() => ({
+      ok: document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '1' && document.querySelector('.right-sidebar-toggle')?.getAttribute('aria-label') === '展开右侧栏'
+    }))()`)
+
+    const cycleRoute = await navigateHashWithRetry('cycle-route', '#/app/cycle', `(() => ({
+      ok: location.hash.includes('/app/cycle') && !!document.querySelector('.cycle-page') && !!document.querySelector('.cycle-orbit') && document.documentElement.scrollWidth <= window.innerWidth + 1
+    }))()`)
+    const profileRoute = await navigateHashWithRetry('profile-route', '#/app/profile', `(() => ({
+      ok: location.hash.includes('/app/profile') && !!document.querySelector('.profile-page') && !!document.querySelector('.profile-module-grid') && document.body.innerText.includes('全部模块入口') && document.documentElement.scrollWidth <= window.innerWidth + 1
+    }))()`)
+    const goalsRoute = await navigateHashWithRetry('goals-route', '#/app/module/goals', `(() => ({
+      ok: location.hash.includes('/app/module/goals') && !!document.querySelector('.goals-page') && document.documentElement.scrollWidth <= window.innerWidth + 1
+    }))()`)
+    const itemsAlias = await navigateHashWithRetry('items-alias-route', '#/app/items', `(() => ({
+      ok: location.hash.includes('/app/matters') && !!document.querySelector('.matters-page')
+    }))()`)
+
     await evaluateStable(cdp, `(() => { location.hash = '#/app/home'; return true })()`)
     await waitForCondition(cdp, 'home-compatibility-redirect', `(() => ({
       ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page')
@@ -587,8 +624,10 @@ async function run() {
       ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') &&
         [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task')) &&
         document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true &&
+        document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true &&
         document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
       sidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
+      rightSidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '1',
       route: location.hash,
       persistedTask: localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') || false,
       externalAttempts: window.__uiSmokeExternalAttempts?.length || 0
@@ -608,6 +647,9 @@ async function run() {
       captureRejectPreservesSource: rejected.ok && rejected.persistedCapture,
       refreshRestoredLocalData: refreshed.ok && refreshed.persistedTask,
       sidebarStateRestoredAfterRefresh: refreshed.sidebarCollapsed,
+      rightSidebarVisible: rightSidebarDefault.ok && rightSidebarExpanded.ok && rightSidebarKeyboardCollapsed.ok,
+      rightSidebarStateRestoredAfterRefresh: refreshed.rightSidebarCollapsed,
+      referencePagesVisible: cycleRoute.ok && profileRoute.ok && goalsRoute.ok && itemsAlias.ok,
       mobileLayoutVisible: mobileLayout.ok,
       mobileDrawerVisible: mobileDrawer.ok,
       mobileDrawerClosed: mobileDrawerClosed.ok,
