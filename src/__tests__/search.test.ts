@@ -4,11 +4,14 @@ import { captureRepository } from '@/domain/capture'
 import { matterRepository } from '@/domain/matter/repository'
 import { recordRepository } from '@/domain/record/repository'
 import { searchAll } from '@/domain/search'
+import { searchAllAsync } from '@/domain/search'
+import { actionAsyncRepository } from '@/domain/action/repository'
+import { resetStoreCache } from '@/core/storage'
 import { todayRepository } from '@/domain/today/repository'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified'
 
 describe('global search query', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { localStorage.clear(); resetStoreCache() })
 
   it('finds legacy and unified entities by title and body text', () => {
     const matter = matterRepository.create({ title: '供应商交付', why: '需要确认新的交付节奏' })
@@ -63,5 +66,13 @@ describe('global search query', () => {
     expect(searchAll('深度工作')[0]).toMatchObject({ type: 'today', id: today.date, route: '/app/today' })
     expect(searchAll('   ', 2)).toHaveLength(2)
     expect(searchAll('不存在的词')).toEqual([])
+  })
+
+  it('searches React production data through the async Reality boundary', async () => {
+    const action = await actionAsyncRepository.create({ title: '异步搜索行动', date: '2026-08-28' })
+
+    const results = await searchAllAsync('异步搜索')
+
+    expect(results).toEqual([expect.objectContaining({ id: action.calmyId, type: 'action', route: '/app/today' })])
   })
 })

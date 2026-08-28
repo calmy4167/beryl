@@ -3,6 +3,7 @@ import { nextId, fmtDate } from '@/core/storage'
 import { createAsyncCollectionRepository } from '@/core/repository'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
+import { linkFinanceToCase } from '@/application'
 import { caseAsyncRelationRepository, caseAsyncRepository } from '@/domain/case/repository'
 
 interface FinanceItem {
@@ -100,8 +101,7 @@ function CaseLink({ itemId, onChanged }: { itemId: string; onChanged: () => void
 
   async function save(value: string): Promise<void> {
     await withSaveState(async () => {
-      await caseAsyncRelationRepository.unlinkForTarget('transaction', itemId)
-      if (value) await caseAsyncRelationRepository.link(value, 'transaction', itemId, 'earth')
+      await linkFinanceToCase({ caseId: value, transactionId: itemId, phase: 'earth', commandId: nextId() })
     })
     setSelected(value)
     onChanged()

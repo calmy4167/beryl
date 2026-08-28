@@ -17,7 +17,7 @@ export type CoreEntitySource = typeof CORE_ENTITY_SOURCES[number]
 export const ELEMENT_STAGES = ['wood', 'fire', 'earth', 'metal', 'water'] as const
 export type ElementStage = typeof ELEMENT_STAGES[number]
 
-export const TRAJECTORIES = ['advancing', 'stable', 'stalled', 'retreating', 'recovering', 'diverging'] as const
+export const TRAJECTORIES = ['advancing', 'stable', 'stalled', 'retreating', 'diverging', 'lost', 'recovering', 'restarting', 'unknown'] as const
 export type Trajectory = typeof TRAJECTORIES[number]
 
 export interface CoreEntityMeta {
@@ -152,6 +152,10 @@ export interface Insight extends CoreEntityMeta {
   matterIds: string[]
   resourceIds: string[]
   status: 'draft' | 'confirmed' | 'retired'
+  /** The user-facing memory view. This is metadata on an Insight, not a second entity. */
+  memoryLayer?: 'ai_inference' | 'preference' | 'principle'
+  confirmedAt?: number
+  deniedAt?: number
 }
 
 export interface Outcome extends CoreEntityMeta {

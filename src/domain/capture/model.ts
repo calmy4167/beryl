@@ -42,7 +42,7 @@ export interface AiSuggestion {
 }
 
 export class CaptureDomainError extends Error {
-  constructor(public readonly code: 'VALIDATION_FAILED' | 'NOT_FOUND' | 'INVALID_STATUS', message: string) {
+  constructor(public readonly code: 'VALIDATION_FAILED' | 'NOT_FOUND' | 'INVALID_STATUS' | 'REVISION_CONFLICT', message: string) {
     super(message)
     this.name = 'CaptureDomainError'
   }

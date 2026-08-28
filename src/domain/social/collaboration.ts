@@ -104,6 +104,11 @@ async function auditWriteAsync(entry: Omit<SharedAuditEntry, 'id' | 'occurredAt'
   await asyncAudit.create({ ...entry, id: createEntityId(), occurredAt: Date.now() })
 }
 
+async function existingSharedEntity<T>(requestCommandId: string, find: (entityId: string) => Promise<T | undefined>): Promise<T | undefined> {
+  const auditEntry = (await asyncAudit.list()).find(item => item.commandId === requestCommandId)
+  return auditEntry ? find(auditEntry.entityId) : undefined
+}
+
 export function listSharedAudit(owner?: SharedOwnerType, ownerId?: string, matterId?: string): SharedAuditEntry[] {
   return audit.list()
     .filter(item => (!owner || item.owner === owner) && (!ownerId || item.ownerId === ownerId) && (!matterId || item.matterId === matterId))
@@ -235,92 +240,130 @@ async function assertWriteAsync(owner: SharedOwnerType, ownerId: string, actorId
   return access
 }
 
-export async function createCollaborativeRelationshipAsync(input: Omit<Relationship, 'calmyId' | 'entityType' | 'createdAt' | 'updatedAt' | 'revision' | 'source'>, actorId = currentCollaboratorId()): Promise<Relationship> {
-  const id = commandId()
+export async function createCollaborativeRelationshipAsync(input: Omit<Relationship, 'calmyId' | 'entityType' | 'createdAt' | 'updatedAt' | 'revision' | 'source'>, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<Relationship> {
+  const id = requestCommandId || commandId()
+  const duplicate = requestCommandId ? await existingSharedEntity(id, entityId => unifiedAsyncRepository.find<Relationship>('relationship', entityId)) : undefined
+  if (duplicate) return duplicate
   const relationship = await unifiedAsyncRepository.create(unifiedFactories.relationship({ ...input, ownerId: actorId }), { commandId: id, actorId, sourceIds: ['shared:relationship'] })
   await auditWriteAsync({ owner: 'relationship', ownerId: relationship.calmyId, entityType: 'relationship', entityId: relationship.calmyId, operation: 'create', commandId: id, actorId, fromRevision: 0, toRevision: relationship.revision, patch: relationship })
   return relationship
 }
 
-export async function createCollaborativeSharedSpaceAsync(input: Omit<SharedSpace, 'calmyId' | 'entityType' | 'createdAt' | 'updatedAt' | 'revision' | 'source'>, actorId = currentCollaboratorId()): Promise<SharedSpace> {
-  const id = commandId()
+export async function createCollaborativeSharedSpaceAsync(input: Omit<SharedSpace, 'calmyId' | 'entityType' | 'createdAt' | 'updatedAt' | 'revision' | 'source'>, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<SharedSpace> {
+  const id = requestCommandId || commandId()
+  const duplicate = requestCommandId ? await existingSharedEntity(id, entityId => unifiedAsyncRepository.find<SharedSpace>('shared_space', entityId)) : undefined
+  if (duplicate) return duplicate
   const space = await unifiedAsyncRepository.create(unifiedFactories.sharedSpace({ ...input, ownerId: actorId }), { commandId: id, actorId, sourceIds: ['shared:shared_space'] })
   await auditWriteAsync({ owner: 'shared_space', ownerId: space.calmyId, entityType: 'shared_space', entityId: space.calmyId, operation: 'create', commandId: id, actorId, fromRevision: 0, toRevision: space.revision, patch: space })
   return space
 }
 
-export async function updateCollaborativeRelationshipAsync(id: string, patch: Partial<Relationship>, expectedRevision: number | undefined, actorId = currentCollaboratorId()): Promise<Relationship> {
+export async function updateCollaborativeRelationshipAsync(id: string, patch: Partial<Relationship>, expectedRevision: number | undefined, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<Relationship> {
   const current = await unifiedAsyncRepository.find<Relationship>('relationship', id)
   if (!current) throw new SharedPermissionError('Relationship 不存在')
   await assertWriteAsync('relationship', id, actorId, undefined, true)
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => unifiedAsyncRepository.find<Relationship>('relationship', entityId))
+    if (duplicate) return duplicate
+  }
   const next = await unifiedAsyncRepository.update<Relationship>('relationship', id, patch, { commandId: command, actorId, expectedRevision, sourceIds: ['shared:relationship'] })
   await auditWriteAsync({ owner: 'relationship', ownerId: id, entityType: 'relationship', entityId: id, operation: 'update', commandId: command, actorId, fromRevision: current.revision, toRevision: next.revision, patch })
   return next
 }
 
-export async function updateCollaborativeSharedSpaceAsync(id: string, patch: Partial<SharedSpace>, expectedRevision: number | undefined, actorId = currentCollaboratorId()): Promise<SharedSpace> {
+export async function updateCollaborativeSharedSpaceAsync(id: string, patch: Partial<SharedSpace>, expectedRevision: number | undefined, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<SharedSpace> {
   const current = await unifiedAsyncRepository.find<SharedSpace>('shared_space', id)
   if (!current) throw new SharedPermissionError('Shared Space 不存在')
   await assertWriteAsync('shared_space', id, actorId, undefined, true)
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => unifiedAsyncRepository.find<SharedSpace>('shared_space', entityId))
+    if (duplicate) return duplicate
+  }
   const next = await unifiedAsyncRepository.update<SharedSpace>('shared_space', id, patch, { commandId: command, actorId, expectedRevision, sourceIds: ['shared:shared_space'] })
   await auditWriteAsync({ owner: 'shared_space', ownerId: id, entityType: 'shared_space', entityId: id, operation: 'update', commandId: command, actorId, fromRevision: current.revision, toRevision: next.revision, patch })
   return next
 }
 
-export async function updateSharedMatterAsync(owner: SharedOwnerType, ownerId: string, matterId: string, patch: MatterUpdatePatch, expectedRevision: number | undefined, actorId = currentCollaboratorId()): Promise<Matter> {
+export async function updateSharedMatterAsync(owner: SharedOwnerType, ownerId: string, matterId: string, patch: MatterUpdatePatch, expectedRevision: number | undefined, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<Matter> {
   await assertWriteAsync(owner, ownerId, actorId, matterId)
   const current = await matterAsyncRepository.find(matterId)
   if (!current) throw new SharedPermissionError('Matter 不存在')
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => matterAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
   const next = await matterAsyncRepository.update(matterId, patch, { commandId: command, actorId, expectedRevision, sourceIds: [`shared:${owner}:${ownerId}`] } satisfies MatterCommandMeta)
   await auditWriteAsync({ owner, ownerId, matterId, entityType: 'matter', entityId: matterId, operation: 'update', commandId: command, actorId, fromRevision: current.revision, toRevision: next.revision, patch })
   return next
 }
 
-export async function updateSharedActionAsync(owner: SharedOwnerType, ownerId: string, actionId: string, patch: Partial<ActionItem>, matterId: string, expectedRevision: number | undefined, actorId = currentCollaboratorId()): Promise<ActionItem> {
+export async function updateSharedActionAsync(owner: SharedOwnerType, ownerId: string, actionId: string, patch: Partial<ActionItem>, matterId: string, expectedRevision: number | undefined, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<ActionItem> {
   await assertWriteAsync(owner, ownerId, actorId, matterId)
   const current = await actionAsyncRepository.find(actionId)
   if (!current || current.matterId !== matterId) throw new SharedPermissionError('共享 Action 不存在或不属于该 Matter')
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => actionAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
   const next = await actionAsyncRepository.update(actionId, patch, { commandId: command, actorId, expectedRevision, sourceIds: [`shared:${owner}:${ownerId}`] } satisfies ActionCommandMeta)
   await auditWriteAsync({ owner, ownerId, matterId, entityType: 'action', entityId: actionId, operation: 'update', commandId: command, actorId, fromRevision: current.revision, toRevision: next.revision, patch })
   return next
 }
 
-export async function createSharedActionAsync(owner: SharedOwnerType, ownerId: string, input: ActionCreateInput, matterId: string, actorId = currentCollaboratorId()): Promise<ActionItem> {
+export async function createSharedActionAsync(owner: SharedOwnerType, ownerId: string, input: ActionCreateInput, matterId: string, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<ActionItem> {
   await assertWriteAsync(owner, ownerId, actorId, matterId)
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => actionAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
   const action = await actionAsyncRepository.create({ ...input, matterId }, { commandId: command, actorId, sourceIds: [`shared:${owner}:${ownerId}`] })
   await auditWriteAsync({ owner, ownerId, matterId, entityType: 'action', entityId: action.calmyId, operation: 'create', commandId: command, actorId, fromRevision: 0, toRevision: action.revision, patch: input })
   return action
 }
 
-export async function transitionSharedActionAsync(owner: SharedOwnerType, ownerId: string, actionId: string, status: ActionStatus, matterId: string, expectedRevision: number | undefined, actorId = currentCollaboratorId(), resultNote?: string): Promise<ActionItem> {
+export async function transitionSharedActionAsync(owner: SharedOwnerType, ownerId: string, actionId: string, status: ActionStatus, matterId: string, expectedRevision: number | undefined, actorId = currentCollaboratorId(), resultNote?: string, requestCommandId?: string): Promise<ActionItem> {
   await assertWriteAsync(owner, ownerId, actorId, matterId)
   const current = await actionAsyncRepository.find(actionId)
   if (!current || current.matterId !== matterId) throw new SharedPermissionError('共享 Action 不存在或不属于该 Matter')
-  const command = commandId()
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => actionAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
   const next = await actionAsyncRepository.transition(actionId, status, expectedRevision, resultNote, { commandId: command, actorId, sourceIds: [`shared:${owner}:${ownerId}`] })
   await auditWriteAsync({ owner, ownerId, matterId, entityType: 'action', entityId: actionId, operation: 'transition', commandId: command, actorId, fromRevision: current.revision, toRevision: next.revision, patch: { status, resultNote } })
   return next
 }
 
-export async function createSharedRecordAsync(owner: SharedOwnerType, ownerId: string, input: RecordCreateInput, actorId = currentCollaboratorId()): Promise<RealityRecord> {
+export async function createSharedRecordAsync(owner: SharedOwnerType, ownerId: string, input: RecordCreateInput, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<RealityRecord> {
   const matterId = input.matterId
   if (!matterId) throw new SharedPermissionError('共享 Record 必须归属 Matter')
   await assertWriteAsync(owner, ownerId, actorId, matterId)
-  const record = await recordAsyncRepository.create(input, { actorId, sourceIds: [`shared:${owner}:${ownerId}`] })
-  await auditWriteAsync({ owner, ownerId, matterId, entityType: 'record', entityId: record.calmyId, operation: 'create', commandId: commandId(), actorId, fromRevision: 0, toRevision: record.revision, patch: input })
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => recordAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
+  const record = await recordAsyncRepository.create(input, { commandId: command, actorId, sourceIds: [`shared:${owner}:${ownerId}`] })
+  await auditWriteAsync({ owner, ownerId, matterId, entityType: 'record', entityId: record.calmyId, operation: 'create', commandId: command, actorId, fromRevision: 0, toRevision: record.revision, patch: input })
   return record
 }
 
-export async function reviseSharedRecordAsync(owner: SharedOwnerType, ownerId: string, recordId: string, body: string, reason: string, expectedRevision: number | undefined, actorId = currentCollaboratorId()): Promise<RealityRecord> {
+export async function reviseSharedRecordAsync(owner: SharedOwnerType, ownerId: string, recordId: string, body: string, reason: string, expectedRevision: number | undefined, actorId = currentCollaboratorId(), requestCommandId?: string): Promise<RealityRecord> {
   const current = await recordAsyncRepository.find(recordId)
   if (!current?.matterId) throw new SharedPermissionError('共享 Record 不存在或没有 Matter')
   await assertWriteAsync(owner, ownerId, actorId, current.matterId)
-  const record = await recordAsyncRepository.revise(recordId, body, reason, 'user', expectedRevision, actorId)
-  await auditWriteAsync({ owner, ownerId, matterId: current.matterId, entityType: 'record', entityId: recordId, operation: 'revise', commandId: commandId(), actorId, fromRevision: current.revision - 1, toRevision: record.revision, patch: { body, reason } })
+  const command = requestCommandId || commandId()
+  if (requestCommandId) {
+    const duplicate = await existingSharedEntity(command, entityId => recordAsyncRepository.find(entityId))
+    if (duplicate) return duplicate
+  }
+  const record = await recordAsyncRepository.revise(recordId, body, reason, 'user', expectedRevision, actorId, { commandId: command })
+  await auditWriteAsync({ owner, ownerId, matterId: current.matterId, entityType: 'record', entityId: recordId, operation: 'revise', commandId: command, actorId, fromRevision: current.revision, toRevision: record.revision, patch: { body, reason } })
   return record
 }

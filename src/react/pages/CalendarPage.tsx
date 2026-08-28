@@ -50,6 +50,10 @@ const statusLabels: Record<string, string> = {
   heavy: '沉重',
   overloaded: '过载',
 }
+const trajectoryLabels: Record<string, string> = {
+  advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路',
+  lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知',
+}
 
 const calendarCss = `
 .calendar-page{max-width:1180px;margin:0 auto}
@@ -306,7 +310,7 @@ export function CalendarPage() {
             <span>记录 <b>{selectedEvidence.records.length}</b></span>
             {state && <span>负荷 <b>{state.load}%</b></span>}
           </div>
-          {state ? <div className="state-line"><b>身体：{statusLabels[state.bodyState] || state.bodyState}</b><span>心理：{statusLabels[state.mentalState] || state.mentalState}</span><strong>趋势：{state.trajectory}</strong></div> : <p className="muted">这一天没有 DailyState，不对容量做空白推断。</p>}
+          {state ? <div className="state-line"><b>身体：{statusLabels[state.bodyState] || state.bodyState}</b><span>心理：{statusLabels[state.mentalState] || state.mentalState}</span><strong>趋势：{trajectoryLabels[state.trajectory] || state.trajectory}</strong></div> : <p className="muted">这一天没有 DailyState，不对容量做空白推断。</p>}
           <div className="day-list">
             {selectedEvidence.actions.map(item => <div key={item.calmyId}><i className={item.status === 'done' ? 'done' : ''} /><span>{item.title}</span><small>{statusLabels[item.status] || item.status}</small></div>)}
             {!selectedEvidence.actions.length && <p className="muted">没有行动证据。</p>}
@@ -360,4 +364,3 @@ export function CalendarPage() {
     </section>
   </div>
 }
-

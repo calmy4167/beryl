@@ -1,4 +1,4 @@
-import { listRealityDocuments, type RealityDocument, type RealityEntityType, type RealitySource } from '@/domain/reality'
+import { listRealityDocuments, listRealityDocumentsAsync, type RealityDocument, type RealityEntityType, type RealitySource } from '@/domain/reality'
 
 export type SearchResultType = RealityEntityType
 
@@ -59,9 +59,9 @@ function scoreDocument(document: RealityDocument, tokens: string[]): number {
   return tokens.reduce((score, token) => score + (title.includes(token) ? 8 : 0) + (summary.includes(token) ? 3 : 0) + 1, 0)
 }
 
-export function searchAll(query: string, limit = 20): SearchResult[] {
+function searchDocuments(documents: RealityDocument[], query: string, limit: number): SearchResult[] {
   const tokens = normalize(query).split(/\s+/).filter(Boolean)
-  return listRealityDocuments()
+  return documents
     .map(document => ({ document, score: scoreDocument(document, tokens) }))
     .filter(item => !tokens.length || item.score >= 0)
     .sort((a, b) => b.score - a.score || b.document.updatedAt - a.document.updatedAt || a.document.title.localeCompare(b.document.title))
@@ -78,4 +78,13 @@ export function searchAll(query: string, limit = 20): SearchResult[] {
       updatedAt: document.updatedAt,
       score
     }))
+}
+
+export function searchAll(query: string, limit = 20): SearchResult[] {
+  return searchDocuments(listRealityDocuments(), query, limit)
+}
+
+/** React 生产入口使用异步 Reality 查询，搜索不能重新绕回同步存储。 */
+export async function searchAllAsync(query: string, limit = 20): Promise<SearchResult[]> {
+  return searchDocuments(await listRealityDocumentsAsync(), query, limit)
 }

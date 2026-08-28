@@ -1,7 +1,8 @@
 import { apiFetch } from './api/client'
-import { DEVICE_ID, dbMirrorPut, readEntityChanges, type EntityChange } from './db'
+import { DEVICE_ID, readEntityChanges, type EntityChange } from './db'
 import { decryptValue, encryptValue } from './crypto'
 import { lsGet, lsSet, safeParse } from './storage'
+import { flushRepositoryWrites } from './repository'
 
 export interface EntitySyncCursor { ts: number; device: string; entity: string; entityId: string }
 export interface EntitySyncRecord { entity: string; entityId: string; value?: unknown; updatedAt: number; device: string; deleted?: boolean }
@@ -34,23 +35,56 @@ function localEntitySnapshot(): EntityChange[] {
   return out
 }
 
+/**
+ * 按实体同步协议的时间戳与设备 ID 进行 LWW 裁决。
+ * 相同设备、相同时间戳视为同一版本，保留本地值，避免重复拉取造成抖动。
+ */
+export function isRemoteEntityRecordNewer(record: EntitySyncRecord, local?: Pick<EntityChange, 'updatedAt' | 'device'>): boolean {
+  if (!local) return true
+  return record.updatedAt > local.updatedAt || (record.updatedAt === local.updatedAt && record.device > local.device)
+}
+
+function latestLocalEntityVersions(changes: EntityChange[]): Map<string, Pick<EntityChange, 'updatedAt' | 'device'>> {
+  const versions = new Map<string, Pick<EntityChange, 'updatedAt' | 'device'>>()
+  for (const change of changes) {
+    const key = `${change.entity}:${change.entityId}`
+    const current = versions.get(key)
+    if (!current || change.updatedAt > current.updatedAt || (change.updatedAt === current.updatedAt && change.device > current.device)) {
+      versions.set(key, { updatedAt: change.updatedAt, device: change.device })
+    }
+  }
+  return versions
+}
+
 /** 将实体级远端记录应用到本地集合；不写入本地实体变更日志，避免回环推送。 */
-export function applyEntityRecords(records: EntitySyncRecord[]): number {
+export async function applyEntityRecords(records: EntitySyncRecord[], localChanges?: EntityChange[]): Promise<number> {
+  const localVersions = latestLocalEntityVersions(localChanges || await readEntityChanges(5000))
   const grouped = new Map<string, EntitySyncRecord[]>()
   records.forEach(record => { if (ENTITY_COLLECTIONS.includes(record.entity)) grouped.set(record.entity, [...(grouped.get(record.entity) || []), record]) })
   let applied = 0
   for (const [entity, changes] of grouped) {
     const current = safeParse<unknown>(lsGet(`b_${entity}`) || '')
     const list = Array.isArray(current) ? current.slice() as Record<string, unknown>[] : []
+    let entityApplied = 0
     for (const record of changes) {
+      const versionKey = `${record.entity}:${record.entityId}`
+      const localVersion = localVersions.get(versionKey)
+      if (!isRemoteEntityRecordNewer(record, localVersion)) continue
       const index = list.findIndex(item => idFor(entity, item) === record.entityId)
-      if (record.deleted) { if (index >= 0) { list.splice(index, 1); applied++ } }
-      else if (record.value && typeof record.value === 'object') { if (index >= 0) list[index] = record.value as Record<string, unknown>; else list.unshift(record.value as Record<string, unknown>); applied++ }
+      if (record.deleted) { if (index >= 0) { list.splice(index, 1); entityApplied++ } }
+      else if (record.value && typeof record.value === 'object') { if (index >= 0) list[index] = record.value as Record<string, unknown>; else list.unshift(record.value as Record<string, unknown>); entityApplied++ }
+      localVersions.set(versionKey, { updatedAt: record.updatedAt, device: record.device })
     }
     const value = JSON.stringify(list)
-    if (lsSet(`b_${entity}`, value)) void dbMirrorPut(`b_${entity}`, value)
+    if (entityApplied) {
+      if (!lsSet(`b_${entity}`, value)) throw new Error(`entity-apply-failed:${entity}`)
+      applied += entityApplied
+    }
   }
-  if (applied && typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+  if (applied) {
+    await flushRepositoryWrites()
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+  }
   return applied
 }
 
@@ -119,17 +153,19 @@ export async function syncEntityData(baseUrl: string, token: string): Promise<{ 
   const savedCursor = safeParse<EntitySyncCursor>(lsGet(ENTITY_CURSOR_KEY) || '') || { ts: 0, device: '', entity: '', entityId: '' }
   let pulled = await pullAllEntityChanges(baseUrl, token, savedCursor)
   if (!lsGet(ENTITY_READY_KEY)) {
-    if (pulled.records.length) applyEntityRecords(pulled.records)
-    else {
-      const snapshot = localEntitySnapshot()
-      if (snapshot.length) {
-        const ok = await pushEntityChanges(baseUrl, token, snapshot)
-        if (ok) lsSet(ENTITY_PUSH_TS_KEY, String(Math.max(...snapshot.map(change => change.updatedAt))))
-      }
+    // 首次连接同时存在本地和远端数据时，先把本地快照送入云端，再按同一批
+    // 本地版本应用远端记录。这样不会因为“远端有数据”而跳过未进入实体日志
+    // 的旧本地记录；任一步失败都不写 ready/cursor，下一次仍可重试。
+    const snapshot = localEntitySnapshot()
+    if (snapshot.length) {
+      const ok = await pushEntityChanges(baseUrl, token, snapshot)
+      if (!ok) throw new Error('entity-initial-push-failed')
+      if (!lsSet(ENTITY_PUSH_TS_KEY, String(Math.max(...snapshot.map(change => change.updatedAt))))) throw new Error('entity-push-watermark-failed')
     }
-    lsSet(ENTITY_READY_KEY, '1')
-  } else if (pulled.records.length) applyEntityRecords(pulled.records)
-  lsSet(ENTITY_CURSOR_KEY, JSON.stringify(pulled.cursor))
+    if (pulled.records.length) await applyEntityRecords(pulled.records, snapshot)
+    if (!lsSet(ENTITY_READY_KEY, '1')) throw new Error('entity-ready-write-failed')
+  } else if (pulled.records.length) await applyEntityRecords(pulled.records)
+  if (!lsSet(ENTITY_CURSOR_KEY, JSON.stringify(pulled.cursor))) throw new Error('entity-cursor-write-failed')
   const pending = await readEntityChanges(500, Number(lsGet(ENTITY_PUSH_TS_KEY) || 0))
   if (!pending.length) return { pulled: pulled.records.length, pushed: 0 }
   const pushed = await pushEntityChanges(baseUrl, token, pending) ? pending.length : 0

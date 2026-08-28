@@ -4,6 +4,7 @@ import type { TodayPlan, TodayReview } from '@/domain/today/model'
 export interface CompleteReviewInput {
   date: string
   review: TodayReview
+  letGo?: string[]
   expectedRevision: number
 }
 
@@ -21,6 +22,9 @@ function cleanReview(review: TodayReview): TodayReview {
 }
 
 export async function completeReview(input: CompleteReviewInput): Promise<CompleteReviewResult> {
-  const plan = await todayAsyncRepository.update(input.date, { review: cleanReview(input.review) }, input.expectedRevision)
+  const plan = await todayAsyncRepository.update(input.date, {
+    review: cleanReview(input.review),
+    ...(input.letGo ? { letGo: input.letGo.map(item => item.trim()).filter(Boolean) } : {}),
+  }, input.expectedRevision)
   return { plan }
 }

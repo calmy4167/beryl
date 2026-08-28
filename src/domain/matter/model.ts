@@ -4,7 +4,7 @@ export type MatterStatus = typeof MATTER_STATUSES[number]
 export const MATTER_STAGES = ['wood', 'fire', 'earth', 'metal', 'water'] as const
 export type MatterStage = typeof MATTER_STAGES[number]
 
-export const MATTER_TRAJECTORIES = ['advancing', 'stable', 'stalled', 'retreating', 'recovering', 'diverging'] as const
+export const MATTER_TRAJECTORIES = ['advancing', 'stable', 'stalled', 'retreating', 'diverging', 'lost', 'recovering', 'restarting', 'unknown'] as const
 export type MatterTrajectory = typeof MATTER_TRAJECTORIES[number]
 
 export interface Matter {

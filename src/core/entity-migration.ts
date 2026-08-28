@@ -1,5 +1,6 @@
 import { createBackup } from './backup'
 import { DEVICE_ID, flushPendingDbWrites, readKvSnapshot } from './db'
+import { lsRemove, lsSet } from './storage'
 import type { EntitySyncRecord } from './entity-sync'
 
 export interface EntityMigrationPlan {
@@ -67,6 +68,42 @@ export function rollbackMigration(source: Storage = localStorage): boolean {
   } catch {
     for (const key of COLLECTION_KEYS) source.removeItem(key)
     for (const [key, value] of Object.entries(before)) source.setItem(key, value)
+    return false
+  }
+}
+
+/**
+ * Durable rollback for the migration UI. The legacy synchronous function is
+ * kept for custom Storage callers, while production localStorage writes go
+ * through the normal IndexedDB outbox and therefore cannot be overwritten by
+ * a stale mirror on the next startup.
+ */
+export async function rollbackMigrationDurable(source: Storage = localStorage): Promise<boolean> {
+  if (source !== localStorage) return rollbackMigration(source)
+  const raw = source.getItem('b_entity_migration_backup')
+  if (!raw) return false
+  let parsed: { snapshot?: Record<string, string> }
+  try { parsed = JSON.parse(raw) } catch { return false }
+  if (!parsed.snapshot || typeof parsed.snapshot !== 'object') return false
+  const before = createBackup(source)
+  const apply = (snapshot: Record<string, string>) => {
+    for (const key of COLLECTION_KEYS) lsRemove(key)
+    for (const [key, value] of Object.entries(snapshot)) {
+      if (!lsSet(key, value)) throw new Error('migration-rollback-write-failed')
+    }
+  }
+  try {
+    apply(parsed.snapshot)
+    await flushPendingDbWrites()
+    window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+    // A degraded IndexedDB is acceptable here: the outbox now contains the
+    // rollback intent and will be replayed on the next available startup.
+    return true
+  } catch {
+    try {
+      apply(before)
+      await flushPendingDbWrites()
+    } catch { /* preserve the best local recovery state available */ }
     return false
   }
 }

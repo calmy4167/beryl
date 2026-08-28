@@ -6,12 +6,12 @@ const asyncCases = createAsyncCollectionRepository<CaseItem>('cases')
 const relations = createCollectionRepository<CaseRelation>('caseRelations')
 const asyncRelations = createAsyncCollectionRepository<CaseRelation>('caseRelations')
 
-type CaseCreateInput = Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>
+type CaseCreateInput = Pick<CaseItem, 'title'> & Partial<Pick<CaseItem, 'id' | 'problem' | 'desiredOutcome' | 'currentPhase' | 'priority' | 'status'>>
 
 function createCaseItem(input: CaseCreateInput): CaseItem {
   const now = Date.now()
   return {
-    id: createEntityId(), title: input.title.trim(), problem: input.problem || '', desiredOutcome: input.desiredOutcome || '',
+    id: input.id || createEntityId(), title: input.title.trim(), problem: input.problem || '', desiredOutcome: input.desiredOutcome || '',
     status: input.status || 'active', currentPhase: input.currentPhase || 'wood', priority: input.priority || 2,
     createdAt: now, updatedAt: now, phaseNotes: {}, wood: { constraints: '', paths: '' }, decisions: [], reviews: []
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createDurableEntityMigrationPlan, createEntityMigrationPlan, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts } from '@/core/entity-migration'
+import { createDurableEntityMigrationPlan, createEntityMigrationPlan, rollbackMigration, rollbackMigrationDurable, saveMigrationBackup, summarizeEntityConflicts } from '@/core/entity-migration'
 
 describe('entity migration safety', () => {
   it('creates a deterministic entity seed plan and backup', () => {
@@ -31,6 +31,23 @@ describe('entity migration safety', () => {
 
     expect(plan.records.map(item => `${item.entity}:${item.entityId}`)).toEqual(['tasks:t1'])
     vi.unstubAllGlobals()
+  })
+
+  it('writes a production rollback through the IndexedDB outbox when IndexedDB is unavailable', async () => {
+    localStorage.clear()
+    vi.stubGlobal('indexedDB', undefined)
+    localStorage.setItem('b_tasks', '[{"id":"t1"}]')
+    const plan = createEntityMigrationPlan(localStorage)
+    expect(saveMigrationBackup(plan, localStorage)).toBe(true)
+    localStorage.setItem('b_tasks', '[{"id":"changed"}]')
+
+    await expect(rollbackMigrationDurable(localStorage)).resolves.toBe(true)
+    expect(localStorage.getItem('b_tasks')).toBe('[{"id":"t1"}]')
+    expect(JSON.parse(localStorage.getItem('b_db_outbox') || '[]')).toEqual(expect.arrayContaining([
+      { key: 'b_tasks', value: '[{"id":"t1"}]' }
+    ]))
+    vi.unstubAllGlobals()
+    localStorage.clear()
   })
 })
 

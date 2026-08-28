@@ -1,5 +1,7 @@
 export { captureText, type CaptureTextResult } from './capture-text'
+export { decideCapture, type CaptureDecision, type DecideCaptureInput, type DecideCaptureResult } from './decide-capture'
 export { addActionToToday, type AddActionToTodayInput, type AddActionToTodayResult } from './add-action-to-today'
 export { openToday, type OpenTodayResult } from './open-today'
 export { recordActionResult, type RecordActionResultInput, type RecordActionResultResult } from './record-action-result'
 export { completeReview, type CompleteReviewInput, type CompleteReviewResult } from './complete-review'
+export { removeLegacyInbox, convertLegacyInboxToTask, convertLegacyInboxToCase, linkFinanceToCase, type LegacyInboxItem, type LegacyTaskItem, type LegacyInboxTarget, type LegacyInboxRemovalResult, type ConvertLegacyInboxResult, type LinkFinanceToCaseInput, type LinkFinanceToCaseResult } from './legacy-inbox'

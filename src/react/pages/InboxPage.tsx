@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createAsyncCollectionRepository } from '@/core/repository'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
-import { captureText } from '@/application'
-import { listRealityDocuments, type RealityDocument } from '@/domain/reality'
-import { caseAsyncRepository } from '@/domain/case/repository'
+import { captureText, convertLegacyInboxToCase, convertLegacyInboxToTask, removeLegacyInbox } from '@/application'
+import { listRealityDocumentsAsync, type RealityDocument } from '@/domain/reality'
 import { fmtDate, nextId } from '@/core/storage'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
 
-type LegacyInboxItem = { id?: string; text?: string; date?: string }
-type LegacyTaskItem = { id?: string; title?: string; priority?: string; date?: string; done?: boolean }
 type Filter = 'all' | 'open' | 'suggested' | 'accepted' | 'rejected' | 'archived'
 
 interface InboxEntry {
@@ -46,9 +42,6 @@ const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
 }
 
-const legacyInboxRepository = createAsyncCollectionRepository<LegacyInboxItem>('inbox', item => item.id)
-const legacyTasksRepository = createAsyncCollectionRepository<LegacyTaskItem>('tasks', item => item.id)
-
 function statusLabel(status: string): string {
   return STATUS_LABELS[status] || status
 }
@@ -58,8 +51,8 @@ function displayTime(timestamp: number, fallback?: string): string {
   return fallback || '时间未知'
 }
 
-function legacyEntries(): InboxEntry[] {
-  return listRealityDocuments({ types: ['inbox'] }).map(item => ({
+async function legacyEntries(): Promise<InboxEntry[]> {
+  return (await listRealityDocumentsAsync({ types: ['inbox'] })).map(item => ({
     id: item.id,
     source: 'legacy',
     text: item.body || item.title,
@@ -105,7 +98,7 @@ export function InboxPage() {
       ])
       setCaptures(nextCaptures)
       setSuggestions(nextSuggestions)
-      setLegacy(legacyEntries())
+      setLegacy(await legacyEntries())
     } catch (error) {
       const text = error instanceof Error ? error.message : '收件箱读取失败'
       setMessage(text)
@@ -201,27 +194,16 @@ export function InboxPage() {
     }
   }
 
-  async function updateLegacySource(item: InboxEntry, next: LegacyInboxItem[]): Promise<boolean> {
-    const idIndex = item.legacy?.id
-      ? next.findIndex(candidate => String(candidate.id) === item.legacy?.id)
-      : -1
-    const sourceIndex = idIndex >= 0 ? idIndex : item.sourceIndex ?? -1
-    if (sourceIndex < 0 || sourceIndex >= next.length) return false
-    const [removed] = next.splice(sourceIndex, 1)
-    if (!await legacyInboxRepository.replace(next)) return false
-    registerUndo('inbox', removed, sourceIndex, removed?.id)
-    return true
-  }
-
   async function removeLegacy(item: InboxEntry): Promise<void> {
     if (item.source !== 'legacy') return
-    const next = await legacyInboxRepository.list()
-    if (!await updateLegacySource(item, [...next])) {
-      toast('旧版收件项已变化，请刷新后重试', 'warning')
-      return
+    try {
+      const result = await withSaveState(() => removeLegacyInbox({ id: item.legacy?.id, sourceIndex: item.sourceIndex }, `remove-inbox:${nextId()}`))
+      registerUndo('inbox', result.removed, result.index, result.removed.id)
+      await refresh()
+      toast('旧版收件项已移除')
+    } catch (error) {
+      toast(error instanceof Error && error.message === 'legacy-inbox-not-found' ? '旧版收件项已变化，请刷新后重试' : '旧版收件项移除失败', 'warning')
     }
-    await refresh()
-    toast('旧版收件项已移除')
   }
 
   async function convertLegacyToCase(item: InboxEntry): Promise<void> {
@@ -229,31 +211,24 @@ export function InboxPage() {
     const title = item.text.trim()
     if (!title) return
     try {
-      const created = await withSaveState(async () => {
-        const next = await legacyInboxRepository.list()
-        const created = await caseAsyncRepository.create({ title, status: 'inbox' })
-        if (!await updateLegacySource(item, [...next])) throw new Error('旧收件项未移除')
-        return created
-      })
+      const result = await withSaveState(() => convertLegacyInboxToCase({ id: item.legacy?.id, sourceIndex: item.sourceIndex }, title, `convert-case:${nextId()}`))
+      registerUndo('inbox', result.removed, result.index, result.removed.id)
       await refresh()
-      toast(`已转为现实课题「${created.title}」`)
+      toast(`已转为现实课题「${result.case?.title || title}」`)
     } catch (error) {
-      toast(error instanceof Error ? `课题已创建，但旧收件项未移除：${error.message}` : '课题已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
+      toast(error instanceof Error && error.message === 'legacy-inbox-not-found' ? '课题可能已创建，但旧收件项已变化，请刷新后检查' : '转为课题失败，原文未确认移除', 'warning')
     }
   }
 
   async function convertLegacyToTask(item: InboxEntry): Promise<void> {
     if (item.source !== 'legacy') return
     try {
-      await withSaveState(async () => {
-        await legacyTasksRepository.create({ id: nextId(), title: item.text, priority: '中', date: fmtDate(Date.now()), done: false })
-        const nextInbox = await legacyInboxRepository.list()
-        if (!await updateLegacySource(item, [...nextInbox])) throw new Error('旧收件项未移除')
-      })
+      const result = await withSaveState(() => convertLegacyInboxToTask({ id: item.legacy?.id, sourceIndex: item.sourceIndex }, item.text, `convert-task:${nextId()}`, { priority: '中', date: fmtDate(Date.now()) }))
+      registerUndo('inbox', result.removed, result.index, result.removed.id)
       await refresh()
       toast('已转为行动任务')
     } catch (error) {
-      toast(error instanceof Error ? `任务已创建，但旧收件项未移除：${error.message}` : '任务已创建，但旧收件项未移除，请刷新后手动处理', 'warning')
+      toast(error instanceof Error && error.message === 'legacy-inbox-not-found' ? '任务可能已创建，但旧收件项已变化，请刷新后检查' : '转为行动任务失败，原文未确认移除', 'warning')
     }
   }
 

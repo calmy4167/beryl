@@ -1,5 +1,7 @@
 # React 迁移记录
 
+> 当前事实校准：2026-08-28。文件名保留迁移启动日期；最新剩余任务只以 `OPEN_WORK.md` 为准。
+
 ## 选型
 
 目标技术栈：React + Vite + TypeScript + React Router。
@@ -27,7 +29,7 @@
 - Admin 的常用设置、旧版统计口径、持久化重试、导入失败回滚、二次重置确认、导入导出、Cloudflare、S3、本地文件同步和诊断已由 React 承接；Vault/实体迁移等高风险能力通过隔离兼容桥接回 React 工作台，避免迁移期间丢失功能；
 - React 扩展页面统一使用按需加载，收件箱、任务、习惯、财务、目标、番茄钟、日记、文章、资料、日历、人物、图谱和场景不会进入首屏页面代码；
 - 旧 Vue 入口和兼容桥仍保留在仓库中，但不再作为整个应用的主入口渲染；
-- UI smoke、54 个 Vitest 文件/264 个测试、生产构建和 PWA 预缓存均通过；当前异步持久化边界覆盖到 Finance、Pomo、Inbox 的兼容写入。
+- UI smoke、57 个 Vitest 文件/278 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、生产构建和 PWA 预缓存均通过；当前异步持久化边界覆盖到 Finance、Pomo、Inbox 的兼容写入，Finance/Inbox 跨仓储流程已提取为 Application Use Case，React Review、全局搜索及其他 React 模块的 Reality 查询也已切换到异步 Repository。
 
 ## 当前阶段
 
@@ -35,4 +37,8 @@
 
 ## 下一步
 
-不再在本文件维护独立任务列表，统一执行 [`OPEN_WORK.md`](OPEN_WORK.md)：当前继续完成跨仓储 Application Use Case 提取、IndexedDB 边界深化和人工端侧验收，再评估 Vue 兼容层退出；Flow、真实 Bridge、AI 深化和共享空间属于受控扩展。
+不再在本文件维护独立任务列表，统一执行 [`OPEN_WORK.md`](OPEN_WORK.md)：当前继续完成 IndexedDB 边界深化和人工端侧验收，再评估 Vue 兼容层退出；Flow、真实 Bridge、AI 深化和共享空间属于受控扩展。
+
+## 2026-08-28 边界说明
+
+React 生产页面使用 `listRealityDocumentsAsync` 读取跨域 Reality；同步 `listRealityDocuments` 及 `src/core/modules.ts` 的同步统计 reader 仅保留给 Vue/旧模块兼容。实体同步的 LWW、删除墓碑、durable flush 和共享协作命令幂等均已有自动化回归，不能据此把 Vue 兼容层或真实端侧验收标记为完成。

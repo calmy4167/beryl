@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withSaveState } from '@/core/save-state'
 import { createAsyncCollectionRepository } from '@/core/repository'
 import { nextId } from '@/core/storage'
-import { listRealityDocuments } from '@/domain/reality'
+import { listRealityDocumentsAsync } from '@/domain/reality'
 
 type GoalStatus = 'open' | 'done'
 type GoalFilter = 'all' | GoalStatus
@@ -50,7 +50,7 @@ async function readStoredGoals(): Promise<StoredGoal[]> {
 async function loadGoals(): Promise<GoalItem[]> {
   const storedById = new Map((await readStoredGoals()).filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
 
-  return listRealityDocuments({ types: ['goal'] }).map(document => {
+  return (await listRealityDocumentsAsync({ types: ['goal'] })).map(document => {
     const stored = storedById.get(document.id)
     const done = stored?.done ?? document.done ?? document.status === 'done'
     const progress = clampProgress(typeof stored?.progress === 'number' ? stored.progress : done ? 100 : 0)

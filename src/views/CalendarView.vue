@@ -26,7 +26,7 @@ const route = useRoute(); const router = useRouter()
 const cursor = ref(new Date()); const selectedDate = ref(typeof route.query.date === 'string' ? route.query.date : todayKey()); const tick = ref(0)
 const loading = ref(true); const actionItems = ref<ActionItem[]>([]); const recordItems = ref<RealityRecord[]>([]); const dailyStates = ref<DailyState[]>([]); const matterItems = ref<Matter[]>([]); const cycleItems = ref<Cycle[]>([])
 const weekdays = ['一', '二', '三', '四', '五', '六', '日']
-const trajectoryNames = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '退行', recovering: '恢复', diverging: '偏离' } as const
+const trajectoryNames = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路', lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知' } as const
 
 function dateFromParts(year: number, month: number, day: number): Date { return new Date(year, month, day, 12) }
 function monthCells(date: Date): CalendarCell[] {

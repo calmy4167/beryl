@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { matterAsyncRepository, matterRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
-import { createCollaborativeRelationship, createCollaborativeRelationshipAsync, createCollaborativeSharedSpace, createSharedAction, createSharedActionAsync, createSharedRecord, createSharedRecordAsync, listSharedAudit, listSharedAuditAsync, reviseSharedRecord, sharedWriteAccess, SharedPermissionError, transitionSharedAction, transitionSharedActionAsync, updateCollaborativeRelationship, updateCollaborativeSharedSpace, updateSharedMatter, updateSharedMatterAsync } from '@/domain/social/collaboration'
+import { createCollaborativeRelationship, createCollaborativeRelationshipAsync, createCollaborativeSharedSpace, createSharedAction, createSharedActionAsync, createSharedRecord, createSharedRecordAsync, listSharedAudit, listSharedAuditAsync, reviseSharedRecord, reviseSharedRecordAsync, sharedWriteAccess, SharedPermissionError, transitionSharedAction, transitionSharedActionAsync, updateCollaborativeRelationship, updateCollaborativeSharedSpace, updateSharedMatter, updateSharedMatterAsync } from '@/domain/social/collaboration'
 import { listSharedContextForRelationship, listSharedContextForRelationshipAsync } from '@/domain/social/shared-context'
 
 describe('Shared collaboration writes and audit', () => {
@@ -78,15 +78,21 @@ describe('Shared collaboration writes and audit', () => {
     }, ownerId)
 
     const updatedMatter = await updateSharedMatterAsync('relationship', relationship.calmyId, matter.calmyId, { why: '异步共同更新' }, matter.revision, ownerId)
-    const action = await createSharedActionAsync('relationship', relationship.calmyId, { title: '异步行动', date: '2026-08-22' }, matter.calmyId, ownerId)
+    const actionCommandId = 'async-shared-action-' + Date.now()
+    const action = await createSharedActionAsync('relationship', relationship.calmyId, { title: '异步行动', date: '2026-08-22' }, matter.calmyId, ownerId, actionCommandId)
+    const retriedAction = await createSharedActionAsync('relationship', relationship.calmyId, { title: '异步行动', date: '2026-08-22' }, matter.calmyId, ownerId, actionCommandId)
+    expect(retriedAction.calmyId).toBe(action.calmyId)
     await transitionSharedActionAsync('relationship', relationship.calmyId, action.calmyId, 'in_progress', matter.calmyId, action.revision, ownerId)
     const record = await createSharedRecordAsync('relationship', relationship.calmyId, { body: '异步事实', matterId: matter.calmyId }, ownerId)
-    const revised = await recordAsyncRepository.revise(record.calmyId, '异步事实修订', '补充证据', 'user', record.revision, ownerId)
+    const reviseCommandId = 'async-shared-revise-' + Date.now()
+    const revised = await reviseSharedRecordAsync('relationship', relationship.calmyId, record.calmyId, '异步事实修订', '补充证据', record.revision, ownerId, reviseCommandId)
+    const retriedRevision = await reviseSharedRecordAsync('relationship', relationship.calmyId, record.calmyId, '异步事实修订', '补充证据', record.revision, ownerId, reviseCommandId)
+    expect(retriedRevision.revision).toBe(revised.revision)
 
     expect(updatedMatter.why).toBe('异步共同更新')
     await expect(matterAsyncRepository.mutations(matter.calmyId)).resolves.toHaveLength(2)
     await expect(recordAsyncRepository.history(record.calmyId)).resolves.toHaveLength(2)
-    await expect(listSharedAuditAsync('relationship', relationship.calmyId, matter.calmyId)).resolves.toHaveLength(4)
+    await expect(listSharedAuditAsync('relationship', relationship.calmyId, matter.calmyId)).resolves.toHaveLength(5)
     await expect(listSharedContextForRelationshipAsync(relationship.calmyId)).resolves.toEqual([
       expect.objectContaining({
         matterId: matter.calmyId,

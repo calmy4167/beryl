@@ -1,9 +1,9 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { readSession } from '@/core/auth'
 import { SCENES, currentSceneId } from '@/core/scenes'
 import {
-  listRealityDocuments,
+  listRealityDocumentsAsync,
   type RealityDocument,
   type RealityEntityType,
 } from '@/domain/reality'
@@ -173,6 +173,14 @@ const PROFILE_MODULES: readonly ProfileModule[] = [
     countMode: 'all',
   },
   {
+    id: 'memory',
+    icon: '✦',
+    label: 'AI 对我的理解',
+    description: '管理记忆分层与判断权',
+    route: '/app/memory',
+    countMode: 'none',
+  },
+  {
     id: 'settings',
     icon: '⚙',
     label: '设置与同步',
@@ -230,7 +238,8 @@ export function ProfilePage() {
   const session = readSession()
   const sceneId = currentSceneId()
   const scene = SCENES[sceneId] ?? SCENES.personal
-  const documents = useMemo(() => listRealityDocuments(), [])
+  const [documents, setDocuments] = useState<RealityDocument[]>([])
+  useEffect(() => { void listRealityDocumentsAsync().then(setDocuments) }, [])
 
   const userName = session?.u.trim() || '本地用户'
   const userInitial = Array.from(userName)[0]?.toLocaleUpperCase() || 'C'
@@ -399,6 +408,9 @@ export function ProfilePage() {
           </button>
           <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/graph')}>
             <span aria-hidden="true">⌁</span><b>统计与关系图谱</b><span>→</span>
+          </button>
+          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/memory')}>
+            <span aria-hidden="true">✦</span><b>AI 对我的理解与判断权</b><span>→</span>
           </button>
         </div>
       </section>

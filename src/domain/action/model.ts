@@ -54,7 +54,8 @@ export class ActionDomainError extends Error {
 export function canTransitionAction(from: ActionStatus, to: ActionStatus): boolean {
   if (from === to) return true
   if (from === 'planned') return to === 'in_progress' || to === 'done' || to === 'skipped' || to === 'cancelled'
-  if (from === 'in_progress') return to === 'done' || to === 'skipped' || to === 'cancelled'
+  if (from === 'in_progress') return to === 'planned' || to === 'done' || to === 'skipped' || to === 'cancelled'
+  if (from === 'done') return to === 'planned'
   if (from === 'skipped' || from === 'cancelled') return to === 'planned'
   return false
 }

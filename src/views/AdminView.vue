@@ -8,7 +8,7 @@ import { store, lsSet, lsRemove } from '@/core/storage'
 import { clearSession } from '@/core/auth'
 import { clearDb, flushPendingDbWrites, getDbStatus, type DbRuntimeStatus } from '@/core/db'
 import { BACKUP_SENSITIVE_KEYS, createDurableBackup, parseBackup } from '@/core/backup'
-import { createDurableEntityMigrationPlan, createEntityMigrationPlan, migrationBackupExists, rollbackMigration, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
+import { createDurableEntityMigrationPlan, createEntityMigrationPlan, migrationBackupExists, rollbackMigrationDurable, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
 import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
 import { apiFetch } from '@/core/api/client'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
@@ -350,9 +350,9 @@ async function pushEntityMigration() {
   } catch (error) { migrationReport.value = `实体迁移失败：${error instanceof Error ? error.message : '请求失败'}` }
   finally { migrationBusy.value = false }
 }
-function rollbackEntityMigration() {
+async function rollbackEntityMigration() {
   if (!migrationBackupExists()) { ElMessage.warning('没有可用的迁移前备份'); return }
-  if (rollbackMigration()) { migrationReport.value = '已恢复迁移前本地快照；云端实体记录未删除，默认键级同步未切换'; ElMessage.success('本地迁移已回滚') }
+  if (await rollbackMigrationDurable()) { migrationReport.value = '已恢复迁移前本地快照，并写入持久化回滚队列；云端实体记录未删除，默认键级同步未切换'; ElMessage.success('本地迁移已回滚') }
   else ElMessage.error('回滚失败，本地快照未能完整恢复')
 }
 async function runKvStatus() {

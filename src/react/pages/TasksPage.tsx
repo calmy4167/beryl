@@ -157,7 +157,10 @@ export function TasksPage() {
           <h1 className="font-title">任务清单</h1>
           <p>把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。</p>
         </div>
-        <span className="load-pill">{openCount} 个待处理 · {doneCount} 个已完成</span>
+        <div className="task-board-head-actions">
+          <button className="react-btn" type="button" onClick={() => navigate('/app/task-board')}>打开事项看板</button>
+          <span className="load-pill">{openCount} 个待处理 · {doneCount} 个已完成</span>
+        </div>
       </header>
 
       <section className="beryl-card matter-create">

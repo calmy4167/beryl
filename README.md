@@ -1,10 +1,10 @@
 # Calmy Personal OS
 
-Calmy 是一个 local-first 的个人现实行动系统：捕捉现实，形成 Matter，选择今天可承受的最小行动，记录真实发生，并据此调整下一步。
+Calmy 是一个 local-first 的 Attention OS：帮助人保护注意力、看见身体与现实，把数字理解转成可承受的现实行动，并在事情结束后沉淀或放下。
 
 ## 当前文档入口
 
-请从 [`docs/README.md`](docs/README.md) 开始。它包含当前权威层级、文档登记册、产品与 UI 重设计、工程评审、路线图及多角色评审会纪要。
+请从 [`docs/README.md`](docs/README.md) 开始；当前产品与体验总设计见 [`docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`](docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)。旧产品、UI、Flow、领域和路线图文档保留为来源与细节参考。
 
 原始完整产品设计 DOCX 保持只读，位于 `docs/product/source/`；Beryl 历史文档位于 `docs/history/`，工程交接位于 `docs/operations/`，它们都不再定义当前产品。
 

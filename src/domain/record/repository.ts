@@ -272,7 +272,11 @@ export const recordAsyncRepository = {
     if (meta.commandId) await asyncCommands.create({ id: meta.commandId, result: record })
     return record
   },
-  async revise(calmyId: string, body: string, reason: string, actor: RecordSource = 'user', expectedRevision?: number, actorId = 'local-user'): Promise<RealityRecord> {
+  async revise(calmyId: string, body: string, reason: string, actor: RecordSource = 'user', expectedRevision?: number, actorId = 'local-user', meta: Pick<RecordCommandMeta, 'commandId'> = {}): Promise<RealityRecord> {
+    if (meta.commandId) {
+      const duplicate = await asyncCommands.find(meta.commandId)
+      if (duplicate) return duplicate.result
+    }
     const current = await asyncRecords.find(calmyId)
     if (!current) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} not found`)
     assertRevision(current, expectedRevision)
@@ -280,6 +284,7 @@ export const recordAsyncRepository = {
     const next: RealityRecord = { ...current, body: assertBody(body), updatedAt: now, revision: current.revision + 1 }
     if (!await asyncRecords.update(calmyId, () => next)) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} disappeared`)
     await appendRevisionAsync(next, reason.trim() || 'revised', actor, now, actorId)
+    if (meta.commandId) await asyncCommands.create({ id: meta.commandId, result: next })
     return next
   },
   async revisions(calmyId: string): Promise<RecordRevision[]> {

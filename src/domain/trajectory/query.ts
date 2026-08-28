@@ -61,6 +61,9 @@ function explanationFor(direction: MatterTrajectory, evidence: TrajectoryEvidenc
   if (direction === 'recovering') return '近期有推进证据，但仍夹杂负向变化，先保持低强度连续性。'
   if (direction === 'retreating') return '负向记录或中断行动占主导，需要先缩小承载和暴露面。'
   if (direction === 'diverging') return '推进和退缩证据同时出现，先复盘矛盾，不急着提高目标强度。'
+  if (direction === 'lost') return '原先的目标或连接暂时失去，需要先确认还要不要继续。'
+  if (direction === 'restarting') return '这一轮正在重新开始，先选择一个足够小的现实动作。'
+  if (direction === 'unknown') return '当前无法确认方向，不用急着给它贴上结论。'
   return '有事实发生，但方向信号不足以支持明显推进或退行。'
 }
 
@@ -69,6 +72,9 @@ function adjustmentFor(direction: MatterTrajectory): string {
   if (direction === 'recovering') return '只保留一个可重复的最低强度行动。'
   if (direction === 'retreating') return '先停止堆叠，恢复容量后再重开行动。'
   if (direction === 'diverging') return '回到最近一条关键证据，明确当前真正的矛盾。'
+  if (direction === 'lost') return '先确认是否仍然值得面对，再决定保留、改写或结束。'
+  if (direction === 'restarting') return '只承诺一个今天能完成的重新开始。'
+  if (direction === 'unknown') return '保留未知，不用用更多任务强行制造确定感。'
   return '继续观察，不因为单日完成率改变方向判断。'
 }
 

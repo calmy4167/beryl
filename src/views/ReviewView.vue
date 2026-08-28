@@ -84,7 +84,7 @@ const stats = computed(() => {
     heavyDays: days.value.filter(item => item.state && (item.state.load >= 70 || item.state.mentalState === 'overloaded')).length
   }
 })
-const trajectoryNames = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '退行', recovering: '恢复', diverging: '偏离' } as const
+const trajectoryNames = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路', lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知' } as const
 const bodyNames = { good: '好', normal: '普通', tired: '疲惫', bad: '很差' } as const
 const mentalNames = { clear: '清晰', normal: '普通', heavy: '沉重', overloaded: '过载' } as const
 function dayLabel(date: string): string { return new Date(`${date}T12:00:00`).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' }) }

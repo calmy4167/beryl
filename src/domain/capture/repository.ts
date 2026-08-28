@@ -7,7 +7,7 @@ import type { Matter } from '@/domain/matter/model'
 import { recordAsyncRepository, recordRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
 import { unifiedAsyncRepository, unifiedFactories, unifiedRepository, type Resource, type Seed } from '@/domain/unified'
-import { CaptureDomainError, type AiSuggestion, type CaptureItem, type SuggestionCandidate, type SuggestionEntityType } from './model'
+import { CaptureDomainError, type AiSuggestion, type CaptureItem, type CaptureStatus, type SuggestionCandidate, type SuggestionEntityType } from './model'
 
 const captures = createCollectionRepository<CaptureItem>('calmyCaptures', item => item.calmyId)
 const suggestions = createCollectionRepository<AiSuggestion>('calmySuggestions', item => item.calmyId)
@@ -146,6 +146,12 @@ export const captureAsyncRepository = {
   },
   async remove(calmyId: string): Promise<boolean> {
     return asyncCaptures.remove(calmyId)
+  },
+  async resolve(calmyId: string, status: Extract<CaptureStatus, 'accepted' | 'archived'>, expectedRevision?: number): Promise<CaptureItem> {
+    const current = await asyncCaptures.find(calmyId)
+    if (!current) throw new CaptureDomainError('NOT_FOUND', `Capture ${calmyId} not found`)
+    if (expectedRevision !== undefined && expectedRevision !== current.revision) throw new CaptureDomainError('REVISION_CONFLICT', `Capture ${calmyId} has changed; refresh before deciding`)
+    return updateCaptureAsync(current, { status })
   },
   async create(body: string): Promise<CaptureItem> {
     const now = Date.now()

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withSaveState } from '@/core/save-state'
 import { createAsyncCollectionRepository } from '@/core/repository'
 import { dateKey, todayKey } from '@/core/storage'
-import { listRealityDocuments } from '@/domain/reality'
+import { listRealityDocumentsAsync } from '@/domain/reality'
 
 interface DiaryEntry {
   date: string
@@ -22,7 +22,7 @@ function isDiaryEntry(value: unknown): value is DiaryEntry {
 }
 
 async function readEntries(): Promise<DiaryEntry[]> {
-  const documents = listRealityDocuments({ types: ['diary'] })
+  const documents = await listRealityDocumentsAsync({ types: ['diary'] })
   const stored = (await diaryRepository.list()).filter(isDiaryEntry)
   const storedByDate = new Map(stored.map(item => [item.date, item.content]))
 
@@ -41,7 +41,7 @@ async function readContent(date: string): Promise<string> {
   const exact = stored.find(item => item.date === date)
   if (exact) return exact.content
 
-  const document = listRealityDocuments({ types: ['diary'] }).find(item => (item.date || item.id) === date)
+  const document = (await listRealityDocumentsAsync({ types: ['diary'] })).find(item => (item.date || item.id) === date)
   return document?.body || document?.summary || ''
 }
 

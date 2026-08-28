@@ -61,6 +61,11 @@ vi.mock('../core/db.ts', () => ({
 import { resetStoreCache } from '../core/storage'
 import { captureAsyncRepository } from '../domain/capture/repository'
 import type { AiSuggestion, CaptureItem } from '../domain/capture/model'
+import { decideCapture } from '../application/use-cases/decide-capture'
+import { actionAsyncRepository } from '../domain/action/repository'
+import { matterAsyncRepository } from '../domain/matter/repository'
+import { recordAsyncRepository } from '../domain/record/repository'
+import { unifiedAsyncRepository } from '../domain/unified/repository'
 
 function capture(calmyId: string, body = '持久化 Capture'): CaptureItem {
   return { calmyId, body, status: 'inbox', suggestionIds: [], createdAt: 1, updatedAt: 1, revision: 1 }
@@ -158,5 +163,27 @@ describe('captureAsyncRepository', () => {
 
     await expect(captureAsyncRepository.find(created.calmyId)).resolves.toMatchObject({ body: '离线 Capture' })
     await expect(captureAsyncRepository.ready()).resolves.toMatchObject({ durable: false, state: 'degraded', available: false })
+  })
+
+  it('routes the five Attention Gate decisions to existing entities or archive state', async () => {
+    const decisions = [
+      ['action', 'action'] as const,
+      ['matter', 'matter'] as const,
+      ['record', 'record'] as const,
+      ['seed', 'seed'] as const,
+      ['let_go', 'archived'] as const,
+    ]
+
+    for (const [decision, expected] of decisions) {
+      const capture = await captureAsyncRepository.create(`处理 ${decision} 的原文`)
+      const result = await decideCapture({ captureId: capture.calmyId, decision })
+
+      await expect(captureAsyncRepository.find(capture.calmyId)).resolves.toMatchObject({ status: expected === 'archived' ? 'archived' : 'accepted' })
+      if (decision === 'let_go') expect(result.entity).toBeUndefined()
+      if (decision === 'action') await expect(actionAsyncRepository.find(result.entity!.calmyId)).resolves.toMatchObject({ title: `处理 ${decision} 的原文` })
+      if (decision === 'matter') await expect(matterAsyncRepository.find(result.entity!.calmyId)).resolves.toMatchObject({ title: `处理 ${decision} 的原文` })
+      if (decision === 'record') await expect(recordAsyncRepository.find(result.entity!.calmyId)).resolves.toMatchObject({ body: `处理 ${decision} 的原文` })
+      if (decision === 'seed') await expect(unifiedAsyncRepository.find('seed', result.entity!.calmyId)).resolves.toMatchObject({ title: `处理 ${decision} 的原文` })
+    }
   })
 })

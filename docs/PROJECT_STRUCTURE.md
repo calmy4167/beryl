@@ -1,6 +1,6 @@
 # Calmy 项目文件架构
 
-> 更新时间：2026-08-24  
+> 更新时间：2026-08-29
 > 本文描述当前仓库的真实入口、代码边界、文档分层和迁移兼容范围。
 
 ## 1. 生产启动链路
@@ -44,6 +44,7 @@ index.html
 - `CapturePage`：原文保存和可拒绝 suggestion。
 - `MattersPage` / `MatterDetailPage`：Matter 列表、详情和状态。
 - `ReviewPage`：Today Review、证据和调整。
+- `MemoryPage`：Fact / Reflection / AI Inference / Preference / Principle 分层与用户判断权；复用 Record/Insight，不新增记忆事实源。
 
 ### 参考产品页
 
@@ -52,7 +53,7 @@ index.html
 
 ### 二级/兼容/实验页
 
-`AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
+`AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `TaskBoardPage` 是现有 Action 的看板视图，`MemoryPage` 是现有 Record/Insight 的治理视图；二者都不新增事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
 
 ## 4. 数据和写入边界
 
@@ -65,7 +66,7 @@ React page
   → optional backup / Markdown / sync / Bridge adapter
 ```
 
-核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。扩展页面的直接同步写入已完成第一轮收口；跨仓储流程的 Use Case 提取和 IndexedDB 权威边界仍以 `OPEN_WORK.md` 的 OW-02/OW-03 为准。旧同步 Repository 和 `beryl-*` 键名只作为迁移兼容，新的核心写入必须经过统一异步边界和保存状态协议。
+核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。React 页面 Reality 查询、扩展页面的直接同步写入和当前 Finance/Inbox 跨仓储 Use Case 已完成第一轮收口；IndexedDB 权威边界仍以 `OPEN_WORK.md` 的 OW-03 为准。旧同步 Repository、`src/core/modules.ts` 的同步统计读取和 `beryl-*` 键名只作为迁移兼容，新的核心写入必须经过统一异步边界和保存状态协议。
 
 ## 5. 文档架构
 
@@ -77,14 +78,13 @@ React page
 
 ### 当前产品文档
 
-- `docs/product/PRODUCT_REDESIGN_2026-08-22.md`：产品承诺、范围、Flow 边界和功能分层。
-- `docs/product/UX_UI_REDESIGN_2026-08-22.md`：信息架构、页面、双侧栏、Flow UI 和可访问性。
-- `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md`：实施顺序、发布门槛、Flow 验收和 No-Go。
+- `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`：产品定位、Attention OS、信息架构、页面、AI、Flow、数据边界、验收和路线图的统一权威总稿。
+- `docs/product/PRODUCT_REDESIGN_2026-08-22.md`、`UX_UI_REDESIGN_2026-08-22.md`、`ROADMAP_AND_ACCEPTANCE_2026-08-22.md`：已并入统一总稿的设计细节参考。
 - `docs/product/OPEN_WORK.md`：唯一活跃的未完成工作清单。
 - `docs/product/PRODUCT_DECISIONS_2026-08-19.md`：产品决策、废弃方向和变更纪律。
 - `docs/product/ENGINEERING_REVIEW_2026-08-22.md`：当前代码差距、风险和目标架构。
 - `docs/product/REACT_MIGRATION_2026-08-23.md`：React 迁移事实快照，下一步以 `OPEN_WORK.md` 为准。
-- `docs/product/REVIEW_MEETING_2026-08-22.md`：评审会议记录，保留作为裁决依据。
+- `docs/product/REVIEW_MEETING_2026-08-22.md`：历史评审会议记录。
 
 ### 领域与协议参考
 
@@ -94,7 +94,7 @@ React page
 
 ### 实现证据
 
-`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。
+`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-28 为当前事实，早期日期仅保留历史上下文。
 
 ### 历史资料与原型
 
@@ -102,8 +102,7 @@ React page
 
 ## 6. 文件放置规则
 
-- 新产品决策：`docs/product/PRODUCT_REDESIGN...` 或 `docs/product/PRODUCT_DECISIONS...`。
-- 新 UX/页面规则：`docs/product/UX_UI_REDESIGN...`。
+- 新产品和 UX 总体变更：更新 `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`；可执行裁决同时追加到 `PRODUCT_DECISIONS_2026-08-19.md`。
 - 新未完成事项：只写入 `docs/product/OPEN_WORK.md`，不要新增临时任务文档。
 - 新领域约束：更新 `docs/product/reference/` 中对应领域/协议参考，并在登记册标明来源。
 - 新实现证据：更新实现总档案或迁移快照，不把完成项复制回活跃待办。

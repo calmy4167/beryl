@@ -18,4 +18,13 @@ describe('CompleteReview application use case', () => {
     expect(result).toEqual({ plan })
   })
 
+  it('stores an explicit let-go list without changing the review boundary', async () => {
+    await completeReview({ date: '2026-08-22', expectedRevision: 2, letGo: ['  不再追踪  ', '', '暂不展开'], review: { observation: '', analysis: '', adjustment: '', seed: '' } })
+
+    expect(repository.update).toHaveBeenCalledWith('2026-08-22', {
+      review: { observation: '', analysis: '', adjustment: '', seed: '' },
+      letGo: ['不再追踪', '暂不展开'],
+    }, 2)
+  })
+
 })

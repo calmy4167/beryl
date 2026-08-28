@@ -3,7 +3,7 @@ import { fmtDate } from '@/core/storage'
 import { createAsyncCollectionRepository, createEntityId } from '@/core/repository'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
-import { listRealityDocuments } from '@/domain/reality'
+import { listRealityDocumentsAsync } from '@/domain/reality'
 
 interface StoredPost {
   id?: string
@@ -39,7 +39,7 @@ async function readStoredPosts(): Promise<StoredPost[]> {
 async function loadPosts(): Promise<PostItem[]> {
   const storedById = new Map((await readStoredPosts()).filter(item => typeof item.id === 'string').map(item => [item.id!, item]))
 
-  return listRealityDocuments({ types: ['post'] })
+  return (await listRealityDocumentsAsync({ types: ['post'] }))
     .map(document => {
       const stored = storedById.get(document.id)
       return {

@@ -1,7 +1,8 @@
 # Calmy Personal OS 完整实现总档案
 
 版本：v1.0
-日期：2026-08-22（文件名保留原始建档日期）
+原始建档/评审日期：2026-08-22（文件名保留原始建档日期）
+当前事实校准：2026-08-28
 性质：工程实现主档案 / 实现事实基线
 上游设计源：[`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)
 
@@ -13,7 +14,7 @@
 
 后续约束：
 
-- 原始 DOCX 是产品意图的上游来源，本文件是工程实现事实基线；产品执行优先级由产品决策记录和 2026-08-22 重设计包共同决定。
+- 原始 DOCX 与后续思想母本是产品意图的上游来源，本文件是工程实现事实基线；产品执行优先级由产品决策记录、[`CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`](../product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md) 和 `OPEN_WORK.md` 共同决定。
 - 所有产品设计必须落到“领域模型、命令、视图、开放格式、同步、测试”中的至少一项。
 - 设计项没有验收条件，就视为尚未完成。
 - 旧模块可以保留兼容，但不得继续形成独立数据模型和独立产品入口。
@@ -342,9 +343,11 @@ source: calmy
 
 ## 13. 当前执行状态
 
+> 以下为 2026-08-22 历史状态快照；当前未完成边界以第 17 节和 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准。
+
 截至 2026-08-22，代码已经验证具备统一核心实体与 Reality 查询切片、Matter/Cycle/Stage 创建绑定与状态流转、并行 Cycle 的 Action / Record 隔离、Stage → Record 来源 ID / 查询 / 修订历史 / Open Format 导出、Relationship / Shared Space 的共同 Matter / Action / Record 查询、成员/owner 协作写入、blocked 边界隔离、操作者级共享历史审计、Outcome/Practice 当前沉淀入口、Today/DailyState/约束/负向记录、People/Relationship/Shared Space 基础边界、Resource/Asset 生命周期、Library/Review/Calendar/Graph/搜索接入、Capture 本地规则建议、可读 Open Format Frontmatter、Obsidian Adapter/Companion Bridge、浏览器目录 Vault 读写、全实体增量差异、字段级冲突决策、显式删除 tombstone 写回、PWA 构建、性能基线、八个领域异步 Repository 迁移入口和主要页面无障碍静态修复。
 
-因此，本项目当前仍不能宣称“原始设计全部实现”。当前完成的是一组有代码、测试和构建证据的产品切片；全量共享边界、生产级 AI、真实 Vault 冲突流程、IndexedDB 主存储、发布级 UI E2E 与手工可访问性审计仍需继续。
+因此，本项目当时仍不能宣称“原始设计全部实现”。当前完成的是一组有代码、测试和构建证据的产品切片；全量共享边界、生产级 AI、真实 Vault 冲突流程、IndexedDB 主存储、发布级 UI E2E 与手工可访问性审计仍需继续，当前增量以第 17 节为准。
 
 ## 14. 防遗漏清单
 
@@ -372,6 +375,8 @@ source: calmy
 
 ## 15. 2026-08-22 实现对齐快照
 
+> 本节为 2026-08-22 历史验证快照；测试数量和 PWA 文件数量不代表当前基线。
+
 本节覆盖并刷新第 10、13、14 节中截至 2026-08-19 的旧状态。原始需求源仍是 [`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)；本 Markdown 总档案是实现状态的唯一维护入口，不修改原始 DOCX。
 
 ### 已验证完成的当前切片
@@ -393,7 +398,7 @@ source: calmy
 ### 当前验证证据
 
 - IndexedDB 已补启动恢复、IndexedDB 原生 `pending_writes` durable outbox、localStorage 兼容 outbox 合并、串行重试 flush、运行状态和内部备份边界；同步 Repository 的纯 IndexedDB 主存储迁移仍未完成。
-- 启动后 Repository 读取路径已使用 IndexedDB 持久快照作为权威同步缓存；空快照不会错误回退旧 localStorage，数据迁移也在 hydrate 后执行。完全异步 Repository API、无 localStorage 兼容层的写入主存储仍未完成。
+- IndexedDB durable snapshot、outbox 和 React 主路径异步 Repository 已完成；尚未退出的是同步兼容 API 与 localStorage fallback，不代表 React 核心页面仍使用同步事实源。
 - Admin 已展示 IndexedDB ready/degraded、恢复键数、待重试写入和最近镜像，并提供手动持久化重试入口。
 - 启动后同步 Repository 读取优先使用 IndexedDB KV hydrate 快照；IndexedDB 不可用时回退 localStorage，并由 `lsSet/lsRemove` 保持缓存一致。
 - Admin 数据导出优先读取 IndexedDB 持久快照，IndexedDB 不可用时回退 localStorage 备份。
@@ -421,7 +426,7 @@ source: calmy
 - 新增独立 UI browser smoke：验证 App 挂载、Today 默认路由、核心行动真实写入、关联行动→结果 Record 闭环、侧边栏收起/展开、390×844 移动布局、820px 平板无横向溢出与 44px 触控目标、More 抽屉展开和真实 Escape 关闭、Capture/Review 路由 active 状态、真实 Tab/Enter 键盘路径、记录区无横向溢出、Capture 原文保存、建议拒绝后原文保留、导出→清空→导入数据往返、刷新后本地数据恢复，并在页面内阻断外部网络确认离线 fallback。
 - 新增真实形态迁移样本和回归：覆盖旧 Case/Task/inbox 的备份导出、隔离清空、导入、迁移、关系保持、源集合不变和用户修改后的受保护回滚；备份白名单已包含 `b_tasks`、`b_inbox`。
 - 装饰性名句墙已改为纯本地语料源，首屏不再请求外部 Quote API，并有回归测试确认 `fetch` 不被调用。
-- Graph 建立 Relation、Posts 创建/编辑/归档/删除，以及 Diary、Goals、Habits 的读取和写入已切换到异步 Repository 和统一保存状态边界，保留旧数据键与 URL；Finance、Pomo、Inbox 等扩展兼容写入仍在收口。
+- Graph 建立 Relation、Posts 创建/编辑/归档/删除，以及 Diary、Goals、Habits 的读取和写入已切换到异步 Repository 和统一保存状态边界，保留旧数据键与 URL；本段所述 Finance、Pomo、Inbox 的旧状态已在后续切片完成异步收口，当前仅保留兼容层复核。
 - 新增浏览器性能基线 harness：记录首屏、DOMContentLoaded、load 和 Today/Capture 路由切换，并阻断外部网络；本轮运行首屏 690.5ms、DOMContentLoaded 402.9ms、load 409.5ms、Today→Today 18.4ms、Today→Capture 165.2ms，允许外部请求数为 0。
 - 桌面 AppShell 已形成四边工作台：左侧主导航、顶部上下文/保存状态、右侧快捷动作、底部快捷命令；窄桌面自动收起右栏，移动端保留底部主导航。
 - 新增 AppShell/Admin/Scene/旧入口静态无障碍回归测试，5/5 通过；完整移动端与屏幕阅读器人工审计仍未完成。
@@ -452,6 +457,23 @@ source: calmy
 
 - OW-01 已完成当前代码范围的真实形态迁移演练：`legacy-migration-sample.ts` 覆盖 Case → Matter、Task → Action、inbox → Capture 的备份导出、隔离清空、导入、关系保持、源集合不变和用户修改后受保护回滚；迁移回归 2/2 通过。
 - OW-05 已完成：装饰性名句墙改为本地语料，核心首屏不再请求 Quote API；新增回归确认 `fetch` 调用次数为 0。
-- OW-02 已推进：Graph、Posts、Diary、Goals、Habits、Finance、Pomo、Inbox 的直接同步写入已切换到异步 Repository；Finance 课题关联、Pomo 旧标量键和 Inbox 旧版转换均保留原有键与兼容撤销。剩余是跨仓储流程的 Application Use Case 提取和幂等测试。
+- OW-02 已完成当前 React 扩展范围：Graph、Posts、Diary、Goals、Habits、Finance、Pomo、Inbox 的直接同步写入已切换到异步 Repository；Finance 课题关联、Pomo 旧标量键和 Inbox 旧版转换均保留原有键与兼容撤销；Finance/Inbox 跨仓储流程已提取为 Application Use Case，并用 command journal、稳定 ID 和重复提交测试收口。
 - 新增 durable 边界回归：旧标量键读写、CaseRelation 异步读写均有测试覆盖。
-- 当前验证：`npm test -- --run` 通过 54 个测试文件、264 个测试；`npx vue-tsc --noEmit` 通过；`npm run build` 通过并生成 26 个 PWA precache 文件；`npm run test:pwa` 和 `node test/ui-runtime.mjs` 通过。构建仍存在既有第三方注释与大 chunk 提示，但不阻断发布。
+- OW-03 已推进：实体迁移回滚不再只改 localStorage，生产路径通过 `rollbackMigrationDurable` 写入 IndexedDB/outbox；IndexedDB 暂不可用时仍保留可重放回滚意图。
+- 实体级同步的远端记录应用已改为异步 durable flush，避免 `syncEntityData` 在本地集合已变更但持久镜像尚未完成时提前返回。
+- 实体级同步拉取应用前会读取本地实体变更日志，并按 `(updatedAt, device)` 做本地/远端 LWW 裁决；本地较新未上传时不会被旧远端覆盖。
+- 共享协作异步创建/更新/状态变更/Record 修订支持调用方命令 ID；实体仓储和共享审计会复用重复命令结果，避免重试产生重复事实或审计。
+- React Review 的 Action/Record 跨域证据查询已切到异步 Repository；同步 `listRealityDocuments` 仍保留给 Vue 兼容层和未迁移旧模块。
+- 全量 React Reality 文档查询入口已改为 `listRealityDocumentsAsync`，Profile、Goals、Diary、Posts、Inbox、Admin 等页面不再直接调用同步查询。
+- 当时验证（2026-08-24）：`npm test -- --run` 通过 56 个测试文件、273 个测试；`npx vue-tsc --noEmit` 通过；`npm run build` 通过并生成 27 个 PWA precache 文件；`npm run test:pwa` 和 `node test/ui-runtime.mjs` 通过。该行保留为历史快照，当前验证见下方 2026-08-28 校准段。
+
+## 17. 2026-08-28 档案与实现再校准
+
+本节覆盖上一节之后的当前事实；此前章节中的日期和测试数量保留为历史快照，不再作为当前状态引用。
+
+- React 生产页面的完整 Reality 查询已统一到 `listRealityDocumentsAsync`；Profile、Goals、Diary、Posts、Inbox、Admin 和 Review 不再以同步 Reality 查询读取页面事实。
+- 同步 `listRealityDocuments` 及 `src/core/modules.ts` 的 `statValue` reader 仍保留给 Vue/旧模块兼容边界；React bootstrap 中的 reader 注册仅支持该同步统计兼容 API，不构成新页面查询路径。
+- 实体同步拉取已在应用远端记录前读取本地变更日志并按 `(updatedAt, device)` 裁决；实际写入后等待 `flushRepositoryWrites()`，删除墓碑不会回环生成本地变更。
+- 共享协作异步创建、更新、状态变更和 Record 修订支持调用方命令 ID，重复命令复用原实体/审计结果；权限、revision 和 blocked 隔离边界保持不变。
+- 当前验证基线：57 个 Vitest 文件、278 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`npx vue-tsc --noEmit`、`npm run build`、`npm run test:pwa`、性能基线、`node test/ui-runtime.mjs` 和 `git diff --check` 均通过。实体同步同设备版本递增、批量顺序、失败时不推进游标、React 全局搜索异步边界和工作台键盘边界已有回归；构建仍有既有第三方注释与大 chunk 提示。
+- 当前剩余任务仅以 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准：OW-03 的兼容/历史/高级同步复核，OW-04 的真实设备与辅助技术验收，以及后续 P1/P2 收口；已完成切片不再恢复为活跃待办。

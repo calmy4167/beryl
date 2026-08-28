@@ -57,4 +57,13 @@ describe('matterRepository', () => {
     expect(matterRepository.list()).toHaveLength(1)
     expect(matterRepository.mutations(first.calmyId)).toHaveLength(1)
   })
+
+  it('keeps the expanded trajectory vocabulary separate from lifecycle status', () => {
+    const matter = matterRepository.create({ title: '轨迹词汇测试' }, { commandId: 'cmd-trajectory-1' })
+    const lost = matterRepository.update(matter.calmyId, { trajectory: 'lost' }, { commandId: 'cmd-trajectory-2', expectedRevision: 1 })
+    const restarting = matterRepository.update(matter.calmyId, { trajectory: 'restarting' }, { commandId: 'cmd-trajectory-3', expectedRevision: 2 })
+
+    expect(lost).toMatchObject({ status: 'active', trajectory: 'lost', revision: 2 })
+    expect(restarting).toMatchObject({ status: 'active', trajectory: 'restarting', revision: 3 })
+  })
 })

@@ -19,6 +19,7 @@ const PENDING_WRITES = 'pending_writes'
 const DB_INITIALIZED_AT = 'initializedAt'
 
 const DEVICE_STORAGE_KEY = 'beryl_device_id'
+const ENTITY_VERSION_STORAGE_KEY = 'beryl_entity_version'
 
 function getDeviceId(): string {
   try {
@@ -47,6 +48,7 @@ export interface DbRuntimeStatus {
 
 let dbPromise: Promise<IDBDatabase> | null = null
 let dbWriteChain: Promise<void> = Promise.resolve()
+let entityChangeChain: Promise<void> = Promise.resolve()
 let entityChangeNonce = 0
 const indexedPendingKeys = new Set<string>()
 let dbStatus: DbRuntimeStatus = {
@@ -56,6 +58,15 @@ let dbStatus: DbRuntimeStatus = {
   restoredKeys: 0,
   lastMirrorAt: null,
   lastError: null
+}
+
+/** 为实体同步提供跨刷新、同设备单调递增的版本号。 */
+export function nextEntityVersion(now = Date.now()): number {
+  let previous = 0
+  try { previous = Number(localStorage.getItem(ENTITY_VERSION_STORAGE_KEY)) || 0 } catch { /* memory-only fallback */ }
+  const next = Math.max(now, previous + 1)
+  try { localStorage.setItem(ENTITY_VERSION_STORAGE_KEY, String(next)) } catch { /* memory-only fallback */ }
+  return next
 }
 
 interface PendingDbWrite { key: string; value?: string; deleted?: boolean }
@@ -348,6 +359,7 @@ export async function flushPendingDbWrites(): Promise<void> {
       markDbFailure(error)
     }
   })
+  await entityChangeChain
 }
 
 /** 远端应用专用：只更新持久镜像，不追加本地变更日志，避免把云端数据再次当成本地写入推回。 */
@@ -512,23 +524,22 @@ export interface EntityChange {
   value?: unknown
 }
 
-export async function recordEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
+async function persistEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
   if (!Array.isArray(before) || !Array.isArray(after) || !key.startsWith('b_')) return
   const asMap = (items: unknown[]) => new Map(items
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && (('id' in item && item.id != null) || ('date' in item && item.date != null)))
     .map(item => [String(item.id ?? item.date), item]))
   const previous = asMap(before)
   const next = asMap(after)
-  const now = Date.now()
-  const changeId = (entityId: string) => `${DEVICE_ID}:${now}:${entityChangeNonce++}:${entityId}`
+  const changeId = (entityId: string, version: number) => `${DEVICE_ID}:${version}:${entityChangeNonce++}:${entityId}`
   const changes: EntityChange[] = []
   for (const [entityId, value] of next) {
     const old = previous.get(entityId)
-    if (!old) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'create', updatedAt: now, device: DEVICE_ID, value })
-    else if (JSON.stringify(old) !== JSON.stringify(value)) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'update', updatedAt: now, device: DEVICE_ID, value })
+    if (!old) { const version = nextEntityVersion(); changes.push({ id: changeId(entityId, version), entity: key.slice(2), entityId, operation: 'create', updatedAt: version, device: DEVICE_ID, value }) }
+    else if (JSON.stringify(old) !== JSON.stringify(value)) { const version = nextEntityVersion(); changes.push({ id: changeId(entityId, version), entity: key.slice(2), entityId, operation: 'update', updatedAt: version, device: DEVICE_ID, value }) }
   }
   for (const entityId of previous.keys()) {
-    if (!next.has(entityId)) changes.push({ id: changeId(entityId), entity: key.slice(2), entityId, operation: 'delete', updatedAt: now, device: DEVICE_ID })
+    if (!next.has(entityId)) { const version = nextEntityVersion(); changes.push({ id: changeId(entityId, version), entity: key.slice(2), entityId, operation: 'delete', updatedAt: version, device: DEVICE_ID }) }
   }
   if (!changes.length) return
   try {
@@ -542,6 +553,18 @@ export async function recordEntityChanges(key: string, before: unknown, after: u
     })
     await pruneEntityChanges()
   } catch { /* 不阻断旧存储与同步流程 */ }
+}
+
+/** 串行排队实体变更日志，避免保存完成时日志仍在并发写入。 */
+export function recordEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
+  const next = entityChangeChain.then(() => persistEntityChanges(key, before, after), () => persistEntityChanges(key, before, after))
+  entityChangeChain = next.catch(() => undefined)
+  return next
+}
+
+/** 等待已经排队的实体变更日志完成；不改变旧同步 API 的返回形态。 */
+export function flushEntityChanges(): Promise<void> {
+  return entityChangeChain
 }
 
 async function pruneEntityChanges(): Promise<void> {
@@ -572,7 +595,7 @@ export async function readEntityChanges(limit = 500, afterUpdatedAt = 0): Promis
       req.onsuccess = () => resolve(req.result as EntityChange[])
       req.onerror = () => reject(req.error)
     })
-    return all.filter(change => change.updatedAt >= afterUpdatedAt).sort((a, b) => a.updatedAt - b.updatedAt).slice(-limit)
+    return all.filter(change => change.updatedAt > afterUpdatedAt).sort((a, b) => a.updatedAt - b.updatedAt || a.device.localeCompare(b.device) || a.id.localeCompare(b.id)).slice(0, limit)
   } catch { return [] }
 }
 

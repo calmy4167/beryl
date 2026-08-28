@@ -1,17 +1,24 @@
 import { caseRepository } from '@/domain/case/repository'
+import { caseAsyncRepository } from '@/domain/case/repository'
 import type { CaseItem } from '@/domain/case/model'
 import { actionRepository } from '@/domain/action/repository'
+import { actionAsyncRepository } from '@/domain/action/repository'
 import type { ActionItem } from '@/domain/action/model'
 import { captureRepository } from '@/domain/capture'
+import { captureAsyncRepository } from '@/domain/capture'
 import type { CaptureItem } from '@/domain/capture'
 import { matterRepository } from '@/domain/matter/repository'
+import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
 import { recordRepository } from '@/domain/record/repository'
+import { recordAsyncRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
 import { todayRepository } from '@/domain/today/repository'
+import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayPlan } from '@/domain/today/model'
 import { store } from '@/core/storage'
-import { CORE_ENTITY_TYPES, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle } from '@/domain/unified'
+import { createAsyncCollectionRepository, readAsyncStorageValue } from '@/core/repository'
+import { CORE_ENTITY_TYPES, unifiedAsyncRepository, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle } from '@/domain/unified'
 import { legacyMapping } from '@/domain/legacy/migration'
 
 export type RealitySource = 'legacy' | 'unified'
@@ -266,6 +273,191 @@ export function listRealityDocuments(query: RealityQuery = {}): RealityDocument[
   const limit = query.limit === undefined ? Number.MAX_SAFE_INTEGER : Math.max(0, query.limit)
   if (limit === 0 || (query.from !== undefined && query.to !== undefined && query.from > query.to)) return []
   return deduplicate([...legacyDocuments(), ...unifiedDocuments()])
+    .filter(item => !types || types.has(item.entityType))
+    .filter(item => tokens.every(token => item.searchText.includes(token)))
+    .filter(item => query.from === undefined || eventTime(item) >= query.from)
+    .filter(item => query.to === undefined || eventTime(item) <= query.to)
+    .sort((a, b) => b.updatedAt - a.updatedAt || a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
+    .slice(0, limit)
+}
+
+/**
+ * 复盘需要的跨域证据查询。React 生产路径使用异步 Repository，避免历史/记录
+ * 查询绕过 IndexedDB durable 快照；旧的同步 listRealityDocuments 保留给 Vue
+ * 兼容层和旧模块筛选。
+ */
+export async function listActionRecordDocumentsAsync(query: RealityQuery = {}): Promise<RealityDocument[]> {
+  const [actions, records] = await Promise.all([actionAsyncRepository.list(), recordAsyncRepository.list()])
+  const documents = [
+    ...actions.map(item => document({
+      id: item.calmyId, source: 'legacy', entityType: 'action', title: item.title,
+      summary: item.resultNote || `${item.date} · ${item.status}`, route: matterRoute(item.matterId) || '/app/today',
+      updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date,
+      status: item.status, resultNote: item.resultNote, revision: item.revision
+    })),
+    ...records.map(item => document({
+      id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
+      summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
+      route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
+      matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
+      impact: item.impact, revision: item.revision
+    }))
+  ]
+  const types = query.types?.length ? new Set(query.types) : undefined
+  const tokens = normalize(query.text || '').split(/\s+/).filter(Boolean)
+  const limit = query.limit === undefined ? Number.MAX_SAFE_INTEGER : Math.max(0, query.limit)
+  if (limit === 0 || (query.from !== undefined && query.to !== undefined && query.from > query.to)) return []
+  return documents
+    .filter(item => !types || types.has(item.entityType))
+    .filter(item => tokens.every(token => item.searchText.includes(token)))
+    .filter(item => query.from === undefined || eventTime(item) >= query.from)
+    .filter(item => query.to === undefined || eventTime(item) <= query.to)
+    .sort((a, b) => b.updatedAt - a.updatedAt || a.title.localeCompare(b.title) || a.id.localeCompare(b.id))
+    .slice(0, limit)
+}
+
+type LegacyTask = { id?: string; title?: string; priority?: string; date?: string; dueAt?: string; done?: boolean }
+type LegacyInbox = { id?: string; text?: string; date?: string }
+type LegacyDiary = { date?: string; content?: string }
+type LegacyPost = { id?: string; title?: string; content?: string; date?: string }
+type LegacyFinance = { id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string }
+type LegacyHabit = { id?: string; name?: string; color?: string; days?: number; dates?: string[] }
+type LegacyChar = { id?: string; name?: string; title?: string; date?: string }
+type LegacyGoal = { id?: string; title?: string; done?: boolean }
+type LegacyMoment = { id?: string; author?: { name?: string }; content?: string; visibility?: string; createdAt?: number; updatedAt?: number; comments?: unknown[]; likedBy?: unknown[] }
+
+const asyncTasks = createAsyncCollectionRepository<LegacyTask>('tasks', item => item.id)
+const asyncInbox = createAsyncCollectionRepository<LegacyInbox>('inbox', item => item.id)
+const asyncDiary = createAsyncCollectionRepository<LegacyDiary>('diary', item => item.date)
+const asyncPosts = createAsyncCollectionRepository<LegacyPost>('posts', item => item.id)
+const asyncFinance = createAsyncCollectionRepository<LegacyFinance>('finance', item => item.id)
+const asyncHabits = createAsyncCollectionRepository<LegacyHabit>('habits', item => item.id)
+const asyncChars = createAsyncCollectionRepository<LegacyChar>('chars', item => item.id)
+const asyncGoals = createAsyncCollectionRepository<LegacyGoal>('goals', item => item.id)
+const asyncMoments = createAsyncCollectionRepository<LegacyMoment>('moments', item => item.id)
+
+async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
+  const [cases, matters, actions, records, today, captures, tasks, inbox, diary, posts, finance, habits, chars, goals, moments, pomoMinutes, pomoCount] = await Promise.all([
+    caseAsyncRepository.list(), matterAsyncRepository.list(), actionAsyncRepository.list(), recordAsyncRepository.list(),
+    todayAsyncRepository.list(), captureAsyncRepository.list(), asyncTasks.list(), asyncInbox.list(), asyncDiary.list(),
+    asyncPosts.list(), asyncFinance.list(), asyncHabits.list(), asyncChars.list(), asyncGoals.list(), asyncMoments.list(),
+    readAsyncStorageValue('pomoTotal', 0), readAsyncStorageValue('pomoCount', 0)
+  ])
+  const caseDocuments = cases.filter(item => !legacyMapping('case', item.id)).map((item: CaseItem) => document({
+    id: item.id, source: 'legacy', entityType: 'case', title: item.title,
+    summary: item.problem || item.desiredOutcome || '打开课题', route: `/app/cases/${item.id}`, updatedAt: item.updatedAt
+  }))
+  const matterDocuments = matters.map((item: Matter) => document({
+    id: item.calmyId, source: 'legacy', entityType: 'matter', title: item.title,
+    summary: item.primaryContradiction || item.why || `${item.status} · ${item.currentStage}`,
+    route: `/app/matters/${item.calmyId}`, updatedAt: item.updatedAt, matterId: item.calmyId,
+    status: item.status, why: item.why, currentStage: item.currentStage, trajectory: item.trajectory, revision: item.revision
+  }))
+  const actionDocuments = actions.map((item: ActionItem) => document({
+    id: item.calmyId, source: 'legacy', entityType: 'action', title: item.title,
+    summary: item.resultNote || `${item.date} · ${item.status}`, route: matterRoute(item.matterId) || '/app/today',
+    updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date,
+    status: item.status, resultNote: item.resultNote, revision: item.revision
+  }))
+  const recordDocuments = records.map((item: RealityRecord) => document({
+    id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
+    summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
+    route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
+    matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type, impact: item.impact, revision: item.revision
+  }))
+  const todayDocuments = today.map((item: TodayPlan) => document({
+    id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,
+    summary: item.why || item.review.observation || item.focusActionIds.join(' ') || '打开今日计划', route: '/app/today',
+    updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date)
+  }))
+  const captureDocuments = captures.map((item: CaptureItem) => document({
+    id: item.calmyId, source: 'legacy', entityType: 'capture', title: item.body.split(/\r?\n/, 1)[0].slice(0, 120),
+    summary: `${item.status} · 原始收集`, body: item.body, route: '/app/capture', updatedAt: item.updatedAt
+  }))
+  const taskDocuments = tasks.filter(item => item.id && item.title?.trim() && !legacyMapping('task', item.id)).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'task', title: item.title!.trim(), summary: `${item.done ? 'done' : 'open'} · ${item.priority || '中'}`,
+    route: '/app/module/tasks', updatedAt: Date.parse(item.date || '') || 0, occurredAt: Date.parse(item.date || '') || undefined,
+    date: item.date, status: item.done ? 'done' : 'open', priority: item.priority || '中', dueAt: item.dueAt, done: !!item.done
+  }))
+  const inboxDocuments = inbox.map((item, sourceIndex) => {
+    const text = typeof item.text === 'string' ? item.text.trim() : ''
+    if (!text || legacyMapping('inbox', item.id || `row-${sourceIndex}-${encodeURIComponent(text.slice(0, 32))}`)) return undefined
+    const id = item.id || hashId('inbox', `${item.date || ''}:${text}:${sourceIndex}`)
+    return document({ id, source: 'legacy', entityType: 'inbox', title: text.slice(0, 120), summary: 'open · 收集箱', body: text,
+      route: '/app/module/inbox', updatedAt: Date.parse(item.date || '') || 0, date: item.date, status: 'open', sourceIndex })
+  }).filter((item): item is RealityDocument => !!item)
+  const diaryDocuments = diary.filter(item => item.date && item.content?.trim()).map(item => document({
+    id: item.date!, source: 'legacy', entityType: 'diary', title: `Diary ${item.date}`, summary: item.content!.slice(0, 120), body: item.content!,
+    route: '/app/module/diary', updatedAt: parsedTimestamp(item.date), occurredAt: dateTimestamp(item.date!), date: item.date
+  }))
+  const postDocuments = posts.filter(item => item.id && item.title?.trim()).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'post', title: item.title!.trim(), summary: item.content?.replace(/\r?\n/g, ' ').slice(0, 120) || '文章', body: item.content,
+    route: '/app/module/posts', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date
+  }))
+  const financeDocuments = finance.filter(item => item.id).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'transaction', title: item.category || '其他', summary: `${item.type === 'income' ? 'income' : 'expense'} · ${item.category || '其他'}`,
+    body: item.note, route: '/app/module/finance', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined,
+    date: item.date, status: item.type, amount: item.amount, amountCents: item.amountCents, category: item.category, financeType: item.type
+  }))
+  const habitDocuments = habits.filter(item => item.id && item.name?.trim()).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'habit', title: item.name!.trim(), summary: `${item.days || item.dates?.length || 0} 天`,
+    route: '/app/module/habits', updatedAt: dateTimestamp(item.dates?.slice().sort().pop() || '') || 0, dates: item.dates || [], color: item.color, days: item.days || item.dates?.length || 0
+  }))
+  const charDocuments = chars.filter(item => item.id && item.name?.trim()).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'char', title: item.name!.trim(), summary: item.title || '人物', route: '/app/module/chars',
+    updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date, name: item.name, charTitle: item.title
+  }))
+  const goalDocuments = goals.filter(item => item.id && item.title?.trim()).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'goal', title: item.title!.trim(), summary: item.done ? 'done · 目标' : 'open · 目标',
+    route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done
+  }))
+  const pomoDocument = document({ id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${Number(pomoMinutes) || 0} 分钟 · ${Number(pomoCount) || 0} 个`,
+    route: '/app/module/pomo', updatedAt: 0, minutes: Number(pomoMinutes) || 0, count: Number(pomoCount) || 0 })
+  const momentDocuments = moments.filter(item => item.id && item.content?.trim()).map(item => document({
+    id: item.id!, source: 'legacy', entityType: 'moment', title: item.author?.name || '动态', summary: item.content!.slice(0, 120), body: item.content,
+    route: '/app/module/moments', updatedAt: item.updatedAt || item.createdAt || 0, occurredAt: item.createdAt, visibility: item.visibility,
+    commentCount: item.comments?.length || 0, likeCount: item.likedBy?.length || 0
+  }))
+  return [...caseDocuments, ...matterDocuments, ...actionDocuments, ...recordDocuments, ...todayDocuments, ...captureDocuments, ...taskDocuments,
+    ...inboxDocuments, ...diaryDocuments, ...postDocuments, ...financeDocuments, ...habitDocuments, ...charDocuments, ...goalDocuments, pomoDocument, ...momentDocuments]
+}
+
+async function routeForCoreAsync(entity: CoreEntity): Promise<string> {
+  if (entity.entityType === 'person' || entity.entityType === 'relationship' || entity.entityType === 'shared_space') return '/app/people'
+  if (entity.entityType === 'cycle') return matterRoute(entity.matterId) || '/app/library'
+  if (entity.entityType === 'stage') {
+    const cycle = await unifiedAsyncRepository.find<Cycle>('cycle', entity.cycleId)
+    return matterRoute(cycle?.matterId) || '/app/library'
+  }
+  if (entity.entityType === 'outcome') {
+    const action = await actionAsyncRepository.find(entity.actionId)
+    return matterRoute(entity.matterId || action?.matterId) || '/app/today'
+  }
+  if (entity.entityType === 'practice') return matterRoute(entity.matterIds[0]) || '/app/library'
+  return '/app/library'
+}
+
+async function unifiedDocumentsAsync(): Promise<RealityDocument[]> {
+  const groups = await Promise.all(CORE_ENTITY_TYPES.map(async entityType => {
+    const entities = await unifiedAsyncRepository.list<CoreEntity & { entityType: typeof entityType }>(entityType)
+    return Promise.all(entities.map(async entity => document({
+      id: entity.calmyId, source: 'unified', entityType: entity.entityType, title: coreTitle(entity), summary: coreSummary(entity),
+      route: await routeForCoreAsync(entity), updatedAt: entity.updatedAt,
+      occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : undefined,
+      matterId: 'matterId' in entity ? entity.matterId : undefined
+    })))
+  }))
+  return groups.flat()
+}
+
+/** 全量跨域查询的异步入口，供 React 页面读取 durable 快照；同步入口只保留兼容层。 */
+export async function listRealityDocumentsAsync(query: RealityQuery = {}): Promise<RealityDocument[]> {
+  const [legacy, unified] = await Promise.all([legacyDocumentsAsync(), unifiedDocumentsAsync()])
+  const types = query.types?.length ? new Set(query.types) : undefined
+  const tokens = normalize(query.text || '').split(/\s+/).filter(Boolean)
+  const limit = query.limit === undefined ? Number.MAX_SAFE_INTEGER : Math.max(0, query.limit)
+  if (limit === 0 || (query.from !== undefined && query.to !== undefined && query.from > query.to)) return []
+  return deduplicate([...legacy, ...unified])
     .filter(item => !types || types.has(item.entityType))
     .filter(item => tokens.every(token => item.searchText.includes(token)))
     .filter(item => query.from === undefined || eventTime(item) >= query.from)
