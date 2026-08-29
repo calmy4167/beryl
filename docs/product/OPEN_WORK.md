@@ -12,31 +12,29 @@
 
 ## P0：发布前必须完成
 
-### OW-03 IndexedDB 权威边界深化
-
-已补齐备份前 pending writes 等待、实体迁移计划的 durable 快照、迁移回滚 outbox、实体级远端记录应用后的 durable flush，以及本地未上传版本与远端记录的实体级 LWW 裁决；实体版本已改为同设备跨刷新单调递增，批量待同步记录按最旧到最新读取，避免同毫秒覆盖和超过批次上限时跳过早期变更；共享协作异步写入已支持调用方命令 ID 和重复提交幂等审计；首次实体同步失败不会标记 ready，远端本地写入失败不会推进游标。React 主路径的跨域 Reality 查询与全局搜索已切到异步 Repository。剩余范围收敛为实体日志/实体值原子持久化、首次同步完整合并与成功确认、同步游标 durable 确认、Capture 建议跨集合幂等、键级高级同步复核，以及同步统计/旧 Vue 查询兼容层；localStorage 只作为兼容回退，不再成为新的写入事实源。
-
-验收：刷新、离线重开、存储失败、并发 revision 冲突和备份/迁移前 pending writes 均有可复现测试。
-
 ### OW-04 人工端侧与辅助技术验收
 
 在真实移动设备、键盘、屏幕阅读器和大字号环境中复核核心四页、双侧栏、移动 More 抽屉、表单输入、保存状态、Focus/弹层关闭和错误恢复。自动化 smoke 已通过，但不能替代人工审计。
 
 验收：无 P0 可访问性或数据丢失问题；320px、200% 缩放和系统大字号不丢失主行动与退出入口。
 
-> 2026-08-28 对齐结论：57 个 Vitest 文件 / 278 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 均通过；自动化已覆盖双侧栏、移动 More 抽屉、键盘焦点、核心保存控件和远端应用失败保护，但真实移动设备、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
+> 2026-08-29 对齐结论：58 个 Vitest 文件 / 292 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 均通过；UI smoke 已实际验证 React Admin 加载、Vue `admin/advanced` 兼容页加载及返回后的旧桥接卸载；业务值与实体日志原子提交、首次实体同步完整合并确认、实体同步与键级主同步游标及 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离已由自动化或浏览器运行时覆盖；自动化已覆盖双侧栏、390/320px 移动布局、CDP 200% page-scale 下的布局视口、移动 More 抽屉、键盘焦点、核心保存控件、远端应用失败保护和 Capture 决策重复提交保护。CDP 的 page-scale 视觉视口与 DOM 布局坐标存在已知分离，因此真实移动设备、真实浏览器缩放、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
+
+本轮 OW-04 代码侧复核还补齐 React 登录错误的 `role="alert"` 即时播报、导入文件控件的明确 accessible name，以及 390/320px More 抽屉 Escape 关闭后的触发按钮焦点回收；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；UI smoke 已通过浏览器 AX tree 确认错误节点进入无障碍树；真实读屏、系统大字号和设备缩放仍需人工确认。
 
 ## P1：核心闭环稳定后的工程收口
 
 ### OW-06 Vue 兼容层退出评估
 
-`src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。React 入口和 React 页面当前是生产主路径。
+`src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。2026-08-29 入口审计确认 `index.html → src/react/main.tsx → src/react/App.tsx` 是唯一生产启动链，Vue 仅通过显式 `admin/advanced` 的 `LegacyAdminHost` 路由及同步基础设施保留；未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已作为第一批清理项移除，并有静态回归保护。静态回归现扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于 `LegacyAdminHost.tsx`；React 已补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的兼容重定向，UI smoke 已验证这些列表、未知详情和旧模块 URL；但 Vue 运行时依赖和其余旧路由真实回归仍未完成。React 入口和 React 页面当前是生产主路径。
 
 验收：所有生产路由、登录、设置、导入导出、同步和边缘模块均无 Vue 运行时依赖；删除每批兼容代码后全量测试与构建通过。
 
 ### OW-07 页面与领域编排拆分
 
 继续拆分大型 `src/react/App.tsx` 和页面文件，将路由、壳层、页面状态、展示组件和 Application Use Case 分离；同时评估扩展模块的按需样式/资源拆分，不改变领域模型和现有 URL。
+
+2026-08-29 已完成三刀：将所有 React 懒加载页面注册集中到 `src/react/lazy-pages.ts`，将工作台壳层、搜索弹层、共享 `Button`、页面头部和焦点陷阱分别收口到 `src/react/AppShell.tsx` 与 `src/react/ui.tsx`，并将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`；`App.tsx` 现只负责启动、守卫组件和页面节点装配，URL、兼容重定向、Suspense 边界和按需加载行为不变。下一刀继续拆出页面状态，仍需避免循环依赖和重复监听。
 
 验收：页面职责可单独测试；跨页面行为通过用例或共享协议复用；切换模块不重复挂载无关监听器；核心首屏不因扩展模块样式和组件 eager 加载而膨胀。
 
@@ -126,15 +124,14 @@ Shared Space、多人权限、协作撤回、审计和删除传播需要独立�
 - Capture 原文优先、Action → Record 结果闭环、保存状态、导出/清空/导入往返。
 - UI browser smoke、单元测试、PWA、生产构建和核心响应式回归。
 - 旧 Case/Task/inbox 的增量迁移、稳定映射、兼容路由和受保护回滚的基础实现。
+- OW-03 IndexedDB 权威边界深化：业务值、键级/实体级日志与 pending replay 的 durable 提交、首次实体同步完整确认、实体与键级游标的 `meta` 持久化、失败状态保护、键级 LWW（批次最终版本/同毫秒 device 决胜/墓碑覆盖）、Capture 决策跨集合幂等、React 异步 Reality/搜索边界和旧 Worker 失败传播均已完成并通过回归。同步统计定义无生产调用；旧 Vue 同步查询明确保留为 OW-06 兼容层，React bootstrap 不再注册同步 reader。
 
 这些内容只在实现总档案和测试报告中作为证据保留，不再复制成待办。
 
 ## 推荐顺序
 
 ```text
-OW-03 → OW-04
-            ↓
-      OW-06 → OW-07 → OW-08/OW-09 → OW-15
+OW-04 → OW-06 → OW-07 → OW-08/OW-09 → OW-15
             ↓
       OW-16 → OW-17 → OW-10
             ↓

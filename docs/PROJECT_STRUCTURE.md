@@ -10,12 +10,15 @@ index.html
   → src/react/main.tsx
   → src/react/bootstrap.ts / bootstrapData
   → src/react/App.tsx
+  → src/react/lazy-pages.ts（扩展页与兼容桥的懒加载注册）
+  → src/react/AppShell.tsx + src/react/ui.tsx（壳层与共享交互工具）
+  → src/react/routes.tsx（路由树、兼容重定向和 Suspense 边界）
   → React Router + src/react/pages/*
   → src/application + src/domain + src/core
   → IndexedDB / localStorage 兼容层 / optional sync adapters
 ```
 
-`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 是 Vue 迁移兼容层，不是当前 `index.html` 的生产主入口。`src/react/LegacyVueHost.tsx` 当前未被生产路由引用，列为清理候选；其余兼容层暂不直接删除，直到 `docs/product/OPEN_WORK.md` 的 OW-06 完成。
+`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 是 Vue 迁移兼容层，不是当前 `index.html` 的生产主入口。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已在 OW-06 第一批清理中移除；其余兼容层暂不直接删除，直到 `docs/product/OPEN_WORK.md` 的 OW-06 完成。
 
 ## 2. 目录职责
 
@@ -66,7 +69,7 @@ React page
   → optional backup / Markdown / sync / Bridge adapter
 ```
 
-核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。React 页面 Reality 查询、扩展页面的直接同步写入和当前 Finance/Inbox 跨仓储 Use Case 已完成第一轮收口；IndexedDB 权威边界仍以 `OPEN_WORK.md` 的 OW-03 为准。旧同步 Repository、`src/core/modules.ts` 的同步统计读取和 `beryl-*` 键名只作为迁移兼容，新的核心写入必须经过统一异步边界和保存状态协议。
+核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。React 页面 Reality 查询、扩展页面的直接同步写入和当前 Finance/Inbox 跨仓储 Use Case 已完成第一轮收口；IndexedDB 权威边界的 OW-03 实施切片已完成，具体证据以实现基线和交接档案为准。旧同步 Repository、`src/core/modules.ts` 的同步统计读取和 `beryl-*` 键名只作为迁移兼容，React bootstrap 不注册同步统计 reader；新的核心写入必须经过统一异步边界和保存状态协议。
 
 ## 5. 文档架构
 
@@ -85,6 +88,7 @@ React page
 - `docs/product/ENGINEERING_REVIEW_2026-08-22.md`：当前代码差距、风险和目标架构。
 - `docs/product/REACT_MIGRATION_2026-08-23.md`：React 迁移事实快照，下一步以 `OPEN_WORK.md` 为准。
 - `docs/product/REVIEW_MEETING_2026-08-22.md`：历史评审会议记录。
+- `docs/product/assets/`：当前与历史视觉设计资产；只作产品/体验参考，不作为实现证据。
 
 ### 领域与协议参考
 
@@ -94,7 +98,7 @@ React page
 
 ### 实现证据
 
-`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-28 为当前事实，早期日期仅保留历史上下文。
+`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-29 为当前事实，早期日期仅保留历史上下文。
 
 ### 历史资料与原型
 

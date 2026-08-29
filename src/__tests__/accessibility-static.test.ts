@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -10,6 +10,11 @@ const scene = source('src/views/SceneView.vue')
 const today = source('src/views/TodayView.vue')
 const matters = source('src/views/MattersView.vue')
 const review = source('src/views/ReviewView.vue')
+const indexHtml = source('index.html')
+const reactApp = source('src/react/App.tsx')
+const reactRoutes = source('src/react/routes.tsx')
+const reactLazyPages = source('src/react/lazy-pages.ts')
+const reactAdmin = source('src/react/pages/AdminPage.tsx')
 
 describe('静态无障碍语义', () => {
   it('为 AppShell 的核心导航、更多入口和图标提供名称与状态', () => {
@@ -55,6 +60,12 @@ describe('静态无障碍语义', () => {
     expect(router).toContain("{ path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' }")
     expect(router).toContain("{ path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' }")
     expect(router).not.toContain("component: () => import('@/views/CasesView.vue')")
+    expect(reactRoutes).toContain('<Route path="cases" element={<Navigate to="/app/matters" replace />} />')
+    expect(reactRoutes).toContain('<Route path="cases/:id" element={views.caseRedirect} />')
+    expect(reactApp).toContain("legacyTargetFor('case', id)")
+    expect(reactRoutes).toContain('<Route path="module/chars" element={<Navigate to="/app/people" replace />} />')
+    expect(reactRoutes).toContain('<Route path="module/moments" element={<Navigate to="/app/module/posts" replace />} />')
+    expect(reactRoutes).toContain('<Route path="module/:id" element={<Navigate to="/app/module/inbox" replace />} />')
   })
 
   it('为 SceneView 的场景组、选择状态和装饰内容提供语义', () => {
@@ -91,5 +102,26 @@ describe('静态无障碍语义', () => {
     expect(/aria-label|aria-labelledby/.test(unlabeledFileInput)).toBe(false)
     expect(/aria-label="返回工作台"/.test(admin)).toBe(true)
     expect(/aria-label="选择要导入的 JSON 数据文件"/.test(admin)).toBe(true)
+  })
+
+  it('保持 React 为生产入口并把 Vue 限定在显式兼容路由', () => {
+    expect(indexHtml).toContain('<script type="module" src="/src/react/main.tsx"></script>')
+    expect(reactApp).toContain("from './lazy-pages'")
+    expect(reactLazyPages).toContain("export const LegacyAdminHost = lazy(() => import('./LegacyAdminHost')")
+    expect(reactRoutes).toContain('path="admin" element={lazyView(\'设置与同步\', views.admin)}')
+    expect(reactRoutes).toContain('path="admin/advanced" element={lazyView(\'高级同步工具\', views.advancedAdmin)}')
+    expect(reactApp).not.toContain("import('@/views/")
+    expect(reactApp).toContain('<p className="form-error" role="alert">{error}</p>')
+    expect(reactAdmin).toContain('aria-label="选择要导入的 JSON 数据文件"')
+    expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
+    const reactPagesDir = resolve(process.cwd(), 'src/react/pages')
+    const reactPageFiles = readdirSync(reactPagesDir).filter(file => /\.(ts|tsx)$/.test(file))
+    const forbiddenVueImports = reactPageFiles.filter(file => /from ['"](?:vue|vue-router|element-plus)/.test(readFileSync(resolve(reactPagesDir, file), 'utf8')))
+    expect(forbiddenVueImports).toEqual([])
+    const reactDir = resolve(process.cwd(), 'src/react')
+    const reactSourceFiles = readdirSync(reactDir).filter(file => /\.(ts|tsx)$/.test(file))
+    const reactVueImportOwners = reactSourceFiles.filter(file => /from ['"](?:vue|vue-router|element-plus)/.test(readFileSync(resolve(reactDir, file), 'utf8')))
+    expect(reactVueImportOwners).toEqual(['LegacyAdminHost.tsx'])
+    expect(source('src/react/LegacyAdminHost.tsx')).toContain("from 'vue'")
   })
 })

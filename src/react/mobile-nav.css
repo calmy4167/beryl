@@ -1,0 +1,9 @@
+.bottom-nav.mobile-only {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .bottom-nav.mobile-only {
+    display: flex;
+  }
+}

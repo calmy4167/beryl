@@ -138,8 +138,8 @@ describe('Repository durable boundary', () => {
     expect(result.durable).toBe(true)
     expect(result.pendingWrites).toBe(0)
     expect(durable.values.get('b_tasks')).toBe('[{"id":"t1","title":"最终版"}]')
-    expect(durable.dbPut).toHaveBeenNthCalledWith(1, 'b_tasks', '[{"id":"t1","title":"第一版"}]')
-    expect(durable.dbPut).toHaveBeenNthCalledWith(3, 'b_tasks', '[{"id":"t1","title":"最终版"}]')
+    expect(durable.dbPut).toHaveBeenNthCalledWith(1, 'b_tasks', '[{"id":"t1","title":"第一版"}]', expect.any(Object))
+    expect(durable.dbPut).toHaveBeenNthCalledWith(3, 'b_tasks', '[{"id":"t1","title":"最终版"}]', expect.any(Object))
   })
 
   it('reads from the durable snapshot instead of stale localStorage', async () => {

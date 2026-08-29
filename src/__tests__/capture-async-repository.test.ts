@@ -186,4 +186,24 @@ describe('captureAsyncRepository', () => {
       if (decision === 'seed') await expect(unifiedAsyncRepository.find('seed', result.entity!.calmyId)).resolves.toMatchObject({ title: `处理 ${decision} 的原文` })
     }
   })
+
+  it('keeps a Capture decision idempotent across repeated submissions and revisions', async () => {
+    const capture = await captureAsyncRepository.create('重复提交也只能形成一个行动')
+    const first = await decideCapture({ captureId: capture.calmyId, decision: 'action' })
+    const repeated = await decideCapture({ captureId: capture.calmyId, decision: 'action' })
+
+    expect(repeated).toEqual(first)
+    await expect(actionAsyncRepository.list()).resolves.toHaveLength(1)
+    await expect(captureAsyncRepository.find(capture.calmyId)).resolves.toMatchObject({ status: 'accepted', revision: 2 })
+    await expect(decideCapture({ captureId: capture.calmyId, decision: 'matter' })).rejects.toThrow('capture-already-decided')
+    await expect(actionAsyncRepository.list()).resolves.toHaveLength(1)
+
+    const concurrentCapture = await captureAsyncRepository.create('并发提交也只能形成一个行动')
+    const [concurrentFirst, concurrentRepeated] = await Promise.all([
+      decideCapture({ captureId: concurrentCapture.calmyId, decision: 'action' }),
+      decideCapture({ captureId: concurrentCapture.calmyId, decision: 'action' }),
+    ])
+    expect(concurrentRepeated).toEqual(concurrentFirst)
+    await expect(actionAsyncRepository.list()).resolves.toHaveLength(2)
+  })
 })

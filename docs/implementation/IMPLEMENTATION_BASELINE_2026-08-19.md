@@ -2,7 +2,7 @@
 
 版本：v1.0
 原始建档/评审日期：2026-08-22（文件名保留原始建档日期）
-当前事实校准：2026-08-28
+当前事实校准：2026-08-29
 性质：工程实现主档案 / 实现事实基线
 上游设计源：[`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)
 
@@ -30,7 +30,7 @@
 | 已实现 | 代码、测试、导入导出和主要边界均通过验收 |
 | 已实现当前切片 | 当前验收范围已有代码、测试和实际入口，但原始设计总范围仍有明确缺口 |
 | 本地规则 MVP | 已有离线规则建议和人工决策流程，生产级模型或服务层尚未完成 |
-| PWA 已验证，主存储未完成 | PWA 构建和静态资源验证通过，但 IndexedDB 主存储链路尚未完成 |
+| 历史状态快照（已废弃） | 早期档案曾用“PWA 已验证，主存储未完成”描述阶段状态；当前持久化事实以第 17 节和 `docs/product/OPEN_WORK.md` 为准 |
 | 待复核 | 已实现，但需要产品试用或真实 Vault/跨设备验证 |
 
 ## 1. 产品宪法
@@ -263,7 +263,7 @@ source: calmy
 
 ## 10. 全量实现矩阵
 
-状态会随代码和测试更新；本表是防遗漏清单。
+状态会随代码和测试更新；本表是防遗漏清单。早期条目的“当前状态”可能仍保留阶段快照，最新实现事实和未完成边界以第 17 节及 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准。
 
 | 原文章节 | 设计项 | 当前状态 | 目标实现 | 验收条件 | 实现批次 |
 |---|---|---|---|---|---|
@@ -284,7 +284,7 @@ source: calmy
 | 26 | Capture 低摩擦 | 已实现当前切片 | Inbox → 分类建议 → 确认落库 | 原文保留，建议可接受/修改/拒绝，兼容统一实体 | P4 |
 | 27 | AI 理解层和隐私边界 | 本地规则 MVP | AI suggestion pipeline | 本地规则建议、隐私边界和人工决策已存在；模型/服务层仍待接入 | P4 |
 | 28–29 | IA、交互、性能、无障碍 | 已实现当前切片 | Today/Matters/People/Library/Search/Capture | 主要表单、导航和状态控件已补标签；完整手工审计仍需完成 | P4/P5 |
-| 30 | PWA、local-first、离线 | PWA 已验证，主存储未完成 | IndexedDB 主存储、同步队列、恢复 | 当前 PWA 资源与本地读取通过；主存储仍需迁移 | P5 |
+| 30 | PWA、local-first、离线 | 已实现当前切片 | React 主路径使用 IndexedDB durable snapshot、outbox、恢复和异步 Repository；同步兼容 API 及 localStorage fallback 保留 | PWA、React 主路径持久化与恢复通过；旧 Vue 同步兼容层退出由 OW-06 管理 | P5 |
 | 31 | Repository/Domain、历史、迁移 | 已实现当前切片 | 核心仓储、历史和兼容边界 | 主要领域命令/查询有仓储与测试；全域迁移仍需完成 | P1/P5 |
 | 31 | Open Format Markdown/YAML/Assets | 已实现当前切片 | 全核心实体 Open Format | 可读 Frontmatter 已覆盖支持实体，payload_json 保留兼容兜底 | P2 |
 | 31 | Obsidian Adapter/Bridge | 已实现当前切片 | 全实体增量双向同步 | 浏览器目录适配器、manifest、Asset、MessagePort、跨设备协议级回归、并发重复消息幂等、tombstone、增量差异、字段级冲突决策和 Admin 写回入口已覆盖；真实 Obsidian 实机验证仍需完成 | P2/P5 |
@@ -465,15 +465,21 @@ source: calmy
 - 共享协作异步创建/更新/状态变更/Record 修订支持调用方命令 ID；实体仓储和共享审计会复用重复命令结果，避免重试产生重复事实或审计。
 - React Review 的 Action/Record 跨域证据查询已切到异步 Repository；同步 `listRealityDocuments` 仍保留给 Vue 兼容层和未迁移旧模块。
 - 全量 React Reality 文档查询入口已改为 `listRealityDocumentsAsync`，Profile、Goals、Diary、Posts、Inbox、Admin 等页面不再直接调用同步查询。
-- 当时验证（2026-08-24）：`npm test -- --run` 通过 56 个测试文件、273 个测试；`npx vue-tsc --noEmit` 通过；`npm run build` 通过并生成 27 个 PWA precache 文件；`npm run test:pwa` 和 `node test/ui-runtime.mjs` 通过。该行保留为历史快照，当前验证见下方 2026-08-28 校准段。
+- 当时验证（2026-08-24）：`npm test -- --run` 通过 56 个测试文件、273 个测试；`npx vue-tsc --noEmit` 通过；`npm run build` 通过并生成 27 个 PWA precache 文件；`npm run test:pwa` 和 `node test/ui-runtime.mjs` 通过。该行保留为历史快照，当前验证见下方 2026-08-29 校准段。
 
-## 17. 2026-08-28 档案与实现再校准
+## 17. 2026-08-29 档案与实现再校准
 
 本节覆盖上一节之后的当前事实；此前章节中的日期和测试数量保留为历史快照，不再作为当前状态引用。
 
 - React 生产页面的完整 Reality 查询已统一到 `listRealityDocumentsAsync`；Profile、Goals、Diary、Posts、Inbox、Admin 和 Review 不再以同步 Reality 查询读取页面事实。
-- 同步 `listRealityDocuments` 及 `src/core/modules.ts` 的 `statValue` reader 仍保留给 Vue/旧模块兼容边界；React bootstrap 中的 reader 注册仅支持该同步统计兼容 API，不构成新页面查询路径。
-- 实体同步拉取已在应用远端记录前读取本地变更日志并按 `(updatedAt, device)` 裁决；实际写入后等待 `flushRepositoryWrites()`，删除墓碑不会回环生成本地变更。
+- 同步 `listRealityDocuments` 及 `src/core/modules.ts` 的 `statValue` reader 仍保留给 Vue/旧模块兼容边界；React bootstrap 不再注册同步统计 reader，React 主路径不会因启动而携带同步 Reality 查询入口。
+- 实体同步拉取已在应用远端记录前读取本地变更日志并按 `(updatedAt, device)` 裁决；实际写入后等待 `flushRepositoryWrites()`，删除墓碑不会回环生成本地变更；键级立即同步的提前返回和启动自动恢复的云端分支均会继续执行实体同步。
 - 共享协作异步创建、更新、状态变更和 Record 修订支持调用方命令 ID，重复命令复用原实体/审计结果；权限、revision 和 blocked 隔离边界保持不变。
-- 当前验证基线：57 个 Vitest 文件、278 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`npx vue-tsc --noEmit`、`npm run build`、`npm run test:pwa`、性能基线、`node test/ui-runtime.mjs` 和 `git diff --check` 均通过。实体同步同设备版本递增、批量顺序、失败时不推进游标、React 全局搜索异步边界和工作台键盘边界已有回归；构建仍有既有第三方注释与大 chunk 提示。
-- 当前剩余任务仅以 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准：OW-03 的兼容/历史/高级同步复核，OW-04 的真实设备与辅助技术验收，以及后续 P1/P2 收口；已完成切片不再恢复为活跃待办。
+- 当前验证基线：58 个 Vitest 文件、292 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`npx vue-tsc --noEmit`、`npm run build`、`npm run test:pwa`、性能基线、`node test/ui-runtime.mjs` 和 `git diff --check` 均通过。浏览器 smoke 已覆盖 React Admin、Vue `admin/advanced` 兼容页的实际加载及旧桥接卸载；业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、实体同步同设备版本递增、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、Capture 决策跨集合幂等、React 全局搜索异步边界、React 页面同步 Reality 隔离、工作台键盘边界、键级同步/实体同步编排边界和 React/Vue 生产入口隔离已有回归；UI smoke 另已覆盖 320px Today/Capture/More 以及 CDP 200% page-scale 的布局视口检查；CDP 视觉视口与 DOM 坐标分离，真实缩放裁切仍属 OW-04 人工验收；构建仍有既有第三方注释与大 chunk 提示。
+- 当前剩余任务仅以 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准：OW-04 的真实设备与辅助技术验收，以及后续 P1/P2 收口；OW-03 的同步统计/旧 Vue 查询兼容层复核已完成，旧 Vue 退出由 OW-06 管理；键级 LWW 的同 key 批次最终版本、同毫秒设备决胜和墓碑覆盖边界已在本轮补齐；已完成切片不再恢复为活跃待办。
+- 本轮 OW-03 兼容复核还收紧了旧 Worker 全量写入回退：失败不再被吞掉，外层会保留待同步状态并进入统一错误处理；成功后才推进兼容同步完成状态。
+- 本轮调用链复核确认：旧同步统计定义当前无生产调用；React Admin 统计使用异步 Reality 查询，Vue Admin 和未迁移 Vue 页面保留同步 Reality 查询，仅作为兼容层，待 OW-06 完成后再评估退出。
+- OW-03 已收口：上述兼容层经过入口、调用链和 durable snapshot 复核，不再作为 P0 未完成项。
+- OW-04 代码侧无障碍边界已补齐：React 登录错误使用 `role="alert"` 即时播报，React 导入文件控件提供明确 accessible name，390/320px More 抽屉 Escape 关闭后焦点返回触发按钮；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；UI smoke 已通过浏览器 AX tree 确认错误节点进入无障碍树；真实读屏、系统大字号和设备缩放仍待人工验收。
+- OW-06 第一批清理已完成：未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已移除；静态回归扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于显式 `admin/advanced` 的 `LegacyAdminHost` 兼容桥，React 生产入口仍为唯一启动链。旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 已在 React 路由补齐到 Matters、People、Posts、Inbox 的兼容重定向，并由 UI smoke 验证；其余 Vue 运行时依赖和旧路由继续等待真实回归与分批退出。
+- OW-07 已完成三刀：`src/react/lazy-pages.ts` 集中维护 React 扩展页和兼容桥的懒加载注册，`src/react/AppShell.tsx` 收口工作台壳层与搜索弹层，`src/react/ui.tsx` 收口共享 Button、页面头部和焦点陷阱，`src/react/routes.tsx` 收口路由树、兼容重定向和 Suspense 边界；`src/react/App.tsx` 保持原有 URL、兼容行为和按需加载行为不变，页面状态仍是后续拆分范围。

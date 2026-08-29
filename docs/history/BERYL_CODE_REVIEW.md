@@ -2,7 +2,7 @@
 
 > **历史参考**：本文件是旧时点审查记录，测试数字和缺陷状态可能已变化。当前 Calmy 工程结论见 [`product/ENGINEERING_REVIEW_2026-08-22.md`](../product/ENGINEERING_REVIEW_2026-08-22.md)。
 
-> 审查基准：当前仓库实际代码（`src/`、`backend/`、`test/`、`docs/DESIGN.md`）。
+> 审查基准：当时仓库实际代码（`src/`、`backend/`、`test/`、`docs/history/BERYL_DESIGN.md`）。
 > 本文不引入新的产品理念，只记录现有实现中的职责、数据一致性、同步、安全与性能问题。
 > 严重级别：P0 = 现在必须解决；P1 = 近期解决；P2 = 未来优化；P3 = 暂时不要动。
 
@@ -81,7 +81,7 @@
 
 ### P0-08：端到端测试入口失效，文档宣称的安全网不存在
 
-- 文件路径：[test/e2e-sync.mjs](../../test/e2e-sync.mjs)、[docs/DESIGN.md](BERYL_DESIGN.md)
+- 文件路径：[test/e2e-sync.mjs](../../test/e2e-sync.mjs)、[历史设计说明](BERYL_DESIGN.md)
 - 当前问题：测试导入不存在的 `_worker.js`，旧版设计文档仍宣称 12 项 E2E 通过。
 - 为什么是问题：同步协议修改没有可执行的端到端回归，文档给出错误质量信号。
 - 推荐修改：测试直接加载 `backend/src/worker.js`，补齐分页、并发时间戳、密文失败等断言，并同步更新文档。
@@ -202,7 +202,7 @@
 
 ### P2-01：QuoteWall 首页接入（已完成）
 
-- 文件路径：[src/core/quotes.ts](../../src/core/quotes.ts)、[src/components/quotes/](../../src/components/quotes/)、[src/views/HomeView.vue](../../src/views/HomeView.vue)、[docs/DESIGN.md](BERYL_DESIGN.md)
+- 文件路径：[src/core/quotes.ts](../../src/core/quotes.ts)、[src/components/quotes/](../../src/components/quotes/)、[src/views/HomeView.vue](../../src/views/HomeView.vue)、[历史设计说明](BERYL_DESIGN.md)
 - 当前问题：已解决，`HomeView.vue` 正式渲染 `QuoteWall`。
 - 为什么是问题：此前维护者会误判真实渲染链路；现在首页和组件实现已重新对齐。
 - 推荐修改：继续只在 QuoteWall 组件链路维护名句墙，新增交互补组件测试。

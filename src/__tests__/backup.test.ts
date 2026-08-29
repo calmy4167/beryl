@@ -4,7 +4,7 @@ import { vi } from 'vitest'
 
 describe('backup contract', () => {
   it('excludes credentials and sync cursors', () => {
-    const source = new StorageMock({ b_tasks: '[1]', b_auth: '{}', b_pull_cursor: '9' })
+    const source = new StorageMock({ b_tasks: '[1]', b_auth: '{}', b_pull_cursor: '9', b_sync_versions: '{}' })
     expect(createBackup(source)).toEqual({ b_tasks: '[1]' })
   })
   it('rejects unknown or malformed values', () => {

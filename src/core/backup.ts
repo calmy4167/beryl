@@ -2,7 +2,7 @@ import { SYNC_KEYS } from './sync'
 import { flushPendingDbWrites, readKvSnapshot } from './db'
 import { CORE_ENTITY_TYPES } from '@/domain/unified/model'
 
-export const BACKUP_SENSITIVE_KEYS = new Set(['b_auth', 'b_cloud', 'b_s3', 'b_session', 'b_pull_cursor', 'b_push_cursor', 'b_sync_ts', 'b_last_sync', 'b_db_outbox'])
+export const BACKUP_SENSITIVE_KEYS = new Set(['b_auth', 'b_cloud', 'b_s3', 'b_session', 'b_pull_cursor', 'b_push_cursor', 'b_sync_ts', 'b_sync_versions', 'b_last_sync', 'b_db_outbox'])
 const DOMAIN_COLLECTION_KEYS = [
   'b_mvpActions', 'b_actionMutations', 'b_actionCommands',
   'b_calmyCaptures', 'b_calmySuggestions',

@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import '@/styles/main.css'
 import './react.css'
+import './mobile-nav.css'
 
 let savedTheme: string | null = null
 try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }

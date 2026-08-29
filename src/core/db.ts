@@ -46,6 +46,11 @@ export interface DbRuntimeStatus {
   lastError: string | null
 }
 
+export interface EntityWriteContext {
+  before: unknown
+  after: unknown
+}
+
 let dbPromise: Promise<IDBDatabase> | null = null
 let dbWriteChain: Promise<void> = Promise.resolve()
 let entityChangeChain: Promise<void> = Promise.resolve()
@@ -69,7 +74,7 @@ export function nextEntityVersion(now = Date.now()): number {
   return next
 }
 
-interface PendingDbWrite { key: string; value?: string; deleted?: boolean }
+interface PendingDbWrite { key: string; value?: string; deleted?: boolean; entityChanges?: EntityChange[] }
 
 function readPendingWrites(): PendingDbWrite[] {
   try {
@@ -90,10 +95,10 @@ function writePendingWrites(items: PendingDbWrite[]): void {
   }
 }
 
-function enqueuePendingWrite(key: string, value?: string, deleted = false): void {
+function enqueuePendingWrite(key: string, value?: string, deleted = false, entityChanges?: EntityChange[]): void {
   const items = readPendingWrites()
   const index = items.findIndex(item => item.key === key)
-  const next = deleted ? { key, deleted: true } : { key, value }
+  const next = deleted ? { key, deleted: true } : { key, value, ...(entityChanges?.length ? { entityChanges } : {}) }
   if (index >= 0) items[index] = next
   else items.push(next)
   writePendingWrites(items)
@@ -195,8 +200,9 @@ async function readIndexedDbWrites(db: IDBDatabase): Promise<PendingDbWrite[]> {
   return filtered
 }
 
-async function applyIndexedDbWrite(db: IDBDatabase, item: PendingDbWrite): Promise<void> {
-  const tx = db.transaction([KV, CHANGES, PENDING_WRITES], 'readwrite')
+async function applyIndexedDbWrite(db: IDBDatabase, item: PendingDbWrite, entityChanges: EntityChange[] = item.entityChanges || []): Promise<void> {
+  const stores = entityChanges.length ? [KV, CHANGES, PENDING_WRITES, ENTITY_CHANGES] : [KV, CHANGES, PENDING_WRITES]
+  const tx = db.transaction(stores, 'readwrite')
   if (item.deleted) {
     tx.objectStore(KV).delete(item.key)
     tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: '', device: DEVICE_ID, deleted: true })
@@ -204,6 +210,10 @@ async function applyIndexedDbWrite(db: IDBDatabase, item: PendingDbWrite): Promi
   else {
     tx.objectStore(KV).put(item.value, item.key)
     tx.objectStore(CHANGES).add({ ts: Date.now(), key: item.key, value: item.value || '', device: DEVICE_ID })
+  }
+  if (entityChanges.length) {
+    const entityStore = tx.objectStore(ENTITY_CHANGES)
+    entityChanges.forEach((change, index) => entityStore.put({ ...change, id: `${change.id}:${index}` }))
   }
   tx.objectStore(PENDING_WRITES).delete(item.key)
   await waitForTransaction(tx)
@@ -279,17 +289,54 @@ export async function readKvSnapshot(): Promise<Record<string, string> | undefin
   }
 }
 
+/** 读取不属于业务集合的 durable 元数据；失败时返回 undefined 走兼容回退。 */
+export async function readDbMeta<T>(key: string): Promise<T | undefined> {
+  try {
+    await dbWriteChain
+    const db = await openDb()
+    const tx = db.transaction(META, 'readonly')
+    const value = await new Promise<unknown>((resolve, reject) => {
+      const req = tx.objectStore(META).get(key)
+      req.onsuccess = () => resolve(req.result)
+      req.onerror = () => reject(req.error)
+    })
+    await waitForTransaction(tx)
+    return value as T | undefined
+  } catch (error) {
+    markDbFailure(error)
+    return undefined
+  }
+}
+
+/** 写入并等待 durable 元数据事务完成，调用方据此决定是否推进同步状态。 */
+export async function writeDbMeta<T>(key: string, value: T): Promise<boolean> {
+  return enqueueDbWork(async () => {
+    const db = await openDb()
+    const tx = db.transaction(META, 'readwrite')
+    tx.objectStore(META).put(value, key)
+    await waitForTransaction(tx)
+    dbStatus.state = 'ready'
+    dbStatus.available = true
+    dbStatus.lastError = null
+  }).then(() => true, error => {
+    markDbFailure(error)
+    return false
+  })
+}
+
 /** 单键变更（store.set 路径） */
-export async function dbPut(key: string, value: string): Promise<void> {
+export async function dbPut(key: string, value: string, context?: EntityWriteContext): Promise<void> {
   // 先写 outbox，确保 tab 在异步事务完成前关闭时仍有下一次启动可恢复的凭据。
-  enqueuePendingWrite(key, value)
+  const entityChanges = context ? buildEntityChanges(key, context.before, context.after) : []
+  enqueuePendingWrite(key, value, false, entityChanges)
   await enqueueDbWork(async () => {
     try {
       const db = await openDb()
-      const item = { key, value }
+      const item = { key, value, ...(entityChanges.length ? { entityChanges } : {}) }
       // 先落 IndexedDB pending_writes，再应用 KV；两步之间崩溃也能在下次启动重放。
       await queueIndexedDbWrite(db, item)
-      await applyIndexedDbWrite(db, item)
+      // 业务值、键级日志和实体级日志在同一事务提交，避免值已落盘但实体日志缺失。
+      await applyIndexedDbWrite(db, item, entityChanges)
       removePendingWrite(key, value)
       dbStatus.state = 'ready'
       dbStatus.available = true
@@ -524,12 +571,12 @@ export interface EntityChange {
   value?: unknown
 }
 
-async function persistEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
-  if (!Array.isArray(before) || !Array.isArray(after) || !key.startsWith('b_')) return
+function buildEntityChanges(key: string, before: unknown, after: unknown): EntityChange[] {
+  if (!Array.isArray(after) || !key.startsWith('b_')) return []
   const asMap = (items: unknown[]) => new Map(items
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && (('id' in item && item.id != null) || ('date' in item && item.date != null)))
     .map(item => [String(item.id ?? item.date), item]))
-  const previous = asMap(before)
+  const previous = asMap(Array.isArray(before) ? before : [])
   const next = asMap(after)
   const changeId = (entityId: string, version: number) => `${DEVICE_ID}:${version}:${entityChangeNonce++}:${entityId}`
   const changes: EntityChange[] = []
@@ -541,6 +588,11 @@ async function persistEntityChanges(key: string, before: unknown, after: unknown
   for (const entityId of previous.keys()) {
     if (!next.has(entityId)) { const version = nextEntityVersion(); changes.push({ id: changeId(entityId, version), entity: key.slice(2), entityId, operation: 'delete', updatedAt: version, device: DEVICE_ID }) }
   }
+  return changes
+}
+
+async function persistEntityChanges(key: string, before: unknown, after: unknown): Promise<void> {
+  const changes = buildEntityChanges(key, before, after)
   if (!changes.length) return
   try {
     const db = await openDb()

@@ -1,5 +1,7 @@
 /* 阶段 2–5 核心逻辑测试：AES-GCM 加密往返 / 增量合并（LWW） / 数据迁移 */
-import { describe, it, expect, beforeAll } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { describe, it, expect, beforeAll, afterEach } from 'vitest'
 import { webcrypto } from 'node:crypto'
 
 // jsdom 无 crypto.subtle，注入 Node webcrypto
@@ -85,6 +87,11 @@ describe('数据版本迁移（阶段 2）', async () => {
 describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新数据）', async () => {
   const { applyIncremental, incomingDeletedKeys } = await import('@/core/sync')
 
+  afterEach(() => {
+    localStorage.removeItem('b_sync_ts')
+    localStorage.removeItem('b_sync_versions')
+  })
+
   it('ts 不大于本地时间线的记录全部跳过（本地新数据不被云端旧数据覆盖）', async () => {
     const out = await applyIncremental([
       { key: 'b_inbox', value: '["cloud-old"]', ts: 100 },
@@ -99,6 +106,29 @@ describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新
       { key: 'b_inbox', value: '["cloud-new"]', ts: 300 }
     ], 'p', 200)
     expect(out['b_inbox']).toBe('["cloud-new"]')
+  })
+
+  it('同一批同一个 key 只采用版本最高的记录，较新的值会覆盖较早墓碑', async () => {
+    const records = [
+      { key: 'b_inbox', value: null, ts: 300, device: 'device-a', deleted: true },
+      { key: 'b_inbox', value: '["cloud-latest"]', ts: 301, device: 'device-a' },
+      { key: 'b_inbox', value: '["cloud-old"]', ts: 200, device: 'device-z' }
+    ]
+    const out = await applyIncremental(records, 'p', 0)
+    expect(out['b_inbox']).toBe('["cloud-latest"]')
+    expect(incomingDeletedKeys(records, 0)).toEqual([])
+  })
+
+  it('同一毫秒按设备字典序应用远端胜出版本，并保留版本来源元数据', async () => {
+    localStorage.setItem('b_sync_ts', JSON.stringify({ b_inbox: 100 }))
+    localStorage.setItem('b_sync_versions', JSON.stringify({ b_inbox: { ts: 100, device: 'device-a' } }))
+    const out = await applyIncremental([
+      { key: 'b_inbox', value: '["device-b-wins"]', ts: 100, device: 'device-b' }
+    ], 'p', { b_inbox: 100 })
+    expect(out['b_inbox']).toBe('["device-b-wins"]')
+    expect(incomingDeletedKeys([
+      { key: 'b_inbox', value: null, ts: 100, device: 'device-b', deleted: true }
+    ], { b_inbox: 100 })).toEqual(['b_inbox'])
   })
 
   it('密文记录正确解密后应用', async () => {
@@ -161,6 +191,56 @@ describe('增量合并 applyIncremental（刷新/轮询 LWW，防覆盖本地新
     expect(incomingDeletedKeys(records, 0)).toEqual(['b_inbox'])
     expect(incomingDeletedKeys(records, { b_inbox: 300 })).toEqual([])
   })
+})
+
+describe('键级同步与实体同步编排边界', () => {
+  it('云端立即同步和自动恢复的提前返回路径均不会跳过实体同步', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/core/sync.ts'), 'utf8')
+    const markers = ['if (remoteNew && sync.dirty) {', 'if (remoteNew) {', 'if (remoteNewer && sync.dirty) {', 'if (remoteNewer) {']
+    markers.forEach(marker => {
+      const start = source.indexOf(marker)
+      expect(start, marker).toBeGreaterThanOrEqual(0)
+      const end = source.indexOf('return', start)
+      expect(end, marker).toBeGreaterThan(start)
+      expect(source.slice(start, end)).toContain('await syncEntityData(sync.cloud.url, sync.cloud.key)')
+    })
+    const restoreStart = source.indexOf('export async function restoreSync()')
+    const restoreSource = source.slice(restoreStart)
+    expect(restoreSource).toContain("await syncEntityData(sync.cloud.url, sync.cloud.key)\n        ElMessage.success('✅ 已自动同步最新数据')")
+  })
+})
+
+describe('键级同步元数据隔离', async () => {
+  const { applyIncremental, incomingDeletedKeys } = await import('@/core/sync')
+
+  it('只应用同步白名单业务键，不把游标和连接配置当作业务数据', async () => {
+    const incoming = await applyIncremental([
+      { key: 'b_tasks', value: '[{"id":"task-1"}]', ts: 300 },
+      { key: 'b_pull_cursor', value: '{"ts":999}', ts: 301 },
+      { key: 'b_push_cursor', value: '999', ts: 302 },
+      { key: 'b_cloud', value: '{"url":"https://evil.test"}', ts: 303 }
+    ], 'password', 0)
+
+    expect(incoming).toEqual({ b_tasks: '[{"id":"task-1"}]' })
+    expect(incomingDeletedKeys([
+      { key: 'b_tasks', value: null, ts: 304, deleted: true },
+      { key: 'b_pull_cursor', value: null, ts: 305, deleted: true },
+      { key: 'b_cloud', value: null, ts: 306, deleted: true }
+    ], 0)).toEqual(['b_tasks'])
+  })
+
+    it('push cursor 读取和推进使用 durable meta，并保留兼容回退', () => {
+      const source = readFileSync(resolve(process.cwd(), 'src/core/sync.ts'), 'utf8')
+      expect(source).toContain("const PUSH_CURSOR_META_KEY = 'sync:push-cursor'")
+      expect(source).toContain('const batch = await collectLocalChanges()')
+      expect(source).toContain('const cursor = await durablePushCursor()')
+      expect(source).toContain('changes.filter(c => SYNC_KEYS.includes(c.key) && !ENTITY_SYNC_KEYS.has(c.key))')
+      expect(source).toContain("if (batch.lastSeq > 0 && !await setPushCursor(batch.lastSeq)) throw new Error('sync-push-cursor-write-failed')")
+      expect(source).toContain('if (!await setPushCursor(maxSeq)) throw new Error(\'sync-push-cursor-write-failed\')')
+      expect(source).toContain('const legacyOk = await cloudWriteLegacy()')
+      expect(source).toContain("if (!legacyOk) throw new Error('legacy-sync-failed')")
+      expect(source).toContain('await durablePushCursor() === 0')
+    })
 })
 
 describe('坏值防御（添加/刷新不因非数组存储值崩溃）', () => {

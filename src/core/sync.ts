@@ -10,7 +10,7 @@ import { reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { lsGet, lsRemove, lsSet, safeParse, setSyncWriteHook } from './storage.ts'
 import { SCENES, currentSceneId } from './scenes.ts'
-import { readChanges, DEVICE_ID, dbMirrorDelete, dbMirrorPut } from './db.ts'
+import { readChanges, DEVICE_ID, dbMirrorDelete, dbMirrorPut, getDbStatus, readDbMeta, writeDbMeta } from './db.ts'
 import { encryptValue, decryptValue } from './crypto.ts'
 import { apiFetch } from './api/client.ts'
 import { syncEntityData } from './entity-sync'
@@ -51,6 +51,8 @@ export const sync = reactive<SyncState>({
 
 export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
 const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
+interface SyncVersion { ts: number; device: string }
+const LOCAL_VERSION_META_KEY = 'b_sync_versions'
 
 /** Pages 构建时注入的独立 Worker 地址；未设置时仍可在后台手动填写。 */
 export const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '')
@@ -71,8 +73,12 @@ setSyncWriteHook((key, str) => {
   if (!sync.fileData) return
   sync.fileData[key] = str
   const versions = safeParse<Record<string, number>>(lsGet('b_sync_ts')) || {}
-  versions[key] = Math.max(Number(versions[key]) || 0, Date.now())
+  const ts = Math.max(Number(versions[key]) || 0, Date.now())
+  versions[key] = ts
   lsSet('b_sync_ts', JSON.stringify(versions))
+  const versionMeta = safeParse<Record<string, SyncVersion>>(lsGet(LOCAL_VERSION_META_KEY)) || {}
+  versionMeta[key] = { ts, device: DEVICE_ID }
+  lsSet(LOCAL_VERSION_META_KEY, JSON.stringify(versionMeta))
   sync.dirty = true
   sync.phase = 'dirty'
   scheduleWrite()
@@ -149,7 +155,7 @@ async function fileWrite() {
 /* ================================================================
    Cloudflare 模式：v2 阶段 3/4（增量 LWW + AES-GCM 加密，D1 后端）
    - pull 游标 b_pull_cursor：云端时间线三元组 (ts,device,key)
-   - 本地时间线 b_sync_ts：按键保存的最后本地版本
+   - 本地时间线 b_sync_ts：按键保存的最后本地版本；b_sync_versions 保存同毫秒设备决胜元数据
    - 推送游标 b_push_cursor：IndexedDB 变更日志 seq 位置
    - 旧 Worker（无 /api/sync/*，返回 404）自动回退全量快照协议
    ================================================================ */
@@ -162,26 +168,73 @@ async function sha256Hex(text: string): Promise<string> {
 
 function getNum(k: string): number { return Number(lsGet(k) || 0) || 0 }
 interface SyncCursor { ts: number; device: string; key: string }
+const PULL_CURSOR_META_KEY = 'sync:pull-cursor'
+const PUSH_CURSOR_META_KEY = 'sync:push-cursor'
 function getCursor(): SyncCursor {
   const raw = safeParse<SyncCursor | number>(lsGet('b_pull_cursor'))
   if (typeof raw === 'number') return { ts: raw, device: '', key: '' }
   return raw && typeof raw.ts === 'number' ? raw : { ts: 0, device: '', key: '' }
 }
-const pullCursor = () => getCursor()
-const setPullCursor = (v: SyncCursor) => lsSet('b_pull_cursor', JSON.stringify(v))
+async function durablePullCursor(): Promise<SyncCursor> {
+  const durable = await readDbMeta<SyncCursor>(PULL_CURSOR_META_KEY)
+  return durable && typeof durable.ts === 'number' && typeof durable.device === 'string' && typeof durable.key === 'string' ? durable : getCursor()
+}
+async function setPullCursor(v: SyncCursor): Promise<boolean> {
+  const legacyOk = lsSet('b_pull_cursor', JSON.stringify(v))
+  const wasAvailable = getDbStatus().available
+  const durableOk = await writeDbMeta(PULL_CURSOR_META_KEY, v)
+  // IndexedDB 不可用时保留旧 localStorage 回退；可用但事务失败时不报告成功。
+  return durableOk || (!wasAvailable && !getDbStatus().available && legacyOk)
+}
+async function durablePushCursor(): Promise<number> {
+  const durable = await readDbMeta<number>(PUSH_CURSOR_META_KEY)
+  return typeof durable === 'number' && Number.isFinite(durable) ? durable : getNum('b_push_cursor')
+}
+async function setPushCursor(value: number): Promise<boolean> {
+  const legacyOk = lsSet('b_push_cursor', String(value))
+  const wasAvailable = getDbStatus().available
+  const durableOk = await writeDbMeta(PUSH_CURSOR_META_KEY, value)
+  return durableOk || (!wasAvailable && !getDbStatus().available && legacyOk)
+}
 function localVersions(): Record<string, number> {
   const raw = safeParse<Record<string, number> | number>(lsGet('b_sync_ts'))
   return typeof raw === 'number' ? { '*': raw } : (raw || {})
+}
+function localVersionMeta(): Record<string, SyncVersion> {
+  const raw = safeParse<Record<string, SyncVersion>>(lsGet(LOCAL_VERSION_META_KEY))
+  if (!raw || typeof raw !== 'object') return {}
+  return Object.fromEntries(Object.entries(raw)
+    .filter(([, value]) => value && Number.isFinite(Number(value.ts)) && typeof value.device === 'string')
+    .map(([key, value]) => [key, { ts: Number(value.ts), device: value.device }]))
+}
+function compareVersions(next: SyncVersion, previous: SyncVersion): number {
+  if (next.ts !== previous.ts) return next.ts - previous.ts
+  if (next.device === previous.device) return 0
+  return next.device > previous.device ? 1 : -1
+}
+function versionForKey(key: string, lts: number | Record<string, number>): SyncVersion {
+  const versions = typeof lts === 'number' ? { '*': lts } : lts
+  const ts = Number(versions[key] || versions['*'] || 0)
+  const stored = localVersionMeta()[key]
+  return stored?.ts === ts ? stored : { ts, device: DEVICE_ID }
 }
 const localTs = (key?: string) => {
   const versions = localVersions()
   return key ? Number(versions[key] || versions['*'] || 0) : Math.max(0, ...Object.values(versions).map(Number))
 }
-function setLocalTs(value: number, key?: string) {
+function setLocalTs(value: number, key?: string, device = DEVICE_ID) {
   const versions = localVersions()
   if (key) versions[key] = Math.max(Number(versions[key]) || 0, value)
   else versions['*'] = Math.max(Number(versions['*']) || 0, value)
   lsSet('b_sync_ts', JSON.stringify(versions))
+  if (key) {
+    const meta = localVersionMeta()
+    const next = { ts: value, device }
+    if (!meta[key] || compareVersions(next, meta[key]) > 0) {
+      meta[key] = { ts: Math.max(meta[key]?.ts || 0, value), device: next.device }
+      lsSet(LOCAL_VERSION_META_KEY, JSON.stringify(meta))
+    }
+  }
 }
 
 interface PullRecord { key: string; value: unknown; ts: number; device?: string; deleted?: boolean }
@@ -213,7 +266,7 @@ async function decryptRecordValue(password: string, value: unknown): Promise<str
 }
 
 /**
- * 增量合并（LWW）：只取 ts 大于本地时间线的记录（自己推的跳过），
+ * 增量合并（LWW）：先按 (ts, device) 为每个 key 选出批次内最终版本，再与本地版本比较，
  * 解密后返回应写入本地的键值。纯函数（依赖 crypto 解密），可单测。
  */
 export async function applyIncremental(
@@ -222,10 +275,15 @@ export async function applyIncremental(
   lts: number | Record<string, number>
 ): Promise<Record<string, string>> {
   const incoming: Record<string, string> = {}
+  const latest = new Map<string, PullRecord>()
   for (const rec of records) {
-    if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
-    const localVersion = typeof lts === 'number' ? lts : Number(lts[rec.key] || lts['*'] || 0)
-    if (rec.ts <= localVersion) continue // 自己推的 / 不比自己新的，跳过（不覆盖本地新数据）
+    if (rec.deleted || !SYNC_KEYS.includes(rec.key)) continue
+    const previous = latest.get(rec.key)
+    if (!previous || compareVersions({ ts: rec.ts, device: rec.device || '' }, { ts: previous.ts, device: previous.device || '' }) > 0) latest.set(rec.key, rec)
+  }
+  for (const rec of latest.values()) {
+    const localVersion = versionForKey(rec.key, lts)
+    if (compareVersions({ ts: rec.ts, device: rec.device || '' }, localVersion) <= 0) continue // 自己推的 / 不比自己新的，跳过（不覆盖本地新数据）
     const plain = await decryptRecordValue(password, rec.value)
     if (plain !== null) incoming[rec.key] = plain
   }
@@ -234,11 +292,15 @@ export async function applyIncremental(
 
 /** 返回仍然新于本地时间线的键级 tombstone。 */
 export function incomingDeletedKeys(records: PullRecord[], lts: number | Record<string, number>): string[] {
-  return records.filter(rec => {
-    if (!rec.deleted || !rec.key || !rec.key.startsWith('b_')) return false
-    const localVersion = typeof lts === 'number' ? lts : Number(lts[rec.key] || lts['*'] || 0)
-    return rec.ts > localVersion
-  }).map(rec => rec.key)
+  const latest = new Map<string, PullRecord>()
+  for (const rec of records) {
+    if (!SYNC_KEYS.includes(rec.key)) continue
+    const previous = latest.get(rec.key)
+    if (!previous || compareVersions({ ts: rec.ts, device: rec.device || '' }, { ts: previous.ts, device: previous.device || '' }) > 0) latest.set(rec.key, rec)
+  }
+  return Array.from(latest.values())
+    .filter(rec => rec.deleted && compareVersions({ ts: rec.ts, device: rec.device || '' }, versionForKey(rec.key, lts)) > 0)
+    .map(rec => rec.key)
 }
 
 /** 增量拉取；404 → 旧 Worker（返回 null，调用方回退） */
@@ -283,7 +345,7 @@ async function cloudPullAll(since: SyncCursor): Promise<{ records: PullRecord[];
 
 function markIncomingVersions(records: PullRecord[], acceptedKeys?: Set<string>) {
   records.forEach(rec => {
-    if (rec.key.startsWith('b_') && (!acceptedKeys || acceptedKeys.has(rec.key))) setLocalTs(rec.ts, rec.key)
+    if (SYNC_KEYS.includes(rec.key) && (!acceptedKeys || acceptedKeys.has(rec.key))) setLocalTs(rec.ts, rec.key, rec.device || '')
   })
 }
 
@@ -307,7 +369,7 @@ async function cloudPush(changes: { key: string; ts: number; device: string; val
 async function decryptRecords(records: PullRecord[], password: string): Promise<Record<string, string>> {
   const out: Record<string, string> = {}
   for (const rec of records) {
-    if (rec.deleted || !rec.key || !rec.key.startsWith('b_')) continue
+    if (rec.deleted || !SYNC_KEYS.includes(rec.key)) continue
     const plain = await decryptRecordValue(password, rec.value)
     if (plain !== null) out[rec.key] = plain
   }
@@ -332,23 +394,28 @@ export function purgeCorruptedEncryptedKeys(): number {
 
 /** 收集本地变更：优先 IndexedDB 变更日志增量；只有显式首次连接时才生成全量快照。 */
 let forceFullSnapshot = false
-async function collectLocalChanges(): Promise<{ key: string; ts: number; device: string; value: string; deleted?: boolean; lastSeq: number }[]> {
-  const cursor = getNum('b_push_cursor')
+type LocalSyncChange = { key: string; ts: number; device: string; value: string; deleted?: boolean; lastSeq: number }
+type LocalSyncBatch = { changes: LocalSyncChange[]; lastSeq: number }
+async function collectLocalChanges(): Promise<LocalSyncBatch> {
+  const cursor = await durablePushCursor()
   const changes = await readChanges(cursor, 500)
   if (changes.length) {
     const latest = new Map<string, (typeof changes)[number]>()
-    let maxSeq = cursor
-    changes.filter(c => c.key.startsWith('b_')).forEach(c => { latest.set(c.key, c); if (c.seq > maxSeq) maxSeq = c.seq })
-    if (latest.size) return Array.from(latest.values()).filter(c => !ENTITY_SYNC_KEYS.has(c.key)).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, deleted: c.deleted, lastSeq: maxSeq }))
+    const maxSeq = changes[changes.length - 1].seq
+    changes.filter(c => SYNC_KEYS.includes(c.key) && !ENTITY_SYNC_KEYS.has(c.key)).forEach(c => { latest.set(c.key, c) })
+    if (latest.size) return { changes: Array.from(latest.values()).map(c => ({ key: c.key, ts: c.ts, device: DEVICE_ID, value: c.value, deleted: c.deleted, lastSeq: maxSeq })), lastSeq: maxSeq }
+    // 实体日志与键级日志共用 seq；本页若只有实体日志，也要推进键级游标，
+    // 否则每次键级同步都会重复扫描同一批实体日志。
+    return { changes: [], lastSeq: maxSeq }
   }
-  if (!forceFullSnapshot) return []
-  const out: { key: string; ts: number; device: string; value: string; lastSeq: number }[] = []
+  if (!forceFullSnapshot) return { changes: [], lastSeq: cursor }
+  const out: LocalSyncChange[] = []
   let ts = Date.now()
   for (const k of SYNC_KEYS.filter(key => !ENTITY_SYNC_KEYS.has(key))) {
     const v = lsGet(k)
     if (v != null) out.push({ key: k, ts: ts++, device: DEVICE_ID, value: v, lastSeq: 0 })
   }
-  return out
+  return { changes: out, lastSeq: 0 }
 }
 
 function buildLocalData(): Record<string, string> {
@@ -362,13 +429,15 @@ async function cloudWrite() {
   sync.phase = 'syncing'
   sync.lastError = ''
   try {
-    const changes = await collectLocalChanges()
+    const batch = await collectLocalChanges()
+    const changes = batch.changes
     if (!changes.length) {
+      if (batch.lastSeq > 0 && !await setPushCursor(batch.lastSeq)) throw new Error('sync-push-cursor-write-failed')
       await syncEntityData(sync.cloud.url, sync.cloud.key)
       sync.dirty = false; sync.phase = 'idle'; return
     }
     const encChanges: { key: string; ts: number; device: string; value: unknown; deleted?: boolean }[] = []
-    let maxSeq = 0
+    let maxSeq = batch.lastSeq
     for (const c of changes) {
       if (c.lastSeq > maxSeq) maxSeq = c.lastSeq
        if (c.deleted) encChanges.push({ key: c.key, ts: c.ts, device: c.device, value: null, deleted: true })
@@ -379,8 +448,20 @@ async function cloudWrite() {
        }
     }
     const ok = await cloudPush(encChanges)
-    if (!ok) { await cloudWriteLegacy(); await syncEntityData(sync.cloud.url, sync.cloud.key); return }
-     if (maxSeq) lsSet('b_push_cursor', String(maxSeq))
+    if (!ok) {
+      const legacyOk = await cloudWriteLegacy()
+      if (!legacyOk) throw new Error('legacy-sync-failed')
+      await syncEntityData(sync.cloud.url, sync.cloud.key)
+      forceFullSnapshot = false
+      sync.dirty = false
+      sync.phase = 'idle'
+      sync.lastTouch = Date.now()
+      markLastSync(true)
+      return
+    }
+     if (maxSeq) {
+       if (!await setPushCursor(maxSeq)) throw new Error('sync-push-cursor-write-failed')
+     }
      changes.forEach(c => setLocalTs(c.ts, c.key))
      forceFullSnapshot = false
     sync.dirty = false
@@ -408,8 +489,8 @@ async function cloudReadLegacy(): Promise<{ data: Record<string, string>; mtime:
   if ('error' in parsed) throw new Error('bad-data')
   return { data: parsed.data, mtime: j.updatedAt || 0 }
 }
-async function cloudWriteLegacy() {
-  if (!sync.cloud) return
+async function cloudWriteLegacy(): Promise<boolean> {
+  if (!sync.cloud) return false
   const payload = { ...(sync.fileData || buildLocalData()), _meta: { appVersion: 'v2.0.0', savedAt: new Date().toISOString() } }
   try {
     const res = await apiFetch(sync.cloud.url, '/api/data', {
@@ -423,7 +504,11 @@ async function cloudWriteLegacy() {
     sync.dirty = false
     if (j.updatedAt) sync.cloud.updatedAt = j.updatedAt
     ElMessage.success('已同步到云端 ☁️')
-  } catch (e) { ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误')) }
+    return true
+  } catch (e) {
+    ElMessage.error('⚠️ 云端同步失败：' + (e instanceof Error ? e.message : '网络错误'))
+    return false
+  }
 }
 
 /* ---------- S3 模式（SigV4，平移 v1） ---------- */
@@ -528,7 +613,7 @@ export async function pollCheck() {
   if (pollInFlight) return pollInFlight
   pollInFlight = (async () => { try {
     if (sync.mode === 'cloud' && sync.cloud) {
-      const r = await cloudPullAll(pullCursor())
+      const r = await cloudPullAll(await durablePullCursor())
       if (r === null) {
         // 旧 Worker：全量快照
         const r2 = await cloudReadLegacy()
@@ -542,13 +627,13 @@ export async function pollCheck() {
         const incoming = await applyIncremental(r.records, sync.cloud.key, lts)
         const deletedKeys = incomingDeletedKeys(r.records, lts)
         markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
-        setPullCursor(r.nextCursor)
+        if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
         if (Object.keys(incoming).length || deletedKeys.length) {
           applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
           ElMessage.success('已同步云端更新 ☁️')
         }
       } else {
-        setPullCursor(r.nextCursor)
+        if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
       }
       await syncEntityData(sync.cloud.url, sync.cloud.key)
     } else if (sync.mode === 's3' && sync.s3) {
@@ -588,7 +673,7 @@ export async function syncNow() {
             })
             applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
             markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
-            setPullCursor(r.nextCursor)
+            if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
           } catch (action) {
             if (action === 'cancel' || action === 'close') {
               sync.fileData = buildLocalData()
@@ -597,16 +682,18 @@ export async function syncNow() {
               ElMessage.success('将以本机数据覆盖远端')
             }
           }
+          await syncEntityData(sync.cloud.url, sync.cloud.key)
           return
         }
         if (remoteNew) {
           applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
           markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
-          setPullCursor(r.nextCursor)
+          if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
           ElMessage.success('已拉取远端最新数据 ⬇️')
+          await syncEntityData(sync.cloud.url, sync.cloud.key)
           return
         }
-        setPullCursor(r.nextCursor)
+        if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
       } else {
         // 旧 Worker 回退
         const r2 = await cloudReadLegacy()
@@ -628,12 +715,14 @@ export async function syncNow() {
               ElMessage.success('将以本机数据覆盖远端')
             }
           }
+          await syncEntityData(sync.cloud.url, sync.cloud.key)
           return
         }
         if (remoteNewer) {
           sync.cloud.updatedAt = r2.mtime
           applySyncData(r2.data)
           ElMessage.success('已拉取远端最新数据 ⬇️')
+          await syncEntityData(sync.cloud.url, sync.cloud.key)
           return
         }
       }
@@ -698,7 +787,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
       const data = await decryptRecords(r.records, key)
       const deletedKeys = incomingDeletedKeys(r.records, lts)
       sync.cloud.updatedAt = r.maxTs
-      setPullCursor(r.nextCursor)
+      if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
       lsSet('b_cloud', JSON.stringify({ url: sync.cloud.url, key: sync.cloud.key }))
       sync.saved.cloud = { url: sync.cloud.url, key: sync.cloud.key }
       const localHasData = SYNC_KEYS.some(k => lsGet(k) != null)
@@ -832,24 +921,26 @@ export async function restoreSync() {
          const lts = localVersions()
          const incoming = await applyIncremental(r.records, cfg.key, lts)
          const deletedKeys = incomingDeletedKeys(r.records, lts)
-         markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
-         setPullCursor(r.nextCursor)
         if (Object.keys(incoming).length || deletedKeys.length) {
           applySyncData({ ...buildLocalData(), ...incoming }, deletedKeys)
         }
+         markIncomingVersions(r.records, new Set([...Object.keys(incoming), ...deletedKeys]))
+         if (!await setPullCursor(r.nextCursor)) throw new Error('sync-cursor-write-failed')
         // 把本地新数据推上云端（首次连接 / 上次未推成功的增量）
-         if (Object.keys(buildLocalData()).length && getNum('b_push_cursor') === 0) {
+        if (Object.keys(buildLocalData()).length && await durablePushCursor() === 0) {
            sync.fileData = buildLocalData()
            sync.dirty = true
            forceFullSnapshot = true
            scheduleWrite()
         }
+        await syncEntityData(sync.cloud.url, sync.cloud.key)
         ElMessage.success('✅ 已自动同步最新数据')
         return
       }
       const r2 = await cloudReadLegacy()
       sync.cloud.updatedAt = r2.mtime
       applySyncData(r2.data || {})
+      await syncEntityData(sync.cloud.url, sync.cloud.key)
       ElMessage.success('✅ 已自动同步最新数据')
       return
     } catch (e) {
@@ -897,9 +988,9 @@ export interface SyncDiag {
 export async function diagSync(): Promise<SyncDiag> {
   const d: SyncDiag = {
     url: sync.cloud?.url || sync.saved.cloud?.url || '(未配置)',
-    pullCursor: pullCursor().ts,
+    pullCursor: (await durablePullCursor()).ts,
     localTs: localTs(),
-    pushCursor: getNum('b_push_cursor'),
+    pushCursor: await durablePushCursor(),
     dirty: sync.dirty,
     lastSync: lsGet('b_last_sync') || '从未同步过',
     cloudRecords: -1,
@@ -908,7 +999,7 @@ export async function diagSync(): Promise<SyncDiag> {
   }
   if (sync.cloud) {
     try {
-      const r = await cloudPullAll(pullCursor())
+      const r = await cloudPullAll(await durablePullCursor())
       if (r !== null) { d.cloudRecords = r.records.length; d.cloudMaxTs = r.maxTs }
       else d.cloudRecords = -2
     } catch {

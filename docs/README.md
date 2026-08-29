@@ -16,7 +16,7 @@
 
 ## 文档目录
 
-- `docs/product/`：当前产品、UI、路线图、评审和唯一未完成清单。
+- `docs/product/`：当前产品、UI、视觉资产、路线图、评审和唯一未完成清单。
 - `docs/product/reference/`：旧版 MVP、领域模型、协议和测试参考。
 - `docs/product/source/`：只读原始产品设计 DOCX。
 - `docs/implementation/`：实现事实和验证证据。

@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
 import { actionAsyncRepository } from '@/domain/action/repository'
@@ -45,5 +47,17 @@ describe('async reality evidence query', () => {
     const documents = await listRealityDocumentsAsync({ types: ['task'] })
 
     expect(documents).toEqual([expect.objectContaining({ id: 'legacy-task', title: '旧键任务', entityType: 'task', route: '/app/module/tasks' })])
+  })
+
+  it('keeps synchronous Reality/stat readers out of React production pages', () => {
+    const pagesDir = resolve(process.cwd(), 'src/react/pages')
+    const synchronousReaders = readdirSync(pagesDir)
+      .filter(file => /\.(ts|tsx)$/.test(file))
+      .filter(file => readFileSync(resolve(pagesDir, file), 'utf8').includes('listRealityDocuments('))
+    expect(synchronousReaders).toEqual([])
+
+    const bootstrap = readFileSync(resolve(process.cwd(), 'src/react/bootstrap.ts'), 'utf8')
+    expect(bootstrap).not.toContain('listRealityDocuments(')
+    expect(bootstrap).not.toContain('setModuleRealityReader(')
   })
 })

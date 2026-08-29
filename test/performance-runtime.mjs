@@ -366,7 +366,7 @@ async function run() {
       `location.hash.includes('/app/today') && !!document.querySelector('.today-page')`,
       'route-home-to-today'))
     routes.push(await measureRoute(cdp, '/app/capture',
-      `location.hash.includes('/app/capture') && !!document.querySelector('.capture-page')`,
+      `location.hash.includes('/app/capture') && !!document.querySelector('.capture-gate-page')`,
       'route-today-to-capture'))
 
     const externalNetworkAttempts = await evaluateStable(cdp, `window.__perfHarnessExternalNetworkAttempts || []`)

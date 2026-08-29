@@ -108,7 +108,7 @@ P0 意见：
 
 ## 6. 最终决议
 
-- 采用[产品重设计](PRODUCT_REDESIGN_2026-08-22.md)与[UI / UX 重设计](UX_UI_REDESIGN_2026-08-22.md)作为当前产品基线。
+- 评审当时采用[产品重设计](PRODUCT_REDESIGN_2026-08-22.md)与[UI / UX 重设计](UX_UI_REDESIGN_2026-08-22.md)作为产品基线；当前基线已合并到统一产品与体验设计。
 - 采用[工程评审](ENGINEERING_REVIEW_2026-08-22.md)中的停止线，暂停新增模块。
 - 按[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)先完成阶段 0–2，再决定是否进入小规模试点。
 - 所有旧文档保留，通过[文档登记册](DOCUMENT_REGISTER.md)管理权威性，不再依靠文件名或日期猜测状态。
@@ -119,8 +119,8 @@ P0 意见：
 
 核心页面已完成第一轮异步持久化迁移：Today、Capture、Review、Matters 列表和 Matter 主路径使用异步 Repository 读取与主要写入，Action 状态命令和 Capture suggestion 接受也已补齐异步入口。Calendar、People 的主要读取、人物主写入以及 Matter 高级过程的主要创建/状态/绑定命令也已接入 async facade；共享协作、历史查询和部分兼容写入仍明确标为边界，不视为全域纯异步完成。
 
-验证结果已更新为：53 个 Vitest 文件 / 260 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；UI smoke 已覆盖侧边栏收起/展开、真实 Tab/Enter 键盘路径与刷新恢复、390×844 移动布局、820px 平板布局与 44px 触控目标、Today/Matters/Capture/Review 路由 active 状态、More 抽屉 dialog 名称/modal 语义、显式关闭按钮、过渡完成后 Escape 关闭、AX tree 核心名称、记录区无横向溢出、导出→清空→导入数据往返，以及 Today 行动写入、Capture 原文保存、建议拒绝后原文保留、保存状态可见性和刷新恢复；当前 PWA precache 为 67 个本地文件。OpenToday、CaptureText、AddActionToToday、RecordActionResult、CompleteReview 应用用例、Record command 幂等和当前领域备份白名单已补齐。剩余停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。
+评审当日历史验证结果为：53 个 Vitest 文件 / 260 个测试、Node 15/15、E2E 22/22、IndexedDB、UI smoke、性能、生产构建和 PWA 均通过；UI smoke 已覆盖侧边栏收起/展开、真实 Tab/Enter 键盘路径与刷新恢复、390×844 移动布局、820px 平板布局与 44px 触控目标、Today/Matters/Capture/Review 路由 active 状态、More 抽屉 dialog 名称/modal 语义、显式关闭按钮、过渡完成后 Escape 关闭、AX tree 核心名称、记录区无横向溢出、导出→清空→导入数据往返，以及 Today 行动写入、Capture 原文保存、建议拒绝后原文保留、保存状态可见性和刷新恢复；当时 PWA precache 为 67 个本地文件。OpenToday、CaptureText、AddActionToToday、RecordActionResult、CompleteReview 应用用例、Record command 幂等和当时领域备份白名单已补齐；当前停止线见[工程评审](ENGINEERING_REVIEW_2026-08-22.md)与[路线图与验收](ROADMAP_AND_ACCEPTANCE_2026-08-22.md)。
 
-## 8. 2026-08-28 状态校准
+## 8. 2026-08-29 状态校准
 
-上一段保留为评审当日快照。当前验证数量已更新为 57 个 Vitest 文件 / 278 个测试；React 页面 Reality 查询和全局搜索已统一到异步入口，实体同步的本地版本保护、同设备单调版本、批量顺序、失败时不推进游标、durable flush 和共享协作命令幂等已补齐。当前未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准，OW-04 的真实端侧/辅助技术验收仍未完成。
+上一段保留为评审当日快照。当前验证数量已更新为 58 个 Vitest 文件 / 292 个测试；React 页面 Reality 查询和全局搜索已统一到异步入口，业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、立即同步/自动恢复继续执行实体同步、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、实体同步的本地版本保护、同设备单调版本、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、durable flush、共享协作命令幂等和 Capture 决策跨集合幂等已补齐；UI smoke 现已补充 320px Today/Capture/More 与 CDP 200% page-scale 布局回归。当前未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准；CDP 视觉视口与 DOM 布局坐标存在模拟边界，OW-04 的真实缩放、端侧/辅助技术验收仍未完成。

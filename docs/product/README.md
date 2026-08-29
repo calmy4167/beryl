@@ -31,3 +31,5 @@
 - [产品决策](PRODUCT_DECISIONS_2026-08-19.md)
 - [产品参考与领域协议](reference/README.md)
 - [原始产品设计源](source/README.md)
+
+视觉资产：`assets/calmy-attention-os-ui-v2.png` 是当前设计参考，`assets/calmy-attention-os-ui-v1.png` 是上一版迭代参考；两者均不替代实现验收证据。

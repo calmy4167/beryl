@@ -1,5 +1,5 @@
 /* ---------- 存储层（同步快照 API；启动后优先读取 IndexedDB hydrate 快照） ---------- */
-import { dbPut, dbDelete, recordEntityChanges, DEVICE_ID } from './db.ts'
+import { dbPut, dbDelete, DEVICE_ID, type EntityWriteContext } from './db.ts'
 
 const PREFIX = 'b_'
 let persistedCache = new Map<string, string>()
@@ -9,7 +9,7 @@ export function lsGet(key: string): string | null {
   if (persistedCacheReady && key.startsWith(PREFIX)) return persistedCache.get(key) ?? null
   try { return localStorage.getItem(key); } catch { return null; }
 }
-export function lsSet(key: string, val: string, persist = true): boolean {
+export function lsSet(key: string, val: string, persist = true, entityContext?: EntityWriteContext): boolean {
   const isSyncKey = key.startsWith(PREFIX)
   let localWriteSucceeded = false
   try {
@@ -17,7 +17,7 @@ export function lsSet(key: string, val: string, persist = true): boolean {
     localWriteSucceeded = true
   } catch { /* hydrated durable cache may still accept the write */ }
   if (persistedCacheReady && isSyncKey) persistedCache.set(key, val)
-  if (persist && isSyncKey) void dbPut(key, val)
+  if (persist && isSyncKey) void dbPut(key, val, entityContext)
   // After hydrate, Repository writes remain valid if localStorage is quota-blocked;
   // the durable dbPut path is still attempted, with its existing fallback behavior.
   return localWriteSucceeded || (persistedCacheReady && isSyncKey)
@@ -73,11 +73,9 @@ export const store = {
     const fullKey = PREFIX + k
     const previous = safeParse<unknown>(lsGet(fullKey))
     const str = JSON.stringify(v);
-    const ok = lsSet(fullKey, str);
+    const ok = lsSet(fullKey, str, true, { before: previous, after: v });
     if (ok) {
       syncWriteHook?.(fullKey, str);
-      // lsSet 已进入 IndexedDB durable outbox；此处只追加实体级变更日志。
-      void recordEntityChanges(fullKey, previous, v);
     }
     return ok;
   }

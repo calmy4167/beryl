@@ -126,16 +126,19 @@ IndexedDB authoritative store
 
 ## 11. 2026-08-23 文件与实现状态收口
 
-- `index.html → src/react/main.tsx → src/react/App.tsx` 已确认是当前生产启动链路；`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 归类为 Vue 迁移兼容层，暂不删除。
+- `index.html → src/react/main.tsx → src/react/App.tsx` 已确认是当前唯一生产启动链路；静态回归和浏览器 smoke 同时确认普通 Admin 走 React，Vue `admin/advanced` 可实际加载并在返回后卸载，未被生产路由引用的 `LegacyVueHost` 已完成第一批清理，旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 兼容重定向已回归，Vue 仅由 `LegacyAdminHost` 和同步基础设施保留。`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 仍归类为 Vue 迁移兼容层，暂不删除。
 - React AppShell 已包含左侧主导航、顶部状态、宽屏右侧独立栏和窄桌面/移动端 More 抽屉；右侧栏默认收起、可独立记忆，相关回归已加入 UI smoke。
+- OW-07 三刀已完成：`src/react/lazy-pages.ts` 统一维护扩展页与兼容桥的懒加载注册，`src/react/AppShell.tsx` 与 `src/react/ui.tsx` 分别收口工作台壳层/搜索和共享交互工具，`src/react/routes.tsx` 收口路由树/兼容重定向/Suspense 边界，进一步降低 `App.tsx` 的页面装配耦合；后续仍需继续拆分页面状态。
 - 参考产品页 Cycle、我的和目标入口已接入，旧模块路由继续保留；这些页面不改变现有领域事实源。
 - 当前已完成项不再进入活跃任务；未完成工作统一见 [`OPEN_WORK.md`](OPEN_WORK.md)，后续不再从旧 2026-08-19 任务拆解文档恢复任务。
 
-截至该阶段尚未闭合的工程边界包括：真实样本迁移演练、扩展页面的 Application Use Case/IndexedDB 收口、真实设备与读屏人工验收、外部字体/Quote 依赖、Vue 兼容层退出评估、Flow 内容能力和真实 Bridge 联调。真实样本迁移和 Quote 外部请求已在后续切片完成；当前剩余项以本文件 2026-08-28 校准段和 [`OPEN_WORK.md`](OPEN_WORK.md) 为准，不应被“页面存在”或自动化测试通过替代。
+截至该阶段尚未闭合的工程边界包括：真实样本迁移演练、扩展页面的 Application Use Case/IndexedDB 收口、真实设备与读屏人工验收、外部字体/Quote 依赖、Vue 兼容层退出评估、Flow 内容能力和真实 Bridge 联调。真实样本迁移和 Quote 外部请求已在后续切片完成；当前剩余项以本文件 2026-08-29 校准段和 [`OPEN_WORK.md`](OPEN_WORK.md) 为准，不应被“页面存在”或自动化测试通过替代。
 
-## 12. 2026-08-28 档案与实现再校准
+## 12. 2026-08-29 档案与实现再校准
+
+- 本轮 OW-03 兼容复核修正了旧 Worker 全量写入的失败传播：失败不再被内部吞掉，外层保留待同步状态并进入统一错误处理。
 
 - React 生产页面的跨域 Reality 读取已统一使用 `listRealityDocumentsAsync`；Review 的 Action / Record 证据读取同样通过异步 Repository 完成。
 - `src/react/bootstrap.ts` 和 `src/main.ts` 中的同步模块统计 reader 仍为旧模块/Vue 兼容边界。它服务同步统计 API，不代表 React 页面继续以同步 Reality 查询作为事实源。
-- 实体级同步已完成远端应用后的 durable flush、本地未上传版本的 `(updatedAt, device)` LWW 保护、删除墓碑回归；共享协作异步写入已完成调用方命令 ID 幂等回归。
-- 当前自动化验证为 57 个 Vitest 文件、278 个测试；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`vue-tsc`、生产构建、PWA、性能和 UI browser smoke 均通过。未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准，当前 P0 仍包括 OW-03 的实体日志/首次同步/游标 durable 复核与 OW-04 人工端侧验收。
+- 实体级同步已完成远端应用后的 durable flush、本地未上传版本的 `(updatedAt, device)` LWW 保护、删除墓碑回归；键级立即同步与启动自动恢复的提前返回分支也会继续执行实体同步；共享协作异步写入已完成调用方命令 ID 幂等回归。
+- 当前自动化验证为 58 个 Vitest 文件、292 个测试；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`vue-tsc`、生产构建、PWA、性能和 UI browser smoke 均通过。实体值/实体日志原子提交及 pending replay、首次实体同步完整合并确认、实体与键级主同步 pull cursor、push cursor 的 `meta` durable 确认、键级同 key 最终版本/同毫秒设备决胜/墓碑覆盖、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、Capture 决策命令账本和跨集合重复提交保护已有回归；UI smoke 已新增 320px Today/Capture/More 与 CDP 200% page-scale 布局回归。CDP 视觉视口与 DOM 布局坐标存在模拟边界，真实缩放裁切仍需人工确认。未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准，当前 P0 仅剩 OW-04 人工端侧验收；OW-03 已收口，旧 Vue 同步兼容层退出由 OW-06 管理。
