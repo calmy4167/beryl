@@ -226,8 +226,8 @@ export function HabitsPage() {
         </form>
       </section>
 
-      {error && <p className="form-error" role="alert">{error}</p>}
-      {loading ? <div className="empty-state">正在读取习惯…</div> : habits.length ? (
+      {error && <section className="beryl-card empty-state" role="alert"><b>习惯数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+      {loading ? <div className="empty-state" role="status">正在读取习惯…</div> : habits.length ? (
         <div className="list" aria-live="polite">
           {habits.map(habit => (
             <article className="beryl-card" style={{ padding: 16 }} key={habit.id}>

@@ -236,8 +236,8 @@ export function GoalsPage() {
           </div>
         </div>
 
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {loading ? <div className="empty-state">正在读取目标…</div> : visibleGoals.length ? (
+        {error && <section className="beryl-card empty-state" role="alert"><b>目标数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+        {loading ? <div className="empty-state" role="status">正在读取目标…</div> : visibleGoals.length ? (
           <div className="goals-list" aria-live="polite">
             {visibleGoals.map(goal => {
               const draft = clampProgress(progressDrafts[goal.id] ?? goal.progress)

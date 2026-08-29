@@ -121,7 +121,7 @@ export function CapturePage() {
 
     <section className="capture-box capture-gate-input beryl-card"><textarea aria-label="Capture 原文" value={body} onChange={event => setBody(event.target.value)} onKeyDown={event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') { event.preventDefault(); void capture() } }} placeholder="脑中闪过什么？先放在这里…" /><div className="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button className="react-btn primary" type="button" onClick={() => void capture()}>保存原文</button></div></section>
 
-    {error && <p className="form-error" role="alert">{error}</p>}
+    {error && <section className="beryl-card empty-state" role="alert"><b>Capture 数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
     <section className="capture-gate-list" aria-label="等待选择的 Capture">
       {openCaptures.map(item => {
         const suggestion = suggestionByCapture.get(item.calmyId)

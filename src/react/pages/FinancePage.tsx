@@ -67,14 +67,14 @@ async function loadItems(): Promise<FinanceItem[]> {
   return (await financeRepository.list()).filter(item => item?.id).map(toFinanceItem)
 }
 
-function PageHead({ count }: { count: number }) {
+function PageHead({ count, loading }: { count: number; loading: boolean }) {
   return <header className="page-head">
     <div>
       <p className="eyebrow">FINANCE · EARTH</p>
       <h1 className="font-title">财务</h1>
       <p>记录每一笔现金流，先看清发生了什么，再决定下一步。</p>
     </div>
-    <span className="load-pill">{count} 条记录</span>
+    <span className="load-pill">{loading ? '正在读取…' : count + ' 条记录'}</span>
   </header>
 }
 
@@ -85,13 +85,17 @@ function CaseLink({ itemId, onChanged }: { itemId: string; onChanged: () => void
   useEffect(() => {
     let cancelled = false
     const refresh = async () => {
-      const [nextCases, relations] = await Promise.all([
-        caseAsyncRepository.list(),
-        caseAsyncRelationRepository.listForTarget('transaction', itemId),
-      ])
-      if (cancelled) return
-      setCases(nextCases.filter(item => item.status !== 'archived'))
-      setSelected(relations[0]?.caseId || '')
+      try {
+        const [nextCases, relations] = await Promise.all([
+          caseAsyncRepository.list(),
+          caseAsyncRelationRepository.listForTarget('transaction', itemId),
+        ])
+        if (cancelled) return
+        setCases(nextCases.filter(item => item.status !== 'archived'))
+        setSelected(relations[0]?.caseId || '')
+      } catch (cause) {
+        if (!cancelled) toast(cause instanceof Error ? cause.message : '课题关联读取失败', 'warning')
+      }
     }
     void refresh()
     const onDataSynced = () => { void refresh() }
@@ -100,13 +104,17 @@ function CaseLink({ itemId, onChanged }: { itemId: string; onChanged: () => void
   }, [itemId])
 
   async function save(value: string): Promise<void> {
-    await withSaveState(async () => {
-      await linkFinanceToCase({ caseId: value, transactionId: itemId, phase: 'earth', commandId: nextId() })
-    })
-    setSelected(value)
-    onChanged()
-    window.dispatchEvent(new CustomEvent('beryl-data-synced'))
-    toast(value ? '已关联课题' : '已取消课题关联')
+    try {
+      await withSaveState(async () => {
+        await linkFinanceToCase({ caseId: value, transactionId: itemId, phase: 'earth', commandId: nextId() })
+      })
+      setSelected(value)
+      onChanged()
+      window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+      toast(value ? '已关联课题' : '已取消课题关联')
+    } catch (cause) {
+      toast(cause instanceof Error ? cause.message : '课题关联保存失败', 'error')
+    }
   }
 
   return <select className="case-link" value={selected} aria-label={selected ? '已关联课题' : '关联课题'} onChange={event => { void save(event.target.value) }}>
@@ -123,9 +131,19 @@ export function FinancePage() {
   const [note, setNote] = useState('')
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [busyId, setBusyId] = useState<string>()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   async function refresh(): Promise<void> {
-    setItems(await loadItems())
+    setLoading(true)
+    setError('')
+    try {
+      setItems(await loadItems())
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '财务数据读取失败')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -207,7 +225,9 @@ export function FinancePage() {
   }
 
   return <div className="finance-page">
-    <PageHead count={items.length} />
+    <PageHead count={items.length} loading={loading} />
+
+    {error && <section className="beryl-card empty-state" role="alert"><b>财务数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
 
     <section className="stats-grid" aria-label="财务汇总">
       <article className="stat-card beryl-card"><small>收入</small><b className="finance-income">{formatCents(stats.income)}</b><span>元</span></article>
@@ -227,19 +247,19 @@ export function FinancePage() {
       </div>
       <div className="create-row finance-note-row">
         <input aria-label="财务备注" value={note} onChange={event => setNote(event.target.value)} placeholder="备注（可选）" />
-        <button className="primary" type="submit">添加记录</button>
+        <button className="primary" type="submit" disabled={loading}>添加记录</button>
       </div>
       <datalist id="finance-categories">{CATEGORIES.map(item => <option key={item} value={item} />)}</datalist>
     </form>
 
     <div className="section-title finance-list-head"><h2 className="font-title">记录</h2><select aria-label="财务记录筛选" value={filter} onChange={event => setFilter(event.target.value as 'all' | 'income' | 'expense')}><option value="all">全部</option><option value="income">收入</option><option value="expense">支出</option></select></div>
     <section className="history-list" aria-live="polite">
-      {visibleItems.map(item => <article className="beryl-card history-card finance-item" key={item.id}>
+      {loading ? <div className="empty-state" role="status">正在读取财务记录…</div> : visibleItems.map(item => <article className="beryl-card history-card finance-item" key={item.id}>
         <div className="panel-head"><div><p className="eyebrow">{item.type === 'income' ? 'INCOME · 收入' : 'EXPENSE · 支出'}</p><h3 className="font-title">{item.category}</h3></div><time>{item.date || '日期未知'}</time></div>
         <div className="finance-item-body"><p>{item.note || '没有备注'}</p><strong className={item.type === 'income' ? 'finance-income' : 'finance-expense'}>{item.type === 'income' ? '+' : '-'}{formatCents(amountCents(item))} 元</strong></div>
-        <div className="finance-item-actions"><CaseLink itemId={item.id} onChanged={notifyCaseChanged} /><button className="react-btn danger" disabled={busyId === item.id} onClick={() => void remove(item)} aria-label={`删除${item.category}财务记录`}>{busyId === item.id ? '删除中…' : '删除'}</button></div>
+        <div className="finance-item-actions"><CaseLink itemId={item.id} onChanged={notifyCaseChanged} /><button className="react-btn danger" disabled={busyId === item.id || loading} onClick={() => void remove(item)} aria-label={`删除${item.category}财务记录`}>{busyId === item.id ? '删除中…' : '删除'}</button></div>
       </article>)}
-      {!visibleItems.length && <div className="empty-state">还没有匹配的财务记录。记录第一笔收入或支出，开始看见现金流。</div>}
+      {!loading && !visibleItems.length && <div className="empty-state">还没有匹配的财务记录。记录第一笔收入或支出，开始看见现金流。</div>}
     </section>
   </div>
 }

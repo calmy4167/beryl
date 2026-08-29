@@ -150,8 +150,8 @@ export function TaskBoardPage() {
         <span className="task-board-count">{loading ? '正在读取…' : `${visibleActions.length} 条任务`}</span>
       </section>
 
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <section className="task-board" aria-label="可拖动任务看板">
+      {error && <section className="beryl-card empty-state" role="alert"><b>看板数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+      {loading ? <div className="empty-state" role="status">正在读取任务看板…</div> : <section className="task-board" aria-label="可拖动任务看板">
         {columns.map(column => {
           const items = grouped.get(column.status) || []
           const active = overStatus === column.status && !!draggedId
@@ -181,7 +181,7 @@ export function TaskBoardPage() {
             </div>
           </div>
         })}
-      </section>
+      </section>}
       <p className="task-board-note">提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。</p>
     </div>
   )

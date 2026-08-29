@@ -135,7 +135,7 @@ export function PeoplePage() {
           <h1 className="font-title">人物上下文</h1>
           <p>把重要的人、关系背景和相处边界放在同一个可回看的地方。</p>
         </div>
-        <span className="load-pill">{activeCount} 位活跃人物</span>
+        <span className="load-pill">{loading ? '正在读取…' : activeCount + ' 位活跃人物'}</span>
       </header>
 
       <section className="beryl-card admin-block">
@@ -196,7 +196,7 @@ export function PeoplePage() {
             />
           </label>
           <div className="btns">
-            <button className="primary" type="submit" disabled={saving}>
+            <button className="primary" type="submit" disabled={saving || loading}>
               {saving ? '保存中…' : '保存人物'}
             </button>
             <button type="button" onClick={() => setForm(emptyForm)} disabled={saving}>清空</button>
@@ -236,8 +236,8 @@ export function PeoplePage() {
           </div>
         </div>
 
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {loading ? <div className="empty-state">正在加载人物…</div> : visiblePeople.length ? (
+        {error && <section className="beryl-card empty-state" role="alert"><b>人物数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+        {loading ? <div className="empty-state" role="status">正在加载人物…</div> : visiblePeople.length ? (
           <div className="matter-grid">
             {visiblePeople.map(person => (
               <article className="matter-card beryl-card" key={person.calmyId}>
@@ -276,4 +276,3 @@ export function PeoplePage() {
     </div>
   )
 }
-

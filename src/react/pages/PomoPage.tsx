@@ -270,8 +270,8 @@ export function PomoPage() {
           </div>
           <span className="muted">最近 {recentHistory.length} 条</span>
         </div>
-        {error && <p className="form-error" role="alert" style={{ marginTop: 12 }}>{error}</p>}
-        {historyLoading ? <div className="empty-state">正在读取完成记录…</div> : recentHistory.length ? (
+        {error && <section className="beryl-card empty-state" role="alert" style={{ marginTop: 12 }}><b>番茄钟数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void Promise.all([refreshHistory(), refreshStats()])}>重试</button></section>}
+        {historyLoading ? <div className="empty-state" role="status">正在读取完成记录…</div> : recentHistory.length ? (
           <div aria-live="polite">
             {recentHistory.map(record => (
               <article className="history-card" key={record.calmyId}>

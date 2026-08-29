@@ -50,9 +50,11 @@ export function TodayPage() {
   const [recordMatterId, setRecordMatterId] = useState('')
   const [impact, setImpact] = useState<NegativeRecordImpact>('other')
   const [realityMessage, setRealityMessage] = useState('')
+  const [error, setError] = useState('')
 
   async function refresh(): Promise<void> {
     setLoading(true)
+    setError('')
     try {
       const opened = await openToday(date)
       setPlan(opened.plan)
@@ -61,6 +63,7 @@ export function TodayPage() {
       setProtect(opened.plan.mustProtect.join('\n'))
       setLetGo(opened.plan.letGo.join('\n'))
     } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Today 读取失败')
       toast(cause instanceof Error ? cause.message : 'Today 读取失败', 'error')
     } finally {
       setLoading(false)
@@ -159,6 +162,7 @@ export function TodayPage() {
       <div><p className="eyebrow">TODAY · {date}</p><h1 className="font-title">今天，把注意力还给自己</h1><p>看清此刻，选择一件现实行动，然后离开 Calmy。</p></div>
       <span className="today-status">{loading ? '正在读取本机数据…' : saving ? '正在保存…' : '本地优先 · 离线可用'}</span>
     </header>
+    {error && <section className="beryl-card empty-state" role="alert"><b>Today 数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
 
     <section className="body-state-panel beryl-card" aria-labelledby="body-state-title">
       <div><p className="eyebrow">BODY · 可跳过</p><h2 id="body-state-title" className="font-title">现在的身体状态</h2><small>{selectedBody?.hint || '不记录也可以继续'}</small></div>

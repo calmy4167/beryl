@@ -265,7 +265,7 @@ export function CalendarPage() {
       </div>
     </header>
 
-    {error && <section className="beryl-card" role="alert" style={{ padding: 14, color: 'var(--c-danger)', marginBottom: 16 }}>{error}</section>}
+    {error && <section className="beryl-card empty-state" role="alert" style={{ padding: 14, color: 'var(--c-danger)', marginBottom: 16 }}><b>日历数据暂时无法读取</b><p>{error}</p><button type="button" className="quiet" onClick={() => window.dispatchEvent(new CustomEvent('beryl-data-synced'))}>重试</button></section>}
 
     <div className="calendar-layout">
       <section className="month-panel beryl-card" aria-label={`${monthLabel}日历`}>

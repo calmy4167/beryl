@@ -239,8 +239,8 @@ export function PostsPage() {
             ))}
           </div>
         </div>
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {loading ? <div className="empty-state">正在读取文章…</div> : visiblePosts.length ? (
+        {error && <section className="beryl-card empty-state" role="alert"><b>文章数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+        {loading ? <div className="empty-state" role="status">正在读取文章…</div> : visiblePosts.length ? (
           <div className="history-list" aria-live="polite">
             {visiblePosts.map(post => (
               <article className="beryl-card history-card" key={post.id}>

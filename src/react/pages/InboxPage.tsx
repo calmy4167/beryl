@@ -88,9 +88,11 @@ export function InboxPage() {
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string>()
   const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
 
   async function refresh(): Promise<void> {
     setLoading(true)
+    setError('')
     try {
       const [nextCaptures, nextSuggestions] = await Promise.all([
         captureAsyncRepository.list(),
@@ -99,9 +101,10 @@ export function InboxPage() {
       setCaptures(nextCaptures)
       setSuggestions(nextSuggestions)
       setLegacy(await legacyEntries())
+      setMessage('')
     } catch (error) {
       const text = error instanceof Error ? error.message : '收件箱读取失败'
-      setMessage(text)
+      setError(text)
       toast(text, 'error')
     } finally {
       setLoading(false)
@@ -248,16 +251,17 @@ export function InboxPage() {
 
     <section className="capture-box beryl-card">
       <textarea aria-label="新增收件内容" value={body} onChange={event => setBody(event.target.value)} onKeyDown={event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') { event.preventDefault(); void addCapture() } }} placeholder="脑中闪过什么？先放在这里…" />
-      <div className="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button className="react-btn primary" onClick={() => void addCapture()}>收入收件箱</button></div>
+      <div className="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button className="react-btn primary" disabled={loading} onClick={() => void addCapture()}>收入收件箱</button></div>
     </section>
 
     <section className="beryl-card" style={{ padding: 14, marginTop: 16 }}>
       <div className="create-row" style={{ margin: 0 }}><input aria-label="搜索收件箱" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索原文或状态…" /><select aria-label="收件箱筛选" value={filter} onChange={event => setFilter(event.target.value as Filter)}>{FILTERS.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select><span className="muted">{visible.length} 条</span></div>
     </section>
 
-    {message && <p className="info" role="status">{message}</p>}
+    {error && <section className="beryl-card empty-state" role="alert"><b>收件箱数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+    {message && !error && <p className="info" role="status">{message}</p>}
     <section className="history-list">
-      {visible.map(item => {
+      {loading ? <div className="empty-state" role="status">正在读取收件内容…</div> : visible.map(item => {
         const suggestion = item.source === 'capture' ? suggestionByCapture.get(item.id) : undefined
         const expanded = expandedId === `${item.source}:${item.id}`
         const busy = busyId === item.id || busyId === suggestion?.calmyId

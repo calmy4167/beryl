@@ -203,8 +203,8 @@ export function TasksPage() {
           {filterOptions.map(([value, label]) => <button key={value} type="button" className={filter === value ? 'on' : ''} role="tab" aria-selected={filter === value} onClick={() => setFilter(value)}>{label}</button>)}
         </div>
 
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {loading ? <div className="empty-state">正在读取任务…</div> : visibleActions.length ? (
+        {error && <section className="beryl-card empty-state" role="alert"><b>任务数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+        {loading ? <div className="empty-state" role="status">正在读取任务…</div> : visibleActions.length ? (
           <div className="action-list" aria-live="polite">
             {visibleActions.map(item => {
               const matter = item.matterId ? matterById.get(item.matterId) : undefined

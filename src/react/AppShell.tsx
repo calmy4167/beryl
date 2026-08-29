@@ -21,7 +21,7 @@ export function AppShell() {
     }, 200)
     return () => window.clearTimeout(timer)
   }, [desktopWide])
-  useEffect(() => { if (!drawer || desktopWide) return; const root = drawerRef.current; const first = root?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR); const timer = window.requestAnimationFrame(() => first?.focus()); const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); closeDrawer() } else trapFocus(event, root) }; window.addEventListener('keydown', onKey); return () => { window.cancelAnimationFrame(timer); window.removeEventListener('keydown', onKey) } }, [drawer, desktopWide])
+  useEffect(() => { if (!drawer) return; const root = drawerRef.current; const first = root?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR); const timer = window.requestAnimationFrame(() => first?.focus()); const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); closeDrawer() } else trapFocus(event, root) }; window.addEventListener('keydown', onKey); return () => { window.cancelAnimationFrame(timer); window.removeEventListener('keydown', onKey) } }, [drawer])
   function go(path: string) { drawerOpenRef.current = false; setDrawer(false); navigate(path) }
   function openDrawer() {
     if (drawerOpenRef.current) return
@@ -57,26 +57,18 @@ export function AppShell() {
     {!compact && <aside id="app-sidebar" className="sidebar" aria-label={collapsed ? '已收起的主导航' : '主导航侧边栏'}>
       <Button className="brand" aria-label="返回 Today" onClick={() => go('/app/today')}><span className="brand-mark">C</span><span className="sidebar-label"><b className="font-title">Calmy</b><small>现实行动系统</small></span></Button>
       <Button className="sidebar-toggle" aria-expanded={!collapsed} aria-controls="app-sidebar" aria-label={collapsed ? '展开侧边栏' : '收起侧边栏'} onClick={toggleSidebar}><span>{collapsed ? '→' : '←'}</span><span className="sidebar-label">{collapsed ? '展开侧边栏' : '收起侧边栏'}</span></Button>
-      <nav id="primary-navigation" className="primary-nav" aria-label="主导航">
+      <p className="sidebar-label" style={{ margin: '0 9px 4px', color: 'var(--c-text-3)', fontSize: 10, letterSpacing: '.08em' }}>主流程</p>
+      <nav id="primary-navigation" className="primary-nav" aria-label="主流程导航">
         {[
           ['today', '⌂', 'Today', '/app/today'],
-          ['cycle', '◌', 'Cycle', '/app/cycle'],
           ['capture', '↓', 'Capture', '/app/capture'],
-          ['matters', '☷', '课题', '/app/matters'],
-          ['diary', '▤', '日记', '/app/module/diary'],
-          ['review', '◴', '复盘', '/app/review'],
-          ['habits', '♧', '习惯', '/app/module/habits'],
-          ['library', '▧', '资料', '/app/library'],
-          ['goals', '◎', '目标', '/app/module/goals'],
-          ['calendar', '□', '日历', '/app/calendar'],
-          ['people', '♧', '人脉', '/app/people'],
-          ['stats', '⌁', '统计', '/app/graph'],
-          ['profile', '○', '我的', '/app/profile']
+          ['matters', '☷', '事项', '/app/matters'],
+          ['review', '◴', '复盘', '/app/review']
         ].map(([key, icon, label, path]) => <Button key={key} aria-label={label} className={active === key ? 'on' : ''} aria-current={active === key ? 'page' : undefined} onClick={() => go(path)}><i>{icon}</i><span className="nav-label">{key === 'matters' ? '事项' : label}</span></Button>)}
       </nav>
       <div className="sidebar-foot">
         <Button aria-label="搜索课题" onClick={openSearch}>⌕<span className="sidebar-label">搜索 <kbd>Ctrl K</kbd></span></Button>
-        <Button aria-label={wide ? (rightCollapsed ? '展开右侧栏' : '收起右侧栏') : '打开更多入口'} aria-haspopup={wide ? undefined : 'dialog'} aria-controls={wide ? 'app-right-sidebar' : 'mobile-more-drawer'} aria-expanded={wide ? !rightCollapsed : drawer} onClick={toggleRightSidebar}>⋯<span className="sidebar-label">更多</span></Button>
+        <Button aria-label="打开更多入口" aria-haspopup="dialog" aria-controls="mobile-more-drawer" aria-expanded={drawer} onClick={openDrawer}>⋯<span className="sidebar-label">更多</span></Button>
         <Button aria-label={dark ? '切换到浅色界面' : '切换到深色界面'} onClick={toggleTheme}>{dark ? '☀' : '◐'}<span className="sidebar-label">{dark ? '浅色界面' : '深色界面'}</span></Button>
         <Button aria-label="设置与同步" className={active === 'settings' ? 'on' : ''} onClick={() => go('/app/admin')}>⚙<span className="sidebar-label">设置与同步</span></Button>
       </div>
@@ -96,13 +88,38 @@ export function AppShell() {
         <div className="right-rail-content">
           <section className="edge-context"><p className="edge-kicker">当前页面</p><h2 className="font-title">{meta[active][0]}</h2><p>{meta[active][1]}</p></section>
           <section className="edge-actions"><p className="edge-kicker">快速动作</p><Button onClick={() => go('/app/capture')}>↓ <span><b>记下一件事</b><small>原文先保存</small></span>→</Button><Button onClick={() => go('/app/matters')}>◎ <span><b>查看事项</b><small>回到现实主体</small></span>→</Button><Button onClick={() => go('/app/review')}>↺ <span><b>开始复盘</b><small>观察并调整下一步</small></span>→</Button></section>
-          <section className="edge-actions"><p className="edge-kicker">常用模块</p><Button onClick={() => go('/app/task-board')}>▦ <span><b>事项看板</b><small>拖动改变任务状态</small></span>→</Button><Button onClick={() => go('/app/module/tasks')}>✓ <span><b>任务</b><small>原有模块</small></span>→</Button><Button onClick={() => go('/app/module/goals')}>◎ <span><b>目标</b><small>参考导航新增入口</small></span>→</Button><Button onClick={() => go('/app/profile')}>○ <span><b>我的</b><small>个人概览与全部模块</small></span>→</Button><Button onClick={() => go('/app/memory')}>✦ <span><b>AI 对我的理解</b><small>记忆分层与判断权</small></span>→</Button></section>
+          <section className="edge-actions"><p className="edge-kicker">辅助入口</p><Button onClick={() => go('/app/task-board')}>▦ <span><b>事项看板</b><small>按状态整理行动</small></span>→</Button><Button onClick={() => go('/app/profile')}>○ <span><b>我的</b><small>个人概览与全部模块</small></span>→</Button><Button onClick={() => go('/app/memory')}>✦ <span><b>AI 对我的理解</b><small>记忆分层与判断权</small></span>→</Button></section>
           <section className="edge-note"><span>●</span><div><b>本地优先</b><p>离线也能记录，联网后再同步。</p></div></section>
         </div>
       </aside>}
     </div>
     <nav className="bottom-nav mobile-only" aria-label="移动端主导航">{[['today', '◷', 'Today', '/app/today'], ['matters', '◎', '课题', '/app/matters'], ['capture', '↓', 'Capture', '/app/capture'], ['review', '↺', '复盘', '/app/review']].map(([key, icon, label, path]) => <Button key={key} className={active === key ? 'on' : ''} aria-current={active === key ? 'page' : undefined} onClick={() => go(path)}><span>{icon}</span>{label}</Button>)}<Button ref={moreTriggerRef} aria-label="更多导航" aria-haspopup="dialog" aria-controls="mobile-more-drawer" aria-expanded={drawer} onClick={openDrawer}><span>⋯</span>更多</Button></nav>
-    <div className={`el-drawer-overlay ${drawer ? 'is-open' : 'is-closed'}`} aria-hidden={!drawer} onClick={closeDrawer}><div ref={drawerRef} id="mobile-more-drawer" className={`el-drawer ${drawer ? 'is-open' : 'is-closed'}`} role="dialog" aria-modal="true" aria-label="更多入口" onClick={event => event.stopPropagation()}><div className="drawer"><Button className="drawer-close" aria-label="关闭更多入口" onClick={closeDrawer}>×</Button><Button className="brand" aria-label="返回 Today" onClick={() => go('/app/today')}><span className="brand-mark">C</span><span><b className="font-title">Calmy</b><small>现实行动系统</small></span></Button><nav className="drawer-links"><Button onClick={openSearch}>⌕ 搜索课题</Button><p>参考页面</p><Button onClick={() => go('/app/cycle')}>◌ Cycle 五行流</Button><Button onClick={() => go('/app/matters')}>☷ 事项 / 课题</Button><Button onClick={() => go('/app/task-board')}>▦ 事项看板</Button><Button onClick={() => go('/app/review')}>◴ 复盘</Button><Button onClick={() => go('/app/library')}>▤ 资料中心</Button><Button onClick={() => go('/app/profile')}>○ 我的</Button><Button onClick={() => go('/app/memory')}>✦ AI 对我的理解</Button><p>查找与历史</p><Button onClick={() => go('/app/people')}>◎ 人物上下文</Button><Button onClick={() => go('/app/calendar')}>▦ 日历视图</Button><Button onClick={() => go('/app/module/inbox')}>↓ 收件箱</Button><Button onClick={() => go('/app/module/tasks')}>✓ 任务</Button><Button onClick={() => go('/app/module/habits')}>♧ 习惯</Button><Button onClick={() => go('/app/module/finance')}>¥ 财务</Button><Button onClick={() => go('/app/module/goals')}>◎ 目标</Button><Button onClick={() => go('/app/module/pomo')}>🍅 番茄钟</Button><Button onClick={() => go('/app/module/diary')}>▤ 日记</Button><Button onClick={() => go('/app/module/posts')}>✎ 文章</Button><p>数据与外观</p><Button onClick={toggleTheme}>{dark ? '☀' : '◐'} 切换外观</Button><Button onClick={() => go('/app/admin')}>⚙ 设置与同步</Button><p>实验功能</p><Button onClick={() => go('/app/graph')}>⌘ 图谱（实验）</Button><Button onClick={() => go('/scene')}>◌ 场景（实验）</Button></nav></div></div></div>
+    <div className={`el-drawer-overlay ${drawer ? 'is-open' : 'is-closed'}`} aria-hidden={!drawer} onClick={closeDrawer}><div ref={drawerRef} id="mobile-more-drawer" className={`el-drawer ${drawer ? 'is-open' : 'is-closed'}`} role="dialog" aria-modal="true" aria-label="更多入口" onClick={event => event.stopPropagation()}><div className="drawer"><Button className="drawer-close" aria-label="关闭更多入口" onClick={closeDrawer}>×</Button><Button className="brand" aria-label="返回 Today" onClick={() => go('/app/today')}><span className="brand-mark">C</span><span><b className="font-title">Calmy</b><small>现实行动系统</small></span></Button><nav className="drawer-links">
+  <Button onClick={openSearch}>⌕ 搜索 Matter、行动或记录</Button>
+  <p>参考与上下文</p>
+  <Button onClick={() => go('/app/cycle')}>◌ Cycle · 当前阶段</Button>
+  <Button onClick={() => go('/app/task-board')}>▦ 事项看板 · 整理行动</Button>
+  <Button onClick={() => go('/app/library')}>▤ 资料中心 · 留下可复用内容</Button>
+  <Button onClick={() => go('/app/profile')}>○ 我的 · 查看全部模块</Button>
+  <Button onClick={() => go('/app/memory')}>✦ AI 对我的理解 · 管理判断</Button>
+  <p>查找与记录</p>
+  <Button onClick={() => go('/app/people')}>◎ 人物上下文</Button>
+  <Button onClick={() => go('/app/calendar')}>▦ 日历视图</Button>
+  <Button onClick={() => go('/app/module/inbox')}>↓ 收件箱</Button>
+  <p>辅助工具</p>
+  <Button onClick={() => go('/app/module/tasks')}>✓ 任务</Button>
+  <Button onClick={() => go('/app/module/habits')}>♧ 习惯</Button>
+  <Button onClick={() => go('/app/module/finance')}>¥ 财务</Button>
+  <Button onClick={() => go('/app/module/goals')}>◎ 目标</Button>
+  <Button onClick={() => go('/app/module/pomo')}>🍅 番茄钟</Button>
+  <Button onClick={() => go('/app/module/diary')}>▤ 日记</Button>
+  <Button onClick={() => go('/app/module/posts')}>✎ 文章</Button>
+  <p>设置与实验</p>
+  <Button onClick={toggleTheme}>{dark ? '☀' : '◐'} 切换外观</Button>
+  <Button onClick={() => go('/app/admin')}>⚙ 设置与同步</Button>
+  <Button onClick={() => go('/app/graph')}>⌘ 图谱（实验）</Button>
+  <Button onClick={() => go('/scene')}>◌ 场景（实验）</Button>
+</nav></div></div></div>
     {search && <SearchDialog onClose={closeSearch} onGo={go} />}{toastText && <div className="toast" role="status">{toastText}</div>}
   </div>
 }

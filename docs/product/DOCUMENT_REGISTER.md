@@ -104,6 +104,6 @@
 
 ## 2026-08-30 功能对齐记录
 
-- OW-08 页面功能继续收口：Profile、Library、Diary、Review、Matters、MatterDetail、Admin 和 Scene 的读取/持久化边界已补充加载态、错误可见性、重试或失败反馈；Library 明确区分写入成功与刷新失败，避免把列表读取问题误报为保存失败。
-- 两张设计图片已重新核对：`assets/calmy-attention-os-ui-v1.png` 为上一版 Attention OS 组合稿，`assets/calmy-attention-os-ui-v2.png` 为当前六个体验面的统一设计板；二者均保留为设计资产，不作为实现截图或验收证据，引用路径与登记状态一致。
+- OW-08 页面功能继续收口：Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People 和 Pomo 的读取/持久化边界已补充加载态、错误可见性、重试或失败反馈；Library 明确区分写入成功与刷新失败，Review 的 7/30/90 天切换实际过滤统计和证据，避免把列表读取问题误报为保存失败。
+- 两张设计图片已重新核对：`assets/calmy-attention-os-ui-v1.png` 为上一版 Attention OS 组合稿，`assets/calmy-attention-os-ui-v2.png` 为当前六个体验面的统一设计板；二者均保留为设计资产，不作为实现截图或验收证据，引用路径与登记状态一致。当前入口也已按统一设计收敛为四个主流程入口 + 分组 More，避免扩展模块与主流程并列。
 - 本阶段遵循先收口功能、后统一回归的执行顺序；测试基线仍沿用上一校准记录，未将本轮功能改动提前表述为已通过整体测试。

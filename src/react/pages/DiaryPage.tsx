@@ -193,7 +193,7 @@ export function DiaryPage() {
           <input aria-label="搜索日记" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索日期或内容" style={{ flex: '1 1 220px', minWidth: 0 }} />
         </div>
 
-        {loading ? <div className="empty-state">正在读取日记…</div> : visibleEntries.length ? (
+        {loading ? <div className="empty-state" role="status">正在读取日记…</div> : visibleEntries.length ? (
           <div className="list" aria-live="polite" style={{ marginTop: 16, display: 'grid', gap: 8 }}>
             {visibleEntries.map(entry => (
               <button
