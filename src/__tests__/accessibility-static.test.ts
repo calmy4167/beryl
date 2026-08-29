@@ -13,8 +13,20 @@ const review = source('src/views/ReviewView.vue')
 const indexHtml = source('index.html')
 const reactApp = source('src/react/App.tsx')
 const reactRoutes = source('src/react/routes.tsx')
+const reactRouteViews = source('src/react/route-views.tsx')
 const reactLazyPages = source('src/react/lazy-pages.ts')
 const reactAdmin = source('src/react/pages/AdminPage.tsx')
+const legacyToday = source('src/react/pages/LegacyTodayPage.tsx')
+const legacyCapture = source('src/react/pages/LegacyCapturePage.tsx')
+const mattersPage = source('src/react/pages/MattersPage.tsx')
+const reviewPage = source('src/react/pages/ReviewPage.tsx')
+const matterDetailPage = source('src/react/pages/MatterDetailPage.tsx')
+
+const extensionModules = [
+  ['Admin', 'admin'], ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
+  ['Inbox', 'module/inbox'], ['Tasks', 'module/tasks'], ['Habits', 'module/habits'], ['Finance', 'module/finance'],
+  ['Goals', 'module/goals'], ['Pomo', 'module/pomo'], ['Diary', 'module/diary'], ['Posts', 'module/posts'], ['Scene', '/scene']
+] as const
 
 describe('静态无障碍语义', () => {
   it('为 AppShell 的核心导航、更多入口和图标提供名称与状态', () => {
@@ -62,7 +74,7 @@ describe('静态无障碍语义', () => {
     expect(router).not.toContain("component: () => import('@/views/CasesView.vue')")
     expect(reactRoutes).toContain('<Route path="cases" element={<Navigate to="/app/matters" replace />} />')
     expect(reactRoutes).toContain('<Route path="cases/:id" element={views.caseRedirect} />')
-    expect(reactApp).toContain("legacyTargetFor('case', id)")
+    expect(reactRouteViews).toContain("legacyTargetFor('case', id)")
     expect(reactRoutes).toContain('<Route path="module/chars" element={<Navigate to="/app/people" replace />} />')
     expect(reactRoutes).toContain('<Route path="module/moments" element={<Navigate to="/app/module/posts" replace />} />')
     expect(reactRoutes).toContain('<Route path="module/:id" element={<Navigate to="/app/module/inbox" replace />} />')
@@ -108,10 +120,29 @@ describe('静态无障碍语义', () => {
     expect(indexHtml).toContain('<script type="module" src="/src/react/main.tsx"></script>')
     expect(reactApp).toContain("from './lazy-pages'")
     expect(reactLazyPages).toContain("export const LegacyAdminHost = lazy(() => import('./LegacyAdminHost')")
+    expect(reactApp).toContain("from './route-views'")
+    expect(reactRouteViews).toContain('<p className="form-error" role="alert">{error}</p>')
     expect(reactRoutes).toContain('path="admin" element={lazyView(\'设置与同步\', views.admin)}')
     expect(reactRoutes).toContain('path="admin/advanced" element={lazyView(\'高级同步工具\', views.advancedAdmin)}')
     expect(reactApp).not.toContain("import('@/views/")
-    expect(reactApp).toContain('<p className="form-error" role="alert">{error}</p>')
+    expect(reactApp).toContain("export { LegacyTodayPage } from './pages/LegacyTodayPage'")
+    expect(legacyToday).toContain('export function LegacyTodayPage')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/LegacyTodayPage.tsx'))).toBe(true)
+    expect(reactApp).toContain("export { LegacyCapturePage } from './pages/LegacyCapturePage'")
+    expect(legacyCapture).toContain('export function LegacyCapturePage')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/LegacyCapturePage.tsx'))).toBe(true)
+    expect(reactApp).toContain("import { MattersPage } from './pages/MattersPage'")
+    expect(reactApp).toContain("export { MattersPage } from './pages/MattersPage'")
+    expect(mattersPage).toContain('export function MattersPage')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/MattersPage.tsx'))).toBe(true)
+    expect(reactApp).toContain("import { ReviewPage } from './pages/ReviewPage'")
+    expect(reactApp).toContain("export { ReviewPage } from './pages/ReviewPage'")
+    expect(reviewPage).toContain('export function ReviewPage')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/ReviewPage.tsx'))).toBe(true)
+    expect(reactApp).toContain("import { MatterDetailPage } from './pages/MatterDetailPage'")
+    expect(reactApp).toContain("export { MatterDetailPage } from './pages/MatterDetailPage'")
+    expect(matterDetailPage).toContain('export function MatterDetailPage')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/MatterDetailPage.tsx'))).toBe(true)
     expect(reactAdmin).toContain('aria-label="选择要导入的 JSON 数据文件"')
     expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
     const reactPagesDir = resolve(process.cwd(), 'src/react/pages')
@@ -123,5 +154,17 @@ describe('静态无障碍语义', () => {
     const reactVueImportOwners = reactSourceFiles.filter(file => /from ['"](?:vue|vue-router|element-plus)/.test(readFileSync(resolve(reactDir, file), 'utf8')))
     expect(reactVueImportOwners).toEqual(['LegacyAdminHost.tsx'])
     expect(source('src/react/LegacyAdminHost.tsx')).toContain("from 'vue'")
+  })
+
+  it('为 OW-08 扩展模块保留 lazy 注册、路由入口和可访问页面边界', () => {
+    for (const [name, route] of extensionModules) {
+      const file = `src/react/pages/${name}Page.tsx`
+      const page = source(file)
+      expect(existsSync(resolve(process.cwd(), file))).toBe(true)
+      expect(reactLazyPages).toContain(`import('./pages/${name}Page')`)
+      expect(reactRoutes).toContain(`path="${route}"`)
+      expect(/PageHead|page-head|page-title|font-title/.test(page)).toBe(true)
+      expect(/aria-label|aria-labelledby|role=/.test(page)).toBe(true)
+    }
   })
 })

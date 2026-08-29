@@ -1,6 +1,6 @@
 # Calmy 当前未完成工作清单
 
-> 更新时间：2026-08-29
+> 更新时间：2026-08-30
 > 用途：唯一活跃的产品/工程待办入口。已完成或已废弃的任务不再重复列入；新增任务必须先写清用户价值、依赖、验收条件和停止线。
 
 ## 使用规则
@@ -18,7 +18,7 @@
 
 验收：无 P0 可访问性或数据丢失问题；320px、200% 缩放和系统大字号不丢失主行动与退出入口。
 
-> 2026-08-29 对齐结论：58 个 Vitest 文件 / 292 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 均通过；UI smoke 已实际验证 React Admin 加载、Vue `admin/advanced` 兼容页加载及返回后的旧桥接卸载；业务值与实体日志原子提交、首次实体同步完整合并确认、实体同步与键级主同步游标及 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离已由自动化或浏览器运行时覆盖；自动化已覆盖双侧栏、390/320px 移动布局、CDP 200% page-scale 下的布局视口、移动 More 抽屉、键盘焦点、核心保存控件、远端应用失败保护和 Capture 决策重复提交保护。CDP 的 page-scale 视觉视口与 DOM 布局坐标存在已知分离，因此真实移动设备、真实浏览器缩放、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
+> 2026-08-29 对齐结论：58 个 Vitest 文件 / 293 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 均通过；UI smoke 已实际验证 React Admin 加载、Vue `admin/advanced` 兼容页加载及返回后的旧桥接卸载；业务值与实体日志原子提交、首次实体同步完整合并确认、实体同步与键级主同步游标及 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离已由自动化或浏览器运行时覆盖；自动化已覆盖双侧栏、390/320px 移动布局、CDP 200% page-scale 下的布局视口、移动 More 抽屉、键盘焦点、核心保存控件、远端应用失败保护和 Capture 决策重复提交保护。CDP 的 page-scale 视觉视口与 DOM 布局坐标存在已知分离，因此真实移动设备、真实浏览器缩放、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
 
 本轮 OW-04 代码侧复核还补齐 React 登录错误的 `role="alert"` 即时播报、导入文件控件的明确 accessible name，以及 390/320px More 抽屉 Escape 关闭后的触发按钮焦点回收；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；UI smoke 已通过浏览器 AX tree 确认错误节点进入无障碍树；真实读屏、系统大字号和设备缩放仍需人工确认。
 
@@ -34,13 +34,17 @@
 
 继续拆分大型 `src/react/App.tsx` 和页面文件，将路由、壳层、页面状态、展示组件和 Application Use Case 分离；同时评估扩展模块的按需样式/资源拆分，不改变领域模型和现有 URL。
 
-2026-08-29 已完成三刀：将所有 React 懒加载页面注册集中到 `src/react/lazy-pages.ts`，将工作台壳层、搜索弹层、共享 `Button`、页面头部和焦点陷阱分别收口到 `src/react/AppShell.tsx` 与 `src/react/ui.tsx`，并将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`；`App.tsx` 现只负责启动、守卫组件和页面节点装配，URL、兼容重定向、Suspense 边界和按需加载行为不变。下一刀继续拆出页面状态，仍需避免循环依赖和重复监听。
+2026-08-29 已完成九刀：将所有 React 懒加载页面注册集中到 `src/react/lazy-pages.ts`，将工作台壳层、搜索弹层、共享 `Button`、页面头部和焦点陷阱分别收口到 `src/react/AppShell.tsx` 与 `src/react/ui.tsx`，将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`，将登录、保护路由、旧 Case 重定向和占位页收口到 `src/react/route-views.tsx`，并将旧 Today、Capture、Matters、Review、MatterDetail 页面状态分别移到 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx`；`App.tsx` 保留启动、守卫、页面节点装配和兼容导出，URL、兼容重定向、Suspense 边界和按需加载行为不变。下一刀继续拆出剩余页面状态，仍需避免循环依赖和重复监听。
 
 验收：页面职责可单独测试；跨页面行为通过用例或共享协议复用；切换模块不重复挂载无关监听器；核心首屏不因扩展模块样式和组件 eager 加载而膨胀。
 
 ### OW-08 扩展模块质量回归
 
 为 Inbox、Tasks、Habits、Finance、Goals、Pomo、Diary、Posts、Library、Calendar、People、Graph、Scene 和 Admin 补齐离线、导入导出、同步、错误、空状态和可访问性回归，并明确哪些模块仍是兼容/实验能力。
+
+2026-08-29 对齐进展：新增扩展模块入口矩阵静态回归，锁定 14 个模块的页面文件、lazy 注册、路由入口、页面头部和可访问语义；当前 293 个测试通过。该回归只证明入口和结构边界，尚不能替代每个模块的真实离线、导入导出、同步、错误和空状态行为验收，OW-08 继续保持未完成。
+
+2026-08-30 功能对齐进展：继续完成 OW-08 的真实页面边界，Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene 及旧版 `LegacyCapturePage` 已补齐读取加载态、失败提示、重试、空结果或本地写入失败反馈；Library 的保存/状态更新能区分“写入成功但列表刷新失败”，Diary 日期切换避免旧请求覆盖当前内容。扩展模块整体行为验收仍未完成，本轮未改变测试基线，整体回归留到功能阶段收口后统一执行。OW-08 继续保持未完成。
 
 验收：扩展模块不会破坏核心四页，不产生重复实体或第二套同步状态；实验能力不会误显示为稳定能力。
 

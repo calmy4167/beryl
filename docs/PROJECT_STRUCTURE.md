@@ -1,6 +1,6 @@
 # Calmy 项目文件架构
 
-> 更新时间：2026-08-29
+> 更新时间：2026-08-30
 > 本文描述当前仓库的真实入口、代码边界、文档分层和迁移兼容范围。
 
 ## 1. 生产启动链路
@@ -13,7 +13,8 @@ index.html
   → src/react/lazy-pages.ts（扩展页与兼容桥的懒加载注册）
   → src/react/AppShell.tsx + src/react/ui.tsx（壳层与共享交互工具）
   → src/react/routes.tsx（路由树、兼容重定向和 Suspense 边界）
-  → React Router + src/react/pages/*
+  → src/react/route-views.tsx（登录、保护路由和兼容视图）
+  → React Router + src/react/pages/*（Today、Capture、Matters、Review 等页面状态边界；扩展页保留加载/错误/空结果反馈）
   → src/application + src/domain + src/core
   → IndexedDB / localStorage 兼容层 / optional sync adapters
 ```
@@ -58,6 +59,8 @@ index.html
 
 `AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `TaskBoardPage` 是现有 Action 的看板视图，`MemoryPage` 是现有 Record/Insight 的治理视图；二者都不新增事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
 
+旧 Today/Capture 兼容页面 `LegacyTodayPage`、`LegacyCapturePage` 与当前 Matters/Review/MatterDetail 页面 `MattersPage`、`ReviewPage`、`MatterDetailPage` 分别位于 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 和 `src/react/pages/MatterDetailPage.tsx`，保留原有 Today/Action/Reality Record、Capture/suggestion、Matter 详情与 Review 用例及交互，仅作为页面状态拆分边界；核心生产 Today/Capture/Matters/Review/MatterDetail 路由仍由这些页面组件承担。
+
 ## 4. 数据和写入边界
 
 ```text
@@ -98,7 +101,7 @@ React page
 
 ### 实现证据
 
-`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-29 为当前事实，早期日期仅保留历史上下文。
+`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-30 为当前事实，早期日期仅保留历史上下文。
 
 ### 历史资料与原型
 

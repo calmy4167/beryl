@@ -1,6 +1,6 @@
 # React 迁移记录
 
-> 当前事实校准：2026-08-29。文件名保留迁移启动日期；最新剩余任务只以 `OPEN_WORK.md` 为准。
+> 当前事实校准：2026-08-30。文件名保留迁移启动日期；最新剩余任务只以 `OPEN_WORK.md` 为准。
 
 ## 选型
 
@@ -28,10 +28,17 @@
 - Today、Capture、Matters、Review、日历、人物、资料、图谱、场景、收件箱、任务、习惯、财务、目标、番茄钟、日记和文章已接入 React 路由，并继续复用原有领域仓储和应用用例；
 - Admin 的常用设置、旧版统计口径、持久化重试、导入失败回滚、二次重置确认、导入导出、Cloudflare、S3、本地文件同步和诊断已由 React 承接；Vault/实体迁移等高风险能力通过隔离兼容桥接回 React 工作台，避免迁移期间丢失功能；
 - React 扩展页面统一使用按需加载，收件箱、任务、习惯、财务、目标、番茄钟、日记、文章、资料、日历、人物、图谱和场景不会进入首屏页面代码；
-- 2026-08-29 已将上述 React lazy 页面注册集中到 `src/react/lazy-pages.ts`，不改变 URL、Suspense 边界或按需加载行为；路由树、AppShell 和页面状态仍由 OW-07 继续拆分。
-- 2026-08-29 已将路由树、旧入口兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`；`App.tsx` 只负责启动、守卫组件和页面节点装配，页面状态拆分仍由 OW-07 继续推进。
+- 2026-08-29 已将上述 React lazy 页面注册集中到 `src/react/lazy-pages.ts`，不改变 URL、Suspense 边界或按需加载行为；路由树、AppShell 和剩余页面状态仍由 OW-07 继续拆分。
+- 2026-08-29 已将路由树、旧入口兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`；`App.tsx` 负责启动、守卫组件和页面节点装配，剩余页面状态拆分仍由 OW-07 继续推进。
+- 2026-08-29 已将登录页、保护路由、旧 Case 重定向和通用占位页收口到 `src/react/route-views.tsx`，并由静态无障碍/兼容回归锁定其 Vue 依赖边界。
+- 2026-08-29 已将旧 Today 页面状态移到 `src/react/pages/LegacyTodayPage.tsx`，保留 `LegacyTodayPage` 命名导出、Today/Action/Reality Record 用例和现有交互；后续继续拆分 `App.tsx` 中的剩余页面状态。
+- 2026-08-29 已将旧 Capture 页面状态移到 `src/react/pages/LegacyCapturePage.tsx`，保留 `LegacyCapturePage` 命名导出、原文优先、suggestion 采纳/拒绝和保存状态行为；后续继续拆分 `App.tsx` 中的剩余页面状态。
+- 2026-08-29 已将 Matter 列表页面状态移到 `src/react/pages/MattersPage.tsx`，保留 `MattersPage` 命名导出、创建/暂停/恢复/归档/趋势更新和空状态行为；后续继续拆分 `App.tsx` 中的剩余页面状态。
+- 2026-08-29 已将 Review 页面状态移到 `src/react/pages/ReviewPage.tsx`，保留 `ReviewPage` 命名导出、范围切换、Today Review 保存、证据查询和保存冲突保护；后续继续拆分 `App.tsx` 中的剩余页面状态。
+- 2026-08-29 已将 Matter 详情页面状态移到 `src/react/pages/MatterDetailPage.tsx`，保留 `MatterDetailPage` 命名导出、旧详情 URL、Matter 查询和状态/阶段/趋势展示；后续继续拆分 `App.tsx` 中的剩余页面状态。
+- 2026-08-30 继续完成扩展页面功能边界：Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene 已补充读取加载态、失败提示、重试、空结果和本地持久化失败反馈；Library 明确区分写入成功与列表刷新失败，Diary 日期切换增加过期请求保护。
 - 旧 Vue 入口和兼容桥仍保留在仓库中，但不再作为整个应用的主入口渲染；键级立即同步/自动恢复完成后会继续调用实体同步，兼容层仍不是新的事实查询入口；
-- UI smoke、58 个 Vitest 文件/292 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、生产构建和 PWA 预缓存均通过；当前异步持久化边界覆盖到 Finance、Pomo、Inbox 的兼容写入，Finance/Inbox 跨仓储流程已提取为 Application Use Case，React Review、全局搜索及其他 React 模块的 Reality 查询也已切换到异步 Repository；业务集合值与实体日志已实现同事务提交且 pending replay 保留日志上下文，首次实体同步已增加推送后的完整 pull 确认，实体与键级主同步 pull cursor、push cursor 已增加 durable `meta` 确认，键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离和 Capture Attention Gate 的跨集合重复提交保护已补齐。
+- UI smoke、58 个 Vitest 文件/293 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、生产构建和 PWA 预缓存均通过；当前异步持久化边界覆盖到 Finance、Pomo、Inbox 的兼容写入，Finance/Inbox 跨仓储流程已提取为 Application Use Case，React Review、全局搜索及其他 React 模块的 Reality 查询也已切换到异步 Repository；业务集合值与实体日志已实现同事务提交且 pending replay 保留日志上下文，首次实体同步已增加推送后的完整 pull 确认，实体与键级主同步 pull cursor、push cursor 已增加 durable `meta` 确认，键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、Capture Attention Gate 的跨集合重复提交保护和 OW-08 扩展模块入口矩阵已补齐。
 
 ## 当前阶段
 

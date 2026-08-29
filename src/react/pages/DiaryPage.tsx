@@ -64,14 +64,29 @@ export function DiaryPage() {
   const [query, setQuery] = useState('')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [contentLoading, setContentLoading] = useState(true)
+  const [error, setError] = useState('')
 
   async function refresh(): Promise<void> {
-    setEntries(await readEntries())
-    setLoading(false)
+    setLoading(true)
+    try {
+      setEntries(await readEntries())
+      setError('')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '日记读取失败')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    void readContent(selectedDate).then(setContent)
+    let active = true
+    setContentLoading(true)
+    void readContent(selectedDate)
+      .then(nextContent => { if (active) setContent(nextContent) })
+      .catch(cause => { if (active) setError(cause instanceof Error ? cause.message : '日记读取失败') })
+      .finally(() => { if (active) setContentLoading(false) })
+    return () => { active = false }
   }, [selectedDate])
 
   useEffect(() => {
@@ -130,6 +145,14 @@ export function DiaryPage() {
         <span className="load-pill">{entries.length} 篇记录</span>
       </header>
 
+      {error && (
+        <section className="beryl-card empty-state" role="alert" style={{ marginBottom: 16 }}>
+          <b>日记数据暂时无法读取</b>
+          <p>{error}</p>
+          <button className="react-btn" type="button" onClick={() => void refresh()}>重试</button>
+        </section>
+      )}
+
       <section className="beryl-card" style={{ padding: 16, marginBottom: 16 }}>
         <div className="panel-head" style={{ alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
           <div>
@@ -147,16 +170,16 @@ export function DiaryPage() {
         <form onSubmit={event => void save(event)} style={{ marginTop: 16 }}>
           <textarea
             aria-label={`${selectedDate} 日记内容`}
-            value={content}
+            value={contentLoading ? '' : content}
             onChange={event => setContent(event.target.value)}
             placeholder="写下今天的心情、想法与收获…"
             rows={10}
-            disabled={saving}
+            disabled={saving || contentLoading}
             style={{ width: '100%', resize: 'vertical', minHeight: 180, boxSizing: 'border-box' }}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
-            <span className="muted">{content.length} 字 · 选择任意日期即可补写历史记录</span>
-            <button className="react-btn primary" type="submit" disabled={saving}>{saving ? '保存中…' : '保存日记'}</button>
+            <span className="muted">{contentLoading ? '正在读取当前日期…' : `${content.length} 字 · 选择任意日期即可补写历史记录`}</span>
+            <button className="react-btn primary" type="submit" disabled={saving || contentLoading}>{saving ? '保存中…' : '保存日记'}</button>
           </div>
         </form>
       </section>

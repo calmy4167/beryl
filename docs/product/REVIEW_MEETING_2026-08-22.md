@@ -123,4 +123,4 @@ P0 意见：
 
 ## 8. 2026-08-29 状态校准
 
-上一段保留为评审当日快照。当前验证数量已更新为 58 个 Vitest 文件 / 292 个测试；React 页面 Reality 查询和全局搜索已统一到异步入口，业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、立即同步/自动恢复继续执行实体同步、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、实体同步的本地版本保护、同设备单调版本、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、durable flush、共享协作命令幂等和 Capture 决策跨集合幂等已补齐；UI smoke 现已补充 320px Today/Capture/More 与 CDP 200% page-scale 布局回归。当前未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准；CDP 视觉视口与 DOM 布局坐标存在模拟边界，OW-04 的真实缩放、端侧/辅助技术验收仍未完成。
+上一段保留为评审当日快照。当前验证数量已更新为 58 个 Vitest 文件 / 293 个测试；React 页面 Reality 查询和全局搜索已统一到异步入口，业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、立即同步/自动恢复继续执行实体同步、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、实体同步的本地版本保护、同设备单调版本、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、durable flush、共享协作命令幂等、Capture 决策跨集合幂等和 OW-08 扩展模块入口矩阵已补齐；UI smoke 现已补充 320px Today/Capture/More 与 CDP 200% page-scale 布局回归。当前未完成项只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准；CDP 视觉视口与 DOM 布局坐标存在模拟边界，OW-04 的真实缩放、端侧/辅助技术验收仍未完成。

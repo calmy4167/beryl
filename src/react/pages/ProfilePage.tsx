@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { readSession } from '@/core/auth'
 import { SCENES, currentSceneId } from '@/core/scenes'
@@ -239,7 +239,20 @@ export function ProfilePage() {
   const sceneId = currentSceneId()
   const scene = SCENES[sceneId] ?? SCENES.personal
   const [documents, setDocuments] = useState<RealityDocument[]>([])
-  useEffect(() => { void listRealityDocumentsAsync().then(setDocuments) }, [])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const refreshDocuments = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      setDocuments(await listRealityDocumentsAsync())
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '概览数据读取失败')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+  useEffect(() => { void refreshDocuments() }, [refreshDocuments])
 
   const userName = session?.u.trim() || '本地用户'
   const userInitial = Array.from(userName)[0]?.toLocaleUpperCase() || 'C'
@@ -252,7 +265,10 @@ export function ProfilePage() {
   const habitDays = new Set(
     documents.flatMap(document => document.entityType === 'habit' ? document.dates ?? [] : []),
   ).size
-  const latestDocument = documents.find(document => document.updatedAt > 0)
+  const latestDocument = documents.reduce<RealityDocument | undefined>(
+    (latest, document) => !latest || document.updatedAt > latest.updatedAt ? document : latest,
+    undefined,
+  )
 
   return (
     <div className="profile-page">
@@ -271,6 +287,14 @@ export function ProfilePage() {
           </button>
         </div>
       </header>
+
+      {error && (
+        <section className="beryl-card empty-state" role="alert">
+          <b>概览数据暂时无法读取</b>
+          <p>{error}</p>
+          <button className="react-btn" type="button" onClick={() => void refreshDocuments()}>重试</button>
+        </section>
+      )}
 
       <section className="profile-hero" aria-label="本地用户与当前场景">
         <article className="beryl-card profile-identity-card">
@@ -335,22 +359,22 @@ export function ProfilePage() {
         <div className="profile-stats-grid">
           <article className="beryl-card profile-stat-card">
             <small>事项</small>
-            <b>{matterCount}</b>
+            <b>{loading ? '…' : matterCount}</b>
             <span>个课题</span>
           </article>
           <article className="beryl-card profile-stat-card">
             <small>专注时间</small>
-            <b>{focusTime.value}</b>
+            <b>{loading ? '…' : focusTime.value}</b>
             <span>{focusTime.unit}</span>
           </article>
           <article className="beryl-card profile-stat-card">
             <small>习惯记录</small>
-            <b>{habitDays}</b>
+            <b>{loading ? '…' : habitDays}</b>
             <span>天</span>
           </article>
           <article className="beryl-card profile-stat-card">
             <small>本地事实</small>
-            <b>{documents.length}</b>
+            <b>{loading ? '…' : documents.length}</b>
             <span>条数据</span>
           </article>
         </div>
@@ -366,7 +390,7 @@ export function ProfilePage() {
         </div>
         <nav className="profile-module-grid" aria-label="全部模块入口">
           {PROFILE_MODULES.map(module => {
-            const countLabel = moduleCountLabel(module, documents)
+            const countLabel = loading ? '读取中…' : moduleCountLabel(module, documents)
             return (
               <button
                 key={module.id}

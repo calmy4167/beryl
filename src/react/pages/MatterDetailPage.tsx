@@ -1,0 +1,10 @@
+import { useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import type { Matter } from '@/domain/matter/model'
+import { PageHead } from '../ui'
+
+const matterStatusLabels: Record<Matter['status'], string> = { draft: '草稿', active: '进行中', paused: '已暂停', archived: '已结束' }
+const trajectoryLabels: Record<Matter['trajectory'], string> = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路', lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知' }
+
+export function MatterDetailPage() { const { pathname } = useLocation(); const id = pathname.split('/').pop() || ''; const [matter, setMatter] = useState<Matter>(); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const refresh = useCallback(async () => { setLoading(true); setError(''); try { setMatter(id ? await matterAsyncRepository.find(id) : undefined) } catch (cause) { setError(cause instanceof Error ? cause.message : '课题读取失败') } finally { setLoading(false) } }, [id]); useEffect(() => { void refresh() }, [refresh]); if (loading) return <div className="empty-state" role="status">正在读取课题…</div>; if (error) return <section className="empty-state" role="alert"><b>课题暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>; if (!matter) return <section className="empty-state" role="status"><b>找不到这个课题</b><p>它可能已被归档或从当前设备移除。</p></section>; return <div className="matter-detail"><PageHead eyebrow="MATTER DETAIL" title={matter.title} description={matter.why || '这个课题还没有写下为什么重要。'} /><section className="beryl-card admin-block"><p className="info">状态：{matterStatusLabels[matter.status]} · 阶段：{matter.currentStage} · 趋势：{trajectoryLabels[matter.trajectory]}</p><p className="info">主矛盾：{matter.primaryContradiction || '尚未填写'}</p><p className="info">趋势是基于记录的可推翻判断；需要调整时，请在课题列表直接修改。</p></section></div> }

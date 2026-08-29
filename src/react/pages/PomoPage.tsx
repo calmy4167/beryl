@@ -74,10 +74,18 @@ export function PomoPage() {
     }
   }
 
+  async function refreshStats(): Promise<void> {
+    try {
+      setStats(await readStats())
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '番茄钟统计读取失败')
+    }
+  }
+
   useEffect(() => {
-    void Promise.all([refreshHistory(), readStats().then(setStats)])
+    void Promise.all([refreshHistory(), refreshStats()])
     const onDataSynced = () => {
-      void readStats().then(setStats)
+      void refreshStats()
       void refreshHistory()
     }
     window.addEventListener('beryl-data-synced', onDataSynced)

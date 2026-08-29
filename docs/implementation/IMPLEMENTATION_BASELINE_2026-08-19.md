@@ -2,7 +2,7 @@
 
 版本：v1.0
 原始建档/评审日期：2026-08-22（文件名保留原始建档日期）
-当前事实校准：2026-08-29
+当前事实校准：2026-08-30
 性质：工程实现主档案 / 实现事实基线
 上游设计源：[`docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx`](../product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx)
 
@@ -475,11 +475,20 @@ source: calmy
 - 同步 `listRealityDocuments` 及 `src/core/modules.ts` 的 `statValue` reader 仍保留给 Vue/旧模块兼容边界；React bootstrap 不再注册同步统计 reader，React 主路径不会因启动而携带同步 Reality 查询入口。
 - 实体同步拉取已在应用远端记录前读取本地变更日志并按 `(updatedAt, device)` 裁决；实际写入后等待 `flushRepositoryWrites()`，删除墓碑不会回环生成本地变更；键级立即同步的提前返回和启动自动恢复的云端分支均会继续执行实体同步。
 - 共享协作异步创建、更新、状态变更和 Record 修订支持调用方命令 ID，重复命令复用原实体/审计结果；权限、revision 和 blocked 隔离边界保持不变。
-- 当前验证基线：58 个 Vitest 文件、292 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`npx vue-tsc --noEmit`、`npm run build`、`npm run test:pwa`、性能基线、`node test/ui-runtime.mjs` 和 `git diff --check` 均通过。浏览器 smoke 已覆盖 React Admin、Vue `admin/advanced` 兼容页的实际加载及旧桥接卸载；业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、实体同步同设备版本递增、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、Capture 决策跨集合幂等、React 全局搜索异步边界、React 页面同步 Reality 隔离、工作台键盘边界、键级同步/实体同步编排边界和 React/Vue 生产入口隔离已有回归；UI smoke 另已覆盖 320px Today/Capture/More 以及 CDP 200% page-scale 的布局视口检查；CDP 视觉视口与 DOM 坐标分离，真实缩放裁切仍属 OW-04 人工验收；构建仍有既有第三方注释与大 chunk 提示。
+- 当前验证基线：58 个 Vitest 文件、293 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、`npx vue-tsc --noEmit`、`npm run build`、`npm run test:pwa`、性能基线、`node test/ui-runtime.mjs` 和 `git diff --check` 均通过。浏览器 smoke 已覆盖 React Admin、Vue `admin/advanced` 兼容页的实际加载及旧桥接卸载；业务集合值/实体日志同事务提交及 pending replay、首次实体同步完整合并确认、实体同步同设备版本递增、批量顺序、失败时不推进游标、实体/键级 pull cursor 与 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、Capture 决策跨集合幂等、React 全局搜索异步边界、React 页面同步 Reality 隔离、工作台键盘边界、键级同步/实体同步编排边界、React/Vue 生产入口隔离和 OW-08 扩展模块入口矩阵已有回归；UI smoke 另已覆盖 320px Today/Capture/More 以及 CDP 200% page-scale 的布局视口检查；CDP 视觉视口与 DOM 坐标分离，真实缩放裁切仍属 OW-04 人工验收；构建仍有既有第三方注释与大 chunk 提示。
 - 当前剩余任务仅以 [`docs/product/OPEN_WORK.md`](../product/OPEN_WORK.md) 为准：OW-04 的真实设备与辅助技术验收，以及后续 P1/P2 收口；OW-03 的同步统计/旧 Vue 查询兼容层复核已完成，旧 Vue 退出由 OW-06 管理；键级 LWW 的同 key 批次最终版本、同毫秒设备决胜和墓碑覆盖边界已在本轮补齐；已完成切片不再恢复为活跃待办。
 - 本轮 OW-03 兼容复核还收紧了旧 Worker 全量写入回退：失败不再被吞掉，外层会保留待同步状态并进入统一错误处理；成功后才推进兼容同步完成状态。
 - 本轮调用链复核确认：旧同步统计定义当前无生产调用；React Admin 统计使用异步 Reality 查询，Vue Admin 和未迁移 Vue 页面保留同步 Reality 查询，仅作为兼容层，待 OW-06 完成后再评估退出。
 - OW-03 已收口：上述兼容层经过入口、调用链和 durable snapshot 复核，不再作为 P0 未完成项。
 - OW-04 代码侧无障碍边界已补齐：React 登录错误使用 `role="alert"` 即时播报，React 导入文件控件提供明确 accessible name，390/320px More 抽屉 Escape 关闭后焦点返回触发按钮；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；UI smoke 已通过浏览器 AX tree 确认错误节点进入无障碍树；真实读屏、系统大字号和设备缩放仍待人工验收。
 - OW-06 第一批清理已完成：未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已移除；静态回归扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于显式 `admin/advanced` 的 `LegacyAdminHost` 兼容桥，React 生产入口仍为唯一启动链。旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 已在 React 路由补齐到 Matters、People、Posts、Inbox 的兼容重定向，并由 UI smoke 验证；其余 Vue 运行时依赖和旧路由继续等待真实回归与分批退出。
-- OW-07 已完成三刀：`src/react/lazy-pages.ts` 集中维护 React 扩展页和兼容桥的懒加载注册，`src/react/AppShell.tsx` 收口工作台壳层与搜索弹层，`src/react/ui.tsx` 收口共享 Button、页面头部和焦点陷阱，`src/react/routes.tsx` 收口路由树、兼容重定向和 Suspense 边界；`src/react/App.tsx` 保持原有 URL、兼容行为和按需加载行为不变，页面状态仍是后续拆分范围。
+- OW-07 已完成九刀：`src/react/lazy-pages.ts` 集中维护 React 扩展页和兼容桥的懒加载注册，`src/react/AppShell.tsx` 收口工作台壳层与搜索弹层，`src/react/ui.tsx` 收口共享 Button、页面头部和焦点陷阱，`src/react/routes.tsx` 收口路由树、兼容重定向和 Suspense 边界，`src/react/route-views.tsx` 收口登录、保护路由和兼容视图，`src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx` 分别收口旧 Today/Capture/Matters/Review/MatterDetail 页面状态；`src/react/App.tsx` 保持原有 URL、兼容行为和按需加载行为不变，剩余页面状态仍是后续拆分范围。
+
+## 18. 2026-08-30 功能阶段继续对齐
+
+本节记录上一校准后继续完成的功能边界；整体测试、构建和真实端侧验收仍以后续统一回归为准。
+
+- Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene 已补齐或加强异步读取加载态、错误可见性、重试、空结果和本地持久化失败反馈。
+- Library 的新增/状态更新会区分写入成功与列表刷新失败；Diary 日期切换增加请求有效性保护，避免较早日期请求覆盖当前日期内容；Scene 检查场景键写入返回值并在失败时保留原选择。
+- Admin 的统计读取、备份导出、持久化重试、云端/S3/本地文件连接和同步诊断补充异常反馈；扩展模块入口和现有 URL/事实源不变。
+- 本阶段重新核对产品资产：V1/V2 两张 Attention OS PNG 均存在且引用路径正确，V1 为上一版组合稿、V2 为当前六面统一设计板；二者仍只作为设计资产，不能当作实现截图或验收证据。

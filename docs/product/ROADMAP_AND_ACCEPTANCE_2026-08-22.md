@@ -1,14 +1,16 @@
 # Calmy 重设计路线图与验收门槛
 
-> 更新日期：2026-08-29 · 状态：阶段与验收细节参考；当前路线已于 2026-08-29 合并到 [`CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
+> 更新日期：2026-08-30 · 状态：阶段与验收细节参考；当前路线已于 2026-08-29 合并到 [`CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
 
 > 当前未完成任务统一维护在 [`OPEN_WORK.md`](OPEN_WORK.md)；本文件负责阶段顺序、验收门槛和停止线。
 
 ## 当前实现校准（2026-08-29）
 
-本文件继续描述阶段顺序、验收门槛和 No-Go 条件，不替代实现总档案或活跃待办。当前实现已完成 React 生产主路径的核心异步 Reality/搜索边界、主要持久化与同步可靠性切片，并由 58 个 Vitest 文件 / 292 个测试、Node、同步协议、IndexedDB 浏览器运行时、类型检查、构建、PWA、性能和 UI smoke 支撑；UI smoke 也已实际验证 React Admin 与 Vue `admin/advanced` 兼容页加载，以及返回 React 后旧桥接卸载。
+本文件继续描述阶段顺序、验收门槛和 No-Go 条件，不替代实现总档案或活跃待办。当前实现已完成 React 生产主路径的核心异步 Reality/搜索边界、主要持久化与同步可靠性切片，并由 58 个 Vitest 文件 / 293 个测试、Node、同步协议、IndexedDB 浏览器运行时、类型检查、构建、PWA、性能和 UI smoke 支撑；UI smoke 也已实际验证 React Admin 与 Vue `admin/advanced` 兼容页加载，以及返回 React 后旧桥接卸载；OW-08 已增加 14 个扩展模块入口矩阵静态回归，但不等于完整行为验收。
 
-当前仍不能据此宣布发布完成：OW-03 的键级高级同步及同步统计/旧 Vue 查询兼容复核已收口，OW-04 还需真实设备、连续键盘、读屏、大字号和异常恢复人工验收；OW-06 已移除未被生产路由引用的 `LegacyVueHost` 第一批兼容代码，并补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的 React 兼容重定向，但仍需完成 Vue 运行时依赖与其余旧路由回归后再分批退出；OW-07 已完成懒加载注册、壳层/共享交互和路由树三刀，但页面状态仍未收口。具体活跃范围只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准。
+当前仍不能据此宣布发布完成：OW-03 的键级高级同步及同步统计/旧 Vue 查询兼容复核已收口，OW-04 还需真实设备、连续键盘、读屏、大字号和异常恢复人工验收；OW-06 已移除未被生产路由引用的 `LegacyVueHost` 第一批兼容代码，并补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的 React 兼容重定向，但仍需完成 Vue 运行时依赖与其余旧路由回归后再分批退出；OW-07 已完成懒加载注册、壳层/共享交互、路由树、兼容视图和旧 Today/Capture/Matters/Review/MatterDetail 页面状态拆分九刀，但剩余页面状态仍未收口。具体活跃范围只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准。
+
+2026-08-30 功能阶段校准：Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene 的加载、错误、重试、空结果和本地持久化反馈已继续补齐；OW-08 仍需完成其余扩展模块的真实行为验收。当前先推进功能收口，整体测试与构建在功能阶段结束后统一执行。
 
 ## 阶段 0：冻结与基线
 
