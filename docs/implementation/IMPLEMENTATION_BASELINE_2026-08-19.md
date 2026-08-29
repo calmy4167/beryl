@@ -488,7 +488,7 @@ source: calmy
 
 本节记录上一校准后继续完成的功能边界；入口层级已按统一 Attention OS 设计收敛；整体测试、构建和真实端侧验收仍以后续统一回归为准。
 
-- Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 已补齐或加强异步读取加载态、错误可见性、重试、空结果和本地持久化失败反馈。
+- Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 已补齐或加强异步读取加载态、错误可见性、重试、空结果和本地持久化失败反馈；Graph 实验页新增首次读取加载、失败重试、刷新失败保留旧结果和关系写入期间保护。
 - Library 的新增/状态更新会区分写入成功与列表刷新失败；Diary 日期切换增加请求有效性保护，避免较早日期请求覆盖当前日期内容；Scene 检查场景键写入返回值并在失败时保留原选择。
 - Admin 的统计读取、备份导出、持久化重试、云端/S3/本地文件连接和同步诊断补充异常反馈；扩展模块入口和现有 URL/事实源不变。
 - AppShell 入口进一步去重：桌面左栏底部只保留搜索和 More；右栏收起快捷入口为 Capture、事项看板、我的和 AI，展开态快速动作隐藏当前所在主流程；More 抽屉的桌面/移动端 dialog 标识与 Matters 文案已统一。

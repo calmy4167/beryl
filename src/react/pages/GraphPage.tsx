@@ -18,6 +18,9 @@ const relationTypes: RelationType[] = [
 ]
 
 type NodeFilter = 'all' | GraphNodeType
+type GraphSnapshot = ReturnType<typeof buildGraphSnapshot>
+
+const emptySnapshot = (): GraphSnapshot => ({ nodes: [], edges: [], availableNodes: [], totalNodes: 0, totalEdges: 0 })
 
 const toast = (message: string, kind: 'success' | 'warning' | 'error' = 'success') => {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
@@ -43,11 +46,10 @@ export function GraphPage() {
   const [toId, setToId] = useState('')
   const [relationType, setRelationType] = useState<RelationType>('related_to')
   const [tick, setTick] = useState(0)
-
-  const snapshot = useMemo(() => {
-    void tick
-    return buildGraphSnapshot(query)
-  }, [query, tick])
+  const [snapshot, setSnapshot] = useState<GraphSnapshot>(emptySnapshot)
+  const [loading, setLoading] = useState(true)
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState('')
 
   const visibleNodes = useMemo(() => {
     if (nodeFilter === 'all') return snapshot.nodes
@@ -72,6 +74,24 @@ export function GraphPage() {
   }, [snapshot.availableNodes])
 
   useEffect(() => {
+    let active = true
+    setLoading(true)
+    try {
+      const nextSnapshot = buildGraphSnapshot(query)
+      if (active) {
+        setSnapshot(nextSnapshot)
+        setError('')
+        setLoaded(true)
+      }
+    } catch (cause) {
+      if (active) setError(cause instanceof Error ? cause.message : '图谱数据读取失败')
+    } finally {
+      if (active) setLoading(false)
+    }
+    return () => { active = false }
+  }, [query, tick])
+
+  useEffect(() => {
     const refresh = () => setTick(value => value + 1)
     window.addEventListener('beryl-data-synced', refresh)
     return () => window.removeEventListener('beryl-data-synced', refresh)
@@ -82,6 +102,7 @@ export function GraphPage() {
   }
 
   async function createRelation(): Promise<void> {
+    if (loading) return
     if (!fromId || !toId || fromId === toId) {
       toast('请选择两个不同的节点', 'warning')
       return
@@ -114,6 +135,14 @@ export function GraphPage() {
     }
   }
 
+  if (loading && !loaded) {
+    return <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}><div className="empty-state beryl-card" role="status">正在读取图谱…</div></div>
+  }
+
+  if (error && !loaded) {
+    return <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}><section className="empty-state beryl-card" role="alert"><h1 className="font-title">图谱暂时无法加载</h1><p>{error}</p><button className="react-btn primary" type="button" onClick={() => setTick(value => value + 1)}>重新读取</button></section></div>
+  }
+
   return (
     <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}>
       <header className="page-head">
@@ -135,6 +164,9 @@ export function GraphPage() {
         </div>
       </header>
 
+      {loading && <div className="empty-state beryl-card" role="status">正在更新图谱…</div>}
+      {error && <section className="empty-state beryl-card" role="alert">最新图谱读取失败，当前仍展示上一次结果：{error}<button className="react-btn" type="button" onClick={() => setTick(value => value + 1)}>重试</button></section>}
+
       <section className="beryl-card admin-block" aria-labelledby="add-relation-title">
         <div className="panel-head">
           <div>
@@ -145,7 +177,7 @@ export function GraphPage() {
         </div>
         <div
           className="relation-form"
-          style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 160px minmax(0, 1fr) auto', gap: 8, marginTop: 16 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: 8, marginTop: 16 }}
         >
           <select aria-label="关系起点" value={fromId} onChange={event => setFromId(event.target.value)}>
             <option value="">起点节点</option>
@@ -166,7 +198,7 @@ export function GraphPage() {
               </option>
             ))}
           </select>
-          <button className="primary" type="button" onClick={() => void createRelation()}>建立连接</button>
+          <button className="primary" type="button" disabled={loading} onClick={() => void createRelation()}>建立连接</button>
         </div>
       </section>
 
@@ -182,7 +214,7 @@ export function GraphPage() {
         </div>
         <div
           className="graph-toolbar"
-          style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 180px', gap: 8, marginTop: 14 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 8, marginTop: 14 }}
         >
           <input
             aria-label="筛选图谱"
@@ -199,7 +231,7 @@ export function GraphPage() {
 
       <section
         className="graph-layout"
-        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(280px, .8fr)', gap: 16, marginTop: 16 }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: 16, marginTop: 16 }}
       >
         <section className="beryl-card admin-block" aria-labelledby="node-list-title" style={{ marginTop: 0 }}>
           <div className="panel-head">
