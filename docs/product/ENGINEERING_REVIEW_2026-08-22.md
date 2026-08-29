@@ -146,5 +146,5 @@ IndexedDB authoritative store
 ## 13. 2026-08-30 功能阶段继续对齐
 
 - 在不改变领域模型、URL 或事实源的前提下，Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 的异步读取和本地写入边界继续补齐：加载中不再误显示为空，读取失败可见并可重试，场景写入失败会保留原选择并提示，Library 会区分保存成功与列表刷新失败，Review 的时间范围会过滤统计和证据。
-- 入口层级已继续对齐：桌面左栏仅保留 Today、Capture、事项、复盘，右栏和 More 只承载辅助入口与上下文，不再把扩展模块伪装成同等一级入口。
+- 入口层级已继续对齐：桌面左栏仅保留 Today、Capture、事项、复盘，底部只保留搜索和 More；右栏和 More 只承载辅助入口与上下文，右侧快速动作不重复当前主流程，不再把扩展模块伪装成同等一级入口。
 - OW-08 仍未完成：Inbox、Tasks、Habits、Finance、Goals、Pomo、Posts、Calendar、People、Graph 等模块的真实离线、导入导出、同步、错误和空状态验收仍需继续覆盖；本阶段按先完成功能、后统一整体回归执行，不能把本轮改动表述成新的测试通过证据。

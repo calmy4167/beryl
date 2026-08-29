@@ -491,4 +491,5 @@ source: calmy
 - Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 已补齐或加强异步读取加载态、错误可见性、重试、空结果和本地持久化失败反馈。
 - Library 的新增/状态更新会区分写入成功与列表刷新失败；Diary 日期切换增加请求有效性保护，避免较早日期请求覆盖当前日期内容；Scene 检查场景键写入返回值并在失败时保留原选择。
 - Admin 的统计读取、备份导出、持久化重试、云端/S3/本地文件连接和同步诊断补充异常反馈；扩展模块入口和现有 URL/事实源不变。
+- AppShell 入口进一步去重：桌面左栏底部只保留搜索和 More；右栏收起快捷入口为 Capture、事项看板、我的和 AI，展开态快速动作隐藏当前所在主流程；More 抽屉的桌面/移动端 dialog 标识与 Matters 文案已统一。
 - 本阶段重新核对产品资产：V1/V2 两张 Attention OS PNG 均存在且引用路径正确，V1 为上一版组合稿、V2 为当前六面统一设计板；二者仍只作为设计资产，不能当作实现截图或验收证据。

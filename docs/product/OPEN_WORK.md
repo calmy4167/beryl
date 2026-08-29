@@ -44,7 +44,7 @@
 
 2026-08-29 对齐进展：新增扩展模块入口矩阵静态回归，锁定 14 个模块的页面文件、lazy 注册、路由入口、页面头部和可访问语义；当前 293 个测试通过。该回归只证明入口和结构边界，尚不能替代每个模块的真实离线、导入导出、同步、错误和空状态行为验收，OW-08 继续保持未完成。
 
-2026-08-30 功能对齐进展：继续完成 OW-08 的真实页面边界，Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 及旧版 `LegacyTodayPage`、`LegacyCapturePage` 已补齐读取加载态、失败提示、重试、空结果或本地写入失败反馈；Library 的保存/状态更新能区分“写入成功但列表刷新失败”，Diary 日期切换避免旧请求覆盖当前内容，Review 的 7/30/90 天切换现在会实际过滤完成数、记录数和证据列表。入口对齐进展：桌面主导航已收敛为 Today、Capture、事项、复盘四个主流程入口；Cycle、看板、资料、我的、AI、人物、日历及旧模块统一进入分组后的 More，右侧快捷栏不再重复任务和目标入口。扩展模块整体行为验收仍未完成，本轮未改变测试基线，整体回归留到功能阶段收口后统一执行。OW-08 继续保持未完成。
+2026-08-30 功能对齐进展：继续完成 OW-08 的真实页面边界，Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 及旧版 `LegacyTodayPage`、`LegacyCapturePage` 已补齐读取加载态、失败提示、重试、空结果或本地写入失败反馈；Library 的保存/状态更新能区分“写入成功但列表刷新失败”，Diary 日期切换避免旧请求覆盖当前内容，Review 的 7/30/90 天切换现在会实际过滤完成数、记录数和证据列表。入口对齐进展：桌面主导航已收敛为 Today、Capture、事项、复盘四个主流程入口；左栏底部只保留搜索和 More，主题/设置统一收进 More；Cycle、看板、资料、我的、AI、人物、日历及旧模块统一进入分组后的 More；右侧快捷动作会隐藏当前所在主流程，收起栏只保留 Capture、事项看板、我的和 AI。More 抽屉使用跨桌面/移动端统一的 dialog 标识，移动端 Matters 文案与桌面统一为“事项”。扩展模块整体行为验收仍未完成，本轮未改变测试基线，整体回归留到功能阶段收口后统一执行。OW-08 继续保持未完成。
 
 验收：扩展模块不会破坏核心四页，不产生重复实体或第二套同步状态；实验能力不会误显示为稳定能力。
 
