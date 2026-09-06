@@ -184,7 +184,7 @@ export function TodayPage() {
       </section>
 
       <aside className="attention-side-column">
-        <section className="think-panel beryl-card" aria-labelledby="think-title"><div className="panel-head"><div><p className="eyebrow">THINK · 可展开</p><h2 id="think-title" className="font-title">思考</h2></div><button className="quiet-link" type="button" onClick={() => navigate('/app/review')}>打开复盘 →</button></div><p>{plan?.review.analysis || plan?.why || '还有什么没有看清？可以把问题带到复盘里，不必现在解决。'}</p><small>AI、资料与相关记录只在你主动展开时出现。</small></section>
+        <section className="think-panel beryl-card" aria-labelledby="think-title"><div className="panel-head"><div><p className="eyebrow">THINK · 可展开</p><h2 id="think-title" className="font-title">思考</h2></div><button className="quiet-link" type="button" onClick={() => navigate('/app/review')}>打开复盘 →</button></div><p>{plan?.review.analysis || plan?.why || '还有什么没有看清？可以把问题带到复盘里，不必现在解决。'}</p><small>AI、资料与相关记录只在你主动展开时出现。</small><button className="quiet-link flow-entry-link" type="button" onClick={() => navigate('/app/flow')}>带着问题进 Flow →</button></section>
         <section className="trajectory-panel beryl-card" aria-labelledby="trajectory-title"><div className="panel-head"><div><p className="eyebrow">TRAJECTORY · 叙事</p><h2 id="trajectory-title" className="font-title">轨迹</h2></div><button className="quiet-link" type="button" onClick={() => navigate('/app/review')}>看证据 →</button></div><p className="trajectory-narrative">{narrative}</p><div className="trajectory-evidence">{availableActions.slice(0, 3).map(item => <span key={item.calmyId}><i className={`trajectory-dot ${item.status}`} />{item.title}</span>)}{!availableActions.length && <span>还没有现实记录</span>}</div></section>
       </aside>
     </div>

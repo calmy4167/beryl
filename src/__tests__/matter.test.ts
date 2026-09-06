@@ -17,6 +17,40 @@ describe('matterRepository', () => {
     expect(matterRepository.mutations(matter.calmyId)[0].operation).toBe('create')
   })
 
+  it('stores the problem-driven learning context without creating a study obligation', () => {
+    const matter = matterRepository.create({
+      title: '改善跨团队协作',
+      problem: '需求经常在交付前才暴露理解偏差',
+      desiredChange: '在开发前形成可验证的共同理解',
+      progressEvidence: '评审时能更早发现分歧',
+      currentGap: '还不会设计足够小的澄清实验',
+      nextTest: '下次评审前先写三条可证伪假设',
+      stopCondition: '连续两次验证已能独立推进',
+    })
+
+    expect(matter).toMatchObject({
+      problem: '需求经常在交付前才暴露理解偏差',
+      desiredChange: '在开发前形成可验证的共同理解',
+      progressEvidence: '评审时能更早发现分歧',
+      currentGap: '还不会设计足够小的澄清实验',
+      nextTest: '下次评审前先写三条可证伪假设',
+      stopCondition: '连续两次验证已能独立推进',
+    })
+  })
+
+  it('trims optional problem-driven fields and clears blank values on update', () => {
+    const matter = matterRepository.create({ title: '验证字段清理' })
+    const updated = matterRepository.update(matter.calmyId, {
+      problem: '  找到真正的阻塞点  ',
+      desiredChange: '   ',
+      nextTest: '  做一个最小实验  ',
+    }, { expectedRevision: matter.revision })
+
+    expect(updated.problem).toBe('找到真正的阻塞点')
+    expect(updated.desiredChange).toBeUndefined()
+    expect(updated.nextTest).toBe('做一个最小实验')
+  })
+
   it('rejects blank titles before writing data', () => {
     expect(() => matterRepository.create({ title: '   ' })).toThrowError(MatterDomainError)
     expect(matterRepository.list()).toHaveLength(0)

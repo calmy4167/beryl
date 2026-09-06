@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { withSaveState } from '@/core/save-state'
 import { createAsyncCollectionRepository } from '@/core/repository'
 import { nextId } from '@/core/storage'
@@ -74,6 +75,7 @@ function statusLabel(status: GoalStatus): string {
 }
 
 export function GoalsPage() {
+  const navigate = useNavigate()
   const [goals, setGoals] = useState<GoalItem[]>([])
   const [filter, setFilter] = useState<GoalFilter>('all')
   const [query, setQuery] = useState('')
@@ -169,7 +171,7 @@ export function GoalsPage() {
         }))
       })
       await refresh()
-      toast(`目标进度已更新为 ${progress}%`)
+      toast(`自评进度已更新为 ${progress}%`)
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标进度更新失败', 'error')
       await refresh()
@@ -198,9 +200,9 @@ export function GoalsPage() {
         <div>
           <p className="eyebrow">GOALS · DIRECTION</p>
           <h1 className="font-title">目标</h1>
-          <p>把想要完成的结果写清楚，再用状态和进度持续推进。</p>
+          <p>把想要完成的现实结果写清楚；进度只是自选回看，不代替发生过的证据。</p>
         </div>
-        <span className="load-pill">{completedCount} / {goals.length} 已完成</span>
+        <div className="goals-head-actions"><span className="load-pill">{completedCount} / {goals.length} 已完成</span><button className="react-btn" type="button" onClick={() => navigate('/app/flow')}>带着问题进 Flow</button></div>
       </header>
 
       <section className="beryl-card matter-create">
@@ -209,7 +211,7 @@ export function GoalsPage() {
             aria-label="目标名称"
             value={title}
             onChange={event => setTitle(event.target.value)}
-            placeholder="添加一个想完成的结果…"
+            placeholder="添加一个想在现实中看到的结果…"
             disabled={saving}
           />
           <button className="primary" type="submit" disabled={saving}>{saving ? '保存中…' : '添加目标'}</button>
@@ -275,7 +277,7 @@ export function GoalsPage() {
                         disabled={saving}
                         style={{ width: 76 }}
                       />
-                      <span className="muted">进度</span>
+                      <span className="muted">自评进度（可选）</span>
                     </div>
                   </div>
                   <button type="button" className="danger" aria-label={`删除目标 ${goal.title}`} onClick={() => void removeGoal(goal)} disabled={saving}>删除</button>

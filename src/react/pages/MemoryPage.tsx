@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { withSaveState } from '@/core/save-state'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
@@ -40,6 +41,7 @@ function insightStatus(item: Insight): string {
 }
 
 export function MemoryPage() {
+  const navigate = useNavigate()
   const [layer, setLayer] = useState<MemoryLayer>('ai_inference')
   const [records, setRecords] = useState<RealityRecord[]>([])
   const [insights, setInsights] = useState<Insight[]>([])
@@ -215,7 +217,7 @@ export function MemoryPage() {
       : layer === 'fact' ? '还没有可展示的事实记录。' : '还没有可展示的反思记录。'
 
   return <div className="memory-page">
-    <header className="page-head memory-page-head"><div><p className="eyebrow">AI · MEMORY & AGENCY</p><h1 className="font-title">AI 对我的理解</h1><p>把发生过的事、你的反思和 AI 的推断分开。你始终拥有确认、修改、否认和删除的权利。</p></div><div className="memory-head-note"><b>不替你下结论</b><small>AI 推断不会自动变成事实</small></div></header>
+    <header className="page-head memory-page-head"><div><p className="eyebrow">AI · MEMORY & AGENCY</p><h1 className="font-title">AI 对我的理解</h1><p>把发生过的事、你的反思和 AI 的推断分开。你始终拥有确认、修改、否认和删除的权利。</p></div><div className="memory-head-note"><b>不替你下结论</b><small>AI 推断不会自动变成事实</small><button className="quiet-link" type="button" onClick={() => navigate('/app/flow')}>带着问题进 Flow →</button></div></header>
     <section className="memory-layer-tabs" aria-label="记忆层级">
       {layers.map(item => <button key={item.value} className={layer === item.value ? 'on' : ''} onClick={() => { setLayer(item.value); setComposerOpen(false); setEditingId(undefined) }}><b>{item.label}</b><small>{item.hint}</small></button>)}
     </section>

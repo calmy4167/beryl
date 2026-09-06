@@ -3,13 +3,13 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { searchAllAsync, type SearchResult } from '@/domain/search'
 import { Button, FOCUSABLE_SELECTOR, trapFocus } from './ui'
 
-const meta: Record<string, [string, string]> = { today: ['今日', '今天的行动与状态'], cycle: ['Cycle', '五行流转与当前阶段'], capture: ['Capture', '先记录，再决定如何整理'], board: ['事项看板', '拖动任务，回到现实行动'], matters: ['事项', '正在面对的现实事项'], diary: ['日记', '把生活写下来'], review: ['复盘', '观察发生了什么，再调整下一步'], habits: ['习惯', '持续的小步练习'], goals: ['目标', '把方向变成可持续的目标'], library: ['资料', '知识与素材中心'], calendar: ['日历', '按时间查看发生了什么'], people: ['人脉', '关系与上下文'], stats: ['统计', '从事实中看趋势'], memory: ['AI 对我的理解', '记忆分层与判断权'], profile: ['我的', '个人概览与模块入口'], settings: ['设置', '本地数据、同步与外观'] }
+const meta: Record<string, [string, string]> = { today: ['今日', '今天的行动与状态'], cycle: ['Cycle', '五行流转与当前阶段'], flow: ['Flow', '有限地重新激活内容'], capture: ['Capture', '先记录，再决定如何整理'], board: ['事项看板', '拖动任务，回到现实行动'], matters: ['事项', '正在面对的现实事项'], diary: ['日记', '把生活写下来'], review: ['复盘', '观察发生了什么，再调整下一步'], habits: ['习惯', '持续的小步练习'], goals: ['目标', '把方向变成可持续的目标'], library: ['资料', '知识与素材中心'], calendar: ['日历', '按时间查看发生了什么'], people: ['人脉', '关系与上下文'], stats: ['统计', '从事实中看趋势'], memory: ['AI 对我的理解', '记忆分层与判断权'], profile: ['我的', '个人概览与模块入口'], settings: ['设置', '本地数据、同步与外观'] }
 
 export function AppShell() {
   const navigate = useNavigate(); const location = useLocation(); const [mobile, setMobile] = useState(() => window.innerWidth <= 900); const [wide, setWide] = useState(() => window.innerWidth > 1180); const [collapsed, setCollapsed] = useState(() => localStorage.getItem('calmy_sidebar_collapsed') === '1'); const [rightCollapsed, setRightCollapsed] = useState(() => localStorage.getItem('calmy_right_sidebar_collapsed') !== '0'); const [drawer, setDrawer] = useState(false); const [search, setSearch] = useState(false); const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark')); const [saveLabel, setSaveLabel] = useState('本地优先 · 离线可用'); const [saveState, setSaveState] = useState('idle'); const [toastText, setToastText] = useState(''); const searchReturnRef = useRef<HTMLElement | null>(null); const drawerReturnRef = useRef<HTMLElement | null>(null); const desktopMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const mobileHeaderMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const moreTriggerRef = useRef<HTMLButtonElement | null>(null); const drawerOpenRef = useRef(false); const drawerRef = useRef<HTMLDivElement>(null)
   const compact = mobile || window.innerWidth <= 900
   const desktopWide = wide && window.innerWidth > 1180
-  const active = location.pathname.includes('/cycle') ? 'cycle' : location.pathname.includes('/capture') ? 'capture' : location.pathname.includes('/task-board') ? 'board' : location.pathname.includes('/matters') ? 'matters' : location.pathname.includes('/review') ? 'review' : location.pathname.includes('/module/diary') ? 'diary' : location.pathname.includes('/module/habits') ? 'habits' : location.pathname.includes('/module/goals') ? 'goals' : location.pathname.includes('/library') ? 'library' : location.pathname.includes('/calendar') ? 'calendar' : location.pathname.includes('/people') ? 'people' : location.pathname.includes('/graph') ? 'stats' : location.pathname.includes('/memory') ? 'memory' : location.pathname.includes('/profile') ? 'profile' : location.pathname.includes('/admin') ? 'settings' : 'today'
+  const active = location.pathname.includes('/cycle') ? 'cycle' : location.pathname.includes('/flow') ? 'flow' : location.pathname.includes('/capture') ? 'capture' : location.pathname.includes('/task-board') ? 'board' : location.pathname.includes('/matters') ? 'matters' : location.pathname.includes('/review') ? 'review' : location.pathname.includes('/module/diary') ? 'diary' : location.pathname.includes('/module/habits') ? 'habits' : location.pathname.includes('/module/goals') ? 'goals' : location.pathname.includes('/library') ? 'library' : location.pathname.includes('/calendar') ? 'calendar' : location.pathname.includes('/people') ? 'people' : location.pathname.includes('/graph') ? 'stats' : location.pathname.includes('/memory') ? 'memory' : location.pathname.includes('/profile') ? 'profile' : location.pathname.includes('/admin') ? 'settings' : 'today'
   const quickActions = [
     { key: 'capture', icon: '↓', label: '记下一件事', hint: '原文先保存', path: '/app/capture' },
     { key: 'matters', icon: '◎', label: '查看事项', hint: '回到现实主体', path: '/app/matters' },
@@ -101,7 +101,8 @@ export function AppShell() {
   <p>参考与上下文</p>
   <Button onClick={() => go('/app/cycle')}>◌ Cycle · 当前阶段</Button>
   <Button onClick={() => go('/app/task-board')}>▦ 事项看板 · 整理行动</Button>
-  <Button onClick={() => go('/app/library')}>▤ 资料中心 · 留下可复用内容</Button>
+   <Button onClick={() => go('/app/library')}>▤ 资料中心 · 留下可复用内容</Button>
+   <Button onClick={() => go('/app/flow')}>◌ Flow · 有限重新激活</Button>
   <Button onClick={() => go('/app/profile')}>○ 我的 · 查看全部模块</Button>
   <Button onClick={() => go('/app/memory')}>✦ AI 对我的理解 · 管理判断</Button>
   <p>查找与记录</p>

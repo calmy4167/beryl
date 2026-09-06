@@ -216,7 +216,9 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
   if (isMatter(entity)) {
     return {
       ...common, title: entity.title, status: entity.status, why: entity.why,
-      primary_contradiction: entity.primaryContradiction, current_stage: entity.currentStage,
+      primary_contradiction: entity.primaryContradiction, problem: entity.problem || null, desired_change: entity.desiredChange || null,
+      progress_evidence: entity.progressEvidence || null, current_gap: entity.currentGap || null, next_test: entity.nextTest || null, stop_condition: entity.stopCondition || null,
+      current_stage: entity.currentStage,
       trajectory: entity.trajectory, current_cycle_id: entity.currentCycleId || null,
       evidence_ids: entity.evidenceIds, created_at: entity.createdAt, updated_at: entity.updatedAt
     }
@@ -252,7 +254,17 @@ function bodyFor(entity: OpenEntity): string {
     const title = 'title' in entity && typeof entity.title === 'string' ? entity.title : entity.entityType
     return `# ${title}\n\n实体类型：${entity.entityType}\n\n稳定 ID：${entity.calmyId}`
   }
-  if (isMatter(entity)) return `# ${entity.title}\n\n${entity.why || '尚未写下为什么。'}`
+  if (isMatter(entity)) {
+    const sections = [
+      entity.problem && `## 现实问题\n\n${entity.problem}`,
+      entity.desiredChange && `## 期望变化\n\n${entity.desiredChange}`,
+      entity.progressEvidence && `## 进展证据\n\n${entity.progressEvidence}`,
+      entity.currentGap && `## 当前缺口\n\n${entity.currentGap}`,
+      entity.nextTest && `## 下一次验证\n\n${entity.nextTest}`,
+      entity.stopCondition && `## 停止条件\n\n${entity.stopCondition}`
+    ].filter(Boolean).join('\n\n')
+    return `# ${entity.title}\n\n${entity.why || '尚未写下为什么。'}${sections ? `\n\n${sections}` : ''}`
+  }
   if (isAction(entity)) return `# ${entity.title}\n\n${entity.resultNote || '尚未记录结果。'}`
   if (isRecord(entity)) return entity.body
   return `# ${entity.date}\n\n## 今日保护\n${entity.mustProtect.map(item => `- ${item}`).join('\n') || '- 暂无'}\n\n## 今日放下\n${entity.letGo.map(item => `- ${item}`).join('\n') || '- 暂无'}`
@@ -390,7 +402,9 @@ function parseEntity(input: string): OpenEntity {
   if (type === 'matter') {
     return {
       calmyId: id, title: requiredString(frontmatter, 'title'), why: requiredString(frontmatter, 'why'),
-      primaryContradiction: requiredString(frontmatter, 'primary_contradiction'), status: requiredString(frontmatter, 'status') as Matter['status'],
+      primaryContradiction: requiredString(frontmatter, 'primary_contradiction'), problem: optionalString(frontmatter, 'problem'), desiredChange: optionalString(frontmatter, 'desired_change'),
+      progressEvidence: optionalString(frontmatter, 'progress_evidence'), currentGap: optionalString(frontmatter, 'current_gap'), nextTest: optionalString(frontmatter, 'next_test'), stopCondition: optionalString(frontmatter, 'stop_condition'),
+      status: requiredString(frontmatter, 'status') as Matter['status'],
       currentStage: requiredString(frontmatter, 'current_stage') as Matter['currentStage'], trajectory: requiredString(frontmatter, 'trajectory') as Matter['trajectory'],
       currentCycleId: optionalString(frontmatter, 'current_cycle_id'), evidenceIds: stringArray(frontmatter, 'evidence_ids'),
       createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision

@@ -19,4 +19,5 @@ export const PomoPage = lazy(() => import('./pages/PomoPage').then(module => ({ 
 export const DiaryPage = lazy(() => import('./pages/DiaryPage').then(module => ({ default: module.DiaryPage })))
 export const PostsPage = lazy(() => import('./pages/PostsPage').then(module => ({ default: module.PostsPage })))
 export const CyclePage = lazy(() => import('./pages/CyclePage').then(module => ({ default: module.CyclePage })))
+export const FlowPage = lazy(() => import('./pages/FlowPage').then(module => ({ default: module.FlowPage })))
 export const ProfilePage = lazy(() => import('./pages/ProfilePage').then(module => ({ default: module.ProfilePage })))

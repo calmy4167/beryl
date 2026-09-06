@@ -21,6 +21,7 @@ const legacyCapture = source('src/react/pages/LegacyCapturePage.tsx')
 const mattersPage = source('src/react/pages/MattersPage.tsx')
 const reviewPage = source('src/react/pages/ReviewPage.tsx')
 const matterDetailPage = source('src/react/pages/MatterDetailPage.tsx')
+const flowPage = source('src/react/pages/FlowPage.tsx')
 
 const extensionModules = [
   ['Admin', 'admin'], ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
@@ -143,6 +144,11 @@ describe('静态无障碍语义', () => {
     expect(reactApp).toContain("export { MatterDetailPage } from './pages/MatterDetailPage'")
     expect(matterDetailPage).toContain('export function MatterDetailPage')
     expect(existsSync(resolve(process.cwd(), 'src/react/pages/MatterDetailPage.tsx'))).toBe(true)
+    expect(reactApp).toContain('flow: <FlowPage />')
+    expect(reactRoutes).toContain('path="flow" element={lazyView(\' Flow\', views.flow)}')
+    expect(reactLazyPages).toContain("export const FlowPage = lazy(() => import('./pages/FlowPage')")
+    expect(flowPage).toContain('export function FlowPage')
+    expect(flowPage).toContain('已足够，结束 Flow')
     expect(reactAdmin).toContain('aria-label="选择要导入的 JSON 数据文件"')
     expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
     const reactPagesDir = resolve(process.cwd(), 'src/react/pages')

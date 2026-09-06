@@ -20,11 +20,11 @@ interface Habit extends RawHabit {
 const habitsRepository = createAsyncCollectionRepository<RawHabit>('habits', item => item.id)
 
 const PRESETS: Array<Pick<RawHabit, 'name' | 'color'>> = [
-  { name: '晨间阅读', color: '#6366F1' },
-  { name: '运动', color: '#EF4444' },
-  { name: '日记', color: '#F59E0B' },
+  { name: '晨间准备', color: '#6366F1' },
+  { name: '活动身体', color: '#EF4444' },
+  { name: '记录状态', color: '#F59E0B' },
   { name: '喝水', color: '#10B981' },
-  { name: '冥想', color: '#8B5CF6' },
+  { name: '留出安静时间', color: '#8B5CF6' },
 ]
 
 const DEFAULT_COLOR = '#6366F1'
@@ -188,7 +188,7 @@ export function HabitsPage() {
       })
       await refresh()
     } catch (cause) {
-      toast(cause instanceof Error ? cause.message : '打卡保存失败', 'error')
+      toast(cause instanceof Error ? cause.message : '小行动记录失败', 'error')
     } finally {
       setSaving(false)
     }
@@ -202,21 +202,21 @@ export function HabitsPage() {
         <div>
           <p className="eyebrow">HABITS · SMALL RHYTHMS</p>
           <h1 className="font-title">习惯</h1>
-          <p>用一周视图记录可持续的小行动，打卡数据保存在本机 habits 数据集中。</p>
+          <p>用一周视图记录可持续的小行动；连续天数只作回看线索，不是需要追赶的目标。</p>
         </div>
-        <span className="load-pill">今日 {completedToday}/{habits.length} · {habits.length} 个习惯</span>
+        <span className="load-pill">今日已记录 {completedToday} 个小行动 · 仅作回看</span>
       </header>
 
       <section className="beryl-card" style={{ padding: 16, marginBottom: 16 }}>
         <div className="panel-head">
           <div>
             <p className="eyebrow">{editingId ? 'EDIT HABIT' : 'NEW HABIT'}</p>
-            <h2 className="font-title">{editingId ? '编辑习惯' : '添加一个习惯'}</h2>
+            <h2 className="font-title">{editingId ? '编辑小行动' : '添加一个小行动'}</h2>
           </div>
           <span className="muted">{formatWeekLabel(week)}</span>
         </div>
         <form className="create-row" onSubmit={event => void saveHabit(event)}>
-          <input aria-label="习惯名称" value={name} onChange={event => setName(event.target.value)} placeholder="例如：睡前阅读 10 分钟" disabled={saving} />
+          <input aria-label="小行动名称" value={name} onChange={event => setName(event.target.value)} placeholder="例如：午后走到户外 10 分钟" disabled={saving} />
           <label className="color-field">
             <span>颜色</span>
             <input aria-label="习惯颜色" type="color" value={color} onChange={event => setColor(event.target.value)} disabled={saving} />
@@ -234,7 +234,7 @@ export function HabitsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, minWidth: 0 }}>
                 <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: habit.color, flex: '0 0 auto' }} />
                 <strong style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{habit.name}</strong>
-                <span className="muted" style={{ marginLeft: 'auto', textAlign: 'right' }}>累计 <b style={{ color: habit.color }}>{habit.days}</b> 天 · 最长 {habit.longest} 天</span>
+                <span className="muted" style={{ marginLeft: 'auto', textAlign: 'right' }}>历史记录 <b style={{ color: habit.color }}>{habit.days}</b> 天 · 连续最长 {habit.longest} 天（回看）</span>
                 <button className="react-btn" type="button" onClick={() => startEditing(habit)} disabled={saving}>编辑</button>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
@@ -243,7 +243,7 @@ export function HabitsPage() {
                   return <button
                     key={day.key}
                     type="button"
-                    aria-label={`${habit.name} ${day.key} ${checked ? '已打卡' : '未打卡'}`}
+                    aria-label={`${habit.name} ${day.key} ${checked ? '已记录' : '未记录'}`}
                     aria-pressed={checked}
                     disabled={saving}
                     onClick={() => void toggleDate(habit, day.key)}
@@ -270,7 +270,7 @@ export function HabitsPage() {
             </article>
           ))}
         </div>
-      ) : <div className="empty-state">还没有习惯，先创建一个最小可执行的习惯吧。</div>}
+      ) : <div className="empty-state">还没有小行动，先创建一个现实中做得到的动作吧。</div>}
     </div>
   )
 }

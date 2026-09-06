@@ -70,6 +70,17 @@ function assertTitle(title: string): string {
   return value
 }
 
+const MATTER_TEXT_FIELDS = ['why', 'primaryContradiction', 'problem', 'desiredChange', 'progressEvidence', 'currentGap', 'nextTest', 'stopCondition'] as const
+
+function cleanPatch(input: MatterUpdatePatch): MatterUpdatePatch {
+  const next = { ...input }
+  for (const field of MATTER_TEXT_FIELDS) {
+    const value = next[field]
+    if (value !== undefined) next[field] = value.trim() || undefined
+  }
+  return next
+}
+
 export const matterRepository = {
   list(): Matter[] {
     return matters.list().slice().sort((a, b) => b.updatedAt - a.updatedAt)
@@ -104,6 +115,9 @@ export const matterRepository = {
     const matter: Matter = {
       calmyId: createEntityId(), title: assertTitle(input.title), why: input.why?.trim() || '',
       primaryContradiction: input.primaryContradiction?.trim() || '', status: 'active',
+      problem: input.problem?.trim() || undefined, desiredChange: input.desiredChange?.trim() || undefined,
+      progressEvidence: input.progressEvidence?.trim() || undefined, currentGap: input.currentGap?.trim() || undefined,
+      nextTest: input.nextTest?.trim() || undefined, stopCondition: input.stopCondition?.trim() || undefined,
       currentStage: input.currentStage || 'wood', trajectory: input.trajectory || 'stable', evidenceIds: [],
       createdAt: now, updatedAt: now, revision: 1
     }
@@ -118,6 +132,7 @@ export const matterRepository = {
     const current = matters.find(calmyId)
     if (!current) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
     assertRevision(current, meta.expectedRevision)
+    patch = cleanPatch(patch)
     if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
     const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
@@ -159,6 +174,7 @@ async function asyncUpdateMatter(calmyId: string, patch: MatterUpdatePatch, meta
   const current = await asyncMatters.find(calmyId)
   if (!current) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
   assertRevision(current, meta.expectedRevision)
+  patch = cleanPatch(patch)
   if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
   const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
   if (!await asyncMatters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
@@ -200,6 +216,9 @@ export const matterAsyncRepository = {
     const matter: Matter = {
       calmyId: createEntityId(), title: assertTitle(input.title), why: input.why?.trim() || '',
       primaryContradiction: input.primaryContradiction?.trim() || '', status: 'active',
+      problem: input.problem?.trim() || undefined, desiredChange: input.desiredChange?.trim() || undefined,
+      progressEvidence: input.progressEvidence?.trim() || undefined, currentGap: input.currentGap?.trim() || undefined,
+      nextTest: input.nextTest?.trim() || undefined, stopCondition: input.stopCondition?.trim() || undefined,
       currentStage: input.currentStage || 'wood', trajectory: input.trajectory || 'stable', evidenceIds: [],
       createdAt: now, updatedAt: now, revision: 1
     }

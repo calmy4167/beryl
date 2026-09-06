@@ -1,6 +1,6 @@
 # Calmy 统一产品设计包
 
-> 产品设计对齐：2026-08-30。统一产品方向仍以 `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 为准；已完成实现与剩余任务分别以实现总档案和 `OPEN_WORK.md` 为准，当前功能阶段先收口、整体回归后置。
+> 产品设计对齐：2026-09-07。具体决策先服从 `PRODUCT_DECISIONS_2026-08-19.md`，统一产品方向以 `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 为准；已完成实现与剩余任务分别以实现总档案和 `OPEN_WORK.md` 为准。
 
 这组文档把《身在网络，活在现实》、原始产品主档案、2026-08-19 执行文档、2026-08-22 重设计和当前实现放在同一个框架下。统一设计不推翻四入口、Reality 闭环和现有事实源，而是将它们收敛到“保护注意力、尊重身体、返回现实、保留判断权”的 Attention OS。
 
@@ -16,6 +16,9 @@
 - Today 从 Dashboard 进一步收敛为“现在 / 思考 / 轨迹”的 Attention Surface；旧模块仍通过 More 和兼容路由保留。
 - Attention Gate 统一处理“现在行动 / Matter / Record / Seed / 放下”，不新增第二套实体事实源。
 - 身体只采用可跳过的轻量状态，不建立 Health Dashboard；AI 记忆必须区分 Fact、Reflection、AI Inference、Preference 和 Principle。
+- 学习不是独立 Matter、日常 KPI 或自律证明；它是解决具体问题时填补信息或能力缺口的按需行动，必须连回可验证的使用场景。
+- 统一闭环为：现实问题 → 期望变化/证据 → 当前缺口 → 最小必要学习 → 当下应用/验证 → 现实反馈 → 继续、改法或停止。
+- 学习时长、连续天数、收藏量和课程完成率只能是用户自选的诊断信号或外部要求，不能成为默认成功指标。
 
 ## 文件说明
 
@@ -31,5 +34,6 @@
 - [产品决策](PRODUCT_DECISIONS_2026-08-19.md)
 - [产品参考与领域协议](reference/README.md)
 - [原始产品设计源](source/README.md)
+- [Obsidian 思想母本与模块库](../../Obsidian_calmy/README.md)
 
 视觉资产：`assets/calmy-attention-os-ui-v2.png` 是当前设计参考，`assets/calmy-attention-os-ui-v1.png` 是上一版迭代参考；两者均不替代实现验收证据。

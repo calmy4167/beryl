@@ -12,6 +12,13 @@ export interface Matter {
   title: string
   why: string
   primaryContradiction: string
+  /** Problem-driven learning context. Optional for backwards-compatible legacy Matters. */
+  problem?: string
+  desiredChange?: string
+  progressEvidence?: string
+  currentGap?: string
+  nextTest?: string
+  stopCondition?: string
   status: MatterStatus
   currentStage: MatterStage
   trajectory: MatterTrajectory
@@ -26,6 +33,12 @@ export interface MatterCreateInput {
   title: string
   why?: string
   primaryContradiction?: string
+  problem?: string
+  desiredChange?: string
+  progressEvidence?: string
+  currentGap?: string
+  nextTest?: string
+  stopCondition?: string
   currentStage?: MatterStage
   trajectory?: MatterTrajectory
 }
@@ -34,6 +47,12 @@ export interface MatterUpdatePatch {
   title?: string
   why?: string
   primaryContradiction?: string
+  problem?: string
+  desiredChange?: string
+  progressEvidence?: string
+  currentGap?: string
+  nextTest?: string
+  stopCondition?: string
   currentStage?: MatterStage
   trajectory?: MatterTrajectory
   currentCycleId?: string

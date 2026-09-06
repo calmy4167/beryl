@@ -7,6 +7,7 @@ import { compareOpenEntities, compareOpenEntityFields, exportOpenWorkspace, impo
 
 const matter: Matter = {
   calmyId: 'matter-stable-1', title: '处理：供应商/合同？', why: '减少长期不确定性', primaryContradiction: '',
+  problem: '供应商确认反复延迟', desiredChange: '在本周得到可验证的交付承诺', progressEvidence: '确认邮件有明确日期', currentGap: '缺少最小澄清问题', nextTest: '发出三问邮件并记录回复', stopCondition: '得到承诺或决定更换供应商',
   status: 'active', currentStage: 'wood', trajectory: 'stable', evidenceIds: [], createdAt: 1723900000000,
   updatedAt: 1723900001000, revision: 2
 }
