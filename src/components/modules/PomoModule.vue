@@ -92,8 +92,8 @@ onUnmounted(stopTimer)
 
     <el-button type="primary" size="large" class="mt-5 px-10" :aria-label="running ? '暂停番茄钟' : '开始番茄钟'" @click="toggle">{{ running ? '暂停' : (remain === total ? '开始' : '继续') }}</el-button>
     <div class="stat-line">
-      <span>总专注 <b class="font-title amber">{{ minutes }}</b> 分钟</span>
-      <span>番茄 <b class="font-title amber">{{ count }}</b> 个</span>
+      <span>专注段 <b class="font-title amber">{{ count }}</b> 个</span>
+      <span>时间记录 <b class="font-title amber">{{ minutes }}</b> 分钟（可选）</span>
     </div>
   </div>
 </template>

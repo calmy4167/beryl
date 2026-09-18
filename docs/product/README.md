@@ -33,6 +33,7 @@
 - [项目文件架构](../PROJECT_STRUCTURE.md)
 - [产品决策](PRODUCT_DECISIONS_2026-08-19.md)
 - [产品参考与领域协议](reference/README.md)
+- [飞书数据适配与授权协议](reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md)
 - [原始产品设计源](source/README.md)
 - [Obsidian 思想母本与模块库](../../Obsidian_calmy/README.md)
 

@@ -16,7 +16,7 @@ index.html
   → src/react/route-views.tsx（登录、保护路由和兼容视图）
   → React Router + src/react/pages/*（Today、Capture、Matters、Review 等页面状态边界；扩展页保留加载/错误/空结果反馈）
   → src/application + src/domain + src/core
-  → IndexedDB / localStorage 兼容层 / optional sync adapters
+  → IndexedDB / localStorage 兼容层 / optional sync adapters / Feishu Bitable adapter
 ```
 
 `src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 是 Vue 迁移兼容层，不是当前 `index.html` 的生产主入口。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已在 OW-06 第一批清理中移除；其余兼容层暂不直接删除，直到 `docs/product/OPEN_WORK.md` 的 OW-06 完成。
@@ -31,7 +31,7 @@ index.html
 | `src/core/` | 认证、存储、IndexedDB、备份、同步、开放格式、兼容层 | 基础设施，不由页面直接替代 |
 | `src/components/` | Vue/历史共享组件及低频模块组件 | 迁移兼容，按 OW-06/08 清理 |
 | `src/views/` | Vue 旧路由页面 | 迁移兼容 |
-| `backend/` | Cloudflare Worker、D1、同步 API | 可选云端适配器，不是 local-first 核心启动依赖 |
+| `backend/` | Cloudflare Worker、D1、同步 API、飞书多维表格适配器 | 可选云端适配器；飞书凭证只在 Worker 侧保存 |
 | `obsidian-plugin/` | Obsidian 插件和 Vault 适配端 | 外部组件，协议/联调受 OW-13 管理 |
 | `public/` | PWA manifest、图标和静态运行时资源 | 生产静态资源 |
 | `scripts/` | 构建后预缓存和 PWA 校验脚本 | 发布工具 |
@@ -54,10 +54,11 @@ index.html
 
 - `CyclePage`：复用 Matter/Action/Today 数据的五行阶段视图。
 - `ProfilePage`：复用 Reality、场景和现有模块的“我的”聚合页。
+- `FeishuPage`：读取配置后的飞书任务表，提供第一阶段的任务表/看板和最小状态写回；未配置时显示连接边界，不替代本地 Today。
 
 ### 二级/兼容/实验页
 
-`AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `TaskBoardPage` 是现有 Action 的看板视图，`MemoryPage` 是现有 Record/Insight 的治理视图；二者都不新增事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
+`AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`FeishuPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `TaskBoardPage` 是现有 Action 的看板视图，`FeishuPage` 是飞书外部数据的实验前端，`MemoryPage` 是现有 Record/Insight 的治理视图；二者都不新增本地事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
 
 旧 Today/Capture 兼容页面 `LegacyTodayPage`、`LegacyCapturePage` 与当前 Matters/Review/MatterDetail 页面 `MattersPage`、`ReviewPage`、`MatterDetailPage` 分别位于 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 和 `src/react/pages/MatterDetailPage.tsx`，保留原有 Today/Action/Reality Record、Capture/suggestion、Matter 详情与 Review 用例及交互，仅作为页面状态拆分边界；核心生产 Today/Capture/Matters/Review/MatterDetail 路由仍由这些页面组件承担。
 
@@ -69,10 +70,12 @@ React page
   → Domain Command / Policy
   → Async Repository
   → IndexedDB durable snapshot + outbox
-  → optional backup / Markdown / sync / Bridge adapter
+  → optional backup / Markdown / sync / Bridge / Feishu adapter
 ```
 
 核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。React 页面 Reality 查询、扩展页面的直接同步写入和当前 Finance/Inbox 跨仓储 Use Case 已完成第一轮收口；IndexedDB 权威边界的 OW-03 实施切片已完成，具体证据以实现基线和交接档案为准。旧同步 Repository、`src/core/modules.ts` 的同步统计读取和 `beryl-*` 键名只作为迁移兼容，React bootstrap 不注册同步统计 reader；新的核心写入必须经过统一异步边界和保存状态协议。
+
+飞书接入目前属于实验适配层：页面不得直接调用飞书 API，必须经由 `backend/src/routes/feishu.js` 和 `backend/src/lib/feishu.js`；`FEISHU_APP_SECRET` 只能作为 Worker Secret。字段映射使用飞书字段 ID，新增字段可忽略，删除或类型变化必须报告配置问题。具体授权和多人边界见 `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md`。
 
 ## 5. 文档架构
 

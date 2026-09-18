@@ -2,6 +2,10 @@
 
 > 更新日期：2026-09-07 · 目的：明确每份文档的用途、状态和冲突处理方式。
 
+> 全库复核：2026-09-07 已检查 `docs/product/` 与 `Obsidian_calmy/` 共 50 个文件。当前执行统一服从 D-012（问题高于学习）；旧正文、备份、源 DOCX 与设计图片只用于追溯，不得恢复为默认产品行为。
+
+> 同步状态：Obsidian 文档同步工具报告“总文档有变更、模块无变更”；本轮只更新总文档边界说明与产品登记，不执行反向覆盖同步。
+
 ## 状态定义
 
 | 状态 | 含义 |
@@ -49,6 +53,7 @@
 | `docs/product/reference/Calmy_Obsidian_Vault_Adapter协议_2026-08-19.md` | 执行参考 | 浏览器目录适配协议 |
 | `docs/product/reference/Calmy_Obsidian_Companion_Bridge协议_2026-08-19.md` | 执行参考 | 未来 Companion Bridge 契约，不代表真实服务已联调 |
 | `docs/product/reference/Calmy_MVP验证与测试计划_2026-08-19.md` | 执行参考 | 测试维度；发布门槛由本轮路线图补充 |
+| `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md` | 执行参考 | 飞书多维表格接入、授权、字段演进和多人扩展边界；尚不替换 IndexedDB 事实源 |
 | `docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` | 实现快照 | 能力和验证证据，不定义产品范围 |
 | `docs/operations/HANDOFF_2026-08-22.md` | 实现快照 | 当前工程续接上下文 |
 | `docs/history/BERYL_DESIGN_README.md` | 历史参考 | Beryl 旧设计与迁移来源 |

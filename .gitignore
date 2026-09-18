@@ -3,4 +3,6 @@ dist/
 .vite/
 *.tsbuildinfo
 .npmcache/
+backend/.dev.vars
+backend/.env*
 _v1-backup/

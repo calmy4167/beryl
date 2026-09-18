@@ -1,5 +1,7 @@
 # Calmy Obsidian Companion Bridge 协议
 
+> 2026-09-07 对齐：本文件只定义跨应用消息格式与授权边界，不定义学习目标或自律指标；Bridge 不得绕过 Matter、Action、Record 的问题—验证闭环，也不得创建第二套事实源。
+
 ## 定位
 
 Companion Bridge 是 Calmy Web 与 Obsidian 插件之间的消息契约层。

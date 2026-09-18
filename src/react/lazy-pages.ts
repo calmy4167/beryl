@@ -11,6 +11,7 @@ export const GraphPage = lazy(() => import('./pages/GraphPage').then(module => (
 export const InboxPage = lazy(() => import('./pages/InboxPage').then(module => ({ default: module.InboxPage })))
 export const TasksPage = lazy(() => import('./pages/TasksPage').then(module => ({ default: module.TasksPage })))
 export const TaskBoardPage = lazy(() => import('./pages/TaskBoardPage').then(module => ({ default: module.TaskBoardPage })))
+export const FeishuPage = lazy(() => import('./pages/FeishuPage').then(module => ({ default: module.FeishuPage })))
 export const MemoryPage = lazy(() => import('./pages/MemoryPage').then(module => ({ default: module.MemoryPage })))
 export const HabitsPage = lazy(() => import('./pages/HabitsPage').then(module => ({ default: module.HabitsPage })))
 export const FinancePage = lazy(() => import('./pages/FinancePage').then(module => ({ default: module.FinancePage })))

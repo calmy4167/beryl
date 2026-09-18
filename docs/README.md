@@ -18,6 +18,7 @@
 
 - `docs/product/`：当前产品、UI、视觉资产、路线图、评审和唯一未完成清单。
 - `docs/product/reference/`：旧版 MVP、领域模型、协议和测试参考。
+- `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md`：飞书多维表格接入、授权、字段映射和多人扩展边界。
 - `docs/product/source/`：只读原始产品设计 DOCX。
 - `Obsidian_calmy/`：思想母本与模块化扩展语料；库内自身双向同步，但执行裁决仍服从产品决策和统一总设计。
 - `docs/implementation/`：实现事实和验证证据。

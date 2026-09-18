@@ -63,7 +63,7 @@ function longest(h: Habit): number { return maxStreak(h.dates) }
           class="day"
           :class="{ today: w.today, on: hasDate(h, w.key) }"
           :style="hasDate(h, w.key) ? { background: h.color, borderColor: h.color } : {}"
-          :aria-label="`${h.name} ${w.key} ${hasDate(h, w.key) ? '已打卡' : '未打卡'}`"
+          :aria-label="`${h.name} ${w.key} ${hasDate(h, w.key) ? '已记录' : '未记录'}`"
           @click="toggle(h, w.key)"
         >
           <span class="wd">周{{ w.wd }}</span>

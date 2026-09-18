@@ -208,7 +208,7 @@ export function PomoPage() {
           <h1 className="font-title">番茄钟</h1>
           <p>用可调整的专注与休息节奏，把一轮时间落成可追溯的完成记录。</p>
         </div>
-        <span className="load-pill">累计 {stats.minutes} 分钟 · {stats.count} 个</span>
+        <span className="load-pill">已完成 {stats.count} 个专注段 · {stats.minutes} 分钟（可选记录）</span>
       </header>
 
       <section className="beryl-card" style={{ padding: 24, textAlign: 'center' }}>
@@ -257,8 +257,8 @@ export function PomoPage() {
         </div>
 
         <div className="stat-line" style={{ display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap', marginTop: 20, color: 'var(--c-text-2)', fontSize: 12 }}>
-          <span>总专注 <b style={{ color: 'var(--amber)' }}>{stats.minutes}</b> 分钟</span>
-          <span>完成番茄 <b style={{ color: 'var(--amber)' }}>{stats.count}</b> 个</span>
+          <span>专注段 <b style={{ color: 'var(--amber)' }}>{stats.count}</b> 个</span>
+          <span>时间记录 <b style={{ color: 'var(--amber)' }}>{stats.minutes}</b> 分钟（可选）</span>
         </div>
       </section>
 

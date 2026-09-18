@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { withSaveState } from '@/core/save-state'
 import { createAsyncCollectionRepository } from '@/core/repository'
-import { nextId } from '@/core/storage'
+import { nextId, todayKey } from '@/core/storage'
+import { actionAsyncRepository } from '@/domain/action/repository'
 import { listRealityDocumentsAsync } from '@/domain/reality'
+import { matterAsyncRepository } from '@/domain/matter/repository'
+import type { Matter } from '@/domain/matter/model'
 
 type GoalStatus = 'open' | 'done'
 type GoalFilter = 'all' | GoalStatus
@@ -18,6 +21,10 @@ interface StoredGoal {
   done?: boolean
   status?: GoalStatus
   progress?: number
+  problem?: string
+  evidence?: string
+  nextAction?: string
+  matterId?: string
 }
 
 interface GoalItem {
@@ -25,6 +32,10 @@ interface GoalItem {
   title: string
   status: GoalStatus
   progress: number
+  problem?: string
+  evidence?: string
+  nextAction?: string
+  matterId?: string
 }
 
 const goalsRepository = createAsyncCollectionRepository<StoredGoal>('goals', item => item.id)
@@ -59,7 +70,11 @@ async function loadGoals(): Promise<GoalItem[]> {
       id: document.id,
       title: stored?.title?.trim() || document.title,
       status: done || progress === 100 ? 'done' : 'open',
-      progress
+      progress,
+      problem: stored?.problem?.trim() || document.problem,
+      evidence: stored?.evidence?.trim() || document.evidence,
+      nextAction: stored?.nextAction?.trim() || document.nextAction,
+      matterId: stored?.matterId || document.matterId
     }
   })
 }
@@ -80,6 +95,11 @@ export function GoalsPage() {
   const [filter, setFilter] = useState<GoalFilter>('all')
   const [query, setQuery] = useState('')
   const [title, setTitle] = useState('')
+  const [problem, setProblem] = useState('')
+  const [evidence, setEvidence] = useState('')
+  const [nextAction, setNextAction] = useState('')
+  const [matterId, setMatterId] = useState('')
+  const [matters, setMatters] = useState<Matter[]>([])
   const [progressDrafts, setProgressDrafts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -87,8 +107,9 @@ export function GoalsPage() {
 
   async function refresh(): Promise<void> {
     try {
-      const nextGoals = await loadGoals()
+      const [nextGoals, nextMatters] = await Promise.all([loadGoals(), matterAsyncRepository.list()])
       setGoals(nextGoals)
+      setMatters(nextMatters.filter(item => item.status !== 'archived'))
       setProgressDrafts(Object.fromEntries(nextGoals.map(goal => [goal.id, goal.progress])))
       setError('')
     } catch (cause) {
@@ -106,7 +127,8 @@ export function GoalsPage() {
     const normalizedQuery = query.trim().toLocaleLowerCase()
     return goals.filter(goal => {
       const matchesFilter = filter === 'all' || goal.status === filter
-      const matchesQuery = !normalizedQuery || goal.title.toLocaleLowerCase().includes(normalizedQuery)
+      const matchesQuery = !normalizedQuery || [goal.title, goal.problem, goal.evidence, goal.nextAction]
+        .filter((value): value is string => !!value).some(value => value.toLocaleLowerCase().includes(normalizedQuery))
       return matchesFilter && matchesQuery
     })
   }, [filter, goals, query])
@@ -122,11 +144,23 @@ export function GoalsPage() {
     }
 
     setSaving(true)
+    const hasNextAction = !!nextAction.trim()
     try {
-      await goalsRepository.create({ id: nextId(), title: value, done: false, status: 'open', progress: 0 })
-      setTitle('')
+      await withSaveState(async () => {
+        await goalsRepository.create({
+          id: nextId(), title: value, done: false, status: 'open', progress: 0,
+          problem: problem.trim() || undefined,
+          evidence: evidence.trim() || undefined,
+          nextAction: nextAction.trim() || undefined,
+          matterId: matterId || undefined
+        })
+        if (nextAction.trim()) {
+          await actionAsyncRepository.create({ title: nextAction.trim(), date: todayKey(), matterId: matterId || undefined })
+        }
+      })
+      setTitle(''); setProblem(''); setEvidence(''); setNextAction(''); setMatterId('')
       await refresh()
-      toast('目标已添加 🥅')
+      toast(hasNextAction ? '目标已添加，下一步行动已加入 Today' : '目标已添加 🥅')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标添加失败', 'error')
     } finally {
@@ -216,6 +250,15 @@ export function GoalsPage() {
           />
           <button className="primary" type="submit" disabled={saving}>{saving ? '保存中…' : '添加目标'}</button>
         </form>
+        <div className="goal-context-fields">
+          <textarea aria-label="目标对应问题" value={problem} onChange={event => setProblem(event.target.value)} placeholder="它正在解决什么现实问题？（可选）" disabled={saving} />
+          <textarea aria-label="目标证据" value={evidence} onChange={event => setEvidence(event.target.value)} placeholder="什么证据说明它正在发生变化？（可选）" disabled={saving} />
+          <textarea aria-label="目标下一步行动" value={nextAction} onChange={event => setNextAction(event.target.value)} placeholder="下一步准备在现实中做什么？（可选）" disabled={saving} />
+          <select aria-label="目标关联 Matter" value={matterId} onChange={event => setMatterId(event.target.value)} disabled={saving}>
+            <option value="">不关联 Matter</option>
+            {matters.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}
+          </select>
+        </div>
       </section>
 
       <section className="beryl-card admin-block">
@@ -253,6 +296,12 @@ export function GoalsPage() {
                       <h3 className={goal.status === 'done' ? 'done' : ''}>{goal.title}</h3>
                       <span className="load-pill">{statusLabel(goal.status)}</span>
                     </div>
+                    {(goal.problem || goal.evidence || goal.nextAction || goal.matterId) && <div className="goal-context-summary">
+                      {goal.problem && <small>问题：{goal.problem}</small>}
+                      {goal.evidence && <small>证据：{goal.evidence}</small>}
+                      {goal.nextAction && <small>下一步：{goal.nextAction}</small>}
+                      {goal.matterId && <small>Matter：{matters.find(item => item.calmyId === goal.matterId)?.title || goal.matterId}</small>}
+                    </div>}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       <input
                         aria-label={`${goal.title} 进度`}

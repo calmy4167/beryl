@@ -51,6 +51,9 @@ export interface RealityDocument {
   priority?: string
   dueAt?: string
   done?: boolean
+  problem?: string
+  evidence?: string
+  nextAction?: string
   sourceIndex?: number
   amount?: number
   amountCents?: number
@@ -147,7 +150,11 @@ function coreSummary(entity: CoreEntity): string {
 }
 
 function document(input: Omit<RealityDocument, 'searchText' | 'calmyId'>): RealityDocument {
-  return { ...input, calmyId: input.id, searchText: normalize([input.title, input.summary, input.body].filter(Boolean).join(' ')) }
+  return {
+    ...input,
+    calmyId: input.id,
+    searchText: normalize([input.title, input.summary, input.body, input.problem, input.evidence, input.nextAction].filter(Boolean).join(' '))
+  }
 }
 
 function legacyDocuments(): RealityDocument[] {
@@ -224,15 +231,16 @@ function legacyDocuments(): RealityDocument[] {
     route: '/app/module/chars', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date,
     name: item.name, charTitle: item.title
   }))
-  const rawGoals = store.get<Array<{ id?: string; title?: string; done?: boolean }>>('goals', [])
+  const rawGoals = store.get<Array<{ id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string }>>('goals', [])
   const goals = (Array.isArray(rawGoals) ? rawGoals : []).filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'goal', title: item.title!.trim(), summary: item.done ? 'done · 目标' : 'open · 目标',
-    route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done
+    route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done,
+    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId
   }))
   const pomoMinutes = Number(store.get('pomoTotal', 0)) || 0
   const pomoCount = Number(store.get('pomoCount', 0)) || 0
   const pomo = document({
-    id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${pomoMinutes} 分钟 · ${pomoCount} 个`, route: '/app/module/pomo', updatedAt: 0,
+    id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${pomoCount} 个专注段 · ${pomoMinutes} 分钟（可选记录）`, route: '/app/module/pomo', updatedAt: 0,
     minutes: pomoMinutes, count: pomoCount
   })
   const rawMoments = store.get<Array<{ id?: string; author?: { name?: string }; content?: string; visibility?: string; createdAt?: number; updatedAt?: number; comments?: unknown[]; likedBy?: unknown[] }>>('moments', [])
@@ -323,7 +331,7 @@ type LegacyPost = { id?: string; title?: string; content?: string; date?: string
 type LegacyFinance = { id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string }
 type LegacyHabit = { id?: string; name?: string; color?: string; days?: number; dates?: string[] }
 type LegacyChar = { id?: string; name?: string; title?: string; date?: string }
-type LegacyGoal = { id?: string; title?: string; done?: boolean }
+type LegacyGoal = { id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string }
 type LegacyMoment = { id?: string; author?: { name?: string }; content?: string; visibility?: string; createdAt?: number; updatedAt?: number; comments?: unknown[]; likedBy?: unknown[] }
 
 const asyncTasks = createAsyncCollectionRepository<LegacyTask>('tasks', item => item.id)
@@ -409,9 +417,10 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
   }))
   const goalDocuments = goals.filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'goal', title: item.title!.trim(), summary: item.done ? 'done · 目标' : 'open · 目标',
-    route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done
+    route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done,
+    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId
   }))
-  const pomoDocument = document({ id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${Number(pomoMinutes) || 0} 分钟 · ${Number(pomoCount) || 0} 个`,
+  const pomoDocument = document({ id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${Number(pomoCount) || 0} 个专注段 · ${Number(pomoMinutes) || 0} 分钟（可选记录）`,
     route: '/app/module/pomo', updatedAt: 0, minutes: Number(pomoMinutes) || 0, count: Number(pomoCount) || 0 })
   const momentDocuments = moments.filter(item => item.id && item.content?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'moment', title: item.author?.name || '动态', summary: item.content!.slice(0, 120), body: item.content,

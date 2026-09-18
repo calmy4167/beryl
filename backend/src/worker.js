@@ -2,6 +2,7 @@ import { authorized, hashPassword } from './lib/auth.js';
 import { corsHeaders, json } from './lib/http.js';
 import { ensureSchema, getAuthHash, maxTs } from './lib/d1.js';
 import { handleEntityPull, handleEntityPush, handleSyncPull, handleSyncPush } from './routes/sync.js';
+import { handleFeishuRecordCreate, handleFeishuRecordUpdate, handleFeishuRecords, handleFeishuSchema, handleFeishuStatus } from './routes/feishu.js';
 
 /**
  * Beryl 云端 API — 独立 Cloudflare Worker（v2 阶段 4）
@@ -77,6 +78,13 @@ export default {
     if (p === '/api/sync/push' && request.method === 'POST') { const r = await handleSyncPush(request, env); return respond(r.body, r.status || 200); }
     if (p === '/api/entity-sync/pull' && request.method === 'POST') { const r = await handleEntityPull(request, env); return respond(r.body, r.status || 200); }
     if (p === '/api/entity-sync/push' && request.method === 'POST') { const r = await handleEntityPush(request, env); return respond(r.body, r.status || 200); }
+
+    /* Feishu Bitable adapter: the Worker keeps credentials server-side and exposes only the configured table boundary. */
+    if (p === '/api/feishu/status' && request.method === 'GET') { const r = await handleFeishuStatus(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/feishu/schema' && request.method === 'GET') { const r = await handleFeishuSchema(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/feishu/records' && request.method === 'GET') { const r = await handleFeishuRecords(request, env); return respond(r.body, r.status || 200); }
+    if (p === '/api/feishu/records' && request.method === 'POST') { const r = await handleFeishuRecordCreate(request, env); return respond(r.body, r.status || 200); }
+    if (p.startsWith('/api/feishu/records/') && request.method === 'PUT') { const r = await handleFeishuRecordUpdate(request, env); return respond(r.body, r.status || 200); }
 
     /* 旧协议兼容：全量快照读写（旧前端/工具仍可用） */
     if (p === '/api/data') {

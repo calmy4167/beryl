@@ -11,3 +11,12 @@ database_id = "bcc40cef-b196-4203-8d9a-cb46e2d64a93"
 [vars]
 # 填入实际 Pages/自定义域名（多个来源用英文逗号分隔）。空值仅为本地开发兼容，生产必须设置。
 FRONTEND_ORIGINS = "https://beryl-ddk.pages.dev"
+# 飞书配置：App Secret 使用 Cloudflare Secret，不要写入此文件。
+# FEISHU_APP_ID = "cli_..."
+# FEISHU_BASE_TOKEN = "..."
+# FEISHU_TABLE_PROJECTS = "tbl..."
+# FEISHU_TABLE_TASKS = "tbl..."
+# FEISHU_TABLE_REVIEWS = "tbl..."
+# FEISHU_VIEW_PROJECTS = "vew..."
+# FEISHU_VIEW_TASKS = "vew..."
+# FEISHU_VIEW_REVIEWS = "vew..."
