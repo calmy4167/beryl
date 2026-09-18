@@ -10,7 +10,7 @@ import { withSaveState } from '@/core/save-state'
 import { Button, PageHead } from '../ui'
 import '../flow.css'
 
-type FlowItem = { entity: Seed | Resource; kind: 'seed' | 'resource' }
+type FlowItem = { entity: Seed; kind: 'seed' } | { entity: Resource; kind: 'resource' }
 type FlowMode = 'focus' | 'wander' | 'solve' | 'echo' | 'topic'
 const flowModes: Array<{ value: FlowMode; label: string; hint: string }> = [
   { value: 'focus', label: 'Focus', hint: '只看一条' },

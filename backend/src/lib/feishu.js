@@ -24,11 +24,13 @@ export function readFeishuConfig(env) {
       projects: value(env, 'FEISHU_TABLE_PROJECTS'),
       tasks: value(env, 'FEISHU_TABLE_TASKS') || value(env, 'FEISHU_TABLE_ID'),
       reviews: value(env, 'FEISHU_TABLE_REVIEWS'),
+      members: value(env, 'FEISHU_TABLE_MEMBERS'),
     },
     views: {
       projects: value(env, 'FEISHU_VIEW_PROJECTS'),
       tasks: value(env, 'FEISHU_VIEW_TASKS'),
       reviews: value(env, 'FEISHU_VIEW_REVIEWS'),
+      members: value(env, 'FEISHU_VIEW_MEMBERS'),
     },
   }
 }
@@ -57,7 +59,7 @@ function requireConfig(env) {
 
 function tableIdFor(config, tableKey) {
   const key = String(tableKey || '').trim()
-  const tableId = config.tables[key]
+  const tableId = Object.hasOwn(config.tables, key) ? config.tables[key] : ''
   if (!tableId) throw new FeishuApiError(`未配置飞书数据表：${key || '未指定'}`, 400, 'FEISHU_TABLE_NOT_CONFIGURED')
   return tableId
 }
@@ -105,7 +107,7 @@ async function callFeishu(env, path, init = {}) {
   }
   const payload = await response.json().catch(() => null)
   if (!response.ok || !payload || Number(payload.code) !== 0) {
-    throw new FeishuApiError(payload?.msg || '飞书数据请求失败', response.status >= 400 ? 502 : response.status, `FEISHU_${payload?.code || response.status}`)
+    throw new FeishuApiError(payload?.msg || '飞书数据请求失败', 502, `FEISHU_${payload?.code || response.status}`)
   }
   return payload.data || {}
 }

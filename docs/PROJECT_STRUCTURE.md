@@ -54,7 +54,7 @@ index.html
 
 - `CyclePage`：复用 Matter/Action/Today 数据的五行阶段视图。
 - `ProfilePage`：复用 Reality、场景和现有模块的“我的”聚合页。
-- `FeishuPage`：读取配置后的飞书任务表，提供第一阶段的任务表/看板和最小状态写回；未配置时显示连接边界，不替代本地 Today。
+- `FeishuPage`：读取配置后的飞书项目、任务、周报与成员表；任务提供看板、新增和最小状态写回，其余表先只读；未配置时显示连接边界，不替代本地 Today。
 
 ### 二级/兼容/实验页
 
@@ -75,7 +75,7 @@ React page
 
 核心页面不得直接把 `localStorage`、D1、Vault 或同步协议当作业务事实源。React 页面 Reality 查询、扩展页面的直接同步写入和当前 Finance/Inbox 跨仓储 Use Case 已完成第一轮收口；IndexedDB 权威边界的 OW-03 实施切片已完成，具体证据以实现基线和交接档案为准。旧同步 Repository、`src/core/modules.ts` 的同步统计读取和 `beryl-*` 键名只作为迁移兼容，React bootstrap 不注册同步统计 reader；新的核心写入必须经过统一异步边界和保存状态协议。
 
-飞书接入目前属于实验适配层：页面不得直接调用飞书 API，必须经由 `backend/src/routes/feishu.js` 和 `backend/src/lib/feishu.js`；`FEISHU_APP_SECRET` 只能作为 Worker Secret。字段映射使用飞书字段 ID，新增字段可忽略，删除或类型变化必须报告配置问题。具体授权和多人边界见 `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md`。
+飞书接入目前属于实验适配层：页面不得直接调用飞书 API，必须经由 `backend/src/routes/feishu.js` 和 `backend/src/lib/feishu.js`；`FEISHU_APP_SECRET` 只能作为 Worker Secret。当前 UI 按已校准字段名读取并兼容任务标题别名，Worker 可读取 schema；新增字段可忽略，任意字段改名、删除或类型变化的自动兼容仍是 OW-19 的后续工作，正式化时需要固化字段 ID 映射与配置错误反馈。具体授权、多人边界和用户手动部署步骤见 `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md`。
 
 ## 5. 文档架构
 
