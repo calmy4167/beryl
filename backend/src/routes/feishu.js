@@ -1,5 +1,5 @@
 import { authorized } from '../lib/auth.js'
-import { FeishuApiError, createFeishuRecord, feishuStatus, listFeishuFields, listFeishuRecords, updateFeishuRecord } from '../lib/feishu.js'
+import { FeishuApiError, createFeishuRecord, feishuStatus, feishuWorkspaceId, listFeishuFields, listFeishuRecords, updateFeishuRecord } from '../lib/feishu.js'
 import { ensureSchema, getAuthHash } from '../lib/d1.js'
 
 async function guard(request, env) {
@@ -16,7 +16,7 @@ function errorResponse(cause) {
 
 export async function handleFeishuStatus(request, env) {
   const denied = await guard(request, env); if (denied) return denied
-  return { body: { ok: true, ...feishuStatus(env) }, status: 200 }
+  return { body: { ok: true, ...feishuStatus(env), workspaceId: await feishuWorkspaceId(env) }, status: 200 }
 }
 
 export async function handleFeishuSchema(request, env) {

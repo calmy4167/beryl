@@ -116,7 +116,20 @@ FEISHU_TABLE_MEMBERS=tbloPcZ8ZDK3byDc
 
 ## 7. 交付状态与手动部署
 
-截至本次交付：四张真实飞书表均已验证可读；前端生产构建、Worker dry-run 和 6 项本地飞书接口测试通过；前端与 Worker 产物已检查不包含 App Secret。新增及状态写回只进行了本地模拟测试，尚未修改真实飞书记录。本次不执行远端部署，部署由用户完成。
+### 配置状态的排查顺序
+
+浏览器不能读取本机 `backend/.dev.vars`。如果页面提示“需要 App ID、App Secret 和 Base Token”，先在本机确认配置存在，再把配置上传到**正在使用的同一个 `beryl-api` Worker**，最后重新发布 Worker；只发布 Pages 不会改变 Worker 环境变量。设置与同步里的 Cloudflare 地址也必须指向该 Worker 地址，不能填写 Pages 地址。
+
+```powershell
+npx wrangler login
+npx wrangler secret bulk backend/.dev.vars --config backend/wrangler.toml
+npm run deploy:api
+npm run build
+```
+
+部署后，在设置与同步中先连接 Worker，再打开飞书工作台。当前 Worker 状态检查只返回“是否配置”的布尔结果，不返回任何 App Secret 或 Token；如果仍提示缺失，说明检查的 Worker 不是刚刚上传配置的 Worker，或线上发布没有成功。
+
+截至本次交付：四张真实飞书表均已验证可读；前端生产构建、Worker dry-run 和 6 项本地飞书接口测试通过；前端与 Worker 产物已检查不包含 App Secret。新增及状态写回只进行了本地模拟测试，尚未修改真实飞书记录。本次不执行远端部署，部署由用户完成。核心页面的飞书来源切换、Today 引用和 15 秒前台刷新已加入本地代码，仍须在用户部署后验收。
 
 需要更新后端 Worker 与前端 Pages 两部分。本地 `.dev.vars` 已包含四张表的配置，可以直接将其中的飞书配置上传为 Worker Secrets，命令不输出值：
 

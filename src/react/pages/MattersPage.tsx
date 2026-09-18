@@ -3,6 +3,8 @@ import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
 import { withSaveState } from '@/core/save-state'
 import { Button, PageHead } from '../ui'
+import { WorkspacePage } from '../feishu-workspace'
+import { FeishuBoardView } from '../FeishuWorkspaceViews'
 
 const matterStatusLabels: Record<Matter['status'], string> = { draft: '草稿', active: '进行中', paused: '已暂停', archived: '已结束' }
 const trajectoryLabels: Record<Matter['trajectory'], string> = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路', lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知' }
@@ -12,6 +14,10 @@ type ProblemDrivenFields = Pick<Matter, 'problem' | 'desiredChange' | 'progressE
 const emptyProblemDrivenFields: ProblemDrivenFields = { problem: '', desiredChange: '', progressEvidence: '', currentGap: '', nextTest: '', stopCondition: '' }
 
 export function MattersPage() {
+  return <WorkspacePage local={<LocalMattersPage />} feishu={<FeishuBoardView initialTable="projects" />} />
+}
+
+function LocalMattersPage() {
   const [items, setItems] = useState<Matter[]>([])
   const [title, setTitle] = useState('')
   const [why, setWhy] = useState('')

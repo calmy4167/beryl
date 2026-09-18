@@ -49,6 +49,14 @@ export function feishuStatus(env) {
   }
 }
 
+// Opaque identity for browser-local mappings and record references; no credentials returned.
+export async function feishuWorkspaceId(env) {
+  const config = readFeishuConfig(env)
+  const bytes = new TextEncoder().encode(JSON.stringify([config.appId, config.baseToken, config.tables]))
+  const digest = await crypto.subtle.digest('SHA-256', bytes)
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
+}
+
 function requireConfig(env) {
   const config = readFeishuConfig(env)
   if (!config.appId || !config.appSecret || !config.baseToken) {

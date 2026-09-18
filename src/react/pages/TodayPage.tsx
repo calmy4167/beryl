@@ -10,6 +10,8 @@ import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayLoad, TodayPlan } from '@/domain/today/model'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import type { NegativeRecordImpact } from '@/domain/record/model'
+import { WorkspacePage } from '../feishu-workspace'
+import { FeishuTodayView } from '../FeishuWorkspaceViews'
 
 const date = todayKey()
 const bodyStates: Array<{ value: TodayLoad; label: string; hint: string }> = [
@@ -34,6 +36,10 @@ function loadNarrative(load: TodayLoad | null, primary: ActionItem | undefined):
 }
 
 export function TodayPage() {
+  return <WorkspacePage local={<LocalTodayPage />} feishu={<FeishuTodayView />} />
+}
+
+function LocalTodayPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

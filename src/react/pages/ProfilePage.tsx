@@ -22,6 +22,11 @@ interface ProfileModule {
 
 const PROFILE_MODULES: readonly ProfileModule[] = [
   {
+    id: 'feishu', icon: '▤', label: '飞书工作台',
+    description: '飞书项目、任务、周报与成员；任务直接写回飞书',
+    route: '/app/feishu', countMode: 'none',
+  },
+  {
     id: 'today',
     icon: '⌂',
     label: 'Today',

@@ -6,6 +6,8 @@ import { actionAsyncRepository } from '@/domain/action/repository'
 import type { ActionItem, ActionStatus } from '@/domain/action/model'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
+import { WorkspacePage } from '../feishu-workspace'
+import { FeishuBoardView } from '../FeishuWorkspaceViews'
 
 type BoardFilter = 'all' | 'active' | 'today'
 
@@ -40,6 +42,10 @@ function isTerminal(status: ActionStatus): boolean {
 }
 
 export function TaskBoardPage() {
+  return <WorkspacePage local={<LocalTaskBoardPage />} feishu={<FeishuBoardView />} />
+}
+
+function LocalTaskBoardPage() {
   const navigate = useNavigate()
   const [actions, setActions] = useState<ActionItem[]>([])
   const [matters, setMatters] = useState<Matter[]>([])

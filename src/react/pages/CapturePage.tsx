@@ -3,6 +3,8 @@ import { decideCapture, captureText, type CaptureDecision } from '@/application'
 import { withSaveState } from '@/core/save-state'
 import { captureAsyncRepository } from '@/domain/capture'
 import type { AiSuggestion, CaptureItem } from '@/domain/capture'
+import { WorkspacePage } from '../feishu-workspace'
+import { FeishuCaptureView } from '../FeishuWorkspaceViews'
 
 const decisionOptions: Array<{ value: CaptureDecision; label: string; hint: string }> = [
   { value: 'action', label: '现在行动', hint: '形成一条可执行的下一步' },
@@ -26,6 +28,10 @@ function suggestionText(item: AiSuggestion): string {
 }
 
 export function CapturePage() {
+  return <WorkspacePage local={<LocalCapturePage />} feishu={<FeishuCaptureView />} />
+}
+
+function LocalCapturePage() {
   const [body, setBody] = useState('')
   const [captures, setCaptures] = useState<CaptureItem[]>([])
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([])

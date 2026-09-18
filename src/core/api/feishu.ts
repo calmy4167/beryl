@@ -29,7 +29,23 @@ export interface FeishuStatus {
   appSecretConfigured: boolean
   baseTokenConfigured: boolean
   tables: Record<FeishuTableKey, boolean>
+  workspaceId?: string
 }
+
+export interface FeishuField {
+  field_id: string
+  field_name: string
+  type: number
+  property?: { options?: Array<{ name: string; id?: string }> }
+}
+
+export interface FeishuSchema {
+  ok: boolean
+  tables: Partial<Record<FeishuTableKey, { items?: FeishuField[] }>>
+}
+
+export type FeishuRecord = NonNullable<FeishuRecordResponse['items']>[number]
+export interface FeishuWriteResponse { ok: boolean; record?: FeishuRecord }
 
 export interface FeishuRecordResponse<T = Record<string, unknown>> {
   ok: boolean
@@ -43,7 +59,7 @@ export function getFeishuStatus(config: FeishuClientConfig): Promise<FeishuStatu
   return request<FeishuStatus>(config, '/api/feishu/status')
 }
 
-export function getFeishuSchema(config: FeishuClientConfig, tables: FeishuTableKey[] = ['projects', 'tasks', 'reviews', 'members']): Promise<unknown> {
+export function getFeishuSchema(config: FeishuClientConfig, tables: FeishuTableKey[] = ['projects', 'tasks', 'reviews', 'members']): Promise<FeishuSchema> {
   return request(config, `/api/feishu/schema?tables=${encodeURIComponent(tables.join(','))}`)
 }
 
@@ -69,7 +85,7 @@ export async function listAllFeishuRecords<T = Record<string, unknown>>(config: 
   return { ok: true, items, has_more: false, total: items.length }
 }
 
-export function createFeishuRecord(config: FeishuClientConfig, table: FeishuTableKey, fields: Record<string, unknown>): Promise<unknown> {
+export function createFeishuRecord(config: FeishuClientConfig, table: FeishuTableKey, fields: Record<string, unknown>): Promise<FeishuWriteResponse> {
   return request(config, `/api/feishu/records?table=${encodeURIComponent(table)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -77,7 +93,7 @@ export function createFeishuRecord(config: FeishuClientConfig, table: FeishuTabl
   })
 }
 
-export function updateFeishuRecord(config: FeishuClientConfig, table: FeishuTableKey, recordId: string, fields: Record<string, unknown>): Promise<unknown> {
+export function updateFeishuRecord(config: FeishuClientConfig, table: FeishuTableKey, recordId: string, fields: Record<string, unknown>): Promise<FeishuWriteResponse> {
   return request(config, `/api/feishu/records/${encodeURIComponent(recordId)}?table=${encodeURIComponent(table)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
