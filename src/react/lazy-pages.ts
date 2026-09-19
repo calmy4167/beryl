@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 
 export const AttentionCapturePage = lazy(() => import('./pages/CapturePage').then(module => ({ default: module.CapturePage })))
+export const FuturePage = lazy(() => import('./pages/FuturePage').then(module => ({ default: module.FuturePage })))
 export const LegacyAdminHost = lazy(() => import('./LegacyAdminHost').then(module => ({ default: module.LegacyAdminHost })))
 export const LibraryPage = lazy(() => import('./pages/LibraryPage').then(module => ({ default: module.LibraryPage })))
 export const ScenePage = lazy(() => import('./pages/ScenePage').then(module => ({ default: module.ScenePage })))

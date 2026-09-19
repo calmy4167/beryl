@@ -1,35 +1,31 @@
-# Calmy 统一产品设计包
+# Calmy 产品设计包
 
-> 产品设计对齐：2026-09-19。具体决策先服从 `PRODUCT_DECISIONS_2026-08-19.md`，统一产品方向以 `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 为准；已完成实现与剩余任务分别以实现总档案和 `OPEN_WORK.md` 为准。
+> 产品设计对齐：2026-09-19。当前产品本体以 `CALMY_PRODUCT_DESIGN_2026-09-19.md` 与 D-018 为准；旧 Attention OS 总稿解释当前实现与迁移约束。已完成实现与剩余任务分别以实现总档案和 `OPEN_WORK.md` 为准。
 
-这组文档把《身在网络，活在现实》、原始产品主档案、2026-08-19 执行文档、2026-08-22 重设计和当前实现放在同一个框架下。统一设计不推翻四入口、Reality 闭环和现有事实源，而是将它们收敛到“保护注意力、尊重身体、返回现实、保留判断权”的 Attention OS。
+Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与世界之间的反思层”。迁移不会直接删除旧数据和稳定实现，而是先验证自然语言处境、未来回望、外部工具上下文和现实反馈的完整体验。
 
 ## 当前裁决
 
-- 产品只承诺一条首版闭环：捕捉现实、建立课题、选出今日最小行动、记录真实结果、调整下一步。
-- 主导航收敛为 `Today / Capture / Matters / Review`；全局搜索作为工具，不作为主页面。
-- People、Library、Calendar 为二级上下文；Graph、共享空间、场景、十神工具箱和旧模块退出默认体验。
-- 五行、Cycle、Stage、Trajectory 保留为领域能力，但默认用自然语言和渐进披露呈现。
+- 产品从“我正在面对什么”出发，不要求用户先建立项目、任务或 Matter。
+- 日常内容快速略过、留下或行动；只有高代价、低可逆和长期影响的处境进入深度反思。
+- 未来回望同时呈现做与不做可能带来的后悔和庆幸，不能用恐惧推动用户服从。
+- Word、Excel、IDE、Obsidian、Calendar、浏览器和通信工具负责专业工作；Calmy 保存它们与人、处境和决定之间的上下文。
+- 唯识及其他思想影响数据结构和 AI 理解，不成为用户必须学习的页面概念。
+- 长期模式和方向从有来源的经历中被观察出来，不由用户手工创建，也不能成为人格标签。
+- `Today / Capture / Matters / Review`、Matter、Action、Record、Cycle、Stage、Trajectory 等暂为迁移兼容层；后续去留服从 OW-21 的验证和迁移设计。
 - 在 React 生产主路径及仍纳入发布范围的扩展页面完成异步持久化边界、真实离线恢复和人工可访问性检查前，不宣称“完整实现”；Vue 兼容层的退出由 OW-06 单独管理。
-- 沉浸流 / Flow 作为受控二级能力整合：用于把用户已有内容在合适时机重新带回现实语境，不替代核心四页、不默认无限浏览、不以停留和消费量作为目标。
-- Flow 的来源、统一 Seed 模型、四种模式、自然退出、反沉迷和现实行动验收已经纳入产品主文档、UX 文档和路线图。
-- Today 从 Dashboard 进一步收敛为“现在 / 思考 / 轨迹”的 Attention Surface；旧模块仍通过 More 和兼容路由保留。
-- Attention Gate 统一处理“现在行动 / Matter / Record / Seed / 放下”，不新增第二套实体事实源。
-- 身体只采用可跳过的轻量状态，不建立 Health Dashboard；AI 记忆必须区分 Fact、Reflection、AI Inference、Preference 和 Principle。
-- 学习不是独立 Matter、日常 KPI 或自律证明；它是解决具体问题时填补信息或能力缺口的按需行动，必须连回可验证的使用场景。
-- 统一闭环为：现实问题 → 期望变化/证据 → 当前缺口 → 最小必要学习 → 当下应用/验证 → 现实反馈 → 继续、改法或停止。
-- 学习时长、连续天数、收藏量和课程完成率只能是用户自选的诊断信号或外部要求，不能成为默认成功指标。
 - 设置与同步以 `/app/admin` 为唯一主入口，集中展示备份、同步、Vault 与实体迁移；旧 `/app/admin/advanced` 仅为兼容地址，不能再形成第二套设置体验。
 
-## 下一阶段规划提案
+## 外部数据源规划
 
-[飞书生活工作台规划](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)对应 D-014（proposed）：飞书保存主数据，Calmy 收敛为今天、项目、回顾与全局快速新建。重点先做字段映射、真实读写、今日选择和保存反馈；成员账号、完整离线编辑和高级 AI 后置。该提案尚不替换当前四入口或 IndexedDB 本地主事实源。
+[飞书生活工作台规划](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)对应 D-014（proposed）：飞书保存主数据，Calmy 提供更轻的访问与回顾。该提案形成于 D-018 之前，继续作为外部数据源与减少重复维护的参考，不定义新产品导航；当前四入口仍是兼容实现，IndexedDB 事实源边界保持不变。
 
 [飞书官方能力同步清单](FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md)对应 D-016：记录飞书多维表格官方能力、Calmy 适配状态、验收标准和后续同步规则。
 
 ## 文件说明
 
-- [统一产品与体验设计](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
+- [当前产品总设计](CALMY_PRODUCT_DESIGN_2026-09-19.md)
+- [Attention OS 迁移参考](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
 - [文档登记册](DOCUMENT_REGISTER.md)
 - [文档与界面统一审计](DOCUMENT_AUDIT_2026-09-19.md)
 - [旧产品重设计细节](PRODUCT_REDESIGN_2026-08-22.md)
@@ -47,4 +43,4 @@
 - [原始产品设计源](source/README.md)
 - [Obsidian 思想母本与模块库](../../Obsidian_calmy/README.md)
 
-视觉资产：`assets/calmy-attention-os-ui-v2.png` 是当前设计参考，`assets/calmy-attention-os-ui-v1.png` 是上一版迭代参考；两者均不替代实现验收证据。
+视觉资产：`assets/calmy-attention-os-ui-v2.png` 与 V1 均是 Attention OS 阶段的迁移参考；新产品总设计尚无经确认的视觉稿，两者均不代表新方向或实现验收证据。

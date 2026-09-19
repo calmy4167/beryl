@@ -87,7 +87,8 @@ React page
 
 ### 当前产品文档
 
-- `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`：产品定位、Attention OS、信息架构、页面、AI、Flow、数据边界、验收和路线图的统一权威总稿。
+- `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md`：当前产品本体、未来回望、双循环、外部工具边界和迁移原则。
+- `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`：Attention OS、四入口和 Matter 兼容实现的迁移参考，不再定义新增功能的产品本体。
 - `docs/product/PRODUCT_REDESIGN_2026-08-22.md`、`UX_UI_REDESIGN_2026-08-22.md`、`ROADMAP_AND_ACCEPTANCE_2026-08-22.md`：已并入统一总稿的设计细节参考。
 - `docs/product/OPEN_WORK.md`：唯一活跃的未完成工作清单。
 - `docs/product/PRODUCT_DECISIONS_2026-08-19.md`：产品决策、废弃方向和变更纪律。
@@ -112,7 +113,7 @@ React page
 
 ## 6. 文件放置规则
 
-- 新产品和 UX 总体变更：更新 `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`；可执行裁决同时追加到 `PRODUCT_DECISIONS_2026-08-19.md`。
+- 新产品本体和 UX 总体变更：更新 `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md`；可执行裁决同时追加到 `PRODUCT_DECISIONS_2026-08-19.md`。只有涉及当前 Attention OS 兼容行为时，才同步更新旧统一设计。
 - 新未完成事项：只写入 `docs/product/OPEN_WORK.md`，不要新增临时任务文档。
 - 新领域约束：更新 `docs/product/reference/` 中对应领域/协议参考，并在登记册标明来源。
 - 新实现证据：更新实现总档案或迁移快照，不把完成项复制回活跃待办。

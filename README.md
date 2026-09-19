@@ -1,20 +1,21 @@
-# Calmy Personal OS
+# Calmy
 
-Calmy 是一个 local-first 的 Attention OS：帮助人保护注意力、看见身体与现实，从真实问题出发，只学解决问题当下必需的东西，把数字理解转成可验证的现实行动，并在事情结束后沉淀或放下。
+Calmy 是人与世界之间的反思层：帮助人看见自己正在面对什么，在行动之前经历可能的未来，在行动之后看见这段经历把自己变成了什么。
 
 ## 当前文档入口
 
-请从 [`docs/README.md`](docs/README.md) 开始；当前产品与体验总设计见 [`docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`](docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)，“为解决问题而学习”的稳定裁决见 [`docs/product/PRODUCT_DECISIONS_2026-08-19.md`](docs/product/PRODUCT_DECISIONS_2026-08-19.md)。旧产品、UI、Flow、领域和路线图文档保留为来源与细节参考。
+请从 [`docs/README.md`](docs/README.md) 开始；当前产品本体见 [`docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md`](docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md)，产品演进裁决见 [`docs/product/PRODUCT_DECISIONS_2026-08-19.md`](docs/product/PRODUCT_DECISIONS_2026-08-19.md)。旧 Attention OS 总稿保留为当前代码与迁移参考，不再定义新增功能的产品本体。
 
 原始完整产品设计 DOCX 保持只读，位于 `docs/product/source/`；Beryl 历史文档位于 `docs/history/`，工程交接位于 `docs/operations/`，它们都不再定义当前产品。
 
-## 当前产品边界
+## 当前方向与实现边界
 
-- 核心：Today、Capture、Matters、Review。
-- 二级：搜索、People 上下文、Library、Calendar、数据与设置。
+- 产品从“我正在面对什么”出发，通过日常快速处理和重要问题的深度反思连接人、现实、决定、外部工具与结果。
+- “提前后悔”采用平衡的未来回望：同时看见行动与不行动可能带来的后悔和庆幸；模拟是可修改的情境，不是预测。
+- Word、Excel、IDE、Obsidian、Calendar、浏览器和通信工具继续承担专业工作；Calmy 负责保存它们为何与同一个人和处境有关。
+- 当前代码仍以 Today、Capture、Matters、Review 及既有领域对象运行；这些属于迁移兼容层，不能据此推断新总设计已经实现。
 - 设置与同步只有一个主入口：`/#/app/admin`。它集中承载备份、Cloudflare / S3 / 本地文件同步、诊断、Obsidian Vault 与实体迁移；旧 `/#/app/admin/advanced` 只保留兼容地址并显示同一界面。
-- 暂缓/实验：Flow/沉浸流、Graph、关系共享、情侣/家庭场景、旧工具箱模块、高级理论视图、实时双向 Bridge。
-- 永久反目标：不把学习时长、连续天数、课程完成量或“更自律”当成产品价值；学习只作为解决真实问题的按需手段。
+- 不复制成熟专业软件，不把哲学术语做成页面，不让所有日常选择进入深度思考，也不把 AI 模拟或长期模式包装成事实。
 
 当前未完成工作以 [`docs/product/OPEN_WORK.md`](docs/product/OPEN_WORK.md) 为唯一活跃入口；实现证据见 [`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md`](docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)。不得仅凭页面或测试数量宣称产品完整完成。
 
