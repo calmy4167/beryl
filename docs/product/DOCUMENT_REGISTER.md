@@ -37,6 +37,7 @@
 | `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md` | 执行参考 | 旧实施顺序与 Flow 验收细节；当前阶段顺序以统一总稿和 OPEN_WORK 为准 |
 | `docs/product/OPEN_WORK.md` | 当前权威 | 唯一活跃的未完成工作；已完成任务不再重复列入 |
 | `docs/product/FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md` | 规划提案 | D-014：飞书生活工作台、三个默认入口、字段映射、数据归属及分阶段验收；不等同于已实现 |
+| `docs/product/FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md` | 当前权威 | D-016：飞书官方多维表格能力、Calmy 适配状态、持续同步清单和验收规则 |
 | `docs/product/REVIEW_MEETING_2026-08-22.md` | 历史参考 | 2026-08-22 多角色评审、分歧和当时裁决依据 |
 | `docs/product/REACT_MIGRATION_2026-08-23.md` | 实现快照 | React 主入口、Vue 兼容层和迁移事实 |
 | `docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx` | 执行参考 | 理念、领域语义和长期愿景；只读保留 |

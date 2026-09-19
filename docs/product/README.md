@@ -24,6 +24,8 @@
 
 [飞书生活工作台规划](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)对应 D-014（proposed）：飞书保存主数据，Calmy 收敛为今天、项目、回顾与全局快速新建。重点先做字段映射、真实读写、今日选择和保存反馈；成员账号、完整离线编辑和高级 AI 后置。该提案尚不替换当前四入口或 IndexedDB 本地主事实源。
 
+[飞书官方能力同步清单](FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md)对应 D-016：记录飞书多维表格官方能力、Calmy 适配状态、验收标准和后续同步规则。
+
 ## 文件说明
 
 - [统一产品与体验设计](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
@@ -39,6 +41,7 @@
 - [产品参考与领域协议](reference/README.md)
 - [飞书数据适配与授权协议](reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md)
 - [飞书生活工作台规划（提案）](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)
+- [飞书官方能力同步清单](FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md)
 - [原始产品设计源](source/README.md)
 - [Obsidian 思想母本与模块库](../../Obsidian_calmy/README.md)
 

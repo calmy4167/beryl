@@ -110,8 +110,15 @@ export class FeishuWorkspace {
       this.publish({ writeError: `${error}。写回未确认，请先查看飞书后再决定是否重试。` })
       throw cause
     } finally { this.publish({ saving: false }) }
-    if (this.inFlight) await this.inFlight
-    await this.refresh()
+    // The caller applies the confirmed local patch before this background refresh.
+    // Dragging should not wait for all tables and schema to be downloaded again.
+  }
+
+  private patchTaskStatus(recordId: string, status: string): void {
+    const field = (this.snapshot.fields.tasks || []).find(item => item.field_id === this.snapshot.bindings.tasks?.status)
+    if (!field) return
+    const tasks = this.snapshot.tables.tasks.map(record => record.record_id === recordId ? { ...record, fields: { ...record.fields, [field.field_name]: status } } : record)
+    this.publish({ tables: { ...this.snapshot.tables, tasks }, lastRead: Date.now(), writeError: '' })
   }
 
   createTask = async (title: string, projectId = ''): Promise<string> => {
@@ -123,6 +130,7 @@ export class FeishuWorkspace {
       if (!result.record?.record_id) throw new Error('飞书未返回新任务 ID')
       recordId = result.record.record_id
     })
+    void this.refresh()
     return recordId
   }
 
@@ -130,6 +138,8 @@ export class FeishuWorkspace {
     if (!this.snapshot.tables.tasks.some(item => item.record_id === recordId)) throw new Error('任务已不在当前工作区，请刷新。')
     const fields = taskStatusFields(this.snapshot.fields.tasks || [], this.snapshot.bindings.tasks || {}, status)
     await this.write(config => this.remote.update(config, 'tasks', recordId, fields))
+    this.patchTaskStatus(recordId, status)
+    void this.refresh()
   }
 }
 
