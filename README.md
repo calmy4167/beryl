@@ -12,9 +12,12 @@ Calmy 是一个 local-first 的 Attention OS：帮助人保护注意力、看见
 
 - 核心：Today、Capture、Matters、Review。
 - 二级：搜索、People 上下文、Library、Calendar、数据与设置。
+- 设置与同步只有一个主入口：`/#/app/admin`。它集中承载备份、Cloudflare / S3 / 本地文件同步、诊断、Obsidian Vault 与实体迁移；旧 `/#/app/admin/advanced` 只保留兼容地址并显示同一界面。
 - 暂缓/实验：Flow/沉浸流、Graph、关系共享、情侣/家庭场景、旧工具箱模块、高级理论视图、实时双向 Bridge。
 - 永久反目标：不把学习时长、连续天数、课程完成量或“更自律”当成产品价值；学习只作为解决真实问题的按需手段。
 
 当前未完成工作以 [`docs/product/OPEN_WORK.md`](docs/product/OPEN_WORK.md) 为唯一活跃入口；实现证据见 [`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md`](docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)。不得仅凭页面或测试数量宣称产品完整完成。
 
 项目代码和文件职责见 [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md)。
+
+2026-09-19 的文档与界面统一审计见 [`docs/product/DOCUMENT_AUDIT_2026-09-19.md`](docs/product/DOCUMENT_AUDIT_2026-09-19.md)。

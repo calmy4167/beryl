@@ -2,6 +2,8 @@
 
 > 更新日期：2026-09-19 · 目的：明确每份文档的用途、状态和冲突处理方式。
 
+> 2026-09-19 全量校准：当前文档、参考文档、历史文档、Obsidian 模块库、外部组件说明和原型说明均已完成状态审计。结论、范围和未改写的历史材料见 `DOCUMENT_AUDIT_2026-09-19.md`。
+
 > 全库复核：2026-09-07 已检查 `docs/product/` 与 `Obsidian_calmy/` 共 50 个文件。当前执行统一服从 D-012（问题高于学习）；旧正文、备份、源 DOCX 与设计图片只用于追溯，不得恢复为默认产品行为。
 
 > 同步状态：Obsidian 文档同步工具报告“总文档有变更、模块无变更”；本轮只更新总文档边界说明与产品登记，不执行反向覆盖同步。
@@ -29,6 +31,7 @@
 | `docs/PROJECT_STRUCTURE.md` | 当前权威 | 代码入口、目录职责和文件放置规则 |
 | `docs/product/README.md` | 当前权威 | 产品文档包导航和当前裁决入口 |
 | `docs/product/DOCUMENT_REGISTER.md` | 当前权威 | 全部文档/资产的状态登记和冲突处理 |
+| `docs/product/DOCUMENT_AUDIT_2026-09-19.md` | 实现快照 | 2026-09-19 全量文档与界面收敛审计、修订范围和验证记录 |
 | `docs/product/PRODUCT_DECISIONS_2026-08-19.md` | 当前权威 | 已接受决策、废弃方向和变更纪律 |
 | `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` | 当前权威 | 产品定位、Attention OS、信息架构、页面、AI、Flow、数据边界和路线图的统一总稿 |
 | `docs/product/PRODUCT_REDESIGN_2026-08-22.md` | 执行参考 | 旧产品重设计细节；已合并到统一总稿 |
@@ -110,10 +113,10 @@
 - React 生产页面的 Reality 读取已统一走 `listRealityDocumentsAsync`；Review 的 Action / Record 证据查询也走异步 Repository。
 - React 全局搜索已统一走 `searchAllAsync`，搜索结果覆盖 Matter、Action、Record、Person、Capture 和兼容模块，并沿用各实体路由。
 - `listRealityDocuments`、`src/core/modules.ts` 的同步统计读取、`src/main.ts` 和 Vue 页面仍属于迁移兼容层；React bootstrap 不再注册同步统计 reader，不作为 React 新页面的事实查询入口。
-- 生产入口审计已确认 `index.html → src/react/main.tsx → src/react/App.tsx`；未被生产路由引用的 `LegacyVueHost` 已完成第一批清理，Vue 仅通过 `admin/advanced` 的 `LegacyAdminHost` 和同步基础设施保留，React 页面目录不直接依赖 Vue/Vue Router/Element Plus；旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 兼容重定向已由 UI smoke 验证，OW-06 的其余真实路由回归与分批退出仍未完成。
+- 生产入口审计确认 `index.html → src/react/main.tsx → src/react/App.tsx`。D-017 后，`/app/admin` 与兼容地址 `/app/admin/advanced` 都通过 `LegacyAdminHost` 显示同一套完整设置与同步界面；未被生产路由引用的 `LegacyVueHost` 已完成第一批清理。React 页面目录不直接依赖 Vue/Vue Router/Element Plus；旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 兼容重定向已由 UI smoke 验证，OW-06 的其余真实路由回归与分批退出仍未完成。
 - OW-07 已完成九刀：新增 `src/react/lazy-pages.ts` 统一登记 React 扩展页和兼容桥的懒加载边界，将壳层/搜索与共享 Button、页面头部、焦点陷阱分别收口到 `src/react/AppShell.tsx`、`src/react/ui.tsx`，将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`，将登录/保护路由/兼容视图收口到 `src/react/route-views.tsx`，并将旧 Today/Capture/Matters/Review/MatterDetail 页面状态分别移到 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx`；不改变现有 URL、Suspense 或首屏加载行为，剩余页面状态仍待继续拆分。
 - 实体同步拉取已包含本地未上传版本保护、删除墓碑和 durable flush；键级立即同步与启动自动恢复的云端提前返回分支会继续执行实体同步；共享协作异步写入已包含调用方命令 ID 幂等边界。
-- 当前验证基线为 58 个 Vitest 文件、293 个测试通过；Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、类型检查、生产构建、PWA、性能和 UI browser smoke 均通过；UI smoke 已实际验证 React Admin、Vue `admin/advanced` 兼容页加载及返回后的旧桥接卸载，并新增 320px Today/Capture/More 与 CDP 200% page-scale 布局回归。实体值/实体日志原子提交及 pending replay、首次实体同步完整合并确认、实体与键级主同步 pull cursor、push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离、Capture 决策重复提交保护和 OW-08 扩展模块入口矩阵已有回归；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；CDP 视觉视口与 DOM 布局坐标存在模拟边界，真实缩放、端侧/读屏、大字号和异常恢复验收仍保留在 `OPEN_WORK.md` 的 OW-04。
+- 2026-08-29 历史验证基线为 58 个 Vitest 文件、293 个测试通过，其中包括 React Admin 与 Vue `admin/advanced` 两页的加载和卸载检查。设置页已经按 D-017 收敛，当前构建、全量测试和静态无障碍回归结果记录在 `DOCUMENT_AUDIT_2026-09-19.md`；真实缩放、端侧/读屏、大字号和异常恢复验收仍保留在 `OPEN_WORK.md` 的 OW-04。
 
 ## 2026-08-30 功能对齐记录
 

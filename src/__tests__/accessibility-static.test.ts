@@ -15,7 +15,6 @@ const reactApp = source('src/react/App.tsx')
 const reactRoutes = source('src/react/routes.tsx')
 const reactRouteViews = source('src/react/route-views.tsx')
 const reactLazyPages = source('src/react/lazy-pages.ts')
-const reactAdmin = source('src/react/pages/AdminPage.tsx')
 const legacyToday = source('src/react/pages/LegacyTodayPage.tsx')
 const legacyCapture = source('src/react/pages/LegacyCapturePage.tsx')
 const mattersPage = source('src/react/pages/MattersPage.tsx')
@@ -24,7 +23,7 @@ const matterDetailPage = source('src/react/pages/MatterDetailPage.tsx')
 const flowPage = source('src/react/pages/FlowPage.tsx')
 
 const extensionModules = [
-  ['Admin', 'admin'], ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
+  ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
   ['Inbox', 'module/inbox'], ['Tasks', 'module/tasks'], ['Habits', 'module/habits'], ['Finance', 'module/finance'],
   ['Goals', 'module/goals'], ['Pomo', 'module/pomo'], ['Diary', 'module/diary'], ['Posts', 'module/posts'], ['Scene', '/scene']
 ] as const
@@ -121,10 +120,12 @@ describe('静态无障碍语义', () => {
     expect(indexHtml).toContain('<script type="module" src="/src/react/main.tsx"></script>')
     expect(reactApp).toContain("from './lazy-pages'")
     expect(reactLazyPages).toContain("export const LegacyAdminHost = lazy(() => import('./LegacyAdminHost')")
+    expect(reactApp).toContain('admin: <LegacyAdminHost />, advancedAdmin: <LegacyAdminHost />')
+    expect(reactApp).not.toContain('admin: <ReactAdminPage />')
     expect(reactApp).toContain("from './route-views'")
     expect(reactRouteViews).toContain('<p className="form-error" role="alert">{error}</p>')
     expect(reactRoutes).toContain('path="admin" element={lazyView(\'设置与同步\', views.admin)}')
-    expect(reactRoutes).toContain('path="admin/advanced" element={lazyView(\'高级同步工具\', views.advancedAdmin)}')
+    expect(reactRoutes).toContain('path="admin/advanced" element={lazyView(\'设置与同步（兼容地址）\', views.advancedAdmin)}')
     expect(reactApp).not.toContain("import('@/views/")
     expect(reactApp).toContain("export { LegacyTodayPage } from './pages/LegacyTodayPage'")
     expect(legacyToday).toContain('export function LegacyTodayPage')
@@ -149,7 +150,7 @@ describe('静态无障碍语义', () => {
     expect(reactLazyPages).toContain("export const FlowPage = lazy(() => import('./pages/FlowPage')")
     expect(flowPage).toContain('export function FlowPage')
     expect(flowPage).toContain('已足够，结束 Flow')
-    expect(reactAdmin).toContain('aria-label="选择要导入的 JSON 数据文件"')
+    expect(existsSync(resolve(process.cwd(), 'src/react/pages/AdminPage.tsx'))).toBe(false)
     expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
     const reactPagesDir = resolve(process.cwd(), 'src/react/pages')
     const reactPageFiles = readdirSync(reactPagesDir).filter(file => /\.(ts|tsx)$/.test(file))

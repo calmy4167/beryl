@@ -6,6 +6,8 @@ import { inferMatterTrajectory } from '@/domain/trajectory'
 import { unifiedRepository } from '@/domain/unified'
 
 describe('Matter trajectory inference', () => {
+  const windowNow = Date.parse('2026-08-19T12:00:00')
+
   beforeEach(() => localStorage.clear())
 
   it('infers advancing from completed Action and accepted Outcome without changing the declared Matter trajectory', () => {
@@ -14,7 +16,7 @@ describe('Matter trajectory inference', () => {
     actionRepository.complete(action.calmyId, '得到反馈')
     unifiedRepository.createOutcomeForAction({ actionId: action.calmyId, matterId: matter.calmyId, summary: '验证完成', status: 'accepted', evidenceRecordIds: [] })
 
-    const insight = inferMatterTrajectory(matter, 30)
+    const insight = inferMatterTrajectory(matter, 30, windowNow)
 
     expect(insight).toMatchObject({ matterId: matter.calmyId, declaredTrajectory: 'stable', inferredTrajectory: 'advancing', score: 4 })
     expect(insight.evidence.map(item => item.kind)).toEqual(expect.arrayContaining(['action_done', 'outcome']))
@@ -25,9 +27,9 @@ describe('Matter trajectory inference', () => {
     const matter = matterRepository.create({ title: '需要收缩的事项' })
     const action = actionRepository.create({ title: '暂缓推进', date: '2026-08-19', matterId: matter.calmyId })
     actionRepository.skip(action.calmyId, '容量不足')
-    recordRepository.createNegative({ body: '今天因为过载逃避了关键步骤', matterId: matter.calmyId, impact: 'escape', occurredAt: Date.now() })
+    recordRepository.createNegative({ body: '今天因为过载逃避了关键步骤', matterId: matter.calmyId, impact: 'escape', occurredAt: windowNow })
 
-    const insight = inferMatterTrajectory(matter, 30)
+    const insight = inferMatterTrajectory(matter, 30, windowNow)
 
     expect(insight.inferredTrajectory).toBe('retreating')
     expect(insight.negativeWeight).toBe(3)
@@ -38,15 +40,15 @@ describe('Matter trajectory inference', () => {
     const matter = matterRepository.create({ title: '方向分叉事项' })
     const action = actionRepository.create({ title: '完成一半', date: '2026-08-19', matterId: matter.calmyId })
     actionRepository.complete(action.calmyId)
-    recordRepository.createNegative({ body: '同时出现明显退缩', matterId: matter.calmyId, impact: 'retreat', occurredAt: Date.now() })
+    recordRepository.createNegative({ body: '同时出现明显退缩', matterId: matter.calmyId, impact: 'retreat', occurredAt: windowNow })
 
-    expect(inferMatterTrajectory(matter, 30)).toMatchObject({ inferredTrajectory: 'diverging', score: 0 })
+    expect(inferMatterTrajectory(matter, 30, windowNow)).toMatchObject({ inferredTrajectory: 'diverging', score: 0 })
   })
 
   it('keeps an evidence-free Matter stable with low confidence', () => {
     const matter = matterRepository.create({ title: '尚无证据' })
 
-    const insight = inferMatterTrajectory(matter, 30)
+    const insight = inferMatterTrajectory(matter, 30, windowNow)
 
     expect(insight).toMatchObject({ inferredTrajectory: 'stable', confidence: 0.2, evidence: [] })
     expect(insight.explanation).toContain('没有足够事实')

@@ -126,7 +126,7 @@ IndexedDB authoritative store
 
 ## 11. 2026-08-23 文件与实现状态收口
 
-- `index.html → src/react/main.tsx → src/react/App.tsx` 已确认是当前唯一生产启动链路；静态回归和浏览器 smoke 同时确认普通 Admin 走 React，Vue `admin/advanced` 可实际加载并在返回后卸载，未被生产路由引用的 `LegacyVueHost` 已完成第一批清理，旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 兼容重定向已回归，Vue 仅由 `LegacyAdminHost` 和同步基础设施保留。`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 仍归类为 Vue 迁移兼容层，暂不删除。
+- 这是 2026-08-23 的入口快照：当时普通 Admin 走 React，Vue `admin/advanced` 可实际加载并在返回后卸载。D-017 已取代其中的设置页分工：现在两个地址都复用 `LegacyAdminHost`。`LegacyVueHost` 已完成第一批清理，旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 兼容重定向已回归；`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 仍归类为 Vue 迁移兼容层，暂不删除。
 - React AppShell 已包含左侧主导航、顶部状态、宽屏右侧独立栏和窄桌面/移动端 More 抽屉；右侧栏默认收起、可独立记忆，相关回归已加入 UI smoke。
 - OW-07 九刀已完成：`src/react/lazy-pages.ts` 统一维护扩展页与兼容桥的懒加载注册，`src/react/AppShell.tsx` 与 `src/react/ui.tsx` 分别收口工作台壳层/搜索和共享交互工具，`src/react/routes.tsx` 收口路由树/兼容重定向/Suspense 边界，`src/react/route-views.tsx` 收口登录/保护路由/兼容视图，`src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx` 收口旧 Today/Capture/Matters/Review/MatterDetail 页面状态，进一步降低 `App.tsx` 的页面装配耦合；后续仍需继续拆分剩余页面状态。
 - 参考产品页 Cycle、我的和目标入口已接入，旧模块路由继续保留；这些页面不改变现有领域事实源。
@@ -148,3 +148,9 @@ IndexedDB authoritative store
 - 在不改变领域模型、URL 或事实源的前提下，Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 的异步读取和本地写入边界继续补齐：加载中不再误显示为空，读取失败可见并可重试，场景写入失败会保留原选择并提示，Library 会区分保存成功与列表刷新失败，Review 的时间范围会过滤统计和证据；Graph 实验页已补齐图谱读取加载、失败重试、旧结果保留和关系写入期间保护。
 - 入口层级已继续对齐：桌面左栏仅保留 Today、Capture、事项、复盘，底部只保留搜索和 More；右栏和 More 只承载辅助入口与上下文，右侧快速动作不重复当前主流程，不再把扩展模块伪装成同等一级入口。
 - OW-08 仍未完成：Inbox、Tasks、Habits、Finance、Goals、Pomo、Posts、Calendar、People、Graph 等模块的真实离线、导入导出、同步、错误和空状态验收仍需继续覆盖；本阶段按先完成功能、后统一整体回归执行，不能把本轮改动表述成新的测试通过证据。
+
+## 14. 2026-09-19 文档与界面收敛
+
+- 设置与同步不再同时维护 React 普通页和 Vue 高级页：`/app/admin` 直接通过 `LegacyAdminHost` 复用完整管理界面，`/app/admin/advanced` 仅保留兼容地址并显示同一内容。此举不改变 Vault、同步、导入导出或实体迁移的业务边界。
+- `src/react/product-ui.css` 是所有 React 页面与完整管理页共用的视觉覆盖层，统一表面、卡片、表单焦点、主按钮、标签页、空状态、动效和窄屏间距；它不改变领域对象、写入路径或数据事实源。
+- 全库文档范围、修订原则和历史材料处理记录见 `DOCUMENT_AUDIT_2026-09-19.md`。历史描述保留为快照，当前规则以 D-017、统一产品设计和 `OPEN_WORK.md` 为准。

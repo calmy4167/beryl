@@ -8,7 +8,7 @@
 
 ## 当前实现校准（2026-08-29）
 
-本文件继续描述阶段顺序、验收门槛和 No-Go 条件，不替代实现总档案或活跃待办。当前实现已完成 React 生产主路径的核心异步 Reality/搜索边界、主要持久化与同步可靠性切片，并由 58 个 Vitest 文件 / 293 个测试、Node、同步协议、IndexedDB 浏览器运行时、类型检查、构建、PWA、性能和 UI smoke 支撑；UI smoke 也已实际验证 React Admin 与 Vue `admin/advanced` 兼容页加载，以及返回 React 后旧桥接卸载；OW-08 已增加 14 个扩展模块入口矩阵静态回归，但不等于完整行为验收。
+本文件继续描述阶段顺序、验收门槛和 No-Go 条件，不替代实现总档案或活跃待办。以下 2026-08-29 验证数据是阶段快照：当时 58 个 Vitest 文件 / 293 个测试、Node、同步协议、IndexedDB 浏览器运行时、类型检查、构建、PWA、性能和 UI smoke 均通过，且 UI smoke 覆盖了当时 React Admin 与 Vue `admin/advanced` 的切换。D-017 已将两个地址收敛为同一套设置与同步界面；当前验证结果见 `DOCUMENT_AUDIT_2026-09-19.md`。OW-08 的 14 个扩展模块入口矩阵静态回归仍不等于完整行为验收。
 
 当前仍不能据此宣布发布完成：OW-03 的键级高级同步及同步统计/旧 Vue 查询兼容复核已收口，OW-04 还需真实设备、连续键盘、读屏、大字号和异常恢复人工验收；OW-06 已移除未被生产路由引用的 `LegacyVueHost` 第一批兼容代码，并补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的 React 兼容重定向，但仍需完成 Vue 运行时依赖与其余旧路由回归后再分批退出；OW-07 已完成懒加载注册、壳层/共享交互、路由树、兼容视图和旧 Today/Capture/Matters/Review/MatterDetail 页面状态拆分九刀，但剩余页面状态仍未收口。具体活跃范围只以 [`OPEN_WORK.md`](OPEN_WORK.md) 为准。
 

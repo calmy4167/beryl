@@ -1,6 +1,6 @@
 # Calmy 项目文件架构
 
-> 更新时间：2026-08-30
+> 更新时间：2026-09-19
 > 本文描述当前仓库的真实入口、代码边界、文档分层和迁移兼容范围。
 
 ## 1. 生产启动链路
@@ -11,7 +11,7 @@ index.html
   → src/react/bootstrap.ts / bootstrapData
   → src/react/App.tsx
   → src/react/lazy-pages.ts（扩展页与兼容桥的懒加载注册）
-  → src/react/AppShell.tsx + src/react/ui.tsx（壳层与共享交互工具）
+  → src/react/AppShell.tsx + src/react/ui.tsx + src/react/product-ui.css（壳层、共享交互与视觉令牌）
   → src/react/routes.tsx（路由树、兼容重定向和 Suspense 边界）
   → src/react/route-views.tsx（登录、保护路由和兼容视图）
   → React Router + src/react/pages/*（Today、Capture、Matters、Review 等页面状态边界；扩展页保留加载/错误/空结果反馈）
@@ -19,18 +19,18 @@ index.html
   → IndexedDB / localStorage 兼容层 / optional sync adapters / Feishu Bitable adapter
 ```
 
-`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 是 Vue 迁移兼容层，不是当前 `index.html` 的生产主入口。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已在 OW-06 第一批清理中移除；其余兼容层暂不直接删除，直到 `docs/product/OPEN_WORK.md` 的 OW-06 完成。
+`src/main.ts`、`src/App.vue`、`src/router` 和 `src/views` 是 Vue 迁移兼容层，不是当前 `index.html` 的生产主入口。`/app/admin` 的完整设置与同步界面仍通过 `LegacyAdminHost.tsx` 显式挂载 `AdminView.vue`，因为它承载 Vault 与实体迁移；旧 `/app/admin/advanced` 显示同一界面。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已在 OW-06 第一批清理中移除；其余兼容层暂不直接删除，直到 `docs/product/OPEN_WORK.md` 的 OW-06 完成。
 
 ## 2. 目录职责
 
 | 目录 | 职责 | 当前状态 |
 |---|---|---|
-| `src/react/` | 生产 React 壳层、路由、页面和样式 | 当前主 UI |
+| `src/react/` | 生产 React 壳层、路由、页面和共享视觉令牌 | 当前主 UI；设置页通过显式兼容桥复用完整管理界面 |
 | `src/application/` | 跨实体用户用例，如 Today、Capture、Review、结果记录 | 当前写入编排边界 |
 | `src/domain/` | Entity、状态机、Repository、查询、迁移和统一模型 | 领域事实与约束 |
 | `src/core/` | 认证、存储、IndexedDB、备份、同步、开放格式、兼容层 | 基础设施，不由页面直接替代 |
 | `src/components/` | Vue/历史共享组件及低频模块组件 | 迁移兼容，按 OW-06/08 清理 |
-| `src/views/` | Vue 旧路由页面 | 迁移兼容 |
+| `src/views/` | Vue 旧路由页面和完整管理页 | 迁移兼容；`AdminView.vue` 当前由设置主入口显式复用 |
 | `backend/` | Cloudflare Worker、D1、同步 API、飞书多维表格适配器 | 可选云端适配器；飞书凭证只在 Worker 侧保存 |
 | `obsidian-plugin/` | Obsidian 插件和 Vault 适配端 | 外部组件，协议/联调受 OW-13 管理 |
 | `public/` | PWA manifest、图标和静态运行时资源 | 生产静态资源 |
@@ -58,7 +58,7 @@ index.html
 
 ### 二级/兼容/实验页
 
-`AdminPage`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`FeishuPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `TaskBoardPage` 是现有 Action 的看板视图，`FeishuPage` 是飞书外部数据的实验前端，`MemoryPage` 是现有 Record/Insight 的治理视图；二者都不新增本地事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
+`LegacyAdminHost`、`LibraryPage`、`CalendarPage`、`PeoplePage`、`GraphPage`、`ScenePage`、`InboxPage`、`TasksPage`、`TaskBoardPage`、`FeishuPage`、`MemoryPage`、`HabitsPage`、`FinancePage`、`GoalsPage`、`PomoPage`、`DiaryPage`、`PostsPage`。其中 `LegacyAdminHost` 是唯一设置与同步界面，`TaskBoardPage` 是现有 Action 的看板视图，`FeishuPage` 是飞书外部数据的实验前端，`MemoryPage` 是现有 Record/Insight 的治理视图；后二者都不新增本地事实源。这些页面必须保留旧 URL 兼容，但不应重新形成独立事实源或绕过 Application Use Case。
 
 旧 Today/Capture 兼容页面 `LegacyTodayPage`、`LegacyCapturePage` 与当前 Matters/Review/MatterDetail 页面 `MattersPage`、`ReviewPage`、`MatterDetailPage` 分别位于 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 和 `src/react/pages/MatterDetailPage.tsx`，保留原有 Today/Action/Reality Record、Capture/suggestion、Matter 详情与 Review 用例及交互，仅作为页面状态拆分边界；核心生产 Today/Capture/Matters/Review/MatterDetail 路由仍由这些页面组件承担。
 
@@ -104,7 +104,7 @@ React page
 
 ### 实现证据
 
-`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-08-30 为当前事实，早期日期仅保留历史上下文。
+`docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` 保留实现事实、测试证据和历史快照；`docs/operations/HANDOFF_2026-08-22.md` 保留当前工程续接入口；二者都不是产品优先级入口。两份文档的最新校准段落以 2026-09-19 为当前事实，早期日期仅保留历史上下文。
 
 ### 历史资料与原型
 

@@ -5,6 +5,7 @@ import './react.css'
 import './mobile-nav.css'
 import './feishu-workspace.css'
 import './feishu-board.css'
+import './product-ui.css'
 
 let savedTheme: string | null = null
 try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }

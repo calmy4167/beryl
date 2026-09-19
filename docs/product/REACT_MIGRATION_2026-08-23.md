@@ -1,6 +1,6 @@
 # React 迁移记录
 
-> 当前事实校准：2026-08-30。文件名保留迁移启动日期；最新剩余任务只以 `OPEN_WORK.md` 为准。
+> 当前事实校准：2026-09-19。文件名保留迁移启动日期；最新剩余任务只以 `OPEN_WORK.md` 为准。
 
 > 2026-09-07 对齐：本迁移记录只描述实现事实，不定义学习、自律、指标或 Flow 方向；相关行为统一服从 D-012 与统一产品设计。
 
@@ -28,7 +28,7 @@
 - React Router 已接管 Hash 路由、登录守卫、旧 `/app/home` 书签兼容和扩展模块入口；
 - React AppShell（`src/react/AppShell.tsx`）已接管桌面侧栏、侧栏收起/展开、移动底部导航、更多入口抽屉、右侧上下文边、主题和保存状态；共享 Button、页面头部和焦点陷阱位于 `src/react/ui.tsx`；
 - Today、Capture、Matters、Review、日历、人物、资料、图谱、场景、收件箱、任务、习惯、财务、目标、番茄钟、日记和文章已接入 React 路由，并继续复用原有领域仓储和应用用例；
-- Admin 的常用设置、旧版统计口径、持久化重试、导入失败回滚、二次重置确认、导入导出、Cloudflare、S3、本地文件同步和诊断已由 React 承接；Vault/实体迁移等高风险能力通过隔离兼容桥接回 React 工作台，避免迁移期间丢失功能；
+- 设置与同步统一显示用户选定的完整管理界面，包含持久化状态、导入导出、Cloudflare / S3 / 本地文件同步、诊断、Vault 和实体迁移；`/app/admin` 是唯一主入口，旧 `/app/admin/advanced` 保留为兼容地址并显示同一界面；
 - React 扩展页面统一使用按需加载，收件箱、任务、习惯、财务、目标、番茄钟、日记、文章、资料、日历、人物、图谱和场景不会进入首屏页面代码；
 - 2026-08-29 已将上述 React lazy 页面注册集中到 `src/react/lazy-pages.ts`，不改变 URL、Suspense 边界或按需加载行为；路由树、AppShell 和剩余页面状态仍由 OW-07 继续拆分。
 - 2026-08-29 已将路由树、旧入口兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`；`App.tsx` 负责启动、守卫组件和页面节点装配，剩余页面状态拆分仍由 OW-07 继续推进。
@@ -44,7 +44,7 @@
 
 ## 当前阶段
 
-当前是“React 生产工作台 + Vue 迁移兼容层”阶段。入口审计和浏览器 smoke 已确认 React 是唯一生产启动链，静态回归同时确认 React 页面目录不直接依赖 Vue、Vue Router 或 Element Plus；未被生产路由引用的 `LegacyVueHost` 已完成第一批清理，旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 已补齐 React 兼容重定向并通过 UI smoke，其余 Vue、Vue Router、Element Plus 及旧入口暂不删除，避免影响仍依赖旧组件的边缘功能；普通设置走 React，完整旧版设置/实体迁移工具仅由显式 `admin/advanced` 兼容路由承载，返回 React 后旧桥接会卸载。
+当前是“React 生产工作台 + Vue 迁移兼容层”阶段。React 是唯一生产启动链，React 页面目录不直接依赖 Vue、Vue Router 或 Element Plus。设置与同步从普通 React 管理页收敛到完整管理界面：`/app/admin` 通过隔离兼容桥承载原有 Vault / 实体迁移 UI 与同步操作；旧 `/app/admin/advanced` 保留为兼容地址，但复用同一界面，不再显示第二套设置页面。其他 Vue 兼容路由仍按需保留，避免影响尚未迁移的边缘功能。
 
 ## 下一步
 

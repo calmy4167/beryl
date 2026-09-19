@@ -12,6 +12,8 @@
 4. [工程评审](product/ENGINEERING_REVIEW_2026-08-22.md)：代码差距、风险和目标架构。
 5. [实现总档案](implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)：当前实现事实与验证证据。
 
+本轮已完成[文档与界面统一审计](product/DOCUMENT_AUDIT_2026-09-19.md)：所有当前权威文档已对齐“设置与同步唯一入口”和共享界面规则；历史、参考与备份文档保留追溯用途，不改写成当前规范。
+
 项目代码、运行时入口和文件放置规则见[项目文件架构](PROJECT_STRUCTURE.md)。
 
 下一阶段新系统建议见[飞书生活工作台规划](product/FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)：减少日常维护、收敛今天/项目/回顾、配置字段映射与多人扩展。该文件是 D-014 规划提案，不表示新导航或飞书核心数据来源已实现。

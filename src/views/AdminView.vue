@@ -381,11 +381,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="admin-view">
     <div class="head">
       <el-button circle text aria-label="返回工作台" @click="router.push('/app/home')">←</el-button>
       <span class="mod-icon" aria-hidden="true">⚙️</span>
-      <h2 class="font-title mod-name">后台管理</h2>
+      <div>
+        <p class="head-kicker">WORKSPACE CONTROL</p>
+        <h2 class="font-title mod-name">设置与同步</h2>
+        <p class="head-description">管理本机数据、同步连接、Vault 与实体迁移。</p>
+      </div>
     </div>
 
     <!-- 数据统计 -->
@@ -569,9 +573,12 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.admin-view { max-width: 1040px; margin: 0 auto; padding-bottom: 48px; }
+.head { display: flex; align-items: flex-start; gap: 12px; margin: 6px 0 24px; }
 .mod-icon { font-size: 20px; }
-.mod-name { font-size: 1.25rem; font-weight: 700; }
+.head-kicker { margin: 1px 0 5px; color: var(--scene); font-size: 9px; font-weight: 700; letter-spacing: .15em; }
+.mod-name { font-size: clamp(28px, 4vw, 38px); line-height: 1; font-weight: 700; margin: 0; letter-spacing: -.04em; }
+.head-description { margin: 9px 0 0; color: var(--c-text-2); font-size: 12px; }
 .grid4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 @media (min-width: 768px) { .grid4 { grid-template-columns: repeat(4, 1fr); } }
 .card { padding: 16px; }

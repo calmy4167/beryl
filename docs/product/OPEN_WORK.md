@@ -22,7 +22,7 @@
 
 验收：无 P0 可访问性或数据丢失问题；320px、200% 缩放和系统大字号不丢失主行动与退出入口。
 
-> 2026-08-29 对齐结论：58 个 Vitest 文件 / 293 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 均通过；UI smoke 已实际验证 React Admin 加载、Vue `admin/advanced` 兼容页加载及返回后的旧桥接卸载；业务值与实体日志原子提交、首次实体同步完整合并确认、实体同步与键级主同步游标及 push cursor 的 durable `meta` 确认、键级同步业务白名单隔离、键级同步/实体同步编排边界、React 页面同步 Reality 隔离、React/Vue 生产入口隔离已由自动化或浏览器运行时覆盖；自动化已覆盖双侧栏、390/320px 移动布局、CDP 200% page-scale 下的布局视口、移动 More 抽屉、键盘焦点、核心保存控件、远端应用失败保护和 Capture 决策重复提交保护。CDP 的 page-scale 视觉视口与 DOM 布局坐标存在已知分离，因此真实移动设备、真实浏览器缩放、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
+> 2026-08-29 历史基线：58 个 Vitest 文件 / 293 个测试、Node 15/15、同步协议 22/22、IndexedDB 浏览器运行时、PWA、性能基线和 UI smoke 当时均通过。2026-09-19 已将设置与同步收敛为 `/app/admin` 的单一完整界面，`/app/admin/advanced` 仅保留兼容地址；本轮改动后的构建与静态回归结果见文档与界面审计。CDP 的 page-scale 视觉视口与 DOM 布局坐标存在已知分离，因此真实移动设备、真实浏览器缩放、连续读屏、大字号和异常恢复仍不能由自动化结果代替。
 
 本轮 OW-04 代码侧复核还补齐 React 登录错误的 `role="alert"` 即时播报、导入文件控件的明确 accessible name，以及 390/320px More 抽屉 Escape 关闭后的触发按钮焦点回收；移动底部导航在桌面通过媒体查询隐藏但保留焦点返回节点，避免设备视口状态抖动造成焦点丢失；UI smoke 已通过浏览器 AX tree 确认错误节点进入无障碍树；真实读屏、系统大字号和设备缩放仍需人工确认。
 
@@ -30,7 +30,7 @@
 
 ### OW-06 Vue 兼容层退出评估
 
-`src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。2026-08-29 入口审计确认 `index.html → src/react/main.tsx → src/react/App.tsx` 是唯一生产启动链，Vue 仅通过显式 `admin/advanced` 的 `LegacyAdminHost` 路由及同步基础设施保留；未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已作为第一批清理项移除，并有静态回归保护。静态回归现扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于 `LegacyAdminHost.tsx`；React 已补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的兼容重定向，UI smoke 已验证这些列表、未知详情和旧模块 URL；但 Vue 运行时依赖和其余旧路由真实回归仍未完成。React 入口和 React 页面当前是生产主路径。
+`src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。`index.html → src/react/main.tsx → src/react/App.tsx` 是唯一生产启动链；Vue 仅通过 `/app/admin` 的 `LegacyAdminHost` 完整设置界面及同步基础设施保留，旧 `/app/admin/advanced` 复用同一界面。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已作为第一批清理项移除，并有静态回归保护。静态回归现扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于 `LegacyAdminHost.tsx`；React 已补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的兼容重定向。Vue 运行时依赖和其余旧路由真实回归仍未完成。
 
 验收：所有生产路由、登录、设置、导入导出、同步和边缘模块均无 Vue 运行时依赖；删除每批兼容代码后全量测试与构建通过。
 
@@ -51,6 +51,12 @@
 2026-08-30 功能对齐进展：继续完成 OW-08 的真实页面边界，Today、Inbox、Capture、Goals、Habits、Posts、Tasks、TaskBoard、Profile、Library、Diary、Review、Matters、MatterDetail、Admin、Scene、Finance、Calendar、Memory、People、Pomo 及旧版 `LegacyTodayPage`、`LegacyCapturePage` 已补齐读取加载态、失败提示、重试、空结果或本地写入失败反馈；Library 的保存/状态更新能区分“写入成功但列表刷新失败”，Diary 日期切换避免旧请求覆盖当前内容，Review 的 7/30/90 天切换现在会实际过滤完成数、记录数和证据列表，Graph 实验页也补齐首次读取加载态、失败重试、刷新失败保留旧结果和写入期间保护。入口对齐进展：桌面主导航已收敛为 Today、Capture、事项、复盘四个主流程入口；左栏底部只保留搜索和 More，主题/设置统一收进 More；Cycle、看板、资料、我的、AI、人物、日历及旧模块统一进入分组后的 More；右侧快捷动作会隐藏当前所在主流程，收起栏只保留 Capture、事项看板、我的和 AI。More 抽屉使用跨桌面/移动端统一的 dialog 标识，移动端 Matters 文案与桌面统一为“事项”。扩展模块整体行为验收仍未完成，本轮未改变测试基线，整体回归留到功能阶段收口后统一执行。OW-08 继续保持未完成。
 
 验收：扩展模块不会破坏核心四页，不产生重复实体或第二套同步状态；实验能力不会误显示为稳定能力。
+
+### OW-20 文档与界面统一验收
+
+将当前产品文档、参考/历史状态、生产路由和共享视觉规则持续对齐。已完成第一轮：设置与同步收敛到一个完整界面、旧地址兼容复用、全局视觉令牌覆盖卡片/表单/状态/窄屏，并将审计写入 `DOCUMENT_AUDIT_2026-09-19.md`。
+
+验收：当前权威文档不再把普通设置与高级设置描述成两个产品入口；所有生产页面继承共享视觉规则；构建和静态无障碍回归通过；真实移动设备、读屏和大字号结果仍进入 OW-04。
 
 ### OW-09 品牌与存储键长期迁移
 

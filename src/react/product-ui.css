@@ -1,0 +1,146 @@
+:root {
+  --surface-raised: color-mix(in srgb, var(--c-card) 94%, var(--scene-soft));
+  --surface-muted: color-mix(in srgb, var(--c-bg) 80%, var(--scene-soft));
+  --focus-ring: 0 0 0 3px var(--scene-focus);
+  --shadow-card: 0 10px 28px rgba(25, 46, 34, .055);
+  --shadow-float: 0 18px 44px rgba(25, 46, 34, .12);
+}
+
+#app {
+  isolation: isolate;
+}
+
+#app :where(button, input, select, textarea) {
+  font: inherit;
+}
+
+#app :where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])) {
+  transition: border-color .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+#app :where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):active {
+  transform: translateY(1px);
+}
+
+#app :where(input, textarea, select) {
+  border-color: var(--c-border);
+  background: var(--surface-raised);
+}
+
+#app :where(input, textarea, select):focus {
+  border-color: var(--scene) !important;
+  box-shadow: var(--focus-ring);
+}
+
+#app .beryl-card {
+  background: var(--surface-raised);
+  border-color: color-mix(in srgb, var(--c-border-soft) 82%, var(--scene-border-soft));
+  box-shadow: var(--shadow-card);
+}
+
+#app .beryl-card.hoverable:hover {
+  box-shadow: var(--shadow-float);
+}
+
+#app .page-head {
+  position: relative;
+  align-items: flex-end;
+  margin: 6px 0 30px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--c-border-soft);
+}
+
+#app .page-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 74px;
+  height: 2px;
+  border-radius: 99px;
+  background: var(--scene);
+}
+
+#app .page-head h1 {
+  max-width: 18ch;
+}
+
+#app .primary {
+  min-height: 42px;
+  box-shadow: 0 7px 16px var(--scene-glow-strong);
+}
+
+#app .primary:hover:not(:disabled) {
+  box-shadow: 0 10px 20px var(--scene-glow-strong);
+}
+
+#app .range-tabs,
+#app .feishu-view-switch {
+  padding: 4px;
+  border: 1px solid var(--c-border-soft);
+  border-radius: 11px;
+  background: var(--surface-muted);
+}
+
+#app .range-tabs button,
+#app .feishu-view-switch button {
+  min-height: 34px;
+}
+
+#app .empty-state {
+  border: 1px dashed var(--c-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-card) 78%, var(--scene-soft));
+}
+
+#app details > summary {
+  min-height: 32px;
+}
+
+.legacy-admin-host {
+  --el-color-primary: var(--scene);
+  --el-color-primary-light-3: color-mix(in srgb, var(--scene) 72%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--scene) 54%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--scene) 32%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--scene) 22%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--scene) 12%, white);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--scene) 82%, black);
+}
+
+.legacy-admin-host .block {
+  box-shadow: var(--shadow-card);
+}
+
+.legacy-admin-host .block:hover {
+  box-shadow: var(--shadow-float);
+}
+
+@media (max-width: 760px) {
+  #app .page-head {
+    display: block;
+    margin-bottom: 22px;
+    padding-bottom: 17px;
+  }
+
+  #app .page-head > :last-child:not(:first-child) {
+    margin-top: 14px;
+  }
+
+  #app .page-head h1 {
+    max-width: none;
+  }
+
+  #app .beryl-card {
+    border-radius: 14px;
+  }
+
+  .legacy-admin-host .head {
+    margin-bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app :where(button, [role="button"]) {
+    transition: none;
+  }
+}
