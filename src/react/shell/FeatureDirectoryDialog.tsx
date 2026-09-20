@@ -1,5 +1,5 @@
 import type { RefObject } from 'react'
-import { Button } from '../ui'
+import { BrandMark, Button } from '../ui'
 import { featureNavigationGroups } from '../navigation'
 
 export function FeatureDirectoryDialog({ open, activePath, dark, drawerRef, onNavigate, onSearch, onClose, onToggleTheme }: {
@@ -17,7 +17,7 @@ export function FeatureDirectoryDialog({ open, activePath, dark, drawerRef, onNa
       <div className="drawer">
         <Button className="drawer-close" aria-label="关闭功能目录" onClick={onClose}>×</Button>
         <Button className="brand" aria-label="返回今天" onClick={() => onNavigate('/app/today')}>
-          <span className="brand-mark">C</span><span><b className="font-title">Calmy</b><small>现实行动系统</small></span>
+          <BrandMark /><span><b>Calmy</b><small>现实行动系统</small></span>
         </Button>
         <nav className="drawer-links" aria-label="按用途浏览功能">
           <Button className="drawer-search-link" onClick={onSearch}>⌕ 搜索处境、行动、记录或人物</Button>

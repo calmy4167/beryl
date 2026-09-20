@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { HashRouter } from 'react-router-dom'
 import { bootstrapData } from './bootstrap'
 import { AppShell } from './AppShell'
+import { BrandMark } from './ui'
 import { AttentionCapturePage, CalendarPage, CyclePage, DiaryPage, FeishuPage, FinancePage, FlowPage, FuturePage, GoalsPage, GraphPage, HabitsPage, InboxPage, LegacyAdminHost, LibraryPage, MemoryPage, PeoplePage, PomoPage, PostsPage, ProfilePage, ScenePage, TaskBoardPage, TasksPage } from './lazy-pages'
 import { TodayPage } from './pages/TodayPage'
 import { MattersPage } from './pages/MattersPage'
@@ -13,7 +14,7 @@ import { LegacyCaseRedirect, LoginPage, PassPage, PlaceholderPage, ProtectedRout
 function App() {
   const [ready, setReady] = useState(false)
   useEffect(() => { void bootstrapData().finally(() => setReady(true)) }, [bootstrapData])
-  if (!ready) return <div className="boot-screen"><div className="brand-mark">C</div><h1 className="font-title">正在恢复本机数据</h1><p>Calmy 即将准备好。</p></div>
+  if (!ready) return <div className="boot-screen"><BrandMark /><h1 className="font-title">正在恢复本机数据</h1><p>Calmy 即将准备好。</p></div>
   return <HashRouter><AppRoutes views={{ login: <LoginPage />, pass: <PassPage />, protected: <ProtectedRoute />, shell: <AppShell />, today: <TodayPage />, cycle: <CyclePage />, flow: <FlowPage />, profile: <ProfilePage />, memory: <MemoryPage />, capture: <AttentionCapturePage />, matters: <MattersPage />, caseRedirect: <LegacyCaseRedirect />, matterDetail: <MatterDetailPage />, review: <ReviewPage />, future: <FuturePage />, admin: <LegacyAdminHost />, advancedAdmin: <LegacyAdminHost />, calendar: <CalendarPage />, people: <PeoplePage />, library: <LibraryPage />, graph: <GraphPage />, inbox: <InboxPage />, tasks: <TasksPage />, taskBoard: <TaskBoardPage />, feishu: <FeishuPage />, habits: <HabitsPage />, finance: <FinancePage />, goals: <GoalsPage />, pomo: <PomoPage />, diary: <DiaryPage />, posts: <PostsPage />, scene: <ScenePage />, moduleFallback: <PlaceholderPage title="模块入口" description="旧模块入口已经统一收敛到 React 工作台。" />, fallback: <PlaceholderPage /> }} /></HashRouter>
 }
 

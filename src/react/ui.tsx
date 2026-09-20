@@ -1,9 +1,13 @@
 import { forwardRef } from 'react'
-import type { ButtonHTMLAttributes, ElementType, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
 
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(function Button({ children, className = '', ...props }, ref) {
   return <button ref={ref} className={`react-btn ${className}`} {...props}>{children}</button>
 })
+
+export function BrandMark() {
+  return <span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path d="M15.9 25.9c-5.8-1.4-9.1-5.6-9.1-11.3 5.8.1 9.4 2.6 10.4 7.4 1.2-6.3 5.1-10.1 11.4-11.3.5 8.7-3.8 14.1-11.1 15.4v2h-1.6z" fill="currentColor"/><path d="M8.3 7.4c4.7.2 7.8 2.8 8.7 7.2-5.3-.3-8.1-2.6-8.7-7.2z" fill="currentColor" opacity=".58"/></svg></span>
+}
 
 export const FOCUSABLE_SELECTOR = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
 
@@ -25,8 +29,15 @@ export function PageSection({ title, description, action, children, className = 
   return <section className={`page-section ${className}`.trim()}><header className="page-section-head"><div><h2>{title}</h2>{description && <p>{description}</p>}</div>{action && <div className="page-section-action">{action}</div>}</header>{children}</section>
 }
 
-export function Surface({ as: Component = 'section', className = '', children }: { as?: ElementType; className?: string; children: ReactNode }) {
-  return <Component className={`ui-surface ${className}`.trim()}>{children}</Component>
+type SurfaceProps<T extends ElementType> = {
+  as?: T
+  className?: string
+  children: ReactNode
+} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'className' | 'children'>
+
+export function Surface<T extends ElementType = 'section'>({ as, className = '', children, ...props }: SurfaceProps<T>) {
+  const Component = as ?? 'section'
+  return <Component className={`ui-surface ${className}`.trim()} {...props}>{children}</Component>
 }
 
 export function EmptyState({ title, description, action, className = '' }: { title?: string; description: string; action?: ReactNode; className?: string }) {

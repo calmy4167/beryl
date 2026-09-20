@@ -12,7 +12,7 @@ import { FeatureDirectoryDialog } from './shell/FeatureDirectoryDialog'
 import { GlobalSearchDialog } from './shell/GlobalSearchDialog'
 
 export function AppShell() {
-  const navigate = useNavigate(); const location = useLocation(); const [mobile, setMobile] = useState(() => window.innerWidth <= 900); const [wide, setWide] = useState(() => window.innerWidth > 1180); const [collapsed, setCollapsed] = useState(() => localStorage.getItem('calmy_sidebar_collapsed') === '1'); const [rightCollapsed, setRightCollapsed] = useState(() => localStorage.getItem('calmy_right_sidebar_collapsed') !== '0'); const [drawer, setDrawer] = useState(false); const [search, setSearch] = useState(false); const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark')); const [saveLabel, setSaveLabel] = useState('本地优先 · 离线可用'); const [saveState, setSaveState] = useState('idle'); const [toastText, setToastText] = useState(''); const searchReturnRef = useRef<HTMLElement | null>(null); const drawerReturnRef = useRef<HTMLElement | null>(null); const desktopMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const mobileHeaderMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const moreTriggerRef = useRef<HTMLButtonElement | null>(null); const drawerOpenRef = useRef(false); const drawerRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate(); const location = useLocation(); const [mobile, setMobile] = useState(() => window.innerWidth <= 900); const [wide, setWide] = useState(() => window.innerWidth > 1180); const [collapsed, setCollapsed] = useState(() => localStorage.getItem('calmy_sidebar_collapsed') === '1'); const [rightCollapsed, setRightCollapsed] = useState(() => localStorage.getItem('calmy_right_sidebar_collapsed') === '1'); const [drawer, setDrawer] = useState(false); const [search, setSearch] = useState(false); const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark')); const [saveLabel, setSaveLabel] = useState('本地优先 · 离线可用'); const [saveState, setSaveState] = useState('idle'); const [toastText, setToastText] = useState(''); const searchReturnRef = useRef<HTMLElement | null>(null); const drawerReturnRef = useRef<HTMLElement | null>(null); const desktopMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const mobileHeaderMoreTriggerRef = useRef<HTMLButtonElement | null>(null); const drawerOpenRef = useRef(false); const drawerRef = useRef<HTMLDivElement>(null)
   const compact = mobile || window.innerWidth <= 900
   const desktopWide = wide && window.innerWidth > 1180
   const currentPage = getPageForPath(location.pathname)
@@ -41,16 +41,16 @@ export function AppShell() {
   function openDrawer() {
     if (drawerOpenRef.current) return
     drawerOpenRef.current = true
-    drawerReturnRef.current = desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current ?? moreTriggerRef.current ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null)
+    drawerReturnRef.current = desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null)
     setDrawer(true)
   }
   function closeDrawer() {
-    const returnTarget = drawerReturnRef.current ?? desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current ?? moreTriggerRef.current
+    const returnTarget = drawerReturnRef.current ?? desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current
     drawerOpenRef.current = false
     const restoreFocus = () => {
       const target = returnTarget && document.contains(returnTarget)
         ? returnTarget
-        : desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current ?? moreTriggerRef.current ?? document.querySelector<HTMLElement>('.bottom-nav button[aria-label="打开功能目录"]')
+        : desktopMoreTriggerRef.current ?? mobileHeaderMoreTriggerRef.current
       target?.focus()
     }
     restoreFocus()
@@ -69,7 +69,7 @@ export function AppShell() {
   function toggleRightSidebar() { if (!desktopWide) { openDrawer(); return }; const next = !rightCollapsed; setRightCollapsed(next); localStorage.setItem('calmy_right_sidebar_collapsed', next ? '1' : '0') }
   function toggleTheme() { const next = !dark; setDark(next); setThemeMode(next ? 'dark' : 'light') }
   return <div className={`app-shell ${collapsed ? 'sidebar-collapsed' : ''} ${rightCollapsed ? 'right-sidebar-collapsed' : 'right-sidebar-expanded'}`}>
-    {!compact && <DesktopPrimaryNav collapsed={collapsed} active={active} directoryOpen={drawer} directoryTriggerRef={desktopMoreTriggerRef} onNavigate={go} onSearch={openSearch} onToggle={toggleSidebar} onOpenDirectory={openDrawer} />}
+    {!compact && <DesktopPrimaryNav collapsed={collapsed} active={active} activePath={location.pathname} directoryOpen={drawer} directoryTriggerRef={desktopMoreTriggerRef} onNavigate={go} onSearch={openSearch} onToggle={toggleSidebar} onOpenDirectory={openDrawer} />}
     <div className="workspace-shell">
       {!compact
         ? <PageTopBar title={pageTitle} description={pageDescription} saveLabel={saveLabel} saveState={saveState} onSearch={openSearch} />
@@ -77,7 +77,7 @@ export function AppShell() {
       <main className="page-container" data-page-id={currentPage?.id} data-page-archetype={currentPage?.archetype}><Outlet /></main>
       {!compact && <ContextRail collapsed={rightCollapsed} expanded={!rightCollapsed} pageTitle={pageTitle} pageDescription={pageDescription} actions={quickActions} onNavigate={go} onToggle={toggleRightSidebar} />}
     </div>
-    <MobilePrimaryNav active={active} directoryOpen={drawer} directoryTriggerRef={moreTriggerRef} onNavigate={go} onOpenDirectory={openDrawer} />
+    <MobilePrimaryNav active={active} onNavigate={go} />
     <FeatureDirectoryDialog open={drawer} activePath={location.pathname} dark={dark} drawerRef={drawerRef} onNavigate={go} onSearch={openSearch} onClose={closeDrawer} onToggleTheme={toggleTheme} />
     {search && <GlobalSearchDialog onClose={closeSearch} onNavigate={go} />}
     {toastText && <div className="toast" role="status">{toastText}</div>}

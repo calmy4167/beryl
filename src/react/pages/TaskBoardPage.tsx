@@ -8,6 +8,7 @@ import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
 import { WorkspacePage } from '../feishu-workspace'
 import { FeishuBoardView } from '../FeishuWorkspaceViews'
+import { PageHead } from '../ui'
 
 type BoardFilter = 'all' | 'active' | 'today'
 
@@ -132,17 +133,12 @@ function LocalTaskBoardPage() {
 
   return (
     <div className="task-board-page">
-      <header className="page-head">
-        <div>
-          <p className="eyebrow">看板 · 行动</p>
-          <h1 className="font-title">看板</h1>
-          <p>拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。</p>
-        </div>
+      <PageHead eyebrow="看板 · 行动" title="看板" description="拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。">
         <div className="task-board-head-actions">
           <button className="react-btn" type="button" onClick={() => navigate('/app/module/tasks')}>列表视图</button>
           <button className="react-btn primary" type="button" onClick={() => navigate('/app/module/tasks#new')}>添加任务</button>
         </div>
-      </header>
+      </PageHead>
 
       <section className="task-board-toolbar beryl-card" aria-label="看板筛选">
         <div className="range-tabs" role="tablist" aria-label="任务范围">
