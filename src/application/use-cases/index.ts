@@ -4,5 +4,5 @@ export { addActionToToday, type AddActionToTodayInput, type AddActionToTodayResu
 export { openToday, type OpenTodayResult } from './open-today'
 export { recordActionResult, type RecordActionResultInput, type RecordActionResultResult } from './record-action-result'
 export { completeReview, type CompleteReviewInput, type CompleteReviewResult } from './complete-review'
-export { saveFutureReflection, type SaveFutureReflectionInput } from './save-future-reflection'
+export { saveFutureReflection, saveFutureFeedback, type SaveFutureReflectionInput, type SaveFutureFeedbackInput } from './save-future-reflection'
 export { removeLegacyInbox, convertLegacyInboxToTask, convertLegacyInboxToCase, linkFinanceToCase, type LegacyInboxItem, type LegacyTaskItem, type LegacyInboxTarget, type LegacyInboxRemovalResult, type ConvertLegacyInboxResult, type LinkFinanceToCaseInput, type LinkFinanceToCaseResult } from './legacy-inbox'

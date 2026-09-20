@@ -103,7 +103,7 @@ export function InboxPage() {
       setLegacy(await legacyEntries())
       setMessage('')
     } catch (error) {
-      const text = error instanceof Error ? error.message : '收件箱读取失败'
+      const text = error instanceof Error ? error.message : '收集内容读取失败'
       setError(text)
       toast(text, 'error')
     } finally {
@@ -139,7 +139,7 @@ export function InboxPage() {
       const result = await withSaveState(() => captureText(body))
       setBody('')
       await refresh()
-      toast(result.suggestionError ? '原文已保存，但建议生成失败' : '已收入收件箱', result.suggestionError ? 'warning' : 'success')
+      toast(result.suggestionError ? '原文已保存，但建议生成失败' : '已收入收集', result.suggestionError ? 'warning' : 'success')
     } catch (error) {
       toast(error instanceof Error ? error.message : '收件失败', 'error')
     }
@@ -184,7 +184,7 @@ export function InboxPage() {
 
   async function removeCapture(item: InboxEntry): Promise<void> {
     if (item.source !== 'capture' || !item.capture) return
-    if (!window.confirm('删除后原文将从 Capture 仓库移除，确定继续吗？')) return
+    if (!window.confirm('删除后原文将从收集记录中移除，确定继续吗？')) return
     setBusyId(item.id)
     try {
       const removed = await withSaveState(() => captureAsyncRepository.remove(item.capture!.calmyId))
@@ -245,7 +245,7 @@ export function InboxPage() {
 
   return <div className="inbox-page">
     <header className="page-head">
-      <div><p className="eyebrow">INBOX · CAPTURE FIRST</p><h1 className="font-title">收件箱</h1><p>先保留原文，再把它处理成行动或现实课题。</p></div>
+      <div><p className="eyebrow">收集 · 原文优先</p><h1 className="font-title">收集</h1><p>先保留原文，再把它处理成行动或现实处境。</p></div>
       <span className="load-pill">{loading ? '正在读取…' : `${captureCount} 条 · ${pendingCount} 条待确认建议`}</span>
     </header>
 
@@ -255,10 +255,10 @@ export function InboxPage() {
     </section>
 
     <section className="beryl-card" style={{ padding: 14, marginTop: 16 }}>
-      <div className="create-row" style={{ margin: 0 }}><input aria-label="搜索收件箱" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索原文或状态…" /><select aria-label="收件箱筛选" value={filter} onChange={event => setFilter(event.target.value as Filter)}>{FILTERS.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select><span className="muted">{visible.length} 条</span></div>
+      <div className="create-row" style={{ margin: 0 }}><input aria-label="搜索收集" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索原文或状态…" /><select aria-label="收集筛选" value={filter} onChange={event => setFilter(event.target.value as Filter)}>{FILTERS.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select><span className="muted">{visible.length} 条</span></div>
     </section>
 
-    {error && <section className="beryl-card empty-state" role="alert"><b>收件箱数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
+    {error && <section className="beryl-card empty-state" role="alert"><b>收集内容暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>}
     {message && !error && <p className="info" role="status">{message}</p>}
     <section className="history-list">
       {loading ? <div className="empty-state" role="status">正在读取收件内容…</div> : visible.map(item => {

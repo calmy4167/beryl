@@ -38,15 +38,15 @@ export interface ModDef {
 }
 
 export const MODS: Record<string, ModDef> = {
-  inbox: { id: 'inbox', name: '收件箱', icon: '📥', color: '#6366F1' },
+  inbox: { id: 'inbox', name: '收集', icon: '📥', color: '#6366F1' },
   diary: { id: 'diary', name: '日记', icon: '📓', color: '#6366F1' },
-  posts: { id: 'posts', name: '博客', icon: '✍️', color: '#F59E0B' },
+  posts: { id: 'posts', name: '文章', icon: '✍️', color: '#F59E0B' },
   habits: { id: 'habits', name: '习惯', icon: '🎯', color: '#10B981' },
   chars: { id: 'chars', name: '人物', icon: '👥', color: '#10B981' },
   tasks: { id: 'tasks', name: '任务', icon: '📌', color: '#EF4444' },
   goals: { id: 'goals', name: '目标', icon: '🥅', color: '#EF4444' },
   finance: { id: 'finance', name: '财务', icon: '💰', color: '#8B5CF6' },
-  pomo: { id: 'pomo', name: '番茄钟', icon: '🍅', color: '#8B5CF6' },
+  pomo: { id: 'pomo', name: '专注', icon: '🍅', color: '#8B5CF6' },
   moments: { id: 'moments', name: '动态', icon: '💬', color: '#EC4899' }
 }
 

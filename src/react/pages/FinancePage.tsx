@@ -70,7 +70,7 @@ async function loadItems(): Promise<FinanceItem[]> {
 function PageHead({ count, loading }: { count: number; loading: boolean }) {
   return <header className="page-head">
     <div>
-      <p className="eyebrow">FINANCE · EARTH</p>
+      <p className="eyebrow">财务 · 收支</p>
       <h1 className="font-title">财务</h1>
       <p>记录每一笔现金流，先看清发生了什么，再决定下一步。</p>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { sync } from '@/core/sync'
+import { readFeishuCache, writeFeishuCache } from '@/core/feishu/cache'
 import { FeishuWorkspace, watchFeishuWorkspace } from '@/core/feishu/workspace'
 import { readTodayReferences, writeTodayReferences } from '@/core/feishu/model'
 import { todayKey } from '@/core/storage'
@@ -23,7 +24,7 @@ const browserStorage = {
 export const feishuWorkspace = new FeishuWorkspace(() => {
   const config = sync.saved.cloud
   return config?.url && config.key ? { baseUrl: config.url.replace(/\/+$/, ''), syncKey: config.key } : null
-}, undefined, browserStorage)
+}, undefined, browserStorage, { get: readFeishuCache, set: writeFeishuCache })
 
 export function useFeishuWorkspace() {
   const snapshot = useSyncExternalStore(feishuWorkspace.subscribe, feishuWorkspace.getSnapshot)
@@ -45,7 +46,7 @@ export function WorkspaceSourceBar({ forcedFeishu = false }: { forcedFeishu?: bo
       <button type="button" aria-pressed={forcedFeishu || selected === 'feishu'} className={forcedFeishu || selected === 'feishu' ? 'on' : ''} disabled={snapshot.saving} onClick={() => choose('feishu')}>飞书</button>
     </div></div>
     <small>{forcedFeishu || selected === 'feishu' ? '任务直接保存在飞书；前台每 15 秒检查更新。' : '保留原有本机数据；切换来源不会迁移或删除数据。'} {forcedFeishu && '此工作台始终显示飞书。'}</small>
-    <Link to="/app/admin">连接设置 →</Link><Link to="/app/feishu">飞书工作台 →</Link>
+    <Link to="/app/admin">连接设置 →</Link><Link to="/app/feishu">飞书 →</Link>
     {error && <p role="alert">{error}</p>}
   </section>
 }
@@ -58,7 +59,7 @@ export function WorkspacePage({ local, feishu }: { local: ReactNode; feishu: Rea
 export function addFeishuTaskToToday(workspaceId: string, recordId: string): void {
   const date = todayKey()
   const ids = readTodayReferences(browserStorage, workspaceId, date)
-  if (!ids.includes(recordId) && ids.length >= 3) throw new Error('今天已选了 3 项；任务已保存在飞书，可在 Today 调整选择。')
+  if (!ids.includes(recordId) && ids.length >= 3) throw new Error('今天已选了 3 项；任务已保存在飞书，可到今天调整选择。')
   writeTodayReferences(browserStorage, workspaceId, date, [...ids, recordId])
   window.dispatchEvent(new Event(todayEvent))
 }

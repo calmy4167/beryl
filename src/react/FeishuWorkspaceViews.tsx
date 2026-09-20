@@ -36,12 +36,13 @@ function notify(message: string, kind: 'success' | 'warning' | 'error' = 'succes
 }
 
 export function FeishuReadState({ snapshot }: { snapshot: WorkspaceSnapshot }) {
+  const cacheTime = snapshot.cacheUpdatedAt ? new Date(snapshot.cacheUpdatedAt).toLocaleString('zh-CN') : ''
   return <>
     <section className="feishu-read-state" aria-label="飞书连接状态">
-      <span role="status">{snapshot.saving ? '正在写入飞书…' : snapshot.loading ? '正在检查飞书更新…' : snapshot.lastRead ? `上次读取 ${new Date(snapshot.lastRead).toLocaleTimeString('zh-CN')}` : '尚未读取飞书数据'}</span>
+      <span role="status">{snapshot.saving ? '正在写入飞书…' : snapshot.loading ? cacheTime ? `正在检查更新 · 当前显示 ${cacheTime} 的本机缓存` : '正在连接飞书并读取数据…' : snapshot.error ? cacheTime ? `飞书暂不可用 · 当前显示 ${cacheTime} 的本机缓存（只读）` : '飞书未连接，尚无本机缓存' : snapshot.usingCache && cacheTime ? `部分数据来自本机缓存 · ${cacheTime}` : snapshot.lastRead ? `上次读取 ${new Date(snapshot.lastRead).toLocaleTimeString('zh-CN')}` : '尚未读取飞书数据'}</span>
       <Button disabled={snapshot.loading || snapshot.saving} onClick={() => void feishuWorkspace.refresh()}>刷新</Button>
     </section>
-    {snapshot.error && <section className="beryl-card empty-state" role="alert"><b>飞书连接暂不可用</b><p>{snapshot.error}</p><small>不会切换成本地写入；此前读取的数据仅供参考，不支持离线修改。</small><p><Link to="/app/admin">检查 Worker 地址与同步密码</Link></p></section>}
+    {snapshot.error && <section className="beryl-card empty-state" role="alert"><b>飞书连接暂不可用</b><p>{snapshot.error}</p><small>{cacheTime ? `下方内容来自本机缓存，更新时间：${cacheTime}。当前只能查看，不能修改飞书数据。` : '没有可显示的本机缓存；连接恢复后可重新读取飞书数据。'}</small><p><Link to="/app/admin">检查 Worker 地址与同步密码</Link></p></section>}
     {snapshot.writeError && <p className="beryl-card feishu-message" role="alert">{snapshot.writeError}</p>}
   </>
 }
@@ -97,7 +98,7 @@ function TaskCard({ snapshot, record, children, onOpen }: { snapshot: WorkspaceS
 
 export function FeishuCaptureView() {
   const snapshot = useFeishuWorkspace()
-  return <div className="feishu-page"><PageHead eyebrow="CAPTURE · FEISHU" title="快速记下一项任务" description="这里明确创建飞书任务。通用想法和原文仍可切换到本地 Capture 保存。" /><FeishuReadState snapshot={snapshot} /><TaskComposer snapshot={snapshot} /><p><Link to="/app/today">去今天选择任务 →</Link>　<Link to="/app/task-board">查看飞书任务看板 →</Link></p></div>
+  return <div className="feishu-page"><PageHead eyebrow="记录 · 飞书" title="快速记下一项任务" description="这里明确创建飞书任务。通用想法和原文仍可切换到本地记录保存。" /><FeishuReadState snapshot={snapshot} /><TaskComposer snapshot={snapshot} /><p><Link to="/app/today">去今天选择任务 →</Link>　<Link to="/app/task-board">查看看板 →</Link></p></div>
 }
 
 export function FeishuTodayView() {
@@ -107,7 +108,7 @@ export function FeishuTodayView() {
   const selected = ids.flatMap(id => { const record = snapshot.tables.tasks.find(item => item.record_id === id); return record ? [record] : [] })
   const candidates = snapshot.tables.tasks.filter(record => !ids.includes(record.record_id) && label(snapshot, 'tasks', record, 'status') !== '已完成' && (!query.trim() || title(snapshot, 'tasks', record).toLowerCase().includes(query.trim().toLowerCase())))
   const missing = snapshot.ready ? ids.filter(id => !snapshot.tables.tasks.some(item => item.record_id === id)) : []
-  return <div className="feishu-page"><PageHead eyebrow={`TODAY · FEISHU · ${todayKey()}`} title="今天，先做一件事" description="从飞书任务中选 1 项主任务、最多 2 项备选。选择只保存在本机，不会修改任务截止日期。" /><FeishuReadState snapshot={snapshot} />
+  return <div className="feishu-page"><PageHead eyebrow={`今天 · 飞书 · ${todayKey()}`} title="今天，先做一件事" description="从飞书任务中选 1 项主任务、最多 2 项备选。选择只保存在本机，不会修改任务截止日期。" /><FeishuReadState snapshot={snapshot} />
     {error && <p role="alert">{error}</p>}
     <section className="feishu-today-focus" aria-label="今天选择的飞书任务">
       {selected.map(record => <div key={record.record_id}><h2>{record.record_id === ids[0] ? '现在先做' : '有余力再做'}</h2><TaskCard snapshot={snapshot} record={record}><div className="feishu-card-actions">{record.record_id !== ids[0] && <Button disabled={!snapshot.ready} onClick={() => save([record.record_id, ...ids.filter(id => id !== record.record_id)])}>设为主任务</Button>}<Button disabled={!snapshot.ready} onClick={() => save(ids.filter(id => id !== record.record_id))}>移出今天</Button></div></TaskCard></div>)}
@@ -165,7 +166,7 @@ export function FeishuBoardView({ initialTable = 'tasks', allTables = false }: {
   const labels = { tasks: '任务', projects: '项目', reviews: '周报', members: '成员' }
   const normalized = query.trim().toLowerCase()
   const records = snapshot.tables[table].filter(record => !normalized || Object.values(record.fields).map(valueText).join(' ').toLowerCase().includes(normalized))
-  return <div className="feishu-page"><PageHead eyebrow="FEISHU · WORKSPACE" title={allTables ? '飞书工作台' : initialTable === 'projects' ? '飞书项目与任务' : '飞书任务看板'} description="与 Capture、Today 共用飞书数据。项目、周报和成员只读；任务可新增、修改状态。" /><FeishuReadState snapshot={snapshot} />
+  return <div className="feishu-page"><PageHead eyebrow="飞书 · 工作区" title={allTables ? '飞书' : initialTable === 'projects' ? '项目' : '任务'} description="与记录、今天共用飞书数据。项目、周报和成员只读；任务可新增、修改状态。" /><FeishuReadState snapshot={snapshot} />
     <section className="beryl-card feishu-overview"><div className="range-tabs" role="tablist" aria-label="飞书数据表">{choices.map(key => <button type="button" role="tab" aria-selected={key === table} className={key === table ? 'on' : ''} key={key} onClick={() => setTable(key)}>{labels[key]} {snapshot.tables[key].length}</button>)}</div></section>
     <input className="feishu-search" aria-label="搜索飞书数据" placeholder="搜索…" value={query} onChange={event => setQuery(event.target.value)} />
     {snapshot.tableErrors[table] && <p role="alert">{labels[table]}：{snapshot.tableErrors[table]}。已读数据仅供参考。</p>}

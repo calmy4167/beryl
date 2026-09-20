@@ -131,8 +131,8 @@ export function PeoplePage() {
     <div className="people-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">PEOPLE · CONTEXT</p>
-          <h1 className="font-title">人物上下文</h1>
+          <p className="eyebrow">关系 · 人物</p>
+          <h1 className="font-title">人物</h1>
           <p>把重要的人、关系背景和相处边界放在同一个可回看的地方。</p>
         </div>
         <span className="load-pill">{loading ? '正在读取…' : activeCount + ' 位活跃人物'}</span>

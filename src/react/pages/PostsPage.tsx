@@ -199,7 +199,7 @@ export function PostsPage() {
     <div className="posts-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">POSTS · KNOWLEDGE</p>
+          <p className="eyebrow">文章 · 知识</p>
           <h1 className="font-title">文章</h1>
           <p>把值得留下的经验写成文章，按需检索并持续整理。</p>
         </div>

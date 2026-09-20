@@ -42,11 +42,11 @@ interface GraphContext {
 }
 
 const TYPE_LABEL: Record<GraphNodeType, string> = {
-  matter: 'Matter', action: 'Action', record: 'Record', today: 'Today',
-  person: 'Person', relationship: 'Relationship', shared_space: 'Shared Space',
-  cycle: 'Cycle', stage: 'Stage', resource: 'Resource', relation: 'Relation',
-  seed: 'Seed', insight: 'Insight', outcome: 'Outcome', practice: 'Practice',
-  daily_state: 'Daily State', asset: 'Asset'
+  matter: '处境', action: '行动', record: '记录', today: '今天',
+  person: '人物', relationship: '关系', shared_space: '空间',
+  cycle: '周期', stage: '阶段', resource: '资料', relation: '关系',
+  seed: '线索', insight: '洞见', outcome: '结果', practice: '练习',
+  daily_state: '日常', asset: '文件'
 }
 
 function routeFor(type: GraphNodeType, id: string, context: GraphContext = {}): string {

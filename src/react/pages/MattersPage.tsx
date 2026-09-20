@@ -33,7 +33,7 @@ function LocalMattersPage() {
       setItems(await matterAsyncRepository.list())
       setError('')
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '课题列表读取失败')
+      setError(cause instanceof Error ? cause.message : '处境列表读取失败')
     } finally {
       setLoading(false)
     }
@@ -43,7 +43,7 @@ function LocalMattersPage() {
 
   async function create() {
     if (!title.trim()) {
-      toast('先写下课题名称', 'warning')
+      toast('先写下处境名称', 'warning')
       return
     }
     try {
@@ -53,9 +53,9 @@ function LocalMattersPage() {
       setProblemFields(emptyProblemDrivenFields)
       setShowProblemFields(false)
       await refresh()
-      toast('课题已创建')
+      toast('处境已创建')
     } catch (error) {
-      toast(error instanceof Error ? error.message : '创建课题失败', 'error')
+      toast(error instanceof Error ? error.message : '创建处境失败', 'error')
     }
   }
 
@@ -64,7 +64,7 @@ function LocalMattersPage() {
     try {
       await withSaveState(() => matterAsyncRepository.transition(item.calmyId, next, { expectedRevision: item.revision }))
       await refresh()
-      toast(next === 'active' ? '课题已恢复' : '课题已暂停')
+      toast(next === 'active' ? '处境已恢复' : '处境已暂停')
     } catch (error) {
       toast(error instanceof Error ? error.message : '状态更新失败', 'error')
       await refresh()
@@ -75,9 +75,9 @@ function LocalMattersPage() {
     try {
       await withSaveState(() => matterAsyncRepository.archive(item.calmyId, { expectedRevision: item.revision }))
       await refresh()
-      toast('课题已结束并归档，不代表失败')
+      toast('处境已结束并归档，不代表失败')
     } catch (error) {
-      toast(error instanceof Error ? error.message : '结束课题失败', 'error')
+      toast(error instanceof Error ? error.message : '结束处境失败', 'error')
       await refresh()
     }
   }
@@ -99,17 +99,17 @@ function LocalMattersPage() {
 
   return (
     <div className="matters-page">
-      <PageHead eyebrow="MATTERS · 现实主体" title="课题，不是任务清单" description="从正在面对的现实问题出发，学习只服务于下一次解决与验证。">
-        <select aria-label="课题筛选" value={filter} onChange={event => setFilter(event.target.value)}>
+      <PageHead eyebrow="处境 · 正在面对" title="处境" description="记录持续影响你的现实问题，并写下想看到的变化。">
+        <select aria-label="处境筛选" value={filter} onChange={event => setFilter(event.target.value)}>
           <option value="all">全部</option><option value="active">进行中</option><option value="paused">已暂停</option><option value="archived">已结束</option>
         </select>
       </PageHead>
 
-      {error && <section className="beryl-card empty-state" role="alert"><b>课题列表暂时无法读取</b><p>{error}</p><Button onClick={() => void refresh()}>重试</Button></section>}
+      {error && <section className="beryl-card empty-state" role="alert"><b>处境列表暂时无法读取</b><p>{error}</p><Button onClick={() => void refresh()}>重试</Button></section>}
 
       <section className="matter-create beryl-card">
-        <input aria-label="新课题名称" value={title} onChange={event => setTitle(event.target.value)} placeholder="例如：建立稳定的工作节奏" />
-        <textarea aria-label="课题为什么重要" value={why} onChange={event => setWhy(event.target.value)} placeholder="它为什么值得被持续面对？" />
+        <input aria-label="新处境名称" value={title} onChange={event => setTitle(event.target.value)} placeholder="例如：建立稳定的工作节奏" />
+        <textarea aria-label="处境为什么重要" value={why} onChange={event => setWhy(event.target.value)} placeholder="它为什么值得被持续面对？" />
         <details open={showProblemFields} onToggle={event => setShowProblemFields(event.currentTarget.open)}>
           <summary>如果这是一个学习问题，补充解决闭环（可选）</summary>
           <p className="field-hint">先写问题，再决定最小必要的学习；没有现实问题时，不需要为了“自律”制造学习。</p>
@@ -122,11 +122,11 @@ function LocalMattersPage() {
             <textarea aria-label="停止条件" value={problemFields.stopCondition} onChange={event => setProblemField('stopCondition', event.target.value)} placeholder="什么情况下可以停止、换方法或停止学习？" />
           </div>
         </details>
-        <Button className="primary" disabled={loading} onClick={() => void create()}>创建课题</Button>
+        <Button className="primary" disabled={loading} onClick={() => void create()}>创建处境</Button>
       </section>
 
       <div className="matter-grid">
-        {loading ? <div className="empty-state" role="status">正在读取课题…</div> : visible.map(item => (
+        {loading ? <div className="empty-state" role="status">正在读取处境…</div> : visible.map(item => (
           <article className="matter-card beryl-card" key={item.calmyId}>
             <div className="matter-card-head"><span className={`matter-status ${item.status}`}>{matterStatusLabels[item.status]}</span><div className="matter-card-actions"><Button aria-label={`${item.title}状态切换`} onClick={() => void toggle(item)}>{item.status === 'active' ? '暂停' : '恢复'}</Button>{item.status !== 'archived' && <Button onClick={() => void archive(item)}>结束</Button>}</div></div>
             <h2 className="font-title">{item.title}</h2><p>{item.why || '还没有写下为什么重要。'}</p>
@@ -134,7 +134,7 @@ function LocalMattersPage() {
             <div className="matter-card-trend"><span>阶段：{item.currentStage}</span><label>趋势<select aria-label={`${item.title}趋势`} value={item.trajectory} onChange={event => void changeTrajectory(item, event.target.value as Matter['trajectory'])}>{Object.entries(trajectoryLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
           </article>
         ))}
-        {!loading && !visible.length && <div className="empty-state">还没有匹配的课题。</div>}
+        {!loading && !visible.length && <div className="empty-state">还没有匹配的处境。</div>}
       </div>
     </div>
   )

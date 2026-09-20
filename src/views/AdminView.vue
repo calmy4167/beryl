@@ -11,6 +11,7 @@ import { BACKUP_SENSITIVE_KEYS, createDurableBackup, parseBackup } from '@/core/
 import { createDurableEntityMigrationPlan, createEntityMigrationPlan, migrationBackupExists, rollbackMigrationDurable, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
 import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
 import { apiFetch } from '@/core/api/client'
+import { clearFeishuCache } from '@/core/feishu/cache'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 import { listRealityDocuments } from '@/domain/reality'
 import { exportCurrentOpenWorkspace } from '@/core/content/open-workspace'
@@ -118,9 +119,15 @@ function resetData() {
     if (k && k.startsWith('b_')) keys.push(k)
   }
   void (async () => {
-    keys.forEach(k => localStorage.removeItem(k))
-    await clearDb()
-    location.reload()
+    try {
+      await clearFeishuCache()
+      await clearDb()
+      keys.forEach(k => localStorage.removeItem(k))
+      location.reload()
+    } catch {
+      resetArmed = false
+      ElMessage.error('本地数据未能完整清空，请检查浏览器存储权限后重试。')
+    }
   })()
 }
 
@@ -387,7 +394,7 @@ onUnmounted(() => {
       <span class="mod-icon" aria-hidden="true">⚙️</span>
       <div>
         <p class="head-kicker">WORKSPACE CONTROL</p>
-        <h2 class="font-title mod-name">设置与同步</h2>
+        <h2 class="font-title mod-name">设置</h2>
         <p class="head-description">管理本机数据、同步连接、Vault 与实体迁移。</p>
       </div>
     </div>

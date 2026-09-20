@@ -153,12 +153,12 @@ export function TasksPage() {
     <div className="tasks-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">TASKS · ACTIONS</p>
-          <h1 className="font-title">任务清单</h1>
+          <p className="eyebrow">任务 · 行动</p>
+          <h1 className="font-title">任务</h1>
           <p>把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。</p>
         </div>
         <div className="task-board-head-actions">
-          <button className="react-btn" type="button" onClick={() => navigate('/app/task-board')}>打开事项看板</button>
+          <button className="react-btn" type="button" onClick={() => navigate('/app/task-board')}>打开看板</button>
           <span className="load-pill">{openCount} 个待处理 · {doneCount} 个已完成</span>
         </div>
       </header>
@@ -169,7 +169,7 @@ export function TasksPage() {
             <p className="eyebrow">QUICK ACTION</p>
             <h2 className="font-title">添加一个下一步</h2>
           </div>
-          <span>会同步加入所选日期的 Today 计划</span>
+          <span>会同步加入所选日期的今天计划</span>
         </div>
         <form className="create-row" onSubmit={event => void createTask(event)}>
           <input
@@ -186,7 +186,7 @@ export function TasksPage() {
             onChange={event => void changeDate(event.target.value)}
             disabled={saving}
           />
-          <select aria-label="关联课题" value={matterId} onChange={event => setMatterId(event.target.value)} disabled={saving}>
+          <select aria-label="关联处境" value={matterId} onChange={event => setMatterId(event.target.value)} disabled={saving}>
             <option value="">不关联课题</option>
             {matters.filter(item => item.status !== 'archived').map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}
           </select>

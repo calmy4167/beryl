@@ -5,221 +5,7 @@ import { SCENES, currentSceneId } from '@/core/scenes'
 import {
   listRealityDocumentsAsync,
   type RealityDocument,
-  type RealityEntityType,
 } from '@/domain/reality'
-
-type ModuleCountMode = 'types' | 'all' | 'dated' | 'none'
-
-interface ProfileModule {
-  id: string
-  icon: string
-  label: string
-  description: string
-  route: string
-  countMode: ModuleCountMode
-  types?: readonly RealityEntityType[]
-}
-
-const PROFILE_MODULES: readonly ProfileModule[] = [
-  {
-    id: 'feishu', icon: '▤', label: '飞书工作台',
-    description: '飞书项目、任务、周报与成员；任务直接写回飞书',
-    route: '/app/feishu', countMode: 'none',
-  },
-  {
-    id: 'today',
-    icon: '⌂',
-    label: 'Today',
-    description: '今日方向、行动与状态',
-    route: '/app/today',
-    countMode: 'types',
-    types: ['today', 'daily_state'],
-  },
-  {
-    id: 'cycle',
-    icon: '◌',
-    label: 'Cycle',
-    description: '查看周期与阶段流转',
-    route: '/app/cycle',
-    countMode: 'types',
-    types: ['cycle', 'stage'],
-  },
-  {
-    id: 'capture',
-    icon: '↓',
-    label: 'Capture',
-    description: '保存原文与待整理线索',
-    route: '/app/capture',
-    countMode: 'types',
-    types: ['capture', 'seed'],
-  },
-  {
-    id: 'matters',
-    icon: '◎',
-    label: '事项',
-    description: '持续面对的现实课题',
-    route: '/app/matters',
-    countMode: 'types',
-    types: ['case', 'matter'],
-  },
-  {
-    id: 'inbox',
-    icon: '⌄',
-    label: '收件箱',
-    description: '尚未处理的临时收集',
-    route: '/app/module/inbox',
-    countMode: 'types',
-    types: ['inbox'],
-  },
-  {
-    id: 'tasks',
-    icon: '✓',
-    label: '任务与行动',
-    description: '任务清单与现实行动',
-    route: '/app/module/tasks',
-    countMode: 'types',
-    types: ['task', 'action'],
-  },
-  {
-    id: 'review',
-    icon: '↺',
-    label: '复盘',
-    description: '事实、结果与洞察',
-    route: '/app/review',
-    countMode: 'types',
-    types: ['record', 'insight', 'outcome'],
-  },
-  {
-    id: 'habits',
-    icon: '♧',
-    label: '习惯',
-    description: '身体、状态与日常小行动',
-    route: '/app/module/habits',
-    countMode: 'types',
-    types: ['habit', 'practice'],
-  },
-  {
-    id: 'goals',
-    icon: '◇',
-    label: '目标',
-    description: '现实结果、证据与下一步',
-    route: '/app/module/goals',
-    countMode: 'types',
-    types: ['goal'],
-  },
-  {
-    id: 'finance',
-    icon: '¥',
-    label: '财务',
-    description: '收入与支出记录',
-    route: '/app/module/finance',
-    countMode: 'types',
-    types: ['transaction'],
-  },
-  {
-    id: 'pomo',
-    icon: '◷',
-    label: '番茄钟',
-    description: '专注节奏与现实记录',
-    route: '/app/module/pomo',
-    countMode: 'types',
-    types: ['pomo'],
-  },
-  {
-    id: 'diary',
-    icon: '▤',
-    label: '日记',
-    description: '按日期保存生活记录',
-    route: '/app/module/diary',
-    countMode: 'types',
-    types: ['diary'],
-  },
-  {
-    id: 'posts',
-    icon: '✎',
-    label: '文章与动态',
-    description: '文章和已有动态内容',
-    route: '/app/module/posts',
-    countMode: 'types',
-    types: ['post', 'moment'],
-  },
-  {
-    id: 'library',
-    icon: '▧',
-    label: '资料',
-    description: '资源、附件与知识素材',
-    route: '/app/library',
-    countMode: 'types',
-    types: ['resource', 'asset'],
-  },
-  {
-    id: 'calendar',
-    icon: '□',
-    label: '日历',
-    description: '按时间查看已有事实',
-    route: '/app/calendar',
-    countMode: 'dated',
-  },
-  {
-    id: 'people',
-    icon: '♙',
-    label: '人脉',
-    description: '人物、关系与共享空间',
-    route: '/app/people',
-    countMode: 'types',
-    types: ['person', 'relationship', 'shared_space', 'char'],
-  },
-  {
-    id: 'graph',
-    icon: '⌁',
-    label: '统计与图谱',
-    description: '从全部事实中查看连接',
-    route: '/app/graph',
-    countMode: 'all',
-  },
-  {
-    id: 'memory',
-    icon: '✦',
-    label: 'AI 对我的理解',
-    description: '管理记忆分层与判断权',
-    route: '/app/memory',
-    countMode: 'none',
-  },
-  {
-    id: 'settings',
-    icon: '⚙',
-    label: '设置与同步',
-    description: '本地数据、同步与外观',
-    route: '/app/admin',
-    countMode: 'none',
-  },
-]
-
-function countByTypes(
-  documents: readonly RealityDocument[],
-  types: readonly RealityEntityType[],
-): number {
-  const acceptedTypes = new Set<RealityEntityType>(types)
-  return documents.reduce(
-    (total, document) => total + (acceptedTypes.has(document.entityType) ? 1 : 0),
-    0,
-  )
-}
-
-function moduleCount(module: ProfileModule, documents: readonly RealityDocument[]): number | null {
-  if (module.countMode === 'none') return null
-  if (module.countMode === 'all') return documents.length
-  if (module.countMode === 'dated') {
-    return documents.filter(document => Boolean(document.date || document.occurredAt)).length
-  }
-  return countByTypes(documents, module.types ?? [])
-}
-
-function moduleCountLabel(module: ProfileModule, documents: readonly RealityDocument[]): string {
-  const count = moduleCount(module, documents)
-  if (count === null) return '管理'
-  return `${count} 条`
-}
 
 function formatTimestamp(timestamp: number | undefined): string {
   if (!timestamp || timestamp <= 0) return '暂无记录'
@@ -261,7 +47,7 @@ export function ProfilePage() {
 
   const userName = session?.u.trim() || '本地用户'
   const userInitial = Array.from(userName)[0]?.toLocaleUpperCase() || 'C'
-  const matterCount = countByTypes(documents, ['case', 'matter'])
+  const matterCount = documents.filter(document => document.entityType === 'case' || document.entityType === 'matter').length
   const focusMinutes = documents.reduce(
     (total, document) => total + (document.entityType === 'pomo' ? document.minutes ?? 0 : 0),
     0,
@@ -288,7 +74,7 @@ export function ProfilePage() {
             切换场景
           </button>
           <button className="react-btn primary" type="button" onClick={() => navigate('/app/admin')}>
-            设置与同步
+            设置
           </button>
         </div>
       </header>
@@ -385,64 +171,6 @@ export function ProfilePage() {
         </div>
       </section>
 
-      <section className="profile-modules" aria-labelledby="profile-modules-title">
-        <div className="profile-section-head">
-          <div>
-            <p className="eyebrow">ALL MODULES</p>
-            <h2 id="profile-modules-title" className="font-title">全部模块入口</h2>
-          </div>
-          <span>保留原模块，并加入新的概览页面</span>
-        </div>
-        <nav className="profile-module-grid" aria-label="全部模块入口">
-          {PROFILE_MODULES.map(module => {
-            const countLabel = loading ? '读取中…' : moduleCountLabel(module, documents)
-            return (
-              <button
-                key={module.id}
-                className="react-btn beryl-card profile-module-card"
-                type="button"
-                aria-label={`打开${module.label}，${countLabel}`}
-                onClick={() => navigate(module.route)}
-              >
-                <span className="profile-module-icon" aria-hidden="true">{module.icon}</span>
-                <span className="profile-module-copy">
-                  <b>{module.label}</b>
-                  <small>{module.description}</small>
-                </span>
-                <span className="profile-module-count">{countLabel}</span>
-                <span className="profile-module-arrow" aria-hidden="true">→</span>
-              </button>
-            )
-          })}
-        </nav>
-      </section>
-
-      <section className="beryl-card profile-system-card" aria-labelledby="profile-system-title">
-        <div className="profile-section-head">
-          <div>
-            <p className="eyebrow">SYSTEM</p>
-            <h2 id="profile-system-title" className="font-title">系统与数据</h2>
-          </div>
-          <span>沿用当前本地优先架构</span>
-        </div>
-        <div className="profile-system-list">
-          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/admin')}>
-            <span aria-hidden="true">⚙</span><b>数据、同步与外观</b><span>→</span>
-          </button>
-          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/library')}>
-            <span aria-hidden="true">▧</span><b>资料与附件管理</b><span>→</span>
-          </button>
-          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/people')}>
-            <span aria-hidden="true">♙</span><b>人物与关系管理</b><span>→</span>
-          </button>
-          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/graph')}>
-            <span aria-hidden="true">⌁</span><b>统计与关系图谱</b><span>→</span>
-          </button>
-          <button className="react-btn profile-system-entry" type="button" onClick={() => navigate('/app/memory')}>
-            <span aria-hidden="true">✦</span><b>AI 对我的理解与判断权</b><span>→</span>
-          </button>
-        </div>
-      </section>
     </div>
   )
 }

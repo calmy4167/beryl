@@ -10,7 +10,7 @@ export function LegacyAdminHost() {
   const host = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!host.current) return
-    const Redirect = { setup: () => () => h('div', { class: 'empty-state' }, '正在返回 Today…') }
+    const Redirect = { setup: () => () => h('div', { class: 'empty-state' }, '正在返回今天…') }
     const router = createRouter({ history: createWebHashHistory(), routes: [
       { path: '/app/admin', component: AdminView },
       { path: '/app/home', component: Redirect },

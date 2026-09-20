@@ -78,7 +78,7 @@ export function PomoPage() {
     try {
       setStats(await readStats())
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '番茄钟统计读取失败')
+      setError(cause instanceof Error ? cause.message : '专注统计读取失败')
     }
   }
 
@@ -117,7 +117,7 @@ export function PomoPage() {
   useEffect(() => {
     document.title = running
       ? `${timeText(remainingSeconds)} ${modeLabel(mode)} — Calmy`
-      : 'Calmy — 番茄钟'
+      : 'Calmy — 专注'
     return () => {
       document.title = 'Calmy — 个人现实行动系统'
     }
@@ -134,7 +134,7 @@ export function PomoPage() {
           const nextMinutes = current.minutes + completedMinutes
           const nextCount = current.count + 1
           if (!await writeAsyncStorageValue('pomoTotal', nextMinutes) || !await writeAsyncStorageValue('pomoCount', nextCount)) {
-            throw new Error('番茄钟累计数据保存失败，请检查本地存储状态')
+            throw new Error('专注累计数据保存失败，请检查本地存储状态')
           }
           await recordAsyncRepository.create({
             type: 'fact',
@@ -147,7 +147,7 @@ export function PomoPage() {
         await refreshHistory()
         toast(`专注完成，已记录 ${completedMinutes} 分钟`)
       } catch (cause) {
-        toast(cause instanceof Error ? cause.message : '番茄钟完成记录保存失败', 'error')
+        toast(cause instanceof Error ? cause.message : '专注记录保存失败', 'error')
       } finally {
         setSaving(false)
       }
@@ -205,7 +205,7 @@ export function PomoPage() {
       <header className="page-head">
         <div>
           <p className="eyebrow">POMO · FOCUSED RHYTHM</p>
-          <h1 className="font-title">番茄钟</h1>
+          <h1 className="font-title">专注</h1>
           <p>用可调整的专注与休息节奏，把一轮时间落成可追溯的完成记录。</p>
         </div>
         <span className="load-pill">已完成 {stats.count} 个专注段 · {stats.minutes} 分钟（可选记录）</span>
@@ -241,8 +241,8 @@ export function PomoPage() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginTop: 20 }}>
-          <button className="react-btn primary" type="button" aria-label={running ? '暂停番茄钟' : '开始番茄钟'} onClick={toggleTimer} disabled={saving}>{running ? '暂停' : remainingSeconds === totalSeconds ? '开始' : '继续'}</button>
-          <button className="react-btn" type="button" aria-label="重置番茄钟" onClick={resetTimer} disabled={saving}>重置</button>
+          <button className="react-btn primary" type="button" aria-label={running ? '暂停专注' : '开始专注'} onClick={toggleTimer} disabled={saving}>{running ? '暂停' : remainingSeconds === totalSeconds ? '开始' : '继续'}</button>
+          <button className="react-btn" type="button" aria-label="重置专注" onClick={resetTimer} disabled={saving}>重置</button>
         </div>
 
         <div className="create-row" style={{ maxWidth: 520, margin: '22px auto 0', gridTemplateColumns: '1fr 1fr' }}>
@@ -270,7 +270,7 @@ export function PomoPage() {
           </div>
           <span className="muted">最近 {recentHistory.length} 条</span>
         </div>
-        {error && <section className="beryl-card empty-state" role="alert" style={{ marginTop: 12 }}><b>番茄钟数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void Promise.all([refreshHistory(), refreshStats()])}>重试</button></section>}
+        {error && <section className="beryl-card empty-state" role="alert" style={{ marginTop: 12 }}><b>专注数据暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void Promise.all([refreshHistory(), refreshStats()])}>重试</button></section>}
         {historyLoading ? <div className="empty-state" role="status">正在读取完成记录…</div> : recentHistory.length ? (
           <div aria-live="polite">
             {recentHistory.map(record => (

@@ -54,7 +54,7 @@ index.html
 
 - `CyclePage`：复用 Matter/Action/Today 数据的五行阶段视图。
 - `ProfilePage`：复用 Reality、场景和现有模块的“我的”聚合页。
-- `FeishuPage`：读取配置后的飞书项目、任务、周报与成员表；任务提供看板、新增和最小状态写回，其余表先只读。`src/core/feishu/` 提供字段 ID 绑定、工作区隔离引用和前台刷新；Today、Capture、事项与事项看板可显式切换为飞书来源，未配置时保留本地路径。
+- `FeishuPage`：读取配置后的飞书项目、任务、周报与成员表；任务提供看板、新增和最小状态写回，其余表先只读。`src/core/feishu/` 提供字段 ID 绑定、工作区隔离引用、前台刷新和独立 IndexedDB 只读快照；Today、Capture、事项与事项看板可显式切换为飞书来源，未配置时保留本地路径。
 
 ### 二级/兼容/实验页
 

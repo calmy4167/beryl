@@ -138,7 +138,7 @@ export function DiaryPage() {
     <div className="diary-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">DIARY · DAILY REFLECTION</p>
+          <p className="eyebrow">日记 · 每日回顾</p>
           <h1 className="font-title">日记</h1>
           <p>按日期留下今天的心情、观察与收获，历史记录保存在本机 diary 数据集中。</p>
         </div>

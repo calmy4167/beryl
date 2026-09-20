@@ -200,7 +200,7 @@ export function HabitsPage() {
     <div className="habits-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">HABITS · SMALL RHYTHMS</p>
+          <p className="eyebrow">习惯 · 日常节奏</p>
           <h1 className="font-title">习惯</h1>
           <p>用一周视图记录可持续的小行动；连续天数只作回看线索，不是需要追赶的目标。</p>
         </div>

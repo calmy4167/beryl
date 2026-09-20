@@ -254,9 +254,9 @@ export function CalendarPage() {
     <style>{calendarCss}</style>
     <header className="page-head calendar-head">
       <div>
-        <p className="eyebrow">CALENDAR · TIME + REALITY EVIDENCE</p>
-        <h1 className="font-title">日历与现实证据</h1>
-        <p>按日期回看行动、记录和当天状态，必要时回到 Today 或对应课题继续处理。</p>
+        <p className="eyebrow">日历 · 行动与记录</p>
+        <h1 className="font-title">日历</h1>
+        <p>按日期回看行动、记录和当天状态，必要时回到今天或对应处境继续处理。</p>
       </div>
       <div className="calendar-controls" aria-label="月份切换">
         <button type="button" aria-label="上一个月" onClick={() => shiftMonth(-1)}>←</button>
@@ -302,8 +302,8 @@ export function CalendarPage() {
       <aside className="day-panel">
         <section className="selected-day beryl-card">
           <div className="panel-head">
-            <div><p className="eyebrow">SELECTED DAY</p><h2 className="font-title">{selectedDate}</h2></div>
-            <button type="button" className="quiet" onClick={openToday}>打开 Today →</button>
+            <div><p className="eyebrow">选中日期</p><h2 className="font-title">{selectedDate}</h2></div>
+            <button type="button" className="quiet" onClick={openToday}>打开今天 →</button>
           </div>
           <div className="day-metrics">
             <span>行动 <b>{completedCount}/{selectedEvidence.actions.length}</b></span>
@@ -320,7 +320,7 @@ export function CalendarPage() {
     </div>
 
     <section className="evidence-panel beryl-card" aria-labelledby="calendar-evidence-title">
-      <div className="panel-head"><div><p className="eyebrow">REALITY EVIDENCE · {selectedDate}</p><h2 id="calendar-evidence-title" className="font-title">当天行动与记录</h2></div><span>{loading ? '正在读取…' : `${selectedEvidence.actions.length + selectedEvidence.records.length} 条证据`}</span></div>
+      <div className="panel-head"><div><p className="eyebrow">现实记录 · {selectedDate}</p><h2 id="calendar-evidence-title" className="font-title">当天行动与记录</h2></div><span>{loading ? '正在读取…' : `${selectedEvidence.actions.length + selectedEvidence.records.length} 条证据`}</span></div>
       <div className="evidence-section">
         <h3>行动</h3>
         <div className="record-list">
@@ -329,7 +329,7 @@ export function CalendarPage() {
             return <div className="evidence-row" key={`action-${item.calmyId}`}>
               <i />
               <div className="evidence-copy"><b>{item.title}</b><small>{statusLabels[item.status] || item.status}{matter ? ` · ${matter.title}` : ''}</small></div>
-              <div className="evidence-actions"><small>行动</small>{matter && <button type="button" onClick={() => openMatter(matter.calmyId)}>查看课题</button>}</div>
+              <div className="evidence-actions"><small>行动</small>{matter && <button type="button" onClick={() => openMatter(matter.calmyId)}>查看处境</button>}</div>
             </div>
           })}
           {!selectedEvidence.actions.length && <p className="muted">当天没有行动证据。</p>}
@@ -343,7 +343,7 @@ export function CalendarPage() {
             return <div className="evidence-row" key={`record-${item.calmyId}`}>
               <i className="record" />
               <div className="evidence-copy"><b>{item.body}</b><small>{formatTime(item.occurredAt)} · {statusLabels[item.type] || item.type}{matter ? ` · ${matter.title}` : ''}</small></div>
-              <div className="evidence-actions"><small>记录</small>{matter && <button type="button" onClick={() => openMatter(matter.calmyId)}>查看课题</button>}</div>
+              <div className="evidence-actions"><small>记录</small>{matter && <button type="button" onClick={() => openMatter(matter.calmyId)}>查看处境</button>}</div>
             </div>
           })}
           {!selectedEvidence.records.length && <p className="muted">当天没有现实记录。</p>}
@@ -352,12 +352,12 @@ export function CalendarPage() {
     </section>
 
     <section className="evidence-panel beryl-card" style={{ marginTop: 16 }}>
-      <div className="panel-head"><div><p className="eyebrow">MONTH CONTEXT · {monthPrefix}</p><h2 className="font-title">本月有证据的课题</h2></div><span>行动与记录</span></div>
+      <div className="panel-head"><div><p className="eyebrow">本月处境 · {monthPrefix}</p><h2 className="font-title">本月有记录的处境</h2></div><span>行动与记录</span></div>
       <div className="record-list">
         {data.matters.filter(item => item.status !== 'archived').map(matter => {
           const count = data.actions.filter(item => actionDate(item).startsWith(monthPrefix) && item.matterId === matter.calmyId).length + data.records.filter(item => dateKey(new Date(item.occurredAt)).startsWith(monthPrefix) && item.matterId === matter.calmyId).length
           if (!count) return null
-          return <div className="evidence-row" key={matter.calmyId}><i /><div className="evidence-copy"><b>{matter.title}</b><small>{count} 条本月证据 · {matter.currentStage}</small></div><div className="evidence-actions"><button type="button" onClick={() => openMatter(matter.calmyId)}>打开课题 →</button></div></div>
+          return <div className="evidence-row" key={matter.calmyId}><i /><div className="evidence-copy"><b>{matter.title}</b><small>{count} 条本月证据 · {matter.currentStage}</small></div><div className="evidence-actions"><button type="button" onClick={() => openMatter(matter.calmyId)}>打开处境 →</button></div></div>
         })}
         {!data.matters.some(matter => matter.status !== 'archived' && (data.actions.some(item => actionDate(item).startsWith(monthPrefix) && item.matterId === matter.calmyId) || data.records.some(item => dateKey(new Date(item.occurredAt)).startsWith(monthPrefix) && item.matterId === matter.calmyId))) && <p className="muted">本月还没有关联课题的证据。</p>}
       </div>

@@ -49,9 +49,15 @@
 
 2026-09-20 原型进展：`/app/future` 提供工作、关系、学习 Python、个人时间四个具体预设；结果已从四象限通用模板改为“行动可能得到／一直不做可能错过”的事实影响链，并展示来源、条件和不确定性。没有事实依据的自定义内容会停止推演，不再把原句填入空泛模板。明确确认后只保存用户写下的选择、反思和可选下一步，不保存推演文案，也不接入实时检索或未来情境生成服务。该原型仍未验证个性化模拟、身临其境程度或外部工具闭环。OW-21 保持未完成；后续应盘点并收拢整体导航与信息层级，再验证完整真实场景和前台语言，决定检索、模型和数据边界。
 
+2026-09-20 纵向试点进展：以现有「争取一个新的工作机会」预设整理了 OW-21 方案，覆盖处境表达、事实/解释区分、两种选择各自的收获和代价、现有 Capture/Matter/Action/Record 映射、外部工具边界、备份回退及用户验证脚本。`/app/future` 的四个预设均已补齐行动与暂缓两边的可能收获和代价；所有主题都可选区分事实/解释；用户确认后才把内容写入 Capture；自定义内容会暂停推演。用户可附一个链接，在保存后打开，并手动另存一条引用原选择记录 ID 的现实反馈 Capture。链接与反馈尚未在真实外部工具和场景中验收，反馈也还没有稳定的领域对象关联。CareerOneStop 来源只适用于一般求职步骤，不能代替用户所在地的市场证据。方案不是来自真实用户的完整场景，真实用户验证未执行，OW-21 继续保持未完成。`npm run build` 通过。详见[工作机会纵向试点设计](OW-21_WORK_SCENARIO_PILOT_2026-09-20.md)。
+
+2026-09-20 导航试改：桌面和手机保留四个日常入口；扩展功能改为共用分组目录；右侧栏移除重复的全局入口；“我的”页暂时只保留个人与数据概览。根据用户反馈，主线、功能分组、模块和快捷动作的可见名称统一收短为两个字，个人设置入口合并到“个人”组，较完整的说明留在页面提示中。原有路由、用户数据和同步边界未改。`npm run build` 通过，本地预览已打开；名称、分组和“我的”页是否保留待用户体验后确认。OW-21 仍未完成。
+
 ### OW-06 Vue 兼容层退出评估
 
 `src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。`index.html → src/react/main.tsx → src/react/App.tsx` 是唯一生产启动链；Vue 仅通过 `/app/admin` 的 `LegacyAdminHost` 完整设置界面及同步基础设施保留，旧 `/app/admin/advanced` 复用同一界面。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已作为第一批清理项移除，并有静态回归保护。静态回归现扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于 `LegacyAdminHost.tsx`；React 已补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的兼容重定向。Vue 运行时依赖和其余旧路由真实回归仍未完成。
+
+2026-09-20 启动同步复核：生产 React 登录保护路由已接入已保存配置的自动恢复、前台轮询和切回页面检查。此前恢复逻辑只在未被生产入口使用的 Vue `App.vue` 中，因此新版页面每次启动都会留在本地模式。`npm run build` 通过；线上连接恢复仍需在用户配置的同步服务上实测。
 
 验收：所有生产路由、登录、设置、导入导出、同步和边缘模块均无 Vue 运行时依赖；删除每批兼容代码后全量测试与构建通过。
 
@@ -60,6 +66,12 @@
 继续拆分大型 `src/react/App.tsx` 和页面文件，将路由、壳层、页面状态、展示组件和 Application Use Case 分离；同时评估扩展模块的按需样式/资源拆分，不改变领域模型和现有 URL。
 
 2026-08-29 已完成九刀：将所有 React 懒加载页面注册集中到 `src/react/lazy-pages.ts`，将工作台壳层、搜索弹层、共享 `Button`、页面头部和焦点陷阱分别收口到 `src/react/AppShell.tsx` 与 `src/react/ui.tsx`，将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`，将登录、保护路由、旧 Case 重定向和占位页收口到 `src/react/route-views.tsx`，并将旧 Today、Capture、Matters、Review、MatterDetail 页面状态分别移到 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx`；`App.tsx` 保留启动、守卫、页面节点装配和兼容导出，URL、兼容重定向、Suspense 边界和按需加载行为不变。下一刀继续拆出剩余页面状态，仍需避免循环依赖和重复监听。
+
+2026-09-20 页面职责继续收口：将未来回望页的主题影响文案、时间选项和主题映射移到 `src/react/pages/future-lookback/data.ts`，将时间选择器移到 `HorizonPicker.tsx`，反思表单拆到 `ReflectionStage.tsx`，行动/暂缓两条影响卡与保存后的现实反馈面板拆到 `ScenarioPathCard.tsx`、`SavedStage.tsx`；`FuturePage.tsx` 保留交互状态和保存流程，路由与用户行为不变。`npm run build` 通过；该页面实施计划明确不运行测试。
+
+2026-09-20 Capture 页面职责继续收口：将待处理原文卡片拆到 `CapturePendingCard.tsx`，将数据读取、同步监听、保存/决策用例和派生列表状态移到 `useCaptureWorkspace.ts`，输入区、待处理列表和历史列表拆到 `CaptureSections.tsx`；`CapturePage.tsx` 只负责页面组合，保存行为与同步监听不变。`npm run build` 通过。
+
+2026-09-20 Today 页面职责继续收口：将身体状态选择、“现在值得注意”的主行动与余力行动、“思考/轨迹”展示，以及主动放下、添加行动、现实记录表单拆到 `src/react/pages/today/` 下的展示部件；数据读取、派生状态和用例编排移到 `useTodayWorkspace.ts`，页面组件只负责布局与导航。`npm run build` 通过。
 
 验收：页面职责可单独测试；跨页面行为通过用例或共享协议复用；切换模块不重复挂载无关监听器；核心首屏不因扩展模块样式和组件 eager 加载而膨胀。
 
@@ -132,6 +144,10 @@
 将飞书多维表格接入作为可配置的外部数据源，让 Calmy 提供飞书式表格/看板与更人性化的 Today、事项和复盘界面。第一阶段只覆盖用户现有 Base 的 `项目`、`任务`、`周报` 和 `成员` 边界，不改变当前本地 Repository 的事实源裁决。
 
 当前代码已完成 Worker 侧适配层和 React `FeishuPage`：租户 Token 获取、配置状态、字段 schema、四张表的记录读取，以及任务新增和状态更新接口。真实 Base 已验证可读取 `项目`、`任务`、`周报`、`成员` 四张表；页面已按真实字段校准任务标题为 `任务`，并补齐自动分页。前端生产构建、Worker dry-run 与 6 项本地接口测试已通过，原 FlowPage 的类型收窄问题已修复。用户负责后续 Worker 与 Pages 部署；下一步是线上授权读取和受控真实写回验收，以及字段 ID 映射、字段变化检测与错误反馈。
+
+2026-09-20 本机只读缓存：飞书工作区完整读取成功后会将快照保存在独立 IndexedDB 缓存库，按工作区 ID 隔离，不进入业务 KV、备份或云端同步。网络失败时显示缓存更新时间并禁用飞书写入；网络恢复后重新读取飞书。清空本地数据时一并清除缓存。`npm run build` 通过；线上缓存恢复、权限变化和多工作区场景仍需验收。
+
+2026-09-20 缓存边界复核修正：刷新开始时立即将快照切为只读，核心写入也拒绝刷新中的请求；重置先清缓存，清理失败会提示错误并停止后续清除与页面重载。两条针对性回归用例和 `npm run build` 通过；线上缓存恢复、权限变化和多工作区场景仍需验收。
 
 下一阶段规划见 [飞书生活工作台规划](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)，能力范围和持续同步规则见 [飞书官方能力同步清单](FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md)，对应 D-014（proposed）和 D-016（accepted）。建议按以下子阶段推进；它们尚未表示核心四页已完成线上验收：
 

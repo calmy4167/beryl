@@ -18,23 +18,23 @@ export function MatterDetailPage() {
     setLoading(true)
     setError('')
     try { setMatter(id ? await matterAsyncRepository.find(id) : undefined) }
-    catch (cause) { setError(cause instanceof Error ? cause.message : '课题读取失败') }
+    catch (cause) { setError(cause instanceof Error ? cause.message : '处境读取失败') }
     finally { setLoading(false) }
   }, [id])
 
   useEffect(() => { void refresh() }, [refresh])
-  if (loading) return <div className="empty-state" role="status">正在读取课题…</div>
-  if (error) return <section className="empty-state" role="alert"><b>课题暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>
-  if (!matter) return <section className="empty-state" role="status"><b>找不到这个课题</b><p>它可能已被归档或从当前设备移除。</p></section>
+  if (loading) return <div className="empty-state" role="status">正在读取处境…</div>
+  if (error) return <section className="empty-state" role="alert"><b>处境暂时无法读取</b><p>{error}</p><button className="react-btn" type="button" onClick={() => void refresh()}>重试</button></section>
+  if (!matter) return <section className="empty-state" role="status"><b>找不到这个处境</b><p>它可能已被归档或从当前设备移除。</p></section>
 
   return (
     <div className="matter-detail">
-      <PageHead eyebrow="MATTER DETAIL" title={matter.title} description={matter.why || '这个课题还没有写下为什么重要。'} />
+      <PageHead eyebrow="处境 · 详情" title={matter.title} description={matter.why || '这个处境还没有写下为什么重要。'} />
       <section className="beryl-card admin-block">
         <p className="info">状态：{matterStatusLabels[matter.status]} · 阶段：{matter.currentStage} · 趋势：{trajectoryLabels[matter.trajectory]}</p>
         <p className="info">主矛盾：{matter.primaryContradiction || '尚未填写'}</p>
-        <p className="info">趋势是基于记录的可推翻判断；需要调整时，请在课题列表直接修改。</p>
-        <button className="react-btn" type="button" onClick={() => navigate(`/app/flow?matter=${encodeURIComponent(matter.calmyId)}`)}>围绕这个 Matter 进入 Flow</button>
+        <p className="info">趋势是基于记录的可推翻判断；需要调整时，请在处境列表直接修改。</p>
+        <button className="react-btn" type="button" onClick={() => navigate(`/app/flow?matter=${encodeURIComponent(matter.calmyId)}`)}>围绕这个处境进入探索</button>
       </section>
       {matter.problem && <section className="beryl-card problem-driven-detail">
         <h2 className="font-title">问题驱动学习</h2>

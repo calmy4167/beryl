@@ -13,9 +13,9 @@ import '../flow.css'
 type FlowItem = { entity: Seed; kind: 'seed' } | { entity: Resource; kind: 'resource' }
 type FlowMode = 'focus' | 'wander' | 'solve' | 'echo' | 'topic'
 const flowModes: Array<{ value: FlowMode; label: string; hint: string }> = [
-  { value: 'focus', label: 'Focus', hint: '只看一条' },
+  { value: 'focus', label: '专注', hint: '只看一条' },
   { value: 'wander', label: '漫游', hint: '有限探索' },
-  { value: 'solve', label: '解题', hint: '优先 Seed' },
+  { value: 'solve', label: '解题', hint: '优先看线索' },
   { value: 'echo', label: '回响', hint: '回看资料' },
   { value: 'topic', label: '专题', hint: '混合上下文' }
 ]
@@ -53,7 +53,7 @@ export function FlowPage() {
       setMatters(nextMatters.filter(item => item.status !== 'archived'))
       setRecords(nextRecords.filter(item => !item.redactedAt))
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Flow 内容读取失败')
+      setError(cause instanceof Error ? cause.message : '探索内容读取失败')
     } finally { setLoading(false) }
   }
 
@@ -118,7 +118,7 @@ export function FlowPage() {
   }
 
   async function useForProblem(item: FlowItem) {
-    if (!matterId) { toast('选择一个要服务的 Matter，或先回到事项创建问题', 'warning'); return }
+    if (!matterId) { toast('请选择关联处境，或先到处境页新建', 'warning'); return }
     try {
       await withSaveState(async () => {
         if (item.kind === 'seed') {
@@ -145,7 +145,7 @@ export function FlowPage() {
       })
       await refresh()
       setEnded(true)
-      toast(matterId ? '已创建现实验证行动；现在可以退出 Flow 去做' : '已创建现实验证行动；之后可再关联 Matter')
+      toast(matterId ? '已创建现实验证行动；现在可以退出探索去做' : '已创建现实验证行动；之后可再关联处境')
     } catch (cause) { toast(cause instanceof Error ? cause.message : '创建验证行动失败', 'error') }
   }
 
@@ -154,26 +154,26 @@ export function FlowPage() {
       if (item.kind === 'seed') await withSaveState(() => unifiedAsyncRepository.update<Seed>('seed', item.entity.calmyId, { status: 'retired', archivedAt: Date.now() }, { expectedRevision: item.entity.revision }))
       else await withSaveState(() => unifiedAsyncRepository.update<Resource>('resource', item.entity.calmyId, { status: 'retired', archivedAt: Date.now() }, { expectedRevision: item.entity.revision }))
       await refresh()
-      toast('已从本次 Flow 移除，不代表失败')
+      toast('已从本次探索移除，不代表失败')
     } catch (cause) { toast(cause instanceof Error ? cause.message : '结束内容失败', 'error') }
   }
 
   function keep(item: FlowItem) {
-    toast(item.kind === 'seed' ? '已收下这条 Seed，之后仍可关联问题' : '已保留这份资料，不会强制继续浏览')
+    toast(item.kind === 'seed' ? '已收下这条线索，之后仍可关联问题' : '已保留这份资料，不会强制继续浏览')
   }
 
   return <div className="flow-page">
-    <PageHead eyebrow="FLOW · ATTENTION GATE" title="有限地重新激活内容" description="先写问题，再看最多 5 条相关内容；Flow 有明确边界，也有现实出口。" />
-    {error && <section className="beryl-card empty-state" role="alert"><b>Flow 内容暂时无法读取</b><p>{error}</p><Button onClick={() => void refresh()}>重试</Button></section>}
+    <PageHead eyebrow="探索 · 有限内容" title="带着问题找资料" description="先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。" />
+    {error && <section className="beryl-card empty-state" role="alert"><b>探索内容暂时无法读取</b><p>{error}</p><Button onClick={() => void refresh()}>重试</Button></section>}
     <section className="beryl-card flow-intent">
-      <div><p className="eyebrow">CURRENT INTENT</p><h2 className="font-title">这次为什么打开 Flow？</h2><p>可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。</p></div>
+      <div><p className="eyebrow">当前意图</p><h2 className="font-title">这次为什么打开探索？</h2><p>可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。</p></div>
       <textarea aria-label="当前问题或探索意图" value={intent} onChange={event => setIntent(event.target.value)} placeholder="例如：我需要找到一个办法，减少跨团队需求误解。" />
       {mode === 'solve' && <div className="flow-solve-fields"><textarea aria-label="希望得到的证据" value={desiredEvidence} onChange={event => setDesiredEvidence(event.target.value)} placeholder="什么证据能说明这次学习够用了？" /><textarea aria-label="应用位置" value={application} onChange={event => setApplication(event.target.value)} placeholder="准备在哪里、对谁、何时马上应用？" /></div>}
       {mode === 'topic' && <textarea className="flow-topic-field" aria-label="专题范围" value={topicScope} onChange={event => setTopicScope(event.target.value)} placeholder="这次只聚焦什么范围？例如：面向新手的 onboarding 误解" />}
-      <div className="flow-mode-picker" role="group" aria-label="Flow 模式"><span>选择这次的方式</span>{flowModes.map(item => <Button key={item.value} className={mode === item.value ? 'on' : ''} aria-pressed={mode === item.value} onClick={() => { setMode(item.value); setStarted(false); setEnded(false) }}><b>{item.label}</b><small>{item.hint}</small></Button>)}</div>
-      <div className="flow-intent-controls"><label>服务于 Matter（可选）<select aria-label="Flow 关联 Matter" value={matterId} onChange={event => setMatterId(event.target.value)}><option value="">先不关联</option>{matters.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}</select></label><Button className="primary" onClick={start}>{started ? '重新开始本批' : '开始这一批'}</Button></div>
-      {selectedMatter && <div className="flow-context"><b>当前问题上下文：{selectedMatter.title}</b><p>{selectedMatter.problem || selectedMatter.why || '这个 Matter 还没有写下具体问题。'}</p>{selectedMatter.currentGap && <small>当前缺口：{selectedMatter.currentGap}</small>}{selectedMatter.stopCondition && <small>停止条件：{selectedMatter.stopCondition}</small>}{recentRecords.length > 0 && <small>最近现实证据：{recentRecords.map(record => record.body).join(' · ')}</small>}</div>}
+      <div className="flow-mode-picker" role="group" aria-label="探索方式"><span>选择这次的方式</span>{flowModes.map(item => <Button key={item.value} className={mode === item.value ? 'on' : ''} aria-pressed={mode === item.value} onClick={() => { setMode(item.value); setStarted(false); setEnded(false) }}><b>{item.label}</b><small>{item.hint}</small></Button>)}</div>
+      <div className="flow-intent-controls"><label>关联处境（可选）<select aria-label="探索关联处境" value={matterId} onChange={event => setMatterId(event.target.value)}><option value="">先不关联</option>{matters.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}</select></label><Button className="primary" onClick={start}>{started ? '重新开始本批' : '开始这一批'}</Button></div>
+      {selectedMatter && <div className="flow-context"><b>当前问题上下文：{selectedMatter.title}</b><p>{selectedMatter.problem || selectedMatter.why || '这个处境还没有写下具体问题。'}</p>{selectedMatter.currentGap && <small>当前缺口：{selectedMatter.currentGap}</small>}{selectedMatter.stopCondition && <small>停止条件：{selectedMatter.stopCondition}</small>}{recentRecords.length > 0 && <small>最近现实证据：{recentRecords.map(record => record.body).join(' · ')}</small>}</div>}
     </section>
-    {ended ? <section className="beryl-card flow-ended" role="status"><h2 className="font-title">这一批已结束</h2><p>你可以回到现实去验证，或稍后带着新的问题再来。不需要继续浏览。</p><div className="flow-exit-actions"><Button className="primary" onClick={() => navigate('/app/today')}>回到 Today 去做</Button><Button onClick={() => setEnded(false)}>返回本批</Button></div></section> : !started ? <div className="empty-state">写下问题并选择方式后，Flow 才会开始显示有限内容。</div> : loading ? <div className="empty-state" role="status">正在准备这一批内容…</div> : <section className={`flow-batch ${mode === 'focus' ? 'focus-batch' : ''}`}><div className="flow-batch-head"><div><p className="eyebrow">{flowModes.find(item => item.value === mode)?.label.toUpperCase()} · BATCH · {candidates.length + (mode === 'echo' ? echoRecords.length : 0)} ITEMS</p><h2 className="font-title">围绕“{intent.trim()}”</h2>{mode === 'solve' && <small className="flow-solve-summary">证据：{desiredEvidence} · 应用：{application}</small>}{mode === 'topic' && <small className="flow-topic-summary">专题范围：{topicScope.trim()}</small>}</div><Button onClick={() => setEnded(true)}>已足够，结束 Flow</Button></div>{!candidates.length && mode !== 'echo' ? <div className="empty-state beryl-card">Library 里还没有符合本模式的内容；可以回到 Capture 先保存一条 Seed。</div> : candidates.map(item => <article className={`beryl-card flow-card ${mode === 'focus' ? 'focus-card' : ''}`} key={`${item.kind}-${item.entity.calmyId}`}><div className="flow-card-head"><span className="flow-kind">{item.kind === 'seed' ? 'Seed · 未成熟线索' : 'Resource · 可复用资料'}</span><Button onClick={() => setExpanded(expanded === item.entity.calmyId ? null : item.entity.calmyId)}>{expanded === item.entity.calmyId ? '收起来源' : '展开来源'}</Button></div><h3>{item.entity.title}</h3><p>{item.entity.body}</p><small className="flow-meta">{new Date(item.entity.createdAt).toLocaleDateString('zh-CN')} · {item.kind === 'seed' ? (item.entity as Seed).status : (item.entity as Resource).kind}</small>{expanded === item.entity.calmyId && <small className="flow-source">来源：{sourceLabel(item)}{item.entity.tags.length ? ` · 标签：${item.entity.tags.join('、')}` : ''}</small>}<div className="flow-card-actions"><Button onClick={() => keep(item)}>收下</Button><Button onClick={() => void useForProblem(item)}>用于当前问题</Button><Button className="primary" onClick={() => void tryIt(item)}>试一下</Button><Button onClick={() => void sayGoodbye(item)}>再见</Button></div></article>)}{mode === 'echo' && <section className="echo-records"><div className="echo-records-head"><h3 className="font-title">过去的现实证据</h3><small>{matterId ? '当前 Matter · 最近 5 条' : '最近 5 条'}</small></div>{!echoRecords.length ? <div className="empty-state beryl-card">还没有可回响的 Reality Record。</div> : echoRecords.map(record => <article className="beryl-card echo-record" key={record.calmyId}><time>{new Date(record.occurredAt).toLocaleString('zh-CN')} · {record.source}</time><p>{record.body}</p>{record.matterId && <small>关联 Matter：{matters.find(item => item.calmyId === record.matterId)?.title || record.matterId}</small>}<div className="echo-actions"><Button className={echoFeedback[record.calmyId] === '仍重要' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '仍重要')}>仍重要</Button><Button className={echoFeedback[record.calmyId] === '已完成' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '已完成')}>已完成</Button><Button className={echoFeedback[record.calmyId] === '需要更新' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '需要更新')}>需要更新</Button></div></article>)}</section>}</section>}
+    {ended ? <section className="beryl-card flow-ended" role="status"><h2 className="font-title">这一批已结束</h2><p>你可以回到现实去验证，或稍后带着新的问题再来。不需要继续浏览。</p><div className="flow-exit-actions"><Button className="primary" onClick={() => navigate('/app/today')}>回到今天去做</Button><Button onClick={() => setEnded(false)}>返回本批</Button></div></section> : !started ? <div className="empty-state">写下问题并选择方式后，探索才会开始显示有限内容。</div> : loading ? <div className="empty-state" role="status">正在准备这一批内容…</div> : <section className={`flow-batch ${mode === 'focus' ? 'focus-batch' : ''}`}><div className="flow-batch-head"><div><p className="eyebrow">{flowModes.find(item => item.value === mode)?.label.toUpperCase()} · 本批 · {candidates.length + (mode === 'echo' ? echoRecords.length : 0)} 项</p><h2 className="font-title">围绕“{intent.trim()}”</h2>{mode === 'solve' && <small className="flow-solve-summary">证据：{desiredEvidence} · 应用：{application}</small>}{mode === 'topic' && <small className="flow-topic-summary">专题范围：{topicScope.trim()}</small>}</div><Button onClick={() => setEnded(true)}>已足够，结束探索</Button></div>{!candidates.length && mode !== 'echo' ? <div className="empty-state beryl-card">资料里还没有符合本模式的内容；可以回到记录页先保存一条线索。</div> : candidates.map(item => <article className={`beryl-card flow-card ${mode === 'focus' ? 'focus-card' : ''}`} key={`${item.kind}-${item.entity.calmyId}`}><div className="flow-card-head"><span className="flow-kind">{item.kind === 'seed' ? '线索 · 尚未成熟' : '资料 · 可复用'}</span><Button onClick={() => setExpanded(expanded === item.entity.calmyId ? null : item.entity.calmyId)}>{expanded === item.entity.calmyId ? '收起来源' : '展开来源'}</Button></div><h3>{item.entity.title}</h3><p>{item.entity.body}</p><small className="flow-meta">{new Date(item.entity.createdAt).toLocaleDateString('zh-CN')} · {item.kind === 'seed' ? (item.entity as Seed).status : (item.entity as Resource).kind}</small>{expanded === item.entity.calmyId && <small className="flow-source">来源：{sourceLabel(item)}{item.entity.tags.length ? ` · 标签：${item.entity.tags.join('、')}` : ''}</small>}<div className="flow-card-actions"><Button onClick={() => keep(item)}>收下</Button><Button onClick={() => void useForProblem(item)}>用于当前问题</Button><Button className="primary" onClick={() => void tryIt(item)}>试一下</Button><Button onClick={() => void sayGoodbye(item)}>再见</Button></div></article>)}{mode === 'echo' && <section className="echo-records"><div className="echo-records-head"><h3 className="font-title">过去的现实证据</h3><small>{matterId ? '当前处境 · 最近 5 条' : '最近 5 条'}</small></div>{!echoRecords.length ? <div className="empty-state beryl-card">还没有可回响的 现实记录。</div> : echoRecords.map(record => <article className="beryl-card echo-record" key={record.calmyId}><time>{new Date(record.occurredAt).toLocaleString('zh-CN')} · {record.source}</time><p>{record.body}</p>{record.matterId && <small>关联处境：{matters.find(item => item.calmyId === record.matterId)?.title || record.matterId}</small>}<div className="echo-actions"><Button className={echoFeedback[record.calmyId] === '仍重要' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '仍重要')}>仍重要</Button><Button className={echoFeedback[record.calmyId] === '已完成' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '已完成')}>已完成</Button><Button className={echoFeedback[record.calmyId] === '需要更新' ? 'on' : ''} onClick={() => giveEchoFeedback(record, '需要更新')}>需要更新</Button></div></article>)}</section>}</section>}
   </div>
 }

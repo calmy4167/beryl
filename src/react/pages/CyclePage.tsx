@@ -81,7 +81,7 @@ export function CyclePage() {
         setError('')
       } catch (cause) {
         if (!active) return
-        setError(cause instanceof Error ? cause.message : 'Cycle 数据读取失败')
+        setError(cause instanceof Error ? cause.message : '周期数据读取失败')
       } finally {
         if (active) setLoading(false)
       }
@@ -138,7 +138,7 @@ export function CyclePage() {
   if (loading && !hasCycleData) {
     return (
       <div className="cycle-page">
-        <div className="empty-state beryl-card" role="status">正在读取今天的五行流…</div>
+        <div className="empty-state beryl-card" role="status">正在读取周期…</div>
       </div>
     )
   }
@@ -147,7 +147,7 @@ export function CyclePage() {
     return (
       <div className="cycle-page">
         <section className="empty-state beryl-card" role="alert">
-          <h1 className="font-title">Cycle 暂时无法加载</h1>
+          <h1 className="font-title">周期暂时无法加载</h1>
           <p>{error}</p>
           <button className="react-btn primary" type="button" onClick={() => setReloadVersion(value => value + 1)}>
             重新读取
@@ -161,13 +161,13 @@ export function CyclePage() {
     <div className="cycle-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">CYCLE · FIVE PHASES</p>
-          <h1 className="font-title">Cycle 五行流</h1>
+          <p className="eyebrow">周期 · 阶段变化</p>
+          <h1 className="font-title">周期</h1>
           <p>从现有课题、今日行动与复盘中，看见这一轮正在发生什么。</p>
         </div>
         <div>
-          <button className="react-btn" type="button" onClick={() => navigate('/app/today')}>回到 Today</button>
-          <button className="react-btn" type="button" onClick={() => navigate('/app/matters')}>全部课题</button>
+          <button className="react-btn" type="button" onClick={() => navigate('/app/today')}>回到今天</button>
+          <button className="react-btn" type="button" onClick={() => navigate('/app/matters')}>全部处境</button>
         </div>
       </header>
 
@@ -262,7 +262,7 @@ export function CyclePage() {
               <p className="eyebrow">TODAY FLOW</p>
               <h2 id="cycle-actions-title" className="font-title">今日行动</h2>
             </div>
-            <button className="react-btn" type="button" onClick={() => navigate('/app/today')}>打开 Today</button>
+            <button className="react-btn" type="button" onClick={() => navigate('/app/today')}>打开今天</button>
           </div>
           {actions.length ? (
             <ul>
@@ -273,7 +273,7 @@ export function CyclePage() {
               ))}
             </ul>
           ) : (
-            <p className="empty-state">今天还没有行动。回到 Today 写下下一步，进度会自动出现在这里。</p>
+            <p className="empty-state">今天还没有行动。回到今天写下下一步，进度会自动出现在这里。</p>
           )}
         </section>
       </div>
@@ -295,7 +295,7 @@ export function CyclePage() {
           ))}
         </div>
         {!plan && (
-          <p className="empty-state">今天尚未建立 Today 计划；本页保持只读，不会为了展示而创建新数据。</p>
+          <p className="empty-state">今天尚未建立计划；本页保持只读，不会为了展示而创建新数据。</p>
         )}
       </section>
     </div>

@@ -16,6 +16,29 @@ const relationTypes: RelationType[] = [
   'evidences',
   'part_of',
 ]
+const relationTypeLabels: Record<RelationType, string> = {
+  supports: '支持',
+  blocks: '阻碍',
+  contradicts: '冲突',
+  derived_from: '源自',
+  related_to: '相关',
+  belongs_to: '属于',
+  depends_on: '依赖',
+  practices: '实践',
+  evidences: '佐证',
+  part_of: '组成',
+}
+const referenceLabels: Record<string, string> = {
+  connects: '连接',
+  uses: '使用',
+  context: '关联',
+  points_to: '指向',
+  result_of: '产生于',
+  explains: '解释',
+  hosts: '包含',
+  includes: '包含',
+}
+const edgeLabel = (label: string) => relationTypeLabels[label as RelationType] || referenceLabels[label] || label
 
 type NodeFilter = 'all' | GraphNodeType
 type GraphSnapshot = ReturnType<typeof buildGraphSnapshot>
@@ -129,9 +152,9 @@ export function GraphPage() {
       setToId('')
       setTick(value => value + 1)
       window.dispatchEvent(new CustomEvent('beryl-data-synced'))
-      toast('Relation 已加入图谱')
+      toast('关系已加入图谱')
     } catch (error) {
-      toast(error instanceof Error ? error.message : 'Relation 保存失败', 'error')
+      toast(error instanceof Error ? error.message : '关系保存失败', 'error')
     }
   }
 
@@ -147,9 +170,9 @@ export function GraphPage() {
     <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}>
       <header className="page-head">
         <div>
-          <p className="eyebrow">GRAPH · RELATION</p>
+          <p className="eyebrow">关系 · 图谱 · 试验</p>
           <h1 className="font-title">看见现实之间的连接</h1>
-          <p>显式 Relation 与实体已有引用会一起出现；点击节点可回到对应事实页面。</p>
+          <p>手动添加的关系和实体已有引用会一起显示；点击节点可回到对应记录。</p>
         </div>
         <div
           aria-label="图谱统计"
@@ -170,7 +193,7 @@ export function GraphPage() {
       <section className="beryl-card admin-block" aria-labelledby="add-relation-title">
         <div className="panel-head">
           <div>
-            <p className="eyebrow">ADD RELATION</p>
+            <p className="eyebrow">添加关系</p>
             <h2 id="add-relation-title" className="font-title">写下一条可追踪的关系</h2>
           </div>
           <span style={{ color: 'var(--c-text-3)', fontSize: 10 }}>关系只新增事实，不改变两端实体。</span>
@@ -188,7 +211,7 @@ export function GraphPage() {
             ))}
           </select>
           <select aria-label="关系类型" value={relationType} onChange={event => setRelationType(event.target.value as RelationType)}>
-            {relationTypes.map(type => <option key={type} value={type}>{type}</option>)}
+            {relationTypes.map(type => <option key={type} value={type}>{relationTypeLabels[type]}</option>)}
           </select>
           <select aria-label="关系终点" value={toId} onChange={event => setToId(event.target.value)}>
             <option value="">终点节点</option>
@@ -205,7 +228,7 @@ export function GraphPage() {
       <section className="beryl-card admin-block" aria-labelledby="graph-explore-title">
         <div className="panel-head" style={{ alignItems: 'end' }}>
           <div>
-            <p className="eyebrow">EXPLORE</p>
+            <p className="eyebrow">探索</p>
             <h2 id="graph-explore-title" className="font-title">关系图谱</h2>
           </div>
           <span style={{ color: 'var(--c-text-3)', fontSize: 10 }}>
@@ -236,7 +259,7 @@ export function GraphPage() {
         <section className="beryl-card admin-block" aria-labelledby="node-list-title" style={{ marginTop: 0 }}>
           <div className="panel-head">
             <div>
-              <p className="eyebrow">NODES</p>
+              <p className="eyebrow">节点</p>
               <h2 id="node-list-title" className="font-title">节点列表</h2>
             </div>
             <span>{visibleNodes.length}</span>
@@ -283,7 +306,7 @@ export function GraphPage() {
         <aside className="beryl-card admin-block" aria-labelledby="relation-list-title" style={{ marginTop: 0 }}>
           <div className="panel-head">
             <div>
-              <p className="eyebrow">EDGES</p>
+              <p className="eyebrow">连线</p>
               <h2 id="relation-list-title" className="font-title">关系清单</h2>
             </div>
             <span>{visibleEdges.length}</span>
@@ -306,7 +329,7 @@ export function GraphPage() {
                     <b>{nodeLabel(snapshot.availableNodes, edge.from)}</b>
                   </button>
                   <span style={{ color: edge.source === 'relation' ? 'var(--scene)' : 'var(--c-text-3)', whiteSpace: 'nowrap', fontSize: 10 }}>
-                    {edge.directed ? '→' : '↔'} {edge.label}
+                    {edge.directed ? '→' : '↔'} {edgeLabel(edge.label)}
                   </span>
                   <button
                     type="button"

@@ -21,6 +21,7 @@ const mattersPage = source('src/react/pages/MattersPage.tsx')
 const reviewPage = source('src/react/pages/ReviewPage.tsx')
 const matterDetailPage = source('src/react/pages/MatterDetailPage.tsx')
 const flowPage = source('src/react/pages/FlowPage.tsx')
+const feishuWorkspace = source('src/core/feishu/workspace.ts')
 
 const extensionModules = [
   ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
@@ -173,5 +174,17 @@ describe('静态无障碍语义', () => {
       expect(/PageHead|page-head|page-title|font-title/.test(page)).toBe(true)
       expect(/aria-label|aria-labelledby|role=/.test(page)).toBe(true)
     }
+  })
+})
+
+describe('飞书缓存安全边界', () => {
+  it('刷新时立即进入只读状态，并在缓存清理失败时保留错误', () => {
+    const resetHandler = admin.slice(admin.indexOf('function resetData()'), admin.indexOf('\nfunction logout()'))
+    expect(feishuWorkspace).toContain("this.publish({ loading: true, ready: false, error: '' })")
+    expect(feishuWorkspace).toContain('this.snapshot.loading')
+    expect(resetHandler).toContain('await clearFeishuCache()')
+    expect(resetHandler).toContain('ElMessage.error(')
+    expect(resetHandler).toContain('location.reload()')
+    expect(resetHandler).not.toContain('clearFeishuCache().catch(')
   })
 })

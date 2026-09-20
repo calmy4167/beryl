@@ -160,7 +160,7 @@ export function GoalsPage() {
       })
       setTitle(''); setProblem(''); setEvidence(''); setNextAction(''); setMatterId('')
       await refresh()
-      toast(hasNextAction ? '目标已添加，下一步行动已加入 Today' : '目标已添加 🥅')
+      toast(hasNextAction ? '目标已添加，下一步行动已加入今天' : '目标已添加 🥅')
     } catch (cause) {
       toast(cause instanceof Error ? cause.message : '目标添加失败', 'error')
     } finally {
@@ -232,11 +232,11 @@ export function GoalsPage() {
     <div className="goals-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">GOALS · DIRECTION</p>
+          <p className="eyebrow">目标 · 方向</p>
           <h1 className="font-title">目标</h1>
           <p>把想要完成的现实结果写清楚；进度只是自选回看，不代替发生过的证据。</p>
         </div>
-        <div className="goals-head-actions"><span className="load-pill">{completedCount} / {goals.length} 已完成</span><button className="react-btn" type="button" onClick={() => navigate('/app/flow')}>带着问题进 Flow</button></div>
+        <div className="goals-head-actions"><span className="load-pill">{completedCount} / {goals.length} 已完成</span><button className="react-btn" type="button" onClick={() => navigate('/app/flow')}>带着问题进探索</button></div>
       </header>
 
       <section className="beryl-card matter-create">
@@ -254,8 +254,8 @@ export function GoalsPage() {
           <textarea aria-label="目标对应问题" value={problem} onChange={event => setProblem(event.target.value)} placeholder="它正在解决什么现实问题？（可选）" disabled={saving} />
           <textarea aria-label="目标证据" value={evidence} onChange={event => setEvidence(event.target.value)} placeholder="什么证据说明它正在发生变化？（可选）" disabled={saving} />
           <textarea aria-label="目标下一步行动" value={nextAction} onChange={event => setNextAction(event.target.value)} placeholder="下一步准备在现实中做什么？（可选）" disabled={saving} />
-          <select aria-label="目标关联 Matter" value={matterId} onChange={event => setMatterId(event.target.value)} disabled={saving}>
-            <option value="">不关联 Matter</option>
+          <select aria-label="目标关联处境" value={matterId} onChange={event => setMatterId(event.target.value)} disabled={saving}>
+            <option value="">不关联处境</option>
             {matters.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}
           </select>
         </div>
@@ -300,7 +300,7 @@ export function GoalsPage() {
                       {goal.problem && <small>问题：{goal.problem}</small>}
                       {goal.evidence && <small>证据：{goal.evidence}</small>}
                       {goal.nextAction && <small>下一步：{goal.nextAction}</small>}
-                      {goal.matterId && <small>Matter：{matters.find(item => item.calmyId === goal.matterId)?.title || goal.matterId}</small>}
+                      {goal.matterId && <small>处境：{matters.find(item => item.calmyId === goal.matterId)?.title || goal.matterId}</small>}
                     </div>}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       <input

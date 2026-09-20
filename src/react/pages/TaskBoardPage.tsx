@@ -134,8 +134,8 @@ function LocalTaskBoardPage() {
     <div className="task-board-page">
       <header className="page-head">
         <div>
-          <p className="eyebrow">TASK BOARD · REALITY ACTIONS</p>
-          <h1 className="font-title">事项看板</h1>
+          <p className="eyebrow">看板 · 行动</p>
+          <h1 className="font-title">看板</h1>
           <p>拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。</p>
         </div>
         <div className="task-board-head-actions">
