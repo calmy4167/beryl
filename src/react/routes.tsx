@@ -2,27 +2,39 @@ import { Suspense } from 'react'
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { readSession } from '@/core/auth'
+import { appPageRegistry, appRouteDefinitions, type AppRouteViewKey } from './route-manifest'
 
 type AppRouteViews = {
-  login: ReactNode; pass: ReactNode; protected: ReactNode; shell: ReactNode; today: ReactNode; cycle: ReactNode; flow: ReactNode; profile: ReactNode; memory: ReactNode; capture: ReactNode; matters: ReactNode; caseRedirect: ReactNode; matterDetail: ReactNode; review: ReactNode; future: ReactNode; admin: ReactNode; advancedAdmin: ReactNode; calendar: ReactNode; people: ReactNode; library: ReactNode; graph: ReactNode; inbox: ReactNode; tasks: ReactNode; taskBoard: ReactNode; feishu: ReactNode; habits: ReactNode; finance: ReactNode; goals: ReactNode; pomo: ReactNode; diary: ReactNode; posts: ReactNode; scene: ReactNode; moduleFallback: ReactNode; fallback: ReactNode
-}
+  login: ReactNode
+  pass: ReactNode
+  protected: ReactNode
+  shell: ReactNode
+} & Record<AppRouteViewKey, ReactNode>
 
 function lazyView(label: string, view: ReactNode) {
   return <Suspense fallback={<div className="empty-state">正在加载{label}…</div>}>{view}</Suspense>
 }
 
 export function AppRoutes({ views }: { views: AppRouteViews }) {
+  const scenePage = appPageRegistry.find(page => page.id === 'scene')
+
   return <Routes>
-    <Route path="/login" element={views.login} /><Route path="/pass" element={views.pass} /><Route element={views.protected}>
-        <Route path="/app" element={views.shell}>
-        <Route index element={<Navigate to="today" replace />} /><Route path="home" element={<Navigate to="/app/today" replace />} />
-        <Route path="today" element={views.today} /><Route path="cycle" element={lazyView('周期', views.cycle)} /><Route path="flow" element={lazyView('探索', views.flow)} />
-        <Route path="profile" element={lazyView('我的', views.profile)} /><Route path="memory" element={lazyView('记忆', views.memory)} /><Route path="capture" element={lazyView('记录', views.capture)} />
-        <Route path="matters" element={views.matters} /><Route path="items" element={<Navigate to="/app/matters" replace />} /><Route path="cases" element={<Navigate to="/app/matters" replace />} /><Route path="cases/:id" element={views.caseRedirect} /><Route path="matters/:id" element={views.matterDetail} />
-        <Route path="review" element={views.review} /><Route path="future" element={lazyView('未来', views.future)} /><Route path="feishu" element={lazyView('飞书', views.feishu)} /><Route path="admin" element={lazyView('设置', views.admin)} /><Route path="admin/advanced" element={lazyView('设置', views.advancedAdmin)} /><Route path="calendar" element={lazyView('日历', views.calendar)} /><Route path="people" element={lazyView('人物', views.people)} /><Route path="library" element={lazyView('资料', views.library)} /><Route path="graph" element={lazyView('图谱', views.graph)} />
-        <Route path="module/inbox" element={lazyView('收集', views.inbox)} /><Route path="module/tasks" element={lazyView('任务', views.tasks)} /><Route path="task-board" element={lazyView('看板', views.taskBoard)} /><Route path="module/habits" element={lazyView('习惯', views.habits)} /><Route path="module/finance" element={lazyView('财务', views.finance)} /><Route path="module/goals" element={lazyView('目标', views.goals)} /><Route path="module/pomo" element={lazyView('专注', views.pomo)} /><Route path="module/diary" element={lazyView('日记', views.diary)} /><Route path="module/posts" element={lazyView('文章', views.posts)} />
-        <Route path="module/chars" element={<Navigate to="/app/people" replace />} /><Route path="module/moments" element={<Navigate to="/app/module/posts" replace />} /><Route path="module/:id" element={<Navigate to="/app/module/inbox" replace />} /><Route path="module/*" element={views.moduleFallback} /><Route path="*" element={views.fallback} />
-      </Route><Route path="/scene" element={lazyView('场景', views.scene)} />
-    </Route><Route path="/" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} /><Route path="*" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} />
+    <Route path="/login" element={views.login} />
+    <Route path="/pass" element={views.pass} />
+    <Route element={views.protected}>
+      <Route path="/app" element={views.shell}>
+        {appRouteDefinitions.map((route, index) => {
+          const element = route.kind === 'redirect'
+            ? <Navigate to={route.redirectTo} replace />
+            : lazyView(route.lazyLabel ?? (route.pageId ? appPageRegistry.find(page => page.id === route.pageId)?.title : '') ?? '', views[route.viewKey])
+          return route.path
+            ? <Route key={`${route.path}-${index}`} path={route.path} element={element} />
+            : <Route key={`index-${index}`} index element={element} />
+        })}
+      </Route>
+      {scenePage && <Route path={scenePage.path} element={lazyView(scenePage.lazyLabel ?? scenePage.title, views[scenePage.viewKey])} />}
+    </Route>
+    <Route path="/" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} />
+    <Route path="*" element={<Navigate to={readSession() ? '/app/today' : '/login'} replace />} />
   </Routes>
 }

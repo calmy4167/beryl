@@ -1,0 +1,447 @@
+/* Shared user canvas preferences and opt-in UI refresh. */
+:root {
+  --calmy-theme-text: var(--c-text);
+  --calmy-theme-text-2: var(--c-text-2);
+  --calmy-theme-text-3: var(--c-text-3);
+}
+
+html.ui-refresh {
+  --calmy-space-1: 4px;
+  --calmy-space-2: 8px;
+  --calmy-space-3: 12px;
+  --calmy-space-4: 16px;
+  --calmy-space-6: 24px;
+  --calmy-space-8: 32px;
+  --calmy-content-width: 1120px;
+  --calmy-radius-sm: 10px;
+  --calmy-radius-md: 16px;
+  --calmy-radius-lg: 22px;
+  --calmy-shadow-soft: 0 10px 32px rgba(29, 54, 38, .055);
+  --calmy-shadow-float: 0 18px 42px rgba(29, 54, 38, .11);
+  --focus-ring: 0 0 0 3px var(--scene-focus);
+}
+
+html.ui-refresh.dark {
+  --calmy-shadow-soft: 0 10px 32px rgba(0, 0, 0, .17);
+  --calmy-shadow-float: 0 18px 42px rgba(0, 0, 0, .28);
+}
+
+html.ui-refresh body,
+html.ui-refresh #app {
+  min-height: 100%;
+}
+
+html.ui-refresh .app-shell {
+  background: var(--c-bg);
+}
+
+html.ui-refresh .sidebar {
+  width: 232px;
+  padding: 24px 16px 18px;
+  background: var(--c-topbar);
+  border-right-color: var(--c-border-soft);
+  box-shadow: none;
+}
+
+html.ui-refresh .sidebar .brand {
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+html.ui-refresh .brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 21px;
+}
+
+html.ui-refresh .sidebar .brand b {
+  font-size: 18px;
+}
+
+html.ui-refresh .sidebar .brand small {
+  display: block;
+}
+
+html.ui-refresh .primary-nav {
+  gap: 5px;
+  margin: 28px 0 18px;
+}
+
+html.ui-refresh .primary-nav button,
+html.ui-refresh .sidebar-foot button,
+html.ui-refresh .drawer-links button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  font-size: 13px;
+}
+
+html.ui-refresh .primary-nav button.on {
+  background: color-mix(in srgb, var(--scene-soft) 76%, var(--c-card));
+  color: var(--scene);
+  box-shadow: inset 3px 0 var(--scene);
+}
+
+html.ui-refresh .workspace-shell {
+  grid-template-columns: minmax(0, 1fr) 248px;
+  background: var(--calmy-page-canvas, var(--c-bg));
+}
+
+html.ui-refresh .desktop-topbar,
+html.ui-refresh .mobile-header {
+  min-height: 62px;
+  padding-inline: clamp(20px, 3vw, 40px);
+  background: color-mix(in srgb, var(--c-topbar) 94%, transparent);
+  border-color: var(--c-border-soft);
+}
+
+html.ui-refresh .workspace-shell > .page-container {
+  width: 100%;
+  max-width: calc(var(--calmy-content-width) + 80px);
+  padding: clamp(28px, 4vw, 52px) clamp(22px, 4vw, 52px) 72px;
+}
+
+html.ui-refresh .right-rail {
+  padding: 28px 18px;
+  background: color-mix(in srgb, var(--c-topbar) 60%, transparent);
+}
+
+html.ui-refresh :where(.edge-context, .edge-actions, .edge-note) {
+  padding: 16px;
+  border-radius: var(--calmy-radius-md);
+  background: var(--surface-raised, var(--c-card));
+}
+
+html.ui-refresh :where(.page-head, .today-page .attention-page-head) {
+  margin-bottom: 32px;
+  padding-bottom: 22px;
+}
+
+html.ui-refresh :where(.page-head h1, .future-page-head h1) {
+  letter-spacing: -.035em;
+  line-height: 1.18;
+}
+
+html.ui-refresh .beryl-card {
+  border-radius: var(--calmy-radius-md);
+  box-shadow: var(--calmy-shadow-soft);
+}
+
+html.ui-refresh .beryl-card.hoverable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--calmy-shadow-float);
+}
+
+html.ui-refresh :where(input, textarea, select) {
+  min-height: 44px;
+  border-radius: var(--calmy-radius-sm);
+}
+
+html.ui-refresh :where(button, [role="button"]) {
+  min-height: 44px;
+}
+
+html.ui-refresh :where(button, input, textarea, select, summary, a):focus-visible {
+  outline: 2px solid var(--scene);
+  outline-offset: 3px;
+  box-shadow: var(--focus-ring);
+}
+
+html.ui-refresh .page-section {
+  margin-block: 28px;
+}
+
+html.ui-refresh main[data-page-archetype] {
+  color: var(--c-text);
+}
+
+html.ui-refresh main[data-page-archetype] :where(.panel-head, .section-title, .page-section-head) {
+  align-items: flex-start;
+}
+
+html.ui-refresh main[data-page-archetype] :where(.empty-state, .task-board-empty, .calendar-empty) {
+  border-radius: var(--calmy-radius-md);
+  line-height: 1.65;
+}
+
+html.ui-refresh main[data-page-archetype="list-detail"] :where(.matter-create, .problem-driven-fields, .matter-grid, .people-layout, .task-list) {
+  gap: 14px;
+}
+
+html.ui-refresh main[data-page-archetype="list-detail"] :where(.matter-card, .task-card, .goal-card, .person-card) {
+  border-radius: var(--calmy-radius-md);
+  box-shadow: var(--calmy-shadow-soft);
+}
+
+html.ui-refresh main[data-page-archetype="content"] :where(.history-card, .library-card, .post-card, .diary-entry, .flow-card) {
+  border-radius: var(--calmy-radius-md);
+  background: var(--surface-raised, var(--c-card));
+}
+
+html.ui-refresh main[data-page-archetype="timeline"] :where(.evidence-row, .cycle-stage, .review-evidence, .timeline-item) {
+  line-height: 1.65;
+}
+
+html.ui-refresh main[data-page-archetype="board"] :where(.task-board-column, .task-board-toolbar) {
+  border-radius: var(--calmy-radius-md);
+}
+
+html.ui-refresh main[data-page-archetype="calendar"] :where(.month-panel, .calendar-day-panel, .calendar-layout) {
+  border-radius: var(--calmy-radius-md);
+}
+
+html.ui-refresh main[data-page-archetype="personal-tool"] :where(.finance-summary, .habit-card, .pomo-panel, .profile-card) {
+  border-radius: var(--calmy-radius-md);
+}
+
+html.ui-refresh main[data-page-archetype="insight"] :where(.graph-panel, .memory-card, .relationship-panel) {
+  border-radius: var(--calmy-radius-md);
+}
+
+html.ui-refresh main[data-page-archetype="integration"] :where(.workspace-source, .feishu-overview, .feishu-record-card, .feishu-composer) {
+  border-radius: var(--calmy-radius-md);
+}
+
+html.ui-refresh .page-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+html.ui-refresh .page-section-head h2 {
+  margin: 0;
+  color: var(--c-text);
+  font-size: 20px;
+}
+
+html.ui-refresh .page-section-head p {
+  margin: 6px 0 0;
+  color: var(--c-text-2);
+  font-size: 12px;
+}
+
+html.ui-refresh .ui-surface {
+  border: 1px solid var(--c-border-soft);
+  border-radius: var(--calmy-radius-md);
+  background: var(--surface-raised, var(--c-card));
+  box-shadow: var(--calmy-shadow-soft);
+}
+
+html.ui-refresh .status-message {
+  padding: 12px 14px;
+  border: 1px solid var(--c-border-soft);
+  border-radius: var(--calmy-radius-sm);
+  background: var(--surface-muted, var(--c-bg-soft));
+}
+
+html.ui-refresh .status-success { color: var(--c-success); }
+html.ui-refresh .status-warning { color: var(--c-warn); }
+html.ui-refresh .status-error { color: var(--c-danger); }
+
+html.ui-refresh .el-drawer,
+html.ui-refresh .search-panel {
+  border-radius: var(--calmy-radius-lg);
+  background: var(--c-card);
+}
+
+html.ui-refresh .search-panel {
+  box-shadow: var(--calmy-shadow-float);
+}
+
+html.ui-refresh .bottom-nav {
+  min-height: 64px;
+  background: color-mix(in srgb, var(--c-topbar) 96%, transparent);
+}
+
+html.ui-refresh .scene-page {
+  min-height: 100vh;
+  background: var(--calmy-page-canvas, var(--c-bg));
+}
+
+html.ui-refresh .legacy-admin-host .admin-view {
+  max-width: 1120px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-settings {
+  padding: 20px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-heading,
+html.ui-refresh .legacy-admin-host .appearance-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-heading p {
+  margin: 4px 0 0;
+  color: var(--c-text-2);
+  font-size: 12px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-mode,
+html.ui-refresh .legacy-admin-host .appearance-actions,
+html.ui-refresh .legacy-admin-host .appearance-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-mode button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-card);
+  color: var(--c-text-2);
+  cursor: pointer;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-mode button[aria-pressed="true"] {
+  border-color: var(--scene);
+  background: var(--scene-soft);
+  color: var(--scene);
+}
+
+html.ui-refresh .legacy-admin-host .appearance-controls {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--c-text-2);
+  font-size: 11px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-color-picker input {
+  width: 72px;
+  padding: 4px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-hex input {
+  width: 132px;
+  padding: 8px 10px;
+  color: var(--c-text);
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-presets {
+  margin-top: 14px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-presets button {
+  width: 32px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid var(--c-border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-presets button[aria-pressed="true"] {
+  outline: 2px solid var(--scene);
+  outline-offset: 2px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-preview {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--c-border-soft);
+  border-radius: 12px;
+}
+
+html.ui-refresh .legacy-admin-host .appearance-preview b { font-size: 14px; }
+html.ui-refresh .legacy-admin-host .appearance-preview span { font-size: 12px; }
+html.ui-refresh .legacy-admin-host .appearance-preview small { font-size: 10px; }
+html.ui-refresh .legacy-admin-host .appearance-status { min-height: 18px; margin: 10px 0 0; color: var(--c-text-2); font-size: 11px; }
+
+@media (max-width: 900px) {
+  html.ui-refresh .sidebar { display: none; }
+  html.ui-refresh .workspace-shell { display: block; min-height: 100vh; }
+  html.ui-refresh .workspace-shell > .page-container { max-width: none; padding: 28px 18px 108px; }
+  html.ui-refresh .desktop-topbar,
+  html.ui-refresh .right-rail { display: none; }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  html.ui-refresh .workspace-shell { grid-template-columns: minmax(0, 1fr); }
+  html.ui-refresh .right-rail { display: none; }
+}
+
+html.ui-refresh .app-shell.sidebar-collapsed .sidebar {
+  width: 72px;
+  padding-inline: 10px;
+}
+
+html.ui-refresh .app-shell.sidebar-collapsed .sidebar-label,
+html.ui-refresh .app-shell.sidebar-collapsed .nav-label {
+  display: none;
+}
+
+html.ui-refresh .app-shell.sidebar-collapsed .primary-nav button,
+html.ui-refresh .app-shell.sidebar-collapsed .sidebar-foot button,
+html.ui-refresh .app-shell.sidebar-collapsed .sidebar-toggle {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+@media (max-width: 620px) {
+  html.ui-refresh .legacy-admin-host .appearance-heading,
+  html.ui-refresh .legacy-admin-host .appearance-controls { align-items: stretch; flex-direction: column; }
+  html.ui-refresh .legacy-admin-host .appearance-mode { align-self: flex-start; }
+  html.ui-refresh .legacy-admin-host .appearance-actions { width: 100%; }
+  html.ui-refresh .legacy-admin-host .appearance-actions > * { flex: 1; }
+  html.ui-refresh .page-section-head { align-items: stretch; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.ui-refresh *,
+  html.ui-refresh *::before,
+  html.ui-refresh *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+html.custom-canvas-active .workspace-shell {
+  background: var(--calmy-page-canvas, var(--c-bg));
+  --c-text: var(--calmy-canvas-text, var(--calmy-theme-text));
+  --c-text-2: var(--calmy-canvas-text-2, var(--calmy-theme-text-2));
+  --c-text-3: var(--calmy-canvas-text-3, var(--calmy-theme-text-3));
+}
+
+html.custom-canvas-active .workspace-shell :where(
+  .beryl-card,
+  .desktop-topbar,
+  .right-rail,
+  .edge-context,
+  .edge-actions,
+  .edge-note,
+  .mobile-header,
+  .bottom-nav
+) {
+  --c-text: var(--calmy-theme-text);
+  --c-text-2: var(--calmy-theme-text-2);
+  --c-text-3: var(--calmy-theme-text-3);
+}
+
+html.custom-canvas-active .scene-page {
+  background: var(--calmy-page-canvas, var(--c-bg));
+  color: var(--calmy-canvas-text, var(--c-text));
+}
+
+html.custom-canvas-active .scene-page .beryl-card {
+  --c-text: var(--calmy-theme-text);
+  --c-text-2: var(--calmy-theme-text-2);
+  --c-text-3: var(--calmy-theme-text-3);
+}

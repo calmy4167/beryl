@@ -6,10 +6,14 @@ import './mobile-nav.css'
 import './feishu-workspace.css'
 import './feishu-board.css'
 import './product-ui.css'
+import './ui-refresh.css'
+import { applyBackgroundPreferences } from './theme-preferences'
 
 let savedTheme: string | null = null
 try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }
 document.documentElement.classList.toggle('dark', savedTheme === 'dark')
+document.documentElement.classList.toggle('ui-refresh', new URLSearchParams(window.location.search).get('ui') === 'refresh')
+applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
 
 const root = document.getElementById('app')
 if (!root) throw new Error('app-root-missing')

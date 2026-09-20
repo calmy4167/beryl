@@ -17,9 +17,15 @@ import { listRealityDocuments } from '@/domain/reality'
 import { exportCurrentOpenWorkspace } from '@/core/content/open-workspace'
 import { createFileSystemVaultAdapter, type FileSystemDirectoryHandleLike, type VaultAdapter } from '@/core/content/obsidian-adapter'
 import { applyVaultSyncPlan, buildVaultSyncPlan, type VaultAssetDecision, type VaultEntityDecision, type VaultFieldDecision, type VaultSyncPlan } from '@/core/content/vault-sync'
+import { BACKGROUND_COLOR_PRESETS, applyBackgroundPreferences, getCanvasTextPalette, getDefaultBackgroundColor, getThemeMode, previewBackgroundColor, readBackgroundPreferences, resetBackgroundColor, saveBackgroundColor, setThemeMode, type ThemeMode } from '@/react/theme-preferences'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
+const appearanceMode = ref<ThemeMode>(getThemeMode())
+const appearanceColor = ref(readBackgroundPreferences()[appearanceMode.value] || getDefaultBackgroundColor(appearanceMode.value))
+const appearanceStatus = ref('背景颜色只保存在本机，不会进入数据导出或同步。')
+const appearancePreview = ref(false)
+const appearancePalette = computed(() => getCanvasTextPalette(appearanceColor.value))
 const countsVersion = ref(0)
 const persistenceStatus = ref<DbRuntimeStatus>(getDbStatus())
 const persistenceBusy = ref(false)
@@ -59,6 +65,58 @@ function switchScene(id: string) {
   applySceneTheme(id)
   ElMessage.success(`已切换至「${SCENES[id].name}」场景`)
   refreshCounts()
+}
+
+function switchAppearanceMode(mode: ThemeMode) {
+  appearanceMode.value = mode
+  setThemeMode(mode)
+  appearanceColor.value = readBackgroundPreferences()[mode] || getDefaultBackgroundColor(mode)
+  appearancePreview.value = false
+  appearanceStatus.value = mode === 'dark' ? '正在编辑深色外观背景。' : '正在编辑浅色外观背景。'
+}
+
+function previewAppearanceColor() {
+  const result = previewBackgroundColor(appearanceMode.value, appearanceColor.value)
+  if (!result.ok) {
+    if (getThemeMode() === appearanceMode.value) applyBackgroundPreferences(appearanceMode.value)
+    appearancePreview.value = false
+    appearanceStatus.value = result.reason === 'invalid-format'
+      ? '请输入 #RRGGBB 格式的颜色。'
+      : '该颜色无法为普通文字提供足够对比度，请换一个颜色。'
+    return
+  }
+  appearancePreview.value = true
+  appearanceStatus.value = '正在预览，点击“应用背景”后才会保存。'
+}
+
+function applyAppearanceColor() {
+  const result = saveBackgroundColor(appearanceMode.value, appearanceColor.value)
+  if (!result.ok) {
+    appearanceStatus.value = result.reason === 'invalid-format'
+      ? '请输入 #RRGGBB 格式的颜色。'
+      : result.reason === 'insufficient-contrast'
+        ? '该颜色无法为普通文字提供足够对比度，请换一个颜色。'
+        : '本机暂时无法保存外观偏好，请检查浏览器存储权限。'
+    return
+  }
+  appearancePreview.value = false
+  appearanceStatus.value = '背景颜色已应用并保存在本机。'
+}
+
+function restoreAppearanceColor() {
+  if (!resetBackgroundColor(appearanceMode.value)) {
+    appearanceStatus.value = '恢复默认失败，请检查浏览器存储权限。'
+    return
+  }
+  appearanceColor.value = getDefaultBackgroundColor(appearanceMode.value)
+  applyBackgroundPreferences(appearanceMode.value)
+  appearancePreview.value = false
+  appearanceStatus.value = '当前主题的背景已恢复默认。'
+}
+
+function selectAppearancePreset(color: string) {
+  appearanceColor.value = color
+  previewAppearanceColor()
 }
 
 async function exportData() {
@@ -399,6 +457,36 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <section class="beryl-card hoverable block appearance-settings" aria-labelledby="appearance-title">
+      <div class="appearance-heading">
+        <div><h3 id="appearance-title" class="font-title sec">外观</h3><p>分别为浅色和深色外观设置页面背景。</p></div>
+        <div class="appearance-mode" role="group" aria-label="选择要编辑的外观">
+          <button type="button" :aria-pressed="appearanceMode === 'light'" @click="switchAppearanceMode('light')">浅色</button>
+          <button type="button" :aria-pressed="appearanceMode === 'dark'" @click="switchAppearanceMode('dark')">深色</button>
+        </div>
+      </div>
+      <div class="appearance-controls">
+        <label class="appearance-color-picker">背景颜色
+          <input v-model="appearanceColor" type="color" aria-label="选择页面背景颜色" @input="previewAppearanceColor" />
+        </label>
+        <label class="appearance-hex">HEX 色值
+          <input v-model="appearanceColor" type="text" inputmode="text" maxlength="7" placeholder="#F1F7EF" aria-label="背景颜色 HEX 色值" @input="previewAppearanceColor" />
+        </label>
+        <div class="appearance-actions">
+          <el-button type="primary" @click="applyAppearanceColor">应用背景</el-button>
+          <el-button @click="restoreAppearanceColor">恢复默认</el-button>
+        </div>
+      </div>
+      <div class="appearance-presets" role="group" aria-label="背景颜色预设">
+        <button v-for="preset in BACKGROUND_COLOR_PRESETS[appearanceMode]" :key="preset.value" type="button" :aria-label="`预览${preset.name}`" :aria-pressed="appearanceColor.toLowerCase() === preset.value" :title="preset.name" :style="{ backgroundColor: preset.value }" @click="selectAppearancePreset(preset.value)"></button>
+      </div>
+      <div class="appearance-preview" :style="{ backgroundColor: appearanceColor, color: appearancePalette.primary }" aria-label="页面背景实时预览">
+        <b>页面背景预览</b><span :style="{ color: appearancePalette.secondary }">标题和正文会自动选择可读文字颜色</span>
+        <small :style="{ color: appearancePalette.muted }">{{ appearancePreview ? '预览中 · 尚未保存' : '更改将在点击应用后保存' }}</small>
+      </div>
+      <p class="appearance-status" role="status" aria-live="polite">{{ appearanceStatus }}</p>
+    </section>
+
     <!-- 数据统计 -->
     <div class="grid4">
       <div class="beryl-card hoverable card"><p class="label">任务数</p><p class="font-title value">{{ counts.tasks }}</p></div>
@@ -598,6 +686,31 @@ onUnmounted(() => {
 .pill:hover { border-color: var(--scene-border); color: var(--c-text); }
 .mods-line { font-size: 10px; color: var(--c-text-3); margin-top: 12px; line-height: 1.6; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.appearance-settings { padding: 18px; }
+.appearance-heading, .appearance-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.appearance-heading .sec { margin-bottom: 4px; }
+.appearance-heading p { margin: 0; color: var(--c-text-2); font-size: 11px; }
+.appearance-mode, .appearance-actions, .appearance-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.appearance-mode button { min-height: 40px; padding: 8px 14px; border: 1px solid var(--c-border); border-radius: 9px; background: var(--c-card); color: var(--c-text-2); cursor: pointer; }
+.appearance-mode button[aria-pressed="true"] { border-color: var(--scene); background: var(--scene-soft); color: var(--scene); }
+.appearance-controls { justify-content: flex-start; flex-wrap: wrap; margin-top: 16px; }
+.appearance-controls label { display: grid; gap: 6px; color: var(--c-text-2); font-size: 11px; }
+.appearance-color-picker input { width: 72px; min-height: 40px; padding: 4px; border: 1px solid var(--c-border); border-radius: 8px; background: var(--c-card); }
+.appearance-hex input { width: 132px; min-height: 40px; padding: 8px 10px; border: 1px solid var(--c-border); border-radius: 8px; background: var(--c-card); color: var(--c-text); font: inherit; }
+.appearance-presets { margin-top: 13px; }
+.appearance-presets button { width: 30px; height: 30px; min-height: 30px; padding: 0; border: 2px solid var(--c-border); border-radius: 50%; cursor: pointer; }
+.appearance-presets button[aria-pressed="true"] { outline: 2px solid var(--scene); outline-offset: 2px; }
+.appearance-preview { display: grid; gap: 4px; margin-top: 15px; padding: 15px 17px; border: 1px solid var(--c-border-soft); border-radius: 11px; }
+.appearance-preview b { font-size: 14px; }
+.appearance-preview span { font-size: 12px; }
+.appearance-preview small { font-size: 10px; }
+.appearance-status { min-height: 17px; margin: 9px 0 0; color: var(--c-text-2); font-size: 11px; }
+.appearance-settings :deep(button:focus-visible), .appearance-settings :deep(input:focus-visible) { outline: 2px solid var(--scene); outline-offset: 2px; }
+@media (max-width: 620px) {
+  .appearance-heading, .appearance-controls { align-items: stretch; flex-direction: column; }
+  .appearance-mode { align-self: flex-start; }
+  .appearance-actions > * { flex: 1; }
+}
 .info { font-size: 12px; color: var(--c-text-2); margin: 4px 0; }
 .info span { color: var(--c-text); }
 .diag {
