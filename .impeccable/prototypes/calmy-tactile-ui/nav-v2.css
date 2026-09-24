@@ -1,0 +1,383 @@
+html.nav-v2 .app-frame {
+  grid-template-columns: 232px minmax(0, 1fr);
+}
+
+html.nav-v2 .app-frame.sidebar-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+html.nav-v2 .sidebar {
+  padding: 0;
+  overflow: visible;
+  background: #fbfcfe;
+}
+
+html.nav-v2 .workspace .content { height: calc(100% - 110px); }
+
+html.nav-v2 .concept-tabs {
+  height: 40px;
+  padding: 0 22px;
+  display: flex;
+  align-items: end;
+  gap: 5px;
+  overflow-x: auto;
+  border-bottom: 1px solid #dce3ed;
+  background: #f8fafd;
+  scrollbar-width: thin;
+}
+
+html.nav-v2 .concept-tab {
+  position: relative;
+  height: 34px;
+  min-width: 92px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 7px 7px 0 0;
+  color: #66758d;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+html.nav-v2 .concept-tab:not(.active):hover { color: #14213a; background: #edf2fa; }
+
+html.nav-v2 .concept-tab.active {
+  color: #2458d7;
+  border-color: #dce3ed;
+  background: #fff;
+}
+
+html.nav-v2 .concept-tab.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 9px;
+  left: 9px;
+  height: 2px;
+  background: #336cf4;
+}
+
+html.nav-v2 .concept-tab .concept-tab-grip {
+  color: #a3aec0;
+  font-size: 12px;
+  letter-spacing: -2px;
+  cursor: grab;
+}
+
+html.nav-v2 .concept-tab.is-dragging { opacity: .4; }
+
+html.nav-v2 .concept-brand {
+  height: 94px;
+  min-height: 94px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: #111d35;
+  font: 750 19px/1 "Segoe UI", sans-serif;
+  letter-spacing: .15em;
+}
+
+html.nav-v2 .concept-brand .brand-mark { flex: none; }
+
+html.nav-v2 .concept-groups {
+  min-height: 0;
+  padding: 10px 14px 16px;
+  flex: 1;
+  overflow: visible;
+}
+
+html.nav-v2 .concept-overline {
+  margin: 0 10px 13px;
+  color: #71809a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+html.nav-v2 .concept-group { position: relative; margin-bottom: 3px; }
+html.nav-v2 .concept-group:has(.concept-subnav.open) { z-index: 12; }
+
+html.nav-v2 .concept-group-button {
+  position: relative;
+  width: 100%;
+  height: 46px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #42536e;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+html.nav-v2 .concept-group-button:hover { background: #eff3f9; color: #17213d; }
+
+html.nav-v2 .concept-group-button > svg:first-child,
+html.nav-v2 .concept-child > svg,
+html.nav-v2 .concept-directory-trigger > svg,
+html.nav-v2 .concept-directory-search > svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.nav-v2 .concept-group-button > span { flex: 1; }
+
+html.nav-v2 .concept-group-button .concept-chevron {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  transition: transform 240ms cubic-bezier(.16, 1, .3, 1);
+}
+
+html.nav-v2 .concept-group.selected .concept-group-button {
+  color: #1f4eaa;
+  background: #e2ebfb;
+  box-shadow: inset 0 0 0 1px #d2e0f5;
+}
+
+html.nav-v2 .concept-group-button[aria-expanded="true"] .concept-chevron { transform: rotate(90deg); }
+html.nav-v2 .concept-group:not(.selected) .concept-group-button[aria-expanded="true"] { color: #2458d7; background: #f0f5ff; }
+
+html.nav-v2 .concept-subnav {
+  position: absolute;
+  top: -5px;
+  left: calc(100% + 10px);
+  width: 206px;
+  max-height: min(360px, calc(100vh - 100px));
+  padding: 8px;
+  display: none;
+  gap: 2px;
+  overflow-y: auto;
+  border: 1px solid #d8e1ee;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(31, 44, 71, .16), 0 3px 9px rgba(31, 44, 71, .06);
+}
+
+html.nav-v2 .concept-subnav.open { display: grid; }
+
+html.nav-v2 .concept-child {
+  position: relative;
+  min-height: 40px;
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 7px;
+  color: #5b6a82;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 630;
+  text-align: left;
+  cursor: pointer;
+}
+
+html.nav-v2 .concept-child:hover { background: #f0f4fa; color: #17213d; }
+
+html.nav-v2 .concept-child.current { color: #2458d7; background: #eaf1ff; font-weight: 750; }
+
+html.nav-v2 .concept-child.current::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: #336cf4;
+}
+
+html.nav-v2 .concept-sidebar-foot {
+  position: relative;
+  z-index: 3;
+  margin: 0 14px;
+  padding: 13px 0 0;
+  border-top: 1px solid #e5eaf2;
+}
+
+html.nav-v2 .concept-directory-trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #42536e;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+html.nav-v2 .concept-directory-trigger:hover,
+html.nav-v2 .concept-directory-trigger[aria-expanded="true"] {
+  color: #2458d7;
+  background: #edf3ff;
+}
+
+html.nav-v2 .concept-directory-trigger span { flex: 1; text-align: left; }
+
+html.nav-v2 .concept-directory-trigger .concept-chevron {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+}
+
+html.nav-v2 .concept-profile {
+  margin: 10px 14px 16px;
+  padding: 10px 11px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e0e6f0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+html.nav-v2 .concept-profile .avatar { width: 32px; height: 32px; font-size: 11px; }
+html.nav-v2 .concept-profile strong { display: block; font-size: 11px; }
+html.nav-v2 .concept-profile small { display: block; margin-top: 3px; color: #71809a; font-size: 10px; }
+
+html.nav-v2 .concept-directory {
+  position: absolute;
+  z-index: 10;
+  left: calc(100% + 10px);
+  bottom: 0;
+  width: 318px;
+  max-height: min(620px, calc(100vh - 115px));
+  padding: 17px;
+  display: none;
+  overflow-y: auto;
+  border: 1px solid #d8e1ee;
+  border-radius: 10px;
+  color: #14213a;
+  background: #fff;
+  box-shadow: 0 21px 48px rgba(31, 44, 71, .17), 0 3px 9px rgba(31, 44, 71, .06);
+}
+
+html.nav-v2 .concept-directory.open { display: block; }
+
+html.nav-v2 .concept-directory-head {
+  margin: 0 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+html.nav-v2 .concept-directory-head strong { font-size: 14px; }
+
+html.nav-v2 .concept-directory-head button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #71809a;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+html.nav-v2 .concept-directory-search {
+  height: 38px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dce3ed;
+  border-radius: 7px;
+  color: #71809a;
+  background: #f8fafd;
+}
+
+html.nav-v2 .concept-directory-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  color: #14213a;
+  background: transparent;
+  font-size: 12px;
+}
+
+html.nav-v2 .concept-directory-list { margin-top: 12px; display: grid; gap: 2px; }
+
+html.nav-v2 .concept-directory-item {
+  width: 100%;
+  min-height: 54px;
+  padding: 7px 9px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 7px;
+  color: #14213a;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+html.nav-v2 .concept-directory-item:hover { background: #f2f6fd; }
+html.nav-v2 .concept-directory-item[hidden] { display: none; }
+
+html.nav-v2 .concept-directory-item svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #52637d;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.nav-v2 .concept-directory-item strong { display: block; font-size: 12px; }
+html.nav-v2 .concept-directory-item small { display: block; margin-top: 4px; color: #71809a; font-size: 10px; }
+
+html.nav-v2 .sidebar-collapsed .concept-brand { justify-content: center; padding-inline: 0; }
+html.nav-v2 .sidebar-collapsed .concept-brand > strong,
+html.nav-v2 .sidebar-collapsed .concept-overline,
+html.nav-v2 .sidebar-collapsed .concept-group-button > span,
+html.nav-v2 .sidebar-collapsed .concept-group-button .concept-chevron,
+html.nav-v2 .sidebar-collapsed .concept-subnav,
+html.nav-v2 .sidebar-collapsed .concept-directory-trigger > span,
+html.nav-v2 .sidebar-collapsed .concept-directory-trigger .concept-chevron,
+html.nav-v2 .sidebar-collapsed .concept-profile > span:last-child { display: none; }
+
+html.nav-v2 .sidebar-collapsed .concept-groups { padding: 10px 9px 16px; overflow: visible; }
+html.nav-v2 .sidebar-collapsed .concept-group-button { justify-content: center; padding: 0; }
+html.nav-v2 .sidebar-collapsed .concept-sidebar-foot { margin-inline: 9px; }
+html.nav-v2 .sidebar-collapsed .concept-directory-trigger { justify-content: center; padding: 0; }
+html.nav-v2 .sidebar-collapsed .concept-profile { justify-content: center; margin-inline: 9px; padding: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.nav-v2 .concept-group-button,
+  html.nav-v2 .concept-group-button .concept-chevron { transition-duration: 1ms; }
+}

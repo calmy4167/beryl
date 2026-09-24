@@ -1,0 +1,131 @@
+{
+  "title": "选择 Calmy 的新视觉世界",
+  "question": "三条方向都保留浅亮主界面、极简侧栏和少量鲜明色彩。请选择最值得继续深化的一条，或重新抽取。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "澄明光桌",
+      "kicker": "THE ROLL",
+      "lineage": "档案修复光桌、半透明索引片与精密桌面工具",
+      "thesis": "把纠缠的现实放到光下，只让此刻最重要的一件事获得重量。",
+      "palette": ["#EDF3F7", "#FFFFFF", "#17212B", "#3764FF", "#FF6B5F", "#55C8C2"],
+      "materials": ["雾面玻璃", "半透明索引片", "阳极氧化铝边框"],
+      "viewport": "一条极简浅色侧栏围住一整块明亮工作面；中央只有一张被照亮的当前事项，快速记录与最近记录退到工作面的下缘和右侧薄层。",
+      "risk": "层次和字体控制不足时会显得空或像医疗软件。",
+      "raised": [
+        {"from": "七段显示", "raise": "所有状态在固定位置切换，保存或选中不会造成页面跳动。"},
+        {"from": "像素街机", "raise": "每一种强调色都有唯一职责，不用随机彩色图标制造热闹。"},
+        {"from": "鞋盒档案墙", "raise": "密集页面通过短标签与索引边建立可扫读层级。"},
+        {"from": "张拉结构", "raise": "只在真实因果关系存在时显示连接，不用卡片堆叠假装结构。"},
+        {"from": "构成网格", "raise": "导航、内容和移动端都服从同一组清晰栅格。"}
+      ],
+      "comp": ".impeccable/mocks/decision/assigned.png"
+    },
+    {
+      "id": "model-pick",
+      "label": "编辑工作台",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "现代杂志编辑台、版样与批注边栏",
+      "thesis": "首页像一张正在编辑的今日头版，主问题是唯一的大标题。",
+      "palette": ["#F5F7FA", "#FFFFFF", "#14171C", "#2F66F6", "#F06449", "#F4C44E"],
+      "materials": ["光面版样", "细规则线", "彩色校样签"],
+      "viewport": "左侧是窄而清楚的栏目索引；主区用一张开放版面承载当前事项，记录以编辑批注的方式沿边缘出现，不使用等宽卡片矩阵。",
+      "risk": "最接近成熟生产力产品，也最容易再次落入熟悉而缺乏独特性的布局。",
+      "comp": ".impeccable/mocks/decision/model-pick.png"
+    },
+    {
+      "id": "challenger-civic",
+      "label": "流光秩序",
+      "verdict": "competitive",
+      "lineage": "late-modern corporate prospectus",
+      "thesis": "一条连续的柔和色带贯穿导航与当前事项，其余界面几乎完全克制。",
+      "palette": ["#F7F7FA", "#FFFFFF", "#1B1547", "#6B5CE7", "#7FD8D0", "#E6E7EE"],
+      "materials": ["光学白底", "半透明丝带", "灰色发丝线"],
+      "viewport": "简洁侧栏与开阔工作区由一条青绿到紫色的注意力色带连接，当前事项嵌在色带落点，其他记录以安静的线性列表承载。",
+      "case": "完成度与参考图最接近，但装饰性色带对现实任务的解释力弱于光桌。",
+      "risk": "如果色带成为主角，会像营销页或常见 AI 渐变产品。",
+      "comp": ".impeccable/mocks/decision/challenger-civic.png",
+      "hero": ".impeccable/quality-bars/civic-hero.webp",
+      "board": ".impeccable/quality-bars/civic-board.webp"
+    },
+    {
+      "id": "challenger-seven-segment",
+      "label": "固定状态格",
+      "verdict": "declined",
+      "lineage": "七段显示器与固定仪表位",
+      "thesis": "内容不移动，只改变被点亮的状态。",
+      "palette": ["#F4F6F7", "#1B1F23", "#F06449"],
+      "materials": ["哑光面板", "状态灯"],
+      "viewport": "固定槽位承载今日状态。",
+      "case": "状态纪律清楚，但数字仪表语言会把 Calmy 误读为监控系统。",
+      "kept": "固定位置切换状态，不用位移制造反馈。",
+      "risk": "过度机械，也会诱导无意义指标。"
+    },
+    {
+      "id": "challenger-arcade",
+      "label": "像素舞台",
+      "verdict": "declined",
+      "lineage": "街机像素屏幕",
+      "thesis": "严格色彩规则令状态一眼可辨。",
+      "palette": ["#101319", "#FFFFFF", "#3764FF", "#F4C44E"],
+      "materials": ["整数栅格", "发光像素"],
+      "viewport": "任务作为像素舞台上的当前关卡。",
+      "case": "视觉承诺强，但游戏语义违背真实问题的严肃性。",
+      "kept": "强调色必须有固定语义。",
+      "risk": "把现实选择变成游戏化反馈。"
+    },
+    {
+      "id": "challenger-sneaker",
+      "label": "标签档案墙",
+      "verdict": "declined",
+      "lineage": "鞋盒端标与档案堆栈",
+      "thesis": "所有内容先通过短标签被读懂，再展开细节。",
+      "palette": ["#F4F5F7", "#FFFFFF", "#20242A", "#E98355"],
+      "materials": ["纸板端标", "色样条"],
+      "viewport": "侧栏像端标索引，内容以抽出一层的方式展开。",
+      "case": "适合资料库，不适合首页的即时判断。",
+      "kept": "以短标签建立密集页面的扫读顺序。",
+      "risk": "层层容器再次变成卡片堆。"
+    },
+    {
+      "id": "challenger-tensegrity",
+      "label": "张力图",
+      "verdict": "declined",
+      "lineage": "张拉整体结构与力学标注",
+      "thesis": "主要矛盾通过力与反作用关系被看见。",
+      "palette": ["#F4F5F3", "#171A1C", "#D94A3A", "#A5A9AC"],
+      "materials": ["浅灰基底", "黑色构件", "红色张力线"],
+      "viewport": "中央显示问题与牵扯因素之间的张力关系。",
+      "case": "概念解释力强，但工程图语言会压过日常使用的亲近感。",
+      "kept": "关系必须来自真实内容，而不是视觉装饰。",
+      "risk": "过于冷峻，且首页会被迫增加不必要分析。",
+      "hero": ".impeccable/quality-bars/tensegrity-hero.webp"
+    },
+    {
+      "id": "challenger-crouwel",
+      "label": "构成网格",
+      "verdict": "declined",
+      "lineage": "Wim Crouwel 构成主义字样与可见网格",
+      "thesis": "界面的尺度和秩序由一套可见网格控制。",
+      "palette": ["#FFFFFF", "#181C22", "#3764FF"],
+      "materials": ["构造网格", "大尺度字形"],
+      "viewport": "今日主题以巨大字形占据网格，其余内容按格线落位。",
+      "case": "空间纪律优秀，但海报化的大字会干扰真实操作。",
+      "kept": "所有页面共享清楚且可响应的栅格。",
+      "risk": "视觉表现大于任务本身。"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "comp", "toggle": true},
+  "canon": true,
+  "canonCard": {
+    "label": "成熟 SaaS 工作台",
+    "thesis": "严格照你提供的参考图执行经典浅色产品框架。",
+    "palette": ["#EEF2F6", "#FFFFFF", "#1E2329", "#3D6DF2", "#FF755F"],
+    "materials": ["柔和阴影", "圆角面板", "细边界"],
+    "viewport": "浅色应用外框、单层侧栏、宽阔主区和一条次级信息栏；首页只保留当前事项、快速记录和近期记录。",
+    "risk": "完成度可以很高，但产品辨识度完全依赖比例与细节。",
+    "comp": ".impeccable/mocks/decision/canon.png"
+  },
+  "steer": true
+}
