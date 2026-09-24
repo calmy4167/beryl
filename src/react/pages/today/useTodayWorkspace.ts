@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { addActionToToday, openToday, recordActionResult } from '@/application'
+import { addActionToToday, openToday } from '@/application'
 import { withSaveState } from '@/core/save-state'
 import { todayKey } from '@/core/storage'
 import { actionAsyncRepository } from '@/domain/action/repository'
@@ -8,7 +8,7 @@ import type { Matter } from '@/domain/matter/model'
 import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayLoad, TodayPlan } from '@/domain/today/model'
 import { recordAsyncRepository } from '@/domain/record/repository'
-import type { NegativeRecordImpact } from '@/domain/record/model'
+import type { JournalCategory } from '@/domain/record/model'
 
 const date = todayKey()
 
@@ -35,10 +35,7 @@ export function useTodayWorkspace() {
   const [actionTitle, setActionTitle] = useState('')
   const [matterId, setMatterId] = useState('')
   const [recordBody, setRecordBody] = useState('')
-  const [recordType, setRecordType] = useState<'fact' | 'negative'>('fact')
-  const [recordActionId, setRecordActionId] = useState('')
-  const [recordMatterId, setRecordMatterId] = useState('')
-  const [impact, setImpact] = useState<NegativeRecordImpact>('other')
+  const [journalCategory, setJournalCategory] = useState<JournalCategory>('fact')
   const [realityMessage, setRealityMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -120,16 +117,8 @@ export function useTodayWorkspace() {
       return
     }
     try {
-      if (recordActionId) {
-        const action = actions.find(item => item.calmyId === recordActionId)
-        if (!action) return
-        await withSaveState(() => recordActionResult({ actionId: action.calmyId, recordBody, recordType, impact: recordType === 'negative' ? impact : undefined, expectedActionRevision: action.revision }))
-      } else {
-        await withSaveState(() => recordAsyncRepository.create({ body: recordBody, type: recordType, matterId: recordMatterId || undefined, impact: recordType === 'negative' ? impact : undefined }))
-      }
+      await withSaveState(() => recordAsyncRepository.create({ body: recordBody, type: 'fact', journalCategory }))
       setRecordBody('')
-      setRecordActionId('')
-      setRecordMatterId('')
       await refresh()
       toast('已保存现实记录')
     } catch (cause) {
@@ -147,10 +136,9 @@ export function useTodayWorkspace() {
   const narrative = loadNarrative(plan?.load || null, primaryAction)
 
   return {
-    date, loading, saving, plan, actions, matters, protect, letGo, actionTitle, matterId, recordBody,
-    recordType, recordActionId, recordMatterId, impact, realityMessage, error, availableActions,
+    date, loading, saving, plan, actions, matters, protect, letGo, actionTitle, matterId, recordBody, journalCategory,
+    realityMessage, error, availableActions,
     primaryAction, extraActions, narrative, refresh, savePlan, addAction, goToReality, toggleAction,
-    addRecord, setProtect, setLetGo, setActionTitle, setMatterId, setRecordBody, setRecordType,
-    setRecordActionId, setRecordMatterId, setImpact,
+    addRecord, setProtect, setLetGo, setActionTitle, setMatterId, setRecordBody, setJournalCategory,
   }
 }

@@ -1,6 +1,5 @@
-import type { ActionItem } from '@/domain/action/model'
 import type { Matter } from '@/domain/matter/model'
-import type { NegativeRecordImpact } from '@/domain/record/model'
+import type { JournalCategory } from '@/domain/record/model'
 
 interface TodayLetGoPanelProps {
   saving: boolean
@@ -30,20 +29,21 @@ export function TodayAddActionPanel({ title, matterId, matters, onTitleChange, o
 
 interface TodayRealityRecordPanelProps {
   body: string
-  type: 'fact' | 'negative'
-  actionId: string
-  matterId: string
-  impact: NegativeRecordImpact
-  actions: ActionItem[]
-  matters: Matter[]
+  journalCategory: JournalCategory
   onBodyChange: (value: string) => void
-  onTypeChange: (value: 'fact' | 'negative') => void
-  onActionChange: (value: string) => void
-  onMatterChange: (value: string) => void
-  onImpactChange: (value: NegativeRecordImpact) => void
+  onJournalCategoryChange: (value: JournalCategory) => void
   onSave: () => void | Promise<void>
 }
 
-export function TodayRealityRecordPanel({ body, type, actionId, matterId, impact, actions, matters, defaultOpen = false, onBodyChange, onTypeChange, onActionChange, onMatterChange, onImpactChange, onSave }: TodayRealityRecordPanelProps & { defaultOpen?: boolean }) {
-  return <details open={defaultOpen} className="record-details record-row beryl-card"><summary>快速记录 <small>把今天真实发生的事先记下来</small></summary><div className="record-row-inner"><textarea aria-label="记录原文" value={body} onChange={event => onBodyChange(event.target.value)} placeholder="完成、阻碍、身体感受、重要事实…" /><div className="record-controls"><details className="record-options"><summary>记录选项 <small>类型与关联</small></summary><div className="record-option-fields"><select aria-label="记录类型" value={type} onChange={event => onTypeChange(event.target.value as 'fact' | 'negative')}><option value="fact">事实</option><option value="negative">负向变化</option></select><select aria-label="结果关联行动" value={actionId} onChange={event => onActionChange(event.target.value)}><option value="">不关联行动</option>{actions.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}</select><select aria-label="记录关联事项" value={matterId} onChange={event => onMatterChange(event.target.value)}><option value="">不关联事项</option>{matters.map(item => <option key={item.calmyId} value={item.calmyId}>{item.title}</option>)}</select>{type === 'negative' && <select aria-label="负向影响" value={impact} onChange={event => onImpactChange(event.target.value as NegativeRecordImpact)}><option value="other">其他</option><option value="waste">浪费</option><option value="escape">逃避</option></select>}</div></details><button className="react-btn primary" type="button" onClick={() => void onSave()}>保存记录</button></div></div></details>
+export function TodayRealityRecordPanel({ body, journalCategory, onBodyChange, onJournalCategoryChange, onSave }: TodayRealityRecordPanelProps) {
+  return <section className="record-composer" aria-label="记录今天">
+    <textarea rows={6} aria-label="记录原文" value={body} onChange={event => onBodyChange(event.target.value)} placeholder="写下今天的想法或事实…" />
+    <div className="record-controls">
+      <div className="journal-category" role="group" aria-label="记录类别" data-selected-category={journalCategory}>
+        <button type="button" aria-pressed={journalCategory === 'mind'} onClick={() => onJournalCategoryChange('mind')}>心</button>
+        <button type="button" aria-pressed={journalCategory === 'fact'} onClick={() => onJournalCategoryChange('fact')}>事实</button>
+      </div>
+      <button className="react-btn capture-submit" type="button" onClick={() => void onSave()}>记录</button>
+    </div>
+  </section>
 }

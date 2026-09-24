@@ -43,6 +43,16 @@ describe('backup contract', () => {
     expect(parseBackup(backup)).toEqual(backup)
   })
 
+  it('round-trips journal categories and remains compatible with older record JSON', () => {
+    const categorized = '[{"calmyId":"r2","journalCategory":"mind"}]'
+    const legacy = '[{"calmyId":"r1","type":"fact"}]'
+    const backup = createBackup(new StorageMock({ b_realityRecords: categorized }))
+    const olderBackup = createBackup(new StorageMock({ b_realityRecords: legacy }))
+
+    expect(parseBackup(backup).b_realityRecords).toBe(categorized)
+    expect(parseBackup(olderBackup).b_realityRecords).toBe(legacy)
+  })
+
   it('falls back to the synchronous cache when IndexedDB is unavailable', async () => {
     vi.stubGlobal('indexedDB', undefined)
     const source = new StorageMock({ b_tasks: '[{"id":"t1"}]', b_db_outbox: '[]' })

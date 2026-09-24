@@ -213,8 +213,8 @@ export function PomoPage() {
 
       <section className="beryl-card" style={{ padding: 24, textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
-          <button className={`react-btn ${mode === 'focus' ? 'primary' : ''}`} type="button" aria-label="切换到专注模式" aria-pressed={mode === 'focus'} onClick={() => changeMode('focus')} disabled={saving}>🍅 专注</button>
-          <button className={`react-btn ${mode === 'rest' ? 'primary' : ''}`} type="button" aria-label="切换到休息模式" aria-pressed={mode === 'rest'} onClick={() => changeMode('rest')} disabled={saving}>☕ 休息</button>
+          <button className={`react-btn ${mode === 'focus' ? 'primary' : ''}`} type="button" aria-label="切换到专注模式" aria-pressed={mode === 'focus'} onClick={() => changeMode('focus')} disabled={saving}>专注</button>
+          <button className={`react-btn ${mode === 'rest' ? 'primary' : ''}`} type="button" aria-label="切换到休息模式" aria-pressed={mode === 'rest'} onClick={() => changeMode('rest')} disabled={saving}>休息</button>
         </div>
 
         <div style={{ position: 'relative', display: 'inline-block' }}>

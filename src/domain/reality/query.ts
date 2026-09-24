@@ -43,6 +43,7 @@ export interface RealityDocument {
   type?: string
   resultNote?: string
   recordType?: string
+  journalCategory?: RealityRecord['journalCategory']
   impact?: string
   why?: string
   currentStage?: string
@@ -177,7 +178,8 @@ function legacyDocuments(): RealityDocument[] {
     id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
     summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
     route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt, matterId: item.matterId,
-    cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type, impact: item.impact
+    cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
+    journalCategory: item.journalCategory, impact: item.impact
   }))
   const today = todayRepository.list().map((item: TodayPlan) => document({
     id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,
@@ -308,7 +310,7 @@ export async function listActionRecordDocumentsAsync(query: RealityQuery = {}): 
       summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
       route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
       matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
-      impact: item.impact, revision: item.revision
+      journalCategory: item.journalCategory, impact: item.impact, revision: item.revision
     }))
   ]
   const types = query.types?.length ? new Set(query.types) : undefined
@@ -371,7 +373,8 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
     id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
     summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
     route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
-    matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type, impact: item.impact, revision: item.revision
+    matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
+    journalCategory: item.journalCategory, impact: item.impact, revision: item.revision
   }))
   const todayDocuments = today.map((item: TodayPlan) => document({
     id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,

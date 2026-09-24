@@ -185,7 +185,8 @@ export const recordRepository = {
     const record: RealityRecord = {
       calmyId: createEntityId(), type, body: assertBody(input.body), occurredAt: input.occurredAt || now,
       createdAt: now, updatedAt: now, ...sourceContextValue, actionId: input.actionId,
-      source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined
+      source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined,
+      journalCategory: input.journalCategory
     }
     records.create(record)
     appendRevision(record, 'created', source, now, meta.actorId)
@@ -264,7 +265,8 @@ export const recordAsyncRepository = {
     const record: RealityRecord = {
       calmyId: createEntityId(), type, body: assertBody(input.body), occurredAt: input.occurredAt || now,
       createdAt: now, updatedAt: now, ...sourceContextValue, actionId: input.actionId,
-      source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined
+      source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined,
+      journalCategory: input.journalCategory
     }
     await asyncRecords.create(record)
     await appendRevisionAsync(record, 'created', source, now, meta.actorId)

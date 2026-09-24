@@ -18,6 +18,23 @@ describe('recordRepository', () => {
     expect(recordRepository.revisions(record.calmyId)).toHaveLength(1)
   })
 
+  it('stores the optional journal category without changing the record type', () => {
+    const record = recordRepository.create({ body: '刚才停下来休息', journalCategory: 'mind' })
+
+    expect(record).toMatchObject({ type: 'fact', journalCategory: 'mind' })
+  })
+
+  it('keeps imported legacy records without a journal category unlabelled', () => {
+    const legacy = {
+      calmyId: 'legacy-no-journal-category', type: 'fact' as const, body: '旧记录', occurredAt: 1,
+      createdAt: 1, updatedAt: 1, source: 'import' as const, evidenceIds: [], revision: 1
+    }
+
+    recordRepository.importEntity(legacy)
+
+    expect(recordRepository.find(legacy.calmyId)).not.toHaveProperty('journalCategory')
+  })
+
   it('requires evidence for AI observations', () => {
     expect(() => recordRepository.create({ type: 'observation', source: 'ai', body: '可能睡眠影响学习' })).toThrowError(RecordDomainError)
     expect(recordRepository.list()).toHaveLength(0)

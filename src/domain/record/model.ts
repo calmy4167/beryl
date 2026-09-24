@@ -1,6 +1,12 @@
 export const RECORD_TYPES = ['fact', 'observation', 'insight', 'seed', 'review', 'negative'] as const
 export type RecordType = typeof RECORD_TYPES[number]
 
+export type JournalCategory = 'mind' | 'fact'
+
+export function isJournalCategory(value: unknown): value is JournalCategory {
+  return value === 'mind' || value === 'fact'
+}
+
 export const NEGATIVE_RECORD_IMPACTS = ['waste', 'escape', 'retreat', 'loss', 'other'] as const
 export type NegativeRecordImpact = typeof NEGATIVE_RECORD_IMPACTS[number]
 
@@ -22,6 +28,7 @@ export interface RealityRecord {
   evidenceIds: string[]
   revision: number
   impact?: NegativeRecordImpact
+  journalCategory?: JournalCategory
   redactedAt?: number
 }
 
@@ -36,6 +43,7 @@ export interface RecordCreateInput {
   source?: RecordSource
   evidenceIds?: string[]
   impact?: NegativeRecordImpact
+  journalCategory?: JournalCategory
 }
 
 export interface RecordCommandMeta {

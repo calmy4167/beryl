@@ -1,0 +1,4313 @@
+/* Calmy tactile product UI
+ * This is the single forward-looking visual contract. Legacy styles remain
+ * loaded only while routes are migrated onto these shared tokens.
+ */
+:root {
+  color-scheme: light;
+  --t-canvas: #eff1f1;
+  --t-frame: #ffffff;
+  --t-workspace: #f8f9f8;
+  --t-surface: #ffffff;
+  --t-surface-subtle: #f4f6f5;
+  --t-glass-surface: rgba(255, 255, 255, .96);
+  --t-glass-rail: rgba(250, 251, 251, .94);
+  --t-glass-border: rgba(213, 218, 216, .68);
+  --t-shadow-soft: 0 12px 30px rgba(43, 49, 47, .065), 0 2px 6px rgba(43, 49, 47, .035);
+  --t-border: #e1e5e3;
+  --t-border-strong: #d1d8d5;
+  --t-text: #202624;
+  --t-text-muted: #65716d;
+  --t-text-faint: #626e69;
+  --t-navy: #242c28;
+  --t-blue: #336cf4;
+  --t-blue-strong: #2458d7;
+  --t-coral: #fb6c60;
+  --t-amber: #f4b942;
+  --t-mint: #22b9a9;
+  --t-violet: #7c69ee;
+  --t-radius-sm: 6px;
+  --t-radius-md: 8px;
+  --t-radius-lg: 12px;
+  --t-radius-frame: 18px;
+  --t-shadow-sm: 0 2px 7px rgba(31, 44, 71, .06);
+  --t-shadow-md: 0 14px 34px rgba(31, 44, 71, .10), 0 2px 7px rgba(31, 44, 71, .06);
+  --t-shadow-lg: 0 34px 84px rgba(31, 44, 71, .16), 0 3px 10px rgba(31, 44, 71, .08);
+  --t-sidebar-open: 232px;
+  --t-sidebar-closed: 76px;
+  --t-context-open: 356px;
+  --t-context-closed: 66px;
+  --t-motion-fast: 140ms;
+  --t-motion-standard: 220ms;
+  --t-motion-emphasis: 340ms;
+  --t-ease-standard: cubic-bezier(.22, .8, .24, 1);
+  --t-ease-emphasis: cubic-bezier(.16, 1, .3, 1);
+  --t-focus-ring: 0 0 0 3px rgba(51, 108, 244, .22);
+  --t-danger: #be3e3e;
+}
+
+html.tactile-ui {
+  color: var(--t-text);
+  background: var(--t-canvas);
+  font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html.tactile-ui body {
+  min-width: 0;
+  color: var(--t-text);
+  background:
+    radial-gradient(circle at 8% 6%, rgba(124, 105, 238, .07), transparent 24%),
+    radial-gradient(circle at 92% 94%, rgba(244, 185, 66, .08), transparent 28%),
+    var(--t-canvas);
+}
+
+html.tactile-ui :where(button, input, textarea, select) {
+  font: inherit;
+}
+
+html.tactile-ui :where(button, [role="button"], input, textarea, select, summary):focus-visible {
+  outline: none;
+  box-shadow: var(--t-focus-ring);
+}
+
+html.tactile-ui :where(button, .react-btn) {
+  transition:
+    color var(--t-motion-fast) ease,
+    background-color var(--t-motion-fast) ease,
+    border-color var(--t-motion-fast) ease,
+    box-shadow var(--t-motion-fast) ease,
+    transform var(--t-motion-fast) ease;
+}
+
+html.tactile-ui :where(button, .react-btn):active {
+  transform: translateY(1px);
+}
+
+html.tactile-ui .page-container .react-btn:not(.primary):not(.danger) {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: #14213a;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(31, 44, 71, .06);
+}
+
+html.tactile-ui .page-container :where(button, a).primary {
+  border-color: #336cf4;
+  color: #fff !important;
+  background: #336cf4;
+}
+
+html.tactile-ui .page-container :where(button, a).danger {
+  border-color: #e6b8b8 !important;
+  color: #be3e3e !important;
+  background: #fff !important;
+}
+
+html.tactile-ui .page-container :where(button, [role="button"]):disabled {
+  opacity: .52;
+  cursor: not-allowed;
+}
+
+html.tactile-ui ::selection {
+  color: #fff;
+  background: var(--t-blue);
+}
+
+/* Desktop tactile shell --------------------------------------------------- */
+html.tactile-ui .app-shell {
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: var(--t-sidebar-width, var(--t-sidebar-open)) 8px minmax(0, 1fr);
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--t-frame);
+  box-shadow: none;
+  transition: grid-template-columns 360ms var(--t-ease-emphasis);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] {
+  grid-template-columns: var(--t-sidebar-closed) 0 minmax(0, 1fr);
+}
+
+html.tactile-ui .shell-resize-handle {
+  position: relative;
+  z-index: 18;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+html.tactile-ui .shell-resize-handle > span {
+  width: 3px;
+  height: 100%;
+  background: var(--t-border);
+  box-shadow: 1px 0 rgba(255, 255, 255, .76);
+  transform: scaleX(.3333);
+  transform-origin: center;
+  transition: transform var(--t-motion-fast) ease, background-color var(--t-motion-fast) ease;
+}
+
+html.tactile-ui .shell-resize-handle:hover > span,
+html.tactile-ui .shell-resize-handle:focus-visible > span {
+  transform: scaleX(1);
+  background: var(--t-blue);
+}
+
+html.tactile-ui .shell-resize-handle[aria-disabled="true"] {
+  display: none;
+}
+
+html.tactile-ui .shell-resize-left {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+html.tactile-ui .shell-resize-right {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+html.shell-is-resizing,
+html.shell-is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+html.tactile-ui .sidebar {
+  position: relative;
+  top: auto;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 30px 22px 22px;
+  overflow: hidden;
+  border-right: 1px solid var(--t-border);
+  background: #fbfcfe;
+  box-shadow: inset -1px 0 rgba(255, 255, 255, .75);
+  backdrop-filter: none;
+}
+
+html.tactile-ui .sidebar-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  margin-bottom: 44px;
+}
+
+html.tactile-ui .sidebar .brand {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  margin: 0;
+  padding: 0 10px;
+  gap: 12px;
+  color: var(--t-navy);
+  background: transparent;
+  border: 0;
+  text-align: left;
+}
+
+html.tactile-ui .sidebar .brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px 10px 7px 10px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--t-blue), #4b78ee 58%, var(--t-mint));
+  box-shadow: 0 8px 18px rgba(51, 108, 244, .22);
+  transform: rotate(-7deg);
+}
+
+html.tactile-ui .sidebar .brand-mark svg {
+  width: 20px;
+  height: 20px;
+  transform: rotate(7deg);
+}
+
+html.tactile-ui .brand-word {
+  max-width: 118px;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    max-width 280ms var(--t-ease-standard),
+    opacity 180ms ease,
+    transform 280ms var(--t-ease-standard);
+}
+
+html.tactile-ui .brand-word b {
+  font-size: 18px;
+  font-weight: 760;
+  letter-spacing: .17em;
+}
+
+html.tactile-ui .sidebar-toggle {
+  position: static;
+  z-index: 4;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--t-border-strong);
+  border-radius: 7px;
+  color: #66758d;
+  background: #fff;
+  box-shadow: 0 5px 14px rgba(31, 44, 71, .10);
+}
+
+html.tactile-ui .sidebar-toggle:hover {
+  color: var(--t-blue);
+  box-shadow: 0 8px 18px rgba(31, 44, 71, .14);
+}
+
+html.tactile-ui .sidebar-toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 360ms var(--t-ease-emphasis);
+}
+
+html.tactile-ui .sidebar-eyebrow,
+html.tactile-ui .sidebar-section-heading > .sidebar-label {
+  display: block;
+  max-width: 150px;
+  max-height: 20px;
+  margin: 0 14px 10px;
+  overflow: hidden;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  opacity: 1;
+  transform: translateX(0);
+  white-space: nowrap;
+  transition:
+    max-width 260ms var(--t-ease-standard),
+    max-height 260ms var(--t-ease-standard),
+    margin 260ms var(--t-ease-standard),
+    opacity 160ms ease,
+    transform 260ms var(--t-ease-standard);
+}
+
+html.tactile-ui .primary-nav {
+  --nav-row-size: 52px;
+  --nav-row-gap: 8px;
+  position: relative;
+  min-height: 0;
+  margin: 0 0 18px;
+  display: grid;
+  gap: var(--nav-row-gap);
+  overflow: visible;
+}
+
+html.tactile-ui .nav-active-track {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: var(--nav-row-size);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: var(--t-radius-md);
+  background: linear-gradient(135deg, #141e38 0%, #24396f 100%);
+  box-shadow: 0 11px 24px rgba(23, 33, 61, .18), inset 0 1px rgba(255, 255, 255, .08);
+  transform: translateY(calc(var(--nav-active-index) * (var(--nav-row-size) + var(--nav-row-gap))));
+  transition: transform var(--t-motion-emphasis) var(--t-ease-emphasis);
+  will-change: transform;
+}
+
+html.tactile-ui .nav-active-track[data-active="false"] {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+html.tactile-ui .nav-active-track::before {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: 12px;
+  width: 4px;
+  height: 28px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, #4b82ff, #755ff0);
+  box-shadow: 0 0 14px rgba(51, 108, 244, .38);
+  transition: left 360ms var(--t-ease-emphasis);
+}
+
+html.tactile-ui .primary-nav button,
+html.tactile-ui .feature-nav button,
+html.tactile-ui .sidebar-foot button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  min-height: 52px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 13px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--t-radius-md);
+  color: #5d6b82;
+  background: transparent;
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+html.tactile-ui .primary-nav button:hover,
+html.tactile-ui .feature-nav button:hover,
+html.tactile-ui .sidebar-foot button:hover {
+  color: var(--t-text);
+  background: #f1f4f9;
+}
+
+html.tactile-ui .primary-nav button.on {
+  color: #fff;
+  background: transparent;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+html.tactile-ui :where(.primary-nav, .feature-nav, .sidebar-foot) i {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  flex: none;
+  place-items: center;
+  font-style: normal;
+}
+
+html.tactile-ui :where(.primary-nav, .feature-nav, .sidebar-foot) svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .nav-label,
+html.tactile-ui .feature-group-button .sidebar-label,
+html.tactile-ui .sidebar-foot .sidebar-label {
+  display: inline-block;
+  max-width: 140px;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    max-width 280ms var(--t-ease-standard),
+    opacity 160ms ease,
+    transform 280ms var(--t-ease-standard);
+}
+
+html.tactile-ui .sidebar-feature-section {
+  display: grid;
+  gap: 0;
+}
+
+html.tactile-ui .sidebar-section-heading {
+  position: relative;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+html.tactile-ui .sidebar-section-heading > div {
+  display: flex;
+  gap: 2px;
+  opacity: 1;
+  transition: opacity 160ms ease, transform 260ms var(--t-ease-standard);
+}
+
+html.tactile-ui .sidebar-section-heading button {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  color: var(--t-text-muted);
+  background: transparent;
+}
+
+html.tactile-ui .feature-nav {
+  display: grid;
+  gap: 8px;
+}
+
+html.tactile-ui .feature-group-button.on {
+  color: var(--t-blue);
+  background: rgba(51, 108, 244, .08);
+}
+
+html.tactile-ui .sidebar-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--t-border);
+}
+
+html.tactile-ui .sidebar-foot button {
+  height: 44px;
+  min-height: 44px;
+  font-size: 12px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar {
+  padding-inline: 11px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar-header {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar .brand {
+  justify-content: center;
+  padding-inline: 0;
+  gap: 0;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .brand-word,
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .nav-label,
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .feature-group-button .sidebar-label,
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar-foot .sidebar-label {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] :where(.sidebar-eyebrow, .sidebar-section-heading > .sidebar-label) {
+  display: block;
+  max-width: 0;
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] :where(.primary-nav button, .feature-nav button, .sidebar-foot button) {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .nav-active-track::before {
+  left: -11px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar-section-heading {
+  justify-content: center;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar-section-heading > div {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+}
+
+/* Desktop navigation: a labeled primary rail with an anchored page popover. */
+html.tactile-ui .sidebar {
+  padding: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: visible;
+  border-right: 1px solid var(--t-border);
+  background: #fbfcfe;
+  box-shadow: none;
+  transition: grid-template-columns 360ms var(--t-ease-emphasis);
+}
+
+html.tactile-ui .primary-rail {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 0;
+  padding: 14px 14px 12px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  overflow: visible;
+  color: #42536e;
+  background: #fbfcfe;
+  border-right: 0;
+  box-shadow: none;
+}
+
+html.tactile-ui .primary-rail-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+html.tactile-ui .rail-brand {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 13px;
+  border: 0;
+  border-radius: var(--t-radius-md);
+  color: var(--t-navy);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 760;
+  letter-spacing: .14em;
+  text-align: left;
+}
+
+html.tactile-ui .rail-brand:hover {
+  background: #f0f4fa;
+}
+
+html.tactile-ui .primary-rail-header .sidebar-toggle {
+  position: static;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
+  flex: 0 0 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  color: #66758d;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .primary-rail-header .sidebar-toggle:hover {
+  color: var(--t-blue-strong);
+  background: #f0f4fa;
+  box-shadow: none;
+}
+
+html.tactile-ui .primary-rail-header .sidebar-toggle svg.is-collapsed {
+  transform: rotate(180deg);
+}
+
+html.tactile-ui .rail-brand .brand-mark {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  transform: none;
+  box-shadow: 0 6px 14px rgba(51, 108, 244, .18);
+}
+
+html.tactile-ui .rail-brand .brand-mark svg {
+  transform: none;
+}
+
+html.tactile-ui .navigation-group-rail {
+  --nav-row-size: 48px;
+  --nav-row-gap: 5px;
+  position: relative;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--nav-row-gap);
+}
+
+html.tactile-ui .navigation-group-rail .nav-active-track {
+  inset: 0 0 auto;
+  height: var(--nav-row-size);
+  border: 0;
+  border-radius: 9px;
+  background: #e2ebfb;
+  box-shadow: none;
+}
+
+html.tactile-ui .navigation-group-rail .nav-active-track::before {
+  display: none;
+  background: #7fa0ff;
+  box-shadow: none;
+}
+
+html.tactile-ui .navigation-group-rail button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #42536e;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 680;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+html.tactile-ui .navigation-group-rail button.on { color: #1f4eaa; font-weight: 740; }
+
+html.tactile-ui .navigation-group-rail button:hover:not(.on) {
+  color: #2458a8;
+  background: #f0f5ff;
+}
+
+html.tactile-ui .navigation-group-rail button i {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+
+html.tactile-ui .navigation-group-rail button svg,
+html.tactile-ui .primary-rail-foot button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .navigation-group-rail button .group-disclosure {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  opacity: .42;
+  transform: translateY(-50%);
+  transition: opacity var(--t-motion-fast) ease, transform var(--t-motion-fast) ease;
+}
+
+html.tactile-ui .navigation-group-rail button.on .group-disclosure {
+  opacity: .68;
+}
+
+html.tactile-ui .navigation-group-rail button:hover .group-disclosure,
+html.tactile-ui .navigation-group-rail button:focus-visible .group-disclosure {
+  opacity: .82;
+}
+
+html.tactile-ui .navigation-group-rail button .group-disclosure.is-open {
+  opacity: .9;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+html.tactile-ui .primary-rail-foot {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+}
+
+html.tactile-ui .primary-rail-foot > button {
+  position: static;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #52617a;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .primary-rail-foot > button:hover {
+  color: var(--t-blue-strong);
+  background: #f0f4fa;
+  box-shadow: none;
+}
+
+html.tactile-ui .secondary-sidebar {
+  position: fixed;
+  z-index: 30;
+  width: min(224px, calc(100vw - 24px));
+  min-width: 0;
+  min-height: 0;
+  padding: 11px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  overflow: hidden;
+  border: 1px solid #d8e1ee;
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateX(-5px);
+  visibility: hidden;
+  pointer-events: none;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(31, 44, 71, .16), 0 3px 9px rgba(31, 44, 71, .06);
+  transition:
+    opacity 140ms ease,
+    transform 180ms var(--t-ease-standard),
+    visibility 0s linear 180ms;
+}
+
+html.tactile-ui .secondary-sidebar.is-open {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+html.tactile-ui .secondary-sidebar-header {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 2px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+html.tactile-ui .secondary-sidebar-title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--t-text);
+  font-size: 14px;
+  font-weight: 720;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.tactile-ui .secondary-sidebar-header > button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: var(--t-text-muted);
+  background: transparent;
+}
+
+html.tactile-ui .secondary-sidebar-header > button:hover {
+  color: var(--t-blue-strong);
+  background: #ebf1ff;
+}
+
+html.tactile-ui .secondary-sidebar-header svg,
+html.tactile-ui .secondary-nav svg,
+html.tactile-ui .secondary-sidebar-foot svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .secondary-nav {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+html.tactile-ui .secondary-nav button,
+html.tactile-ui .secondary-sidebar-foot button {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 7px;
+  color: #52617a;
+  background: transparent;
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+html.tactile-ui .secondary-nav button:hover,
+html.tactile-ui .secondary-sidebar-foot button:hover {
+  color: var(--t-text);
+  background: #edf1f8;
+}
+
+html.tactile-ui .secondary-nav button.on {
+  color: #2459d8;
+  background: #eaf0ff;
+  font-weight: 700;
+}
+
+html.tactile-ui .secondary-nav button i,
+html.tactile-ui .secondary-sidebar-foot button i {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  flex: none;
+  place-items: center;
+  font-style: normal;
+}
+
+html.tactile-ui .secondary-nav button span,
+html.tactile-ui .secondary-sidebar-foot button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.tactile-ui .secondary-sidebar-foot {
+  padding-top: 6px;
+  border-top: 1px solid #edf1f6;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .sidebar {
+  padding: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .primary-rail {
+  min-width: var(--t-sidebar-closed);
+  padding-inline: 9px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .primary-rail-header {
+  flex-direction: column;
+  gap: 2px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .rail-brand {
+  width: 44px;
+  flex: 0 0 44px;
+  justify-content: center;
+  padding-inline: 0;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .primary-rail-header .sidebar-toggle {
+  width: 40px;
+  min-width: 40px;
+  height: 34px;
+  min-height: 34px;
+  flex-basis: 34px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .rail-brand-label,
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button .group-disclosure {
+  display: none;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail {
+  --nav-row-size: 56px;
+  --nav-row-gap: 4px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button {
+  height: 56px;
+  min-height: 56px;
+  padding: 4px 2px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  white-space: normal;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-faint);
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.15;
+  text-align: center;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button > span {
+  display: block;
+  width: 100%;
+  max-width: 58px;
+  overflow: visible;
+  text-align: center;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-all;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button i {
+  width: 22px;
+  height: 22px;
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .primary-rail-foot > button {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+html.tactile-ui .workspace-shell {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-column: 3;
+  grid-template-columns: minmax(0, 1fr) 8px var(--t-context-width, var(--t-context-open));
+  grid-template-rows: 70px 42px minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--t-workspace);
+  transition: grid-template-columns 320ms var(--t-ease-standard);
+}
+
+html.tactile-ui .app-shell[data-context-state="collapsed"] .workspace-shell {
+  grid-template-columns: minmax(0, 1fr) 0 var(--t-context-closed);
+}
+
+html.tactile-ui .desktop-topbar {
+  position: relative;
+  top: auto;
+  z-index: 15;
+  grid-column: 1;
+  grid-row: 1;
+  height: 70px;
+  padding: 0 26px 0 34px;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(300px, 360px) auto;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid var(--t-border);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .86);
+  backdrop-filter: none;
+}
+
+html.tactile-ui .desktop-topbar .breadcrumb {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  color: var(--t-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+html.tactile-ui .desktop-topbar .breadcrumb b {
+  color: var(--t-text);
+  font-size: 13px;
+}
+
+html.tactile-ui .desktop-topbar .breadcrumb span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.tactile-ui .topbar-actions {
+  grid-column: 2 / 4;
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) auto;
+  align-items: center;
+  gap: 18px;
+}
+
+html.tactile-ui .topbar-search {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--t-border);
+  border-radius: 7px;
+  color: var(--t-text-faint);
+  background: #f8fafc;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .03);
+  font-size: 12px;
+  text-align: left;
+}
+
+html.tactile-ui .topbar-search svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--t-text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+html.tactile-ui .topbar-search span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.tactile-ui .topbar-search kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--t-border);
+  border-radius: 4px;
+  color: var(--t-text-muted);
+  background: #fff;
+  font-size: 12px;
+}
+
+html.tactile-ui .desktop-topbar .save-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #596980;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+html.tactile-ui .desktop-topbar .save-state i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--t-mint);
+  box-shadow: 0 0 0 4px rgba(34, 185, 169, .11);
+}
+
+html.tactile-ui .desktop-topbar.is-compact-search {
+  padding-inline: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+html.tactile-ui .desktop-topbar.is-compact-search .topbar-actions {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+html.tactile-ui .desktop-topbar.is-compact-search .topbar-search {
+  width: 40px;
+  min-width: 40px;
+  padding: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html.tactile-ui .desktop-topbar.is-compact-search .topbar-search svg {
+  justify-self: center;
+}
+
+html.tactile-ui .desktop-topbar.is-compact-search .topbar-search :where(span, kbd) {
+  display: none;
+}
+
+html.tactile-ui .workspace-tabs {
+  position: relative;
+  z-index: 14;
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  height: 42px;
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--t-border);
+  background: #f3f6fa;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .86);
+}
+
+html.tactile-ui .workspace-tabs-scroll {
+  width: 100%;
+  height: 100%;
+  padding: 6px 10px 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+html.tactile-ui .workspace-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+html.tactile-ui .workspace-tab-scroll {
+  position: absolute;
+  z-index: 3;
+  top: 4px;
+  width: 32px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--t-border-strong);
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .workspace-tab-scroll-left {
+  left: 6px;
+}
+
+html.tactile-ui .workspace-tab-scroll-right {
+  right: 6px;
+}
+
+html.tactile-ui .workspace-tab-scroll:hover {
+  color: var(--t-blue-strong);
+  border-color: #b9cbfa;
+  background: #f7f9ff;
+}
+
+html.tactile-ui .workspace-tab-scroll svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .workspace-tab {
+  position: relative;
+  min-width: 116px;
+  max-width: 200px;
+  height: 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: stretch;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 7px 7px 0 0;
+  color: #596980;
+  background: transparent;
+  transition:
+    color var(--t-motion-fast) ease,
+    border-color var(--t-motion-fast) ease,
+    background-color var(--t-motion-fast) ease;
+}
+
+html.tactile-ui .workspace-tab::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--t-blue);
+  opacity: 0;
+}
+
+html.tactile-ui .workspace-tab.is-active {
+  color: var(--t-blue-strong);
+  border-color: var(--t-border);
+  border-bottom-color: var(--t-workspace);
+  background: var(--t-workspace);
+  font-weight: 700;
+}
+
+html.tactile-ui .workspace-tab:not(.is-active, .is-dragging):hover {
+  border-color: #dce3ed;
+  background: #fff;
+}
+
+html.tactile-ui .workspace-tab.is-dragging {
+  opacity: .46;
+}
+
+html.tactile-ui .workspace-tab.is-drop-target {
+  border-color: #336cf4;
+  background: #edf3ff;
+  box-shadow: none;
+}
+
+html.tactile-ui .workspace-tab.is-active::before {
+  opacity: 1;
+}
+
+html.tactile-ui .workspace-tab.is-pinned {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 92px;
+}
+
+html.tactile-ui .workspace-tab > button {
+  min-width: 0;
+  height: 35px;
+  min-height: 35px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .workspace-tab > [role="tab"] {
+  padding: 0 4px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-align: left;
+}
+
+html.tactile-ui .workspace-tab:not(.is-pinned) > [role="tab"] {
+  cursor: grab;
+}
+
+html.tactile-ui .workspace-tab.is-dragging > [role="tab"] {
+  cursor: grabbing;
+}
+
+html.tactile-ui .workspace-tab-drag-hint {
+  width: 12px;
+  height: 16px;
+  flex: none;
+  fill: #94a3b8;
+}
+
+html.tactile-ui .workspace-tab.is-pinned > [role="tab"] {
+  padding-right: 11px;
+}
+
+html.tactile-ui .workspace-tab-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+html.tactile-ui .workspace-tab-pin,
+html.tactile-ui .workspace-tab-close svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .workspace-tab-close {
+  width: 28px;
+  display: grid;
+  place-items: center;
+  opacity: .8;
+}
+
+html.tactile-ui .workspace-tab:hover .workspace-tab-close,
+html.tactile-ui .workspace-tab:focus-within .workspace-tab-close,
+html.tactile-ui .workspace-tab.is-active .workspace-tab-close {
+  opacity: 1;
+}
+
+html.tactile-ui .workspace-tab-close:hover {
+  color: var(--t-text);
+  background: rgba(23, 33, 61, .06);
+}
+
+html.tactile-ui .workspace-tab-save-state {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--t-amber);
+  box-shadow: 0 0 0 3px rgba(244, 185, 66, .12);
+}
+
+html.tactile-ui .workspace-tab-save-state[data-tab-save-state="failed"],
+html.tactile-ui .workspace-tab-save-state[data-tab-save-state="conflict"] {
+  background: var(--t-danger);
+  box-shadow: 0 0 0 3px rgba(190, 62, 62, .12);
+}
+
+html.tactile-ui .workspace-shell > .page-container {
+  position: relative;
+  grid-column: 1;
+  grid-row: 3;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 18px 24px 24px;
+  overflow: auto;
+  scrollbar-color: #bfc8d7 transparent;
+  scrollbar-width: thin;
+}
+
+html.tactile-ui #app .workspace-shell > .page-container:has(> .workspace-source) > .workspace-source {
+  position: static;
+  z-index: auto;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .workspace-source > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--t-text-muted);
+  font-size: 12px;
+}
+
+html.tactile-ui .workspace-shell > .page-container:has(> .workspace-source) > .workspace-source :where(small, a) {
+  display: none;
+}
+
+html.tactile-ui .workspace-source .range-tabs {
+  padding: 3px;
+  display: flex;
+  gap: 3px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  background: #fff;
+}
+
+html.tactile-ui .workspace-source .range-tabs button {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: transparent;
+  font-size: 12px;
+}
+
+html.tactile-ui .workspace-source .range-tabs button.on {
+  color: var(--t-blue);
+  background: rgba(51, 108, 244, .08);
+}
+
+html.tactile-ui .right-rail {
+  position: relative;
+  top: auto;
+  z-index: 16;
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: var(--t-context-closed) minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--t-border);
+  background: #fff;
+  box-shadow: none;
+}
+
+html.tactile-ui .context-dock {
+  position: relative;
+  z-index: 2;
+  min-width: var(--t-context-closed);
+  min-height: 0;
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px solid var(--t-border);
+  background: #f7f9fc;
+  box-shadow: inset 1px 0 rgba(255, 255, 255, .7);
+}
+
+html.tactile-ui :where(.right-sidebar-toggle, .context-dock-action, .context-dock-settings) {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  color: #69778e;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(31, 44, 71, .04);
+}
+
+html.tactile-ui :where(.right-sidebar-toggle, .context-dock-action, .context-dock-settings):hover {
+  color: var(--t-blue);
+  border-color: var(--t-border-strong);
+  box-shadow: 0 8px 16px rgba(31, 44, 71, .08);
+  transform: translateY(-1px);
+}
+
+html.tactile-ui :where(.right-sidebar-toggle, .context-dock-action, .context-dock-settings) svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .context-dock-action {
+  color: #fff;
+  border-color: #496ff0;
+  background: linear-gradient(145deg, #3977f7, #665de8);
+  box-shadow: 0 8px 18px rgba(51, 108, 244, .22), inset 0 1px rgba(255, 255, 255, .24);
+}
+
+html.tactile-ui .context-dock-settings {
+  margin-top: auto;
+}
+
+html.tactile-ui .right-rail-content {
+  min-width: 290px;
+  min-height: 0;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+  scrollbar-width: thin;
+  transition:
+    opacity 210ms ease-out,
+    transform 320ms var(--t-ease-standard),
+    visibility 0s linear 0s;
+}
+
+html.tactile-ui .app-shell[data-context-state="collapsed"] .right-rail-content {
+  opacity: 0;
+  transform: translateX(22px);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 320ms var(--t-ease-standard),
+    visibility 0s linear 320ms;
+}
+
+html.tactile-ui .right-rail .edge-actions h2 {
+  margin: 0 0 12px;
+  color: var(--t-text);
+  font-size: 15px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+html.tactile-ui .right-rail .context-empty {
+  margin: 0;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+html.tactile-ui .right-rail .edge-actions button {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 3px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-bottom: 1px solid var(--t-border);
+  border-radius: 0;
+  color: var(--t-text);
+  background: transparent;
+  text-align: left;
+}
+
+html.tactile-ui .right-rail .edge-actions button:hover {
+  background: var(--t-surface-subtle);
+}
+
+html.tactile-ui .right-rail .edge-actions button > svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .right-rail .edge-actions button > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+html.tactile-ui .right-rail .edge-actions small {
+  overflow: hidden;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Full-site tactile page system ----------------------------------------- */
+html.tactile-ui .page-container {
+  --page-row-height: 46px;
+}
+
+html.tactile-ui .page-container > * {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+html.tactile-ui #app .page-container :where(.page-head, .future-page-head, .memory-page-head, .profile-page-head) {
+  min-height: 56px;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border: 0;
+}
+
+html.tactile-ui #app .page-container :where(.page-head, .future-page-head, .memory-page-head, .profile-page-head)::after {
+  content: none;
+}
+
+html.tactile-ui #app .page-container .page-head .eyebrow {
+  display: none;
+}
+
+html.tactile-ui #app .page-container .page-head h1 {
+  max-width: 22ch;
+  margin: 0;
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: 30px;
+  font-weight: 760;
+  line-height: 1.18;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+html.tactile-ui #app .page-container .page-head p:last-child {
+  max-width: 68ch;
+  margin: 7px 0 0;
+  color: var(--t-text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+html.tactile-ui #app .page-container .font-title {
+  font-family: inherit;
+}
+
+html.tactile-ui .page-container :where(.panel-head, .section-title, .page-section-head) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+html.tactile-ui .page-container :where(.panel-head, .section-title, .page-section-head) h2 {
+  margin: 0;
+  color: var(--t-text);
+  font-size: 17px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+html.tactile-ui .page-container :where(.panel-head, .section-title, .page-section-head) > span,
+html.tactile-ui .page-container :where(.muted, .info, .field-hint) {
+  color: var(--t-text-faint);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+html.tactile-ui #app .page-container .beryl-card {
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  color: var(--t-text);
+  background: #fff;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .page-container .beryl-card .beryl-card {
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  background: #f3f6fa;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .page-container .beryl-card.hoverable:hover {
+  border-color: #cfd8e6;
+  box-shadow: 0 10px 26px rgba(31, 44, 71, .09), 0 2px 7px rgba(31, 44, 71, .05);
+  transform: translateY(-1px);
+}
+
+html.tactile-ui .page-container :where(.opening, .record-row, .today-review, .review-evidence, .matter-create, .admin-block, .cycle-block, .cycle-hero, .capture-box) {
+  padding: 14px;
+}
+
+html.tactile-ui #app .page-container :where(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  outline: none;
+}
+
+html.tactile-ui #app .page-container :where(input, textarea, select)::placeholder {
+  color: var(--t-text-faint);
+}
+
+html.tactile-ui #app .page-container :where(input, textarea, select):focus {
+  border-color: var(--t-blue) !important;
+  background: #fff;
+  box-shadow: var(--t-focus-ring);
+}
+
+html.tactile-ui .page-container button:not(.primary):not(.danger) {
+  color: var(--t-text);
+}
+
+html.tactile-ui .page-container[data-page-archetype="calendar"] .calendar-controls button,
+html.tactile-ui .page-container[data-page-archetype="calendar"] .quiet,
+html.tactile-ui .page-container[data-page-archetype="calendar"] .evidence-actions button {
+  min-height: 40px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #cbd5e3;
+  border-radius: var(--t-radius-sm);
+  color: #14213a;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(31, 44, 71, .05);
+}
+
+html.tactile-ui .page-container[data-page-archetype="calendar"] .calendar-controls button:hover,
+html.tactile-ui .page-container[data-page-archetype="calendar"] .quiet:hover,
+html.tactile-ui .page-container[data-page-archetype="calendar"] .evidence-actions button:hover {
+  border-color: #aebfe5;
+  color: var(--t-blue-strong);
+  background: #f7f9ff;
+}
+
+html.tactile-ui #app .page-container :where(.range-tabs, .memory-layer-tabs, .flow-mode-picker, .future-horizons, .future-choice-options) {
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #eef2f7;
+}
+
+html.tactile-ui .page-container :where(.range-tabs, .flow-mode-picker, .future-horizons, .future-choice-options) button,
+html.tactile-ui .page-container .memory-layer-tabs button {
+  min-height: 34px;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container :where(.range-tabs, .flow-mode-picker, .future-horizons, .future-choice-options) button:is(.on, .selected),
+html.tactile-ui .page-container .memory-layer-tabs button.on {
+  color: var(--t-blue);
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(31, 44, 71, .08);
+}
+
+html.tactile-ui #app .page-container .empty-state {
+  padding: 22px 18px;
+  border: 1px dashed #cad4e2;
+  border-radius: var(--t-radius-md);
+  color: var(--t-text-muted);
+  background: rgba(255, 255, 255, .62);
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container :where(.load-pill, .matter-status, .action-status, .memory-kind, .ai-chip) {
+  border-radius: 5px;
+  color: var(--t-blue);
+  background: rgba(51, 108, 244, .08);
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container :where(.create-row, .goals-toolbar, .people-toolbar, .graph-toolbar, .task-board-toolbar) {
+  gap: 8px;
+}
+
+html.tactile-ui .page-container .create-row {
+  grid-template-columns: minmax(0, 1fr) minmax(144px, 180px) auto;
+}
+
+/* Repeated data is an open list, not a stack of framed cards. */
+html.tactile-ui .page-container :where(.history-list, .action-list, .goals-list, .graph-node-list, .capture-gate-list, .echo-records) {
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .page-container :where(.history-list, .action-list, .goals-list, .graph-node-list, .capture-gate-list, .echo-records) > .beryl-card,
+html.tactile-ui #app .page-container .history-list .history-card {
+  margin: 0;
+  border-width: 0 0 1px;
+  border-color: #e8edf3;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .page-container :where(.history-list, .action-list, .goals-list, .graph-node-list, .capture-gate-list, .echo-records) > .beryl-card:last-child,
+html.tactile-ui #app .page-container .history-list .history-card:last-child {
+  border-bottom: 0;
+}
+
+html.tactile-ui .page-container :where(.history-card, .action-card, .capture-history-row) {
+  min-height: var(--page-row-height);
+}
+
+/* List/detail archetypes */
+html.tactile-ui .page-container[data-page-archetype="list-detail"] :where(.matter-grid, .goals-list) {
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container[data-page-archetype="list-detail"] .matter-card {
+  margin: 0;
+  padding: 15px 17px;
+  border-width: 0 0 1px;
+  border-color: #e8edf3;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container[data-page-archetype="list-detail"] .matter-card:last-child {
+  border-bottom: 0;
+}
+
+html.tactile-ui .page-container[data-page-archetype="list-detail"] .matter-card h2 {
+  margin: 8px 0 5px;
+  font-size: 16px;
+}
+
+html.tactile-ui .page-container[data-page-archetype="list-detail"] .matter-create {
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, #fff 0%, #f6f8ff 100%);
+}
+
+/* Capture/content archetypes */
+html.tactile-ui .page-container[data-page-archetype="capture"] :where(.capture-box, .capture-gate-input) {
+  border-color: #d8e1f0;
+  background: linear-gradient(135deg, #fff 0%, #f7f9ff 100%);
+}
+
+html.tactile-ui .page-container[data-page-archetype="capture"] .capture-gate-page {
+  width: 100%;
+  max-width: none;
+}
+
+html.tactile-ui .page-container[data-page-archetype="capture"] .capture-gate-input {
+  width: 100%;
+}
+
+html.tactile-ui #app .page-container[data-page-archetype="capture"] .capture-box textarea {
+  min-height: 132px;
+}
+
+html.tactile-ui .page-container[data-page-archetype="content"] :where(.library-grid, .future-path-grid) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+html.tactile-ui .page-container[data-page-archetype="content"] :where(.library-card, .flow-card) {
+  border-color: #e2e7ef;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui #app .page-container .posts-page .matter-create form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+html.tactile-ui #app .page-container .posts-page .matter-create form > :where(input, textarea) {
+  width: 100%;
+}
+
+html.tactile-ui #app .page-container .posts-page .matter-create form > textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+html.tactile-ui #app .page-container .people-page form.matter-create {
+  padding: 14px 0 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .page-container .people-page form.matter-create .two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+html.tactile-ui #app .page-container .people-page form.matter-create label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  color: var(--t-text-muted);
+  font-size: 12px;
+}
+
+html.tactile-ui #app .page-container .people-page form.matter-create :where(input, textarea) {
+  width: 100%;
+}
+
+html.tactile-ui #app .page-container .people-page form.matter-create textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+/* Timeline and evidence surfaces */
+html.tactile-ui .page-container[data-page-archetype="timeline"] .stats-grid {
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .page-container[data-page-archetype="timeline"] .stat-card {
+  min-height: 58px;
+  border: 0;
+  border-right: 1px solid #e8edf3;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container[data-page-archetype="timeline"] .stat-card:last-child {
+  border-right: 0;
+}
+
+html.tactile-ui .page-container :where(.evidence-row, .state-line, .stat-line) {
+  border-color: #e8edf3;
+}
+
+/* Boards retain horizontal task anatomy, with quieter cards. */
+html.tactile-ui .page-container[data-page-archetype="board"] .task-board {
+  gap: 12px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-color: #bfc8d7 transparent;
+}
+
+html.tactile-ui .page-container[data-page-archetype="board"] .task-board-column {
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #f2f5f9;
+  box-shadow: none;
+}
+
+html.tactile-ui .page-container[data-page-archetype="board"] .task-board-card {
+  border-color: transparent;
+  border-radius: var(--t-radius-sm);
+  box-shadow: 0 2px 7px rgba(31, 44, 71, .06);
+}
+
+/* Calendar is one instrument panel, not nested framed cards. */
+html.tactile-ui .page-container[data-page-archetype="calendar"] .calendar-layout {
+  gap: 14px;
+}
+
+html.tactile-ui .page-container[data-page-archetype="calendar"] :where(.month-panel, .selected-day, .evidence-panel) {
+  border-color: #e2e7ef;
+  border-radius: var(--t-radius-md);
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .page-container[data-page-archetype="calendar"] .calendar-cell {
+  border-color: #edf0f5;
+  border-radius: 0;
+  background: #fff;
+}
+
+html.tactile-ui .page-container[data-page-archetype="calendar"] .calendar-cell.selected {
+  color: var(--t-blue);
+  background: rgba(51, 108, 244, .08);
+  box-shadow: inset 0 0 0 1px #9db6f6;
+}
+
+/* Personal, insight and experiment pages share the same restrained shell. */
+html.tactile-ui .page-container[data-page-archetype="personal-tool"] .stats-grid,
+html.tactile-ui .page-container[data-page-archetype="insight"] .memory-layer-tabs {
+  margin-bottom: 14px;
+}
+
+html.tactile-ui .page-container[data-page-archetype="insight"] :where(.memory-card, .graph-node-list > .beryl-card) {
+  border-radius: var(--t-radius-sm);
+}
+
+html.tactile-ui .page-container[data-page-archetype="experiment"] :where(.future-intro, .future-reflection, .future-saved) {
+  border-color: #dbe3f1;
+  border-radius: var(--t-radius-lg);
+  background: linear-gradient(145deg, #fff 0%, #f5f7ff 100%);
+  box-shadow: var(--t-shadow-md);
+}
+
+html.tactile-ui .page-container[data-page-archetype="personal-tool"] :where(.profile-stat-card, .stat-card) {
+  border-radius: var(--t-radius-sm);
+}
+
+/* Integration and legacy settings inherit the same chrome. */
+html.tactile-ui .page-container[data-page-archetype="integration"] :where(.feishu-overview, .task-board-toolbar) {
+  border-color: #dce3ed;
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .legacy-admin-host {
+  --el-color-primary: var(--t-blue);
+  --el-border-radius-base: var(--t-radius-sm);
+  --el-bg-color: #fff;
+  --el-bg-color-page: var(--t-workspace);
+  --el-border-color: var(--t-border);
+  --el-border-color-light: #e8edf3;
+  --el-text-color-primary: var(--t-text);
+  --el-text-color-regular: var(--t-text-muted);
+}
+
+html.tactile-ui .legacy-admin-host :where(.block, .el-card) {
+  border-color: #e2e7ef;
+  border-radius: var(--t-radius-md);
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui #app .legacy-admin-host .admin-view {
+  width: min(100%, 1160px);
+  max-width: 1160px;
+  padding-bottom: 40px;
+  color: var(--t-text);
+}
+
+html.tactile-ui #app .legacy-admin-host .head {
+  min-height: 74px;
+  margin: 0 0 18px;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+html.tactile-ui #app .legacy-admin-host :where(.mod-icon, .head-kicker) {
+  display: none;
+}
+
+html.tactile-ui #app .legacy-admin-host .mod-name {
+  margin: 0;
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -.04em;
+}
+
+html.tactile-ui #app .legacy-admin-host .head-description {
+  margin-top: 8px;
+  color: var(--t-text-muted);
+  font-size: 13px;
+}
+
+html.tactile-ui #app .legacy-admin-host .grid4 {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #e2e7ef;
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui #app .legacy-admin-host .grid4 > .card {
+  border: 0;
+  border-right: 1px solid #e8edf3;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .legacy-admin-host .grid4 > .card:last-child {
+  border-right: 0;
+}
+
+html.tactile-ui #app .legacy-admin-host .block {
+  margin-top: 14px;
+  padding: 18px;
+  transform: none;
+}
+
+html.tactile-ui #app .legacy-admin-host .block:hover {
+  transform: none;
+}
+
+html.tactile-ui #app .legacy-admin-host .sec {
+  margin: 0 0 12px;
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+html.tactile-ui #app .legacy-admin-host .pill {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-color: #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui #app .legacy-admin-host .pill > span {
+  display: none;
+}
+
+html.tactile-ui #app .legacy-admin-host .pill[aria-pressed="true"] {
+  border-color: #9db6f6 !important;
+  color: #336cf4 !important;
+  background: #eef3ff !important;
+}
+
+html.tactile-ui #app .legacy-admin-host :where(.el-button, .appearance-mode button) {
+  min-height: 36px;
+  border-radius: var(--t-radius-sm);
+}
+
+html.tactile-ui #app .legacy-admin-host .appearance-mode button[aria-pressed="true"] {
+  border-color: #9db6f6;
+  color: #336cf4;
+  background: #eef3ff;
+}
+
+html.tactile-ui #app .legacy-admin-host .appearance-presets button {
+  border-radius: var(--t-radius-sm);
+}
+
+html.tactile-ui .page-container button.future-primary:disabled {
+  border-color: #c7d6fb;
+  color: #395b9e;
+  background: #dbe5ff;
+  opacity: 1;
+}
+
+html.tactile-ui .page-container .future-example-label,
+html.tactile-ui .page-container .future-text-link {
+  color: #336cf4;
+}
+
+html.tactile-ui .page-container .future-example-label {
+  border-color: #c7d6fb;
+  background: #eef3ff;
+}
+
+/* Standalone entry surfaces use the same frame, controls and restraint. */
+html.tactile-ui #app > .login-wrap,
+html.tactile-ui #app > .simple-page,
+html.tactile-ui #app > .scene-page {
+  min-height: 100vh;
+  color: var(--t-text);
+  background:
+    radial-gradient(circle at 16% 12%, rgba(124, 105, 238, .08), transparent 28%),
+    radial-gradient(circle at 88% 90%, rgba(244, 185, 66, .10), transparent 30%),
+    var(--t-canvas);
+}
+
+html.tactile-ui #app > .login-wrap {
+  align-content: center;
+  gap: 0;
+}
+
+html.tactile-ui #app .login-logo {
+  width: 58px;
+  height: 58px;
+  border: 0;
+  border-radius: var(--t-radius-lg);
+  color: #fff;
+  background: var(--t-blue);
+  box-shadow: 0 12px 28px rgba(51, 108, 244, .24);
+}
+
+html.tactile-ui #app .login-brand h1 {
+  margin: 14px 0 5px;
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: 30px;
+  letter-spacing: .08em;
+}
+
+html.tactile-ui #app .login-brand p {
+  color: var(--t-text-muted);
+  letter-spacing: .12em;
+}
+
+html.tactile-ui #app .login-card {
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: var(--t-radius-lg);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: var(--t-shadow-lg);
+}
+
+html.tactile-ui #app .login-card input {
+  border-color: #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+}
+
+html.tactile-ui #app .login-card input:focus {
+  border-color: var(--t-blue);
+  background: #fff;
+  box-shadow: var(--t-focus-ring);
+}
+
+html.tactile-ui #app .login-card .primary,
+html.tactile-ui #app .scene-start {
+  border-color: #336cf4;
+  border-radius: var(--t-radius-sm);
+  color: #fff !important;
+  background: #336cf4;
+}
+
+html.tactile-ui #app > .simple-page .empty-state {
+  width: min(100%, 520px);
+  max-width: 520px;
+  padding: 38px 30px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: var(--t-radius-lg);
+  color: var(--t-text-muted);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: var(--t-shadow-lg);
+}
+
+html.tactile-ui #app > .scene-page {
+  padding: clamp(28px, 5vw, 68px) 24px;
+}
+
+html.tactile-ui #app .scene-intro {
+  max-width: 720px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+
+html.tactile-ui #app .scene-intro h1 {
+  margin: 12px 0 8px;
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: clamp(30px, 4vw, 42px);
+  letter-spacing: -.04em;
+}
+
+html.tactile-ui #app .scene-intro > p:last-child {
+  color: var(--t-text-muted);
+}
+
+html.tactile-ui #app .scene-grid {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+html.tactile-ui #app .scene-card {
+  min-width: 0;
+  min-height: 164px;
+  padding: 22px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  color: var(--t-text);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+  text-align: left;
+}
+
+html.tactile-ui #app .scene-card:hover,
+html.tactile-ui #app .scene-card.selected {
+  border-color: #86a6f7;
+  background: #f7f9ff;
+  box-shadow: 0 10px 28px rgba(51, 108, 244, .11);
+}
+
+html.tactile-ui #app .scene-card .scene-icon {
+  display: none;
+}
+
+html.tactile-ui #app .scene-card b {
+  color: var(--t-navy);
+  font-family: inherit;
+  font-size: 17px;
+}
+
+html.tactile-ui #app .scene-card :where(p, small) {
+  margin: 0;
+  color: var(--t-text-muted);
+  line-height: 1.6;
+}
+
+html.tactile-ui #app .scene-card em {
+  margin-top: auto;
+  color: var(--t-blue);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+html.tactile-ui #app .scene-start {
+  min-width: 160px;
+  min-height: 44px;
+  margin: 22px auto 0;
+  display: block;
+  box-shadow: 0 8px 20px rgba(51, 108, 244, .2);
+}
+
+html.tactile-ui .sidebar,
+html.tactile-ui .right-rail {
+  border-inline-color: transparent;
+}
+
+/* Feature directory: anchored menu on desktop, drawer on compact screens. */
+html.tactile-ui .el-drawer-overlay[data-presentation="popover"] {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  width: min(360px, calc(100vw - 24px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--t-border-strong);
+  border-radius: var(--t-radius-md);
+  color: var(--t-text);
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(31, 44, 71, .18), 0 3px 12px rgba(31, 44, 71, .08);
+  animation: directory-popover-in 180ms var(--t-ease-standard) both;
+}
+
+html.tactile-ui .app-shell[data-directory-open="true"] .secondary-sidebar {
+  border-right-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+html.tactile-ui .app-shell[data-directory-open="true"] .el-drawer[data-presentation="popover"] {
+  border-left-width: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer {
+  padding: 12px;
+  background: #fff;
+}
+
+html.tactile-ui .directory-popover-head {
+  min-height: 36px;
+  padding: 8px 10px 10px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--t-border);
+  color: var(--t-navy);
+}
+
+html.tactile-ui .directory-popover-head strong {
+  font-size: 14px;
+  font-weight: 760;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links {
+  gap: 2px;
+  margin-top: 8px;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links p {
+  margin: 12px 10px 4px;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: .09em;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links button {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 620;
+  text-align: left;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-search-link {
+  border-color: var(--t-border);
+  color: var(--t-text);
+  background: var(--t-workspace);
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links button:hover,
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links button:focus-visible {
+  border-color: #cbd8f8;
+  color: var(--t-navy);
+  background: #f2f6ff;
+}
+
+html.tactile-ui .el-drawer[data-presentation="popover"] .drawer-links button.on {
+  border-color: #b9cbfa;
+  color: var(--t-blue);
+  background: #edf3ff;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] {
+  border-left: 1px solid var(--t-border);
+  color: var(--t-text);
+  background: #fff;
+  box-shadow: -18px 0 48px rgba(31, 44, 71, .18);
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer {
+  padding: 18px 14px 24px;
+  background: #fff;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer-close {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: transparent;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer > .brand {
+  width: 100%;
+  min-height: 48px;
+  margin: 4px 0 0;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  color: var(--t-navy);
+  background: transparent;
+  text-align: left;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer > .brand .brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer > .brand b {
+  display: block;
+  font-size: 17px;
+  letter-spacing: .08em;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer > .brand small {
+  display: block;
+  margin-top: 2px;
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .el-drawer[data-presentation="drawer"] .drawer-links {
+  margin-top: 18px;
+}
+
+@keyframes directory-popover-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Today: one reality-first vertical slice -------------------------------- */
+html.tactile-ui .tactile-today-workspace {
+  --t-today-border: #e6ebf2;
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+}
+
+html.tactile-ui .today-page :where(.focus-surface, .capture-surface, .body-state-panel, .think-panel, .trajectory-panel, .let-go-panel, .add-action-panel) {
+  border-color: var(--t-today-border);
+  box-shadow: 0 1px 3px rgba(27, 43, 70, .035);
+}
+
+html.tactile-ui .today-page :where(.recent-records-panel .page-section-head, .recent-record-row, .recent-records-message) {
+  border-color: var(--t-today-border);
+}
+
+html.tactile-ui .today-page-status {
+  position: relative;
+}
+
+html.tactile-ui .attention-page-head {
+  min-height: 74px;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  border: 0;
+}
+
+html.tactile-ui .attention-page-head::after {
+  content: none;
+}
+
+html.tactile-ui .attention-page-head .eyebrow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+
+html.tactile-ui .attention-page-head h1 {
+  max-width: none;
+  margin: 0;
+  color: var(--t-navy);
+  font-size: 34px;
+  line-height: 1.12;
+  letter-spacing: -.04em;
+}
+
+html.tactile-ui .attention-page-head p:last-child {
+  margin: 8px 0 0;
+  color: var(--t-text-muted);
+  font-size: 13px;
+}
+
+html.tactile-ui .attention-page-head .today-status {
+  color: var(--t-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+html.tactile-ui .today-primary-stack {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+html.tactile-ui :where(.today-focus-region, .today-capture-region, .today-records-region) {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+html.tactile-ui .today-body-region {
+  grid-column: span 5;
+  min-width: 0;
+}
+
+html.tactile-ui .today-context-region {
+  grid-column: span 7;
+  min-width: 0;
+}
+
+html.tactile-ui .today-secondary-region {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+html.tactile-ui .today-page .focus-surface {
+  position: relative;
+  min-height: 226px;
+  padding: 26px 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 30%);
+  gap: 24px;
+  overflow: hidden;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-lg);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .focus-panel-copy {
+  position: relative;
+  z-index: 2;
+  align-self: center;
+  min-width: 0;
+}
+
+html.tactile-ui .focus-panel-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: #394761;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html.tactile-ui .focus-panel-label span {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d8e2fb;
+  border-radius: var(--t-radius-sm);
+  background: #f4f7ff;
+  box-shadow: 0 4px 12px rgba(51, 108, 244, .08);
+}
+
+html.tactile-ui .focus-panel-label span::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--t-blue);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px #fff;
+  background: var(--t-blue);
+}
+
+html.tactile-ui .focus-panel-label p {
+  margin: 0;
+}
+
+html.tactile-ui .today-page .primary-action-card,
+html.tactile-ui .today-page .attention-empty {
+  min-height: 0;
+  padding: 0;
+  display: block;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .today-page .primary-action-copy h2,
+html.tactile-ui .today-page .attention-empty h2 {
+  max-width: 630px;
+  margin: 0;
+  color: var(--t-navy);
+  font-size: clamp(27px, 2.35vw, 37px);
+  line-height: 1.23;
+  letter-spacing: -.04em;
+  text-wrap: balance;
+}
+
+html.tactile-ui .today-page .primary-action-copy > p,
+html.tactile-ui .today-page .attention-empty p {
+  margin: 10px 0 18px;
+  color: #67758c;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+html.tactile-ui .today-page .primary-action-copy .action-status {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--t-blue);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html.tactile-ui .today-page [data-primary-action] {
+  min-width: 164px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: var(--t-radius-sm);
+  background: linear-gradient(180deg, #3d7af7, #2f68e9);
+  border-color: #2f68e9;
+  box-shadow: 0 9px 18px rgba(51, 108, 244, .24), inset 0 1px rgba(255, 255, 255, .25);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+html.tactile-ui .today-page [data-primary-action]:hover {
+  box-shadow: 0 12px 24px rgba(51, 108, 244, .28), inset 0 1px rgba(255, 255, 255, .25);
+  transform: translateY(-1px);
+}
+
+html.tactile-ui .today-page .reality-message {
+  margin: 12px 0 0;
+  color: var(--t-blue-strong);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .extra-action-section {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+  padding: 18px 20px;
+  border-radius: var(--t-radius-md);
+  color: #14213a;
+  background: #f3f6fa;
+}
+
+html.tactile-ui .today-page .extra-action-section .section-title {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+html.tactile-ui .today-page .extra-action-section h3 {
+  margin: 0;
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .extra-action-section .section-title span,
+html.tactile-ui .today-page .extra-action-section .muted {
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .attention-action-row {
+  padding: 9px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #dce3ed;
+}
+
+html.tactile-ui .today-page .attention-action-row > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+html.tactile-ui .today-page .attention-action-row .action-status {
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .attention-action-row b {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.tactile-ui .today-page .attention-action-row button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: #14213a;
+  background: #fff;
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .capture-surface {
+  position: relative;
+  margin: 0;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .today-page .capture-surface > summary {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--t-text);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: default;
+  list-style: none;
+}
+
+html.tactile-ui .today-page .capture-surface > summary::-webkit-details-marker {
+  display: none;
+}
+
+html.tactile-ui .today-page .capture-surface > summary::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--t-blue);
+  border-top: 0;
+  transform: rotate(-45deg) skew(-8deg, -8deg);
+}
+
+html.tactile-ui .today-page .capture-surface > summary small {
+  display: none;
+}
+
+html.tactile-ui .today-page .record-row-inner {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+html.tactile-ui .today-page .record-row-inner > textarea {
+  width: 100%;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 12px;
+  resize: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: var(--t-surface-subtle);
+  box-shadow: inset 0 0 0 1px transparent;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.tactile-ui .today-page .record-row-inner > textarea:focus {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--t-blue), var(--t-focus-ring);
+}
+
+html.tactile-ui .today-page .record-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+html.tactile-ui .today-page .record-options {
+  position: relative;
+}
+
+html.tactile-ui .today-page .record-options > summary,
+html.tactile-ui .today-page .capture-submit {
+  min-height: 36px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+html.tactile-ui .today-page .record-options > summary small {
+  display: none;
+}
+
+html.tactile-ui .today-page .record-option-fields {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 310px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-md);
+}
+
+html.tactile-ui .today-page .record-option-fields select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #fff;
+}
+
+html.tactile-ui .today-page .capture-submit {
+  color: var(--t-text);
+  font-weight: 700;
+  background: #f7f9fc;
+}
+
+html.tactile-ui .today-page .capture-submit:hover {
+  color: var(--t-blue);
+  border-color: #b9c9ee;
+  background: #f3f6ff;
+}
+
+html.tactile-ui .today-page .recent-records-panel {
+  padding: 4px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .today-page .recent-records-panel .page-section-head {
+  margin: 0;
+  padding: 0 0 9px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--t-border);
+}
+
+html.tactile-ui .today-page .recent-records-panel .eyebrow {
+  display: none;
+}
+
+html.tactile-ui .today-page .recent-records-panel h2 {
+  margin: 0;
+  color: var(--t-text);
+  font-size: 16px;
+}
+
+html.tactile-ui .today-page .quiet-link {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  color: var(--t-blue);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+html.tactile-ui .today-page .recent-record-list {
+  display: grid;
+}
+
+html.tactile-ui .today-page .recent-record-row {
+  min-height: 52px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 56px 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--t-border);
+  color: var(--t-text-muted);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .recent-record-row time {
+  color: var(--t-text-faint);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+html.tactile-ui .today-page .recent-record-row .dot {
+  width: 6px;
+  height: 22px;
+  margin: 0;
+  border-radius: 3px;
+  background: var(--t-coral);
+}
+
+html.tactile-ui .today-page .recent-record-row .dot.action {
+  background: var(--t-blue);
+}
+
+html.tactile-ui .today-page .recent-record-row b {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--t-text);
+  font-size: 12px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.tactile-ui .today-page .recent-record-row > span {
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .recent-records-message {
+  margin: 0;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--t-border);
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .body-state-panel,
+html.tactile-ui .today-page :where(.think-panel, .trajectory-panel),
+html.tactile-ui .today-secondary-region > :where(.let-go-panel, .add-action-panel) {
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .today-page .body-state-panel {
+  min-height: 100%;
+  padding: 18px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+html.tactile-ui .today-page :where(.body-state-panel, .think-panel, .trajectory-panel) .eyebrow {
+  margin: 0 0 5px;
+  color: var(--t-text-faint);
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+html.tactile-ui .today-page :where(.body-state-panel, .think-panel, .trajectory-panel) h2 {
+  margin: 0;
+  color: var(--t-text);
+  font-size: 17px;
+}
+
+html.tactile-ui .today-page .body-state-panel small {
+  display: block;
+  margin-top: 5px;
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .body-state-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+html.tactile-ui .today-page .body-state-options button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-muted);
+  background: #f8fafc;
+  font-size: 12px;
+}
+
+html.tactile-ui .today-page .body-state-options button.on {
+  color: var(--t-blue);
+  border-color: #b8c9f1;
+  background: #f1f5ff;
+}
+
+html.tactile-ui .today-page .attention-side-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+html.tactile-ui .today-page :where(.think-panel, .trajectory-panel) {
+  min-width: 0;
+  min-height: 100%;
+  padding: 18px;
+}
+
+html.tactile-ui .today-page :where(.think-panel, .trajectory-panel) .panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+html.tactile-ui .today-page :where(.think-panel, .trajectory-panel) > p {
+  margin: 12px 0 8px;
+  color: var(--t-text-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+html.tactile-ui .today-page .think-panel > small,
+html.tactile-ui .today-page .trajectory-evidence {
+  color: var(--t-text-faint);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+html.tactile-ui .today-page .flow-entry-link {
+  margin-top: 10px;
+}
+
+html.tactile-ui .today-page .trajectory-evidence {
+  padding-top: 9px;
+  display: grid;
+  gap: 6px;
+  border-top: 1px solid var(--t-border);
+}
+
+html.tactile-ui .today-page .trajectory-evidence span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.tactile-ui .today-page .trajectory-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--t-amber);
+}
+
+html.tactile-ui .today-page .trajectory-dot.done {
+  background: var(--t-mint);
+}
+
+html.tactile-ui .today-secondary-region > :where(.let-go-panel, .add-action-panel) {
+  margin: 0;
+  padding: 18px;
+}
+
+html.tactile-ui .today-secondary-region .panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+html.tactile-ui .today-secondary-region .panel-head h2 {
+  margin: 0;
+  color: var(--t-text);
+  font-size: 16px;
+}
+
+html.tactile-ui .today-secondary-region .panel-head .eyebrow {
+  margin: 0 0 5px;
+  color: var(--t-text-faint);
+  font-size: 12px;
+}
+
+html.tactile-ui .today-secondary-region :where(textarea, input, select) {
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+}
+
+html.tactile-ui .today-secondary-region textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+html.tactile-ui .today-secondary-region .create-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html.tactile-ui .today-secondary-region .create-row > * {
+  width: 100%;
+}
+
+html.tactile-ui .mobile-header {
+  height: 62px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--t-border);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 5px 18px rgba(31, 44, 71, .05);
+}
+
+html.tactile-ui .mobile-header .brand.compact {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  color: var(--t-navy);
+  background: transparent;
+}
+
+html.tactile-ui .mobile-header .brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px 10px 7px 10px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--t-blue), #4b78ee 58%, var(--t-mint));
+  box-shadow: 0 7px 16px rgba(51, 108, 244, .20);
+}
+
+html.tactile-ui .mobile-header .brand b {
+  font-size: 17px;
+  letter-spacing: .09em;
+}
+
+html.tactile-ui .mobile-header > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+html.tactile-ui .mobile-header :where(.search-btn, .menu) {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-md);
+  color: var(--t-text-muted);
+  background: #fff;
+  box-shadow: var(--t-shadow-sm);
+}
+
+html.tactile-ui .mobile-header .search-btn {
+  display: grid;
+  place-items: center;
+}
+
+html.tactile-ui .mobile-header .search-btn svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+html.tactile-ui .mobile-header .menu {
+  width: auto;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+html.tactile-ui .bottom-nav {
+  position: fixed;
+  z-index: 30;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid var(--t-border);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 -8px 24px rgba(31, 44, 71, .06);
+  backdrop-filter: blur(16px);
+}
+
+html.tactile-ui .bottom-nav.mobile-only {
+  display: none;
+}
+
+html.tactile-ui .bottom-nav button {
+  min-width: 58px;
+  min-height: 44px;
+  padding: 4px 8px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border: 0;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text-faint);
+  background: transparent;
+  font-size: 12px;
+}
+
+html.tactile-ui .bottom-nav button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .bottom-nav button.on {
+  color: var(--t-blue);
+  background: rgba(51, 108, 244, .08);
+  font-weight: 700;
+}
+
+@media (max-width: 1280px) {
+  html.tactile-ui .today-body-region,
+  html.tactile-ui .today-context-region {
+    grid-column: 1 / -1;
+  }
+
+  html.tactile-ui .today-page .body-state-panel {
+    grid-template-columns: minmax(180px, .65fr) minmax(0, 1.35fr);
+    align-items: center;
+  }
+}
+
+@media (max-width: 1360px) {
+  html.tactile-ui .app-shell {
+    min-height: 0;
+    height: 100dvh;
+    width: 100%;
+    margin: 0;
+  }
+
+  html.tactile-ui .workspace-shell,
+  html.tactile-ui .app-shell[data-context-state="collapsed"] .workspace-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui .right-rail {
+    display: none;
+  }
+
+  html.tactile-ui .desktop-topbar {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  html.tactile-ui #app .scene-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui #app .scene-card {
+    min-height: 0;
+  }
+
+  html.tactile-ui #app .legacy-admin-host .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html.tactile-ui .app-shell,
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    margin: 0;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  html.tactile-ui .workspace-shell {
+    min-height: 100vh;
+    display: block;
+    overflow: visible;
+  }
+
+  html.tactile-ui .workspace-shell > .page-container {
+    max-width: none;
+    padding: 14px 12px calc(92px + env(safe-area-inset-bottom));
+    overflow: visible;
+  }
+
+  html.tactile-ui #app .workspace-shell > .page-container .page-head {
+    min-height: 0;
+    margin-bottom: 12px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  html.tactile-ui #app .workspace-shell > .page-container .page-head > :last-child {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  html.tactile-ui #app .workspace-shell > .page-container:has(> .workspace-source) > .workspace-source {
+    position: static;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0 0 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-bottom: 1px solid #dce3ed;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  html.tactile-ui .workspace-source > small,
+  html.tactile-ui .workspace-source > a {
+    display: none;
+  }
+
+  html.tactile-ui #app .workspace-source > div {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  html.tactile-ui .workspace-source > [role="alert"] {
+    margin: 0;
+    color: var(--t-danger);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  html.tactile-ui .workspace-source .range-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  html.tactile-ui .workspace-source .range-tabs button {
+    min-height: 36px;
+  }
+
+  html.tactile-ui .bottom-nav.mobile-only {
+    display: flex;
+  }
+
+  html.tactile-ui .attention-page-head {
+    min-height: 68px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  html.tactile-ui .attention-page-head .eyebrow {
+    position: static;
+    margin-bottom: 5px;
+  }
+
+  html.tactile-ui .attention-page-head h1 {
+    font-size: 29px;
+  }
+
+  html.tactile-ui .attention-page-head .today-status {
+    display: block;
+    margin-top: 8px;
+  }
+
+  html.tactile-ui .today-primary-stack,
+  html.tactile-ui .today-secondary-region,
+  html.tactile-ui .today-page .attention-side-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui :where(.today-focus-region, .today-capture-region, .today-records-region, .today-body-region, .today-context-region) {
+    grid-column: 1;
+  }
+
+  html.tactile-ui .today-page .focus-surface {
+    min-height: 0;
+    padding: 24px 20px;
+    display: block;
+  }
+
+  html.tactile-ui .today-page .primary-action-copy h2,
+  html.tactile-ui .today-page .attention-empty h2 {
+    max-width: 15ch;
+    font-size: 26px;
+  }
+
+  html.tactile-ui .today-page [data-primary-action] {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  html.tactile-ui .today-page .extra-action-section {
+    margin-top: 22px;
+    padding: 16px;
+  }
+
+  html.tactile-ui .today-page .capture-surface {
+    padding: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  html.tactile-ui .today-page .capture-surface > summary {
+    min-height: 32px;
+  }
+
+  html.tactile-ui .today-page .record-row-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui .today-page .record-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  html.tactile-ui .today-page .record-options > summary,
+  html.tactile-ui .today-page .capture-submit {
+    min-height: 44px;
+  }
+
+  html.tactile-ui .today-page .record-option-fields {
+    right: auto;
+    left: 0;
+    width: min(310px, calc(100vw - 56px));
+  }
+
+  html.tactile-ui .today-page .recent-record-row {
+    grid-template-columns: 48px 6px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  html.tactile-ui .today-page .recent-record-row > span {
+    display: none;
+  }
+
+  html.tactile-ui .today-page .body-state-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui .today-page .body-state-options button {
+    min-height: 44px;
+  }
+
+  html.tactile-ui .today-secondary-region {
+    margin-top: 16px;
+  }
+
+  html.tactile-ui .today-secondary-region .panel-head {
+    display: grid;
+  }
+
+  html.tactile-ui .today-secondary-region .two-col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  html.tactile-ui #app .legacy-admin-host .grid4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui #app .legacy-admin-host .grid4 > .card {
+    border-right: 0;
+    border-bottom: 1px solid #e8edf3;
+  }
+
+  html.tactile-ui #app .legacy-admin-host .grid4 > .card:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.tactile-ui *,
+  html.tactile-ui *::before,
+  html.tactile-ui *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Small page-level actions stay legible without becoming another framed card. */
+html.tactile-ui .page-container :where(.memory-actions, .memory-composer, .memory-edit-form, .btns) > button:not(.primary):not(.danger) {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: #14213a;
+  background: #fff;
+}
+
+html.tactile-ui .page-container :where(.memory-actions, .memory-composer, .memory-edit-form, .btns) > button:not(.primary):not(.danger):disabled {
+  border-color: #dce3ed;
+  color: #59677c;
+  background: #eef1f5;
+  box-shadow: none;
+  opacity: 1;
+}
+
+/* Today record-first composer and deferred modules. */
+html.tactile-ui .tactile-today-workspace .today-journal-stack {
+  display: grid;
+  gap: 22px;
+}
+
+html.tactile-ui .tactile-today-workspace .capture-surface {
+  display: block;
+  padding: 18px 20px;
+  border-color: var(--t-today-border);
+  box-shadow: 0 1px 3px rgba(27, 43, 70, .035);
+}
+
+html.tactile-ui .tactile-today-workspace .capture-surface > summary {
+  min-height: 30px;
+  margin-bottom: 12px;
+  cursor: default;
+}
+
+html.tactile-ui .tactile-today-workspace .capture-surface > summary::before {
+  display: none;
+}
+
+html.tactile-ui .tactile-today-workspace .capture-surface > summary small {
+  display: inline;
+  color: var(--t-text-faint);
+  font-weight: 400;
+}
+
+html.tactile-ui .tactile-today-workspace .record-row-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+html.tactile-ui #app .tactile-today-workspace .record-row-inner > textarea {
+  width: 100%;
+  height: auto;
+  min-height: 176px;
+  margin: 0;
+  resize: vertical;
+  overflow: auto;
+  border: 1px solid var(--t-border);
+  background: #fff;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+html.tactile-ui .tactile-today-workspace .record-controls {
+  justify-content: space-between;
+}
+
+html.tactile-ui .tactile-today-workspace .journal-category {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--t-border);
+  border-radius: var(--t-radius-sm);
+  background: #f7f9fc;
+}
+
+html.tactile-ui .tactile-today-workspace .journal-category button {
+  min-width: 64px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--t-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+html.tactile-ui .tactile-today-workspace .journal-category button[aria-pressed="true"] {
+  color: var(--t-blue);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(27, 43, 70, .12);
+  font-weight: 700;
+}
+
+html.tactile-ui .tactile-today-workspace .capture-submit {
+  min-height: 42px;
+  padding-inline: 20px;
+}
+
+html.tactile-ui .tactile-today-workspace .journal-category-badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: var(--t-text-muted);
+  background: #f1f4f8;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+html.tactile-ui .tactile-today-workspace .today-other {
+  margin-top: 28px;
+  border-top: 1px solid var(--t-today-border);
+}
+
+html.tactile-ui .tactile-today-workspace .today-other > summary {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--t-text-muted);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  list-style: none;
+}
+
+html.tactile-ui .tactile-today-workspace .today-other > summary::-webkit-details-marker {
+  display: none;
+}
+
+html.tactile-ui .tactile-today-workspace .today-other > summary::before {
+  content: "＋";
+  color: var(--t-text-faint);
+  font-size: 15px;
+}
+
+html.tactile-ui .tactile-today-workspace .today-other[open] > summary::before {
+  content: "－";
+}
+
+html.tactile-ui .tactile-today-workspace .today-other-content {
+  display: grid;
+  gap: 16px;
+  padding: 4px 0 22px;
+}
+
+@media (max-width: 700px) {
+  html.tactile-ui .tactile-today-workspace .capture-surface {
+    padding: 14px;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tactile-ui .tactile-today-workspace .journal-category {
+    width: 100%;
+  }
+
+  html.tactile-ui .tactile-today-workspace .journal-category button {
+    flex: 1;
+  }
+
+  html.tactile-ui .tactile-today-workspace .capture-submit {
+    width: 100%;
+  }
+
+  html.tactile-ui .tactile-today-workspace .recent-record-row {
+    grid-template-columns: 48px 6px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  html.tactile-ui .tactile-today-workspace .journal-category-badge {
+    padding-inline: 7px;
+  }
+}
+
+/* Immersion keeps the active page while folding away the application chrome. */
+html.tactile-ui .app-shell[data-immersive="true"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+html.tactile-ui .app-shell[data-compact="true"][data-immersive="true"] {
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  display: grid;
+  overflow: hidden;
+}
+
+html.tactile-ui .app-shell[data-immersive="true"] :where(
+  #app-sidebar,
+  .shell-resize-handle,
+  .desktop-topbar,
+  .workspace-tabs,
+  .right-rail,
+  .mobile-header,
+  .bottom-nav
+) {
+  display: none;
+}
+
+html.tactile-ui .app-shell[data-immersive="true"] .workspace-shell {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-column: 1;
+  grid-row: 1;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+html.tactile-ui .app-shell[data-immersive="true"] .workspace-shell > .page-container {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 0;
+  max-width: none;
+  padding: 20px clamp(16px, 3vw, 40px);
+  overflow: auto;
+}
+
+html.tactile-ui .primary-rail-foot > .immersive-entry,
+html.tactile-ui .mobile-header .immersive-toggle {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--t-border);
+  border-radius: 8px;
+  color: var(--t-text-muted);
+  background: #fff;
+}
+
+html.tactile-ui .primary-rail-foot > .immersive-entry {
+  justify-self: start;
+}
+
+html.tactile-ui .mobile-header .immersive-toggle {
+  display: inline-grid;
+}
+
+html.tactile-ui .primary-rail-foot > .immersive-entry:hover,
+html.tactile-ui .mobile-header .immersive-toggle:hover {
+  border-color: #cbd8f8;
+  color: var(--t-blue-strong);
+  background: #f3f6ff;
+}
+
+html.tactile-ui .primary-rail-foot > .immersive-entry svg,
+html.tactile-ui .mobile-header .immersive-toggle svg,
+html.tactile-ui .immersive-exit svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html.tactile-ui .immersive-exit {
+  position: fixed;
+  z-index: 26;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dce4ed;
+  border-radius: 9px;
+  color: #52617a;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 4px 14px rgba(31, 44, 71, .08);
+}
+
+html.tactile-ui .immersive-exit:hover {
+  border-color: #cbd8f8;
+  color: var(--t-blue-strong);
+  background: #f3f6ff;
+}
+
+html.tactile-ui .app-shell[data-immersive="true"] .immersive-exit {
+  /* Keep the exit affordance compact in both desktop and mobile layouts. */
+  flex: none;
+}
+
+@media (max-width: 700px) {
+  html.tactile-ui .mobile-header .immersive-toggle {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 700px) {
+  html.tactile-ui .app-shell[data-immersive="true"] .workspace-shell > .page-container {
+    padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.tactile-ui .app-shell[data-immersive="true"] {
+    transition: none;
+  }
+}
+
+/* Today: keep the recording task visible and remove its extra framing. */
+html.tactile-ui .tactile-today-workspace .today-minimal-heading {
+  min-height: 0;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border: 0;
+}
+
+html.tactile-ui .tactile-today-workspace .today-minimal-heading h1 {
+  margin: 0;
+  color: var(--t-navy);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+html.tactile-ui .tactile-today-workspace .today-minimal-heading time,
+html.tactile-ui .tactile-today-workspace .today-minimal-heading [role="status"] {
+  color: var(--t-text-muted);
+  font-size: 12px;
+}
+
+html.tactile-ui .tactile-today-workspace .today-minimal-heading [role="status"] {
+  margin-left: auto;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui #app .tactile-today-workspace .record-composer > textarea {
+  width: 100%;
+  min-height: 176px;
+  margin: 0;
+  padding: 16px 18px;
+  resize: vertical;
+  border: 1px solid #dce3ed;
+  border-radius: 10px;
+  color: var(--t-text);
+  background: #fff;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+html.tactile-ui #app .tactile-today-workspace .record-composer > textarea::placeholder {
+  color: #66748a;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .record-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit {
+  min-width: 92px;
+  min-height: 40px;
+  padding: 0 18px;
+  border-color: var(--t-blue);
+  color: #fff;
+  background: var(--t-blue);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit:hover {
+  border-color: #294ed8;
+  color: #fff;
+  background: #294ed8;
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel {
+  margin-top: 18px;
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-heading {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-heading h2 {
+  margin: 0;
+  color: var(--t-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-record-list {
+  border-top: 1px solid var(--t-today-border);
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-record-row {
+  min-height: 44px;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 12px;
+  border-bottom: 1px solid var(--t-today-border);
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-record-row time {
+  color: var(--t-text-muted);
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-record-row b {
+  font-size: 13px;
+}
+
+html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-records-message {
+  padding: 12px 0;
+}
+
+@media (max-width: 700px) {
+  html.tactile-ui .tactile-today-workspace .today-minimal-heading {
+    margin-bottom: 16px;
+  }
+
+  html.tactile-ui #app .tactile-today-workspace .record-composer > textarea {
+    min-height: 152px;
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .record-controls {
+    display: flex;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .journal-category {
+    width: auto;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .journal-category button {
+    flex: initial;
+    min-width: 52px;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .capture-submit {
+    width: auto;
+  }
+
+  html.tactile-ui .tactile-today-workspace .recent-records-panel .recent-record-row {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+}
+
+/* Center the writing flow in the available workspace and animate only meaningful state changes. */
+html.tactile-ui .tactile-today-workspace .today-journal-stack,
+html.tactile-ui .tactile-today-workspace .today-other {
+  width: 100%;
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html.tactile-ui .tactile-today-workspace .today-journal-stack {
+  gap: 24px;
+}
+
+html.tactile-ui .tactile-today-workspace .today-minimal-heading {
+  width: 100%;
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
+  justify-content: center;
+}
+
+html.tactile-ui .tactile-today-workspace .today-minimal-heading [role="status"] {
+  position: absolute;
+  right: 0;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .record-controls {
+  justify-content: center;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer > textarea {
+  text-align: left;
+  caret-color: var(--t-blue);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer > textarea:focus-visible {
+  border-color: #6c86ed;
+  box-shadow: 0 0 0 3px rgba(74, 103, 226, .13);
+  outline: none;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category {
+  position: relative;
+  isolation: isolate;
+  width: 148px;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 3px;
+  overflow: hidden;
+  border: 1px solid #dfe5f1;
+  border-radius: 11px;
+  background: #f0f3fa;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px auto 3px 3px;
+  width: calc(50% - 3px);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4f72ed 0%, #6a63de 100%);
+  box-shadow: 0 2px 5px rgba(60, 83, 174, .2);
+  content: "";
+  transform: translateX(0);
+  transition: transform 220ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category[data-selected-category="fact"]::before {
+  transform: translateX(100%);
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category button {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 8px;
+  border-radius: 8px;
+  color: var(--t-text-muted);
+  background: transparent;
+  box-shadow: none;
+  transition: color 160ms ease, transform 120ms ease;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category button[aria-pressed="true"] {
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category button:active {
+  transform: scale(.96);
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category button:focus-visible,
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit:focus-visible {
+  outline: 2px solid #304fc6;
+  outline-offset: 3px;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit {
+  background-image: linear-gradient(135deg, #4f72ed 0%, #655ed9 100%);
+  transition: transform 120ms ease, filter 160ms ease, box-shadow 160ms ease;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 3px 9px rgba(60, 83, 174, .2);
+  transform: translateY(-1px);
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit:active {
+  filter: brightness(.98);
+  box-shadow: none;
+  transform: translateY(0) scale(.98);
+}
+
+html.tactile-ui .tactile-today-workspace .today-other > summary {
+  justify-content: center;
+}
+
+/* A restrained clear-surface finish: translucent only on the shell and the writing surface. */
+html.tactile-ui body {
+  background: var(--t-canvas);
+}
+
+html.tactile-ui .sidebar,
+html.tactile-ui .primary-rail {
+  border-color: rgba(213, 218, 216, .68);
+  background: rgba(250, 251, 251, .94);
+  -webkit-backdrop-filter: blur(8px) saturate(1.02);
+  backdrop-filter: blur(8px) saturate(1.02);
+}
+
+html.tactile-ui .sidebar {
+  box-shadow: 5px 0 22px rgba(43, 49, 47, .025);
+}
+
+html.tactile-ui .desktop-topbar {
+  border-bottom-color: var(--t-glass-border);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 5px 20px rgba(43, 49, 47, .03), inset 0 1px rgba(255, 255, 255, .98);
+  -webkit-backdrop-filter: blur(8px) saturate(1.02);
+  backdrop-filter: blur(8px) saturate(1.02);
+}
+
+html.tactile-ui #app .tactile-today-workspace .record-composer > textarea {
+  resize: vertical;
+  border-color: rgba(211, 218, 215, .78);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .97);
+  box-shadow: 0 10px 28px rgba(43, 49, 47, .055), inset 0 1px 2px rgba(255, 255, 255, .98);
+  -webkit-backdrop-filter: blur(6px) saturate(1.01);
+  backdrop-filter: blur(6px) saturate(1.01);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer > textarea:focus-visible {
+  border-color: rgba(113, 150, 134, .56);
+  background: rgba(255, 255, 255, .99);
+  box-shadow: 0 12px 28px rgba(43, 49, 47, .07), 0 0 0 3px rgba(109, 153, 132, .12), inset 0 1px 2px #fff;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category {
+  border-color: rgba(215, 221, 218, .74);
+  background: rgba(235, 238, 236, .82);
+  box-shadow: inset 0 1px 3px rgba(43, 49, 47, .055);
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category::before {
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 2px 7px rgba(43, 49, 47, .11), inset 0 1px rgba(255, 255, 255, .98);
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .journal-category button[aria-pressed="true"] {
+  color: #315c88;
+}
+
+html.tactile-ui .tactile-today-workspace .record-composer .capture-submit {
+  background-image: linear-gradient(135deg, #5985a3 0%, #4f7894 100%);
+  box-shadow: 0 5px 13px rgba(54, 81, 98, .13), inset 0 1px rgba(255, 255, 255, .2);
+}
+
+/* Resting and selected primary-navigation surfaces use a quiet soft-UI treatment. */
+html.tactile-ui .navigation-group-rail .nav-active-track {
+  border-radius: 10px;
+  background: #e5eaee;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .8), 0 2px 5px rgba(44, 58, 49, .04);
+}
+
+html.tactile-ui .navigation-group-rail button {
+  border-radius: 10px;
+  background: #eef1f3;
+  box-shadow: 0 1px 2px rgba(43, 49, 47, .025), inset 0 1px rgba(255, 255, 255, .78);
+  transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+html.tactile-ui .navigation-group-rail button.on {
+  color: #1f4eaa;
+  font-weight: 760;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.tactile-ui .navigation-group-rail button.on > i svg > :first-child {
+  fill: currentColor;
+}
+
+html.tactile-ui .navigation-group-rail button:hover:not(.on) {
+  background: #e9edf1;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .9), 0 2px 5px rgba(44, 58, 49, .045);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button:not(.on) {
+  background: #eef1f3;
+  box-shadow: 0 1px 2px rgba(43, 49, 47, .025), inset 0 1px rgba(255, 255, 255, .78);
+}
+
+html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button.on {
+  color: #1f4eaa;
+  font-weight: 760;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 700px) {
+  html.tactile-ui .tactile-today-workspace .today-minimal-heading [role="status"] {
+    right: 0;
+    font-size: 11px;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .record-controls {
+    justify-content: center;
+  }
+
+  html.tactile-ui .tactile-today-workspace .record-composer .journal-category {
+    width: 148px;
+  }
+}

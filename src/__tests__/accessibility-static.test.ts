@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { appPageRegistry, appRouteDefinitions } from '../react/route-manifest'
 
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
 const appShell = source('src/views/AppShell.vue')
@@ -73,12 +74,14 @@ describe('静态无障碍语义', () => {
     expect(router).toContain("{ path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' }")
     expect(router).toContain("{ path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' }")
     expect(router).not.toContain("component: () => import('@/views/CasesView.vue')")
-    expect(reactRoutes).toContain('<Route path="cases" element={<Navigate to="/app/matters" replace />} />')
-    expect(reactRoutes).toContain('<Route path="cases/:id" element={views.caseRedirect} />')
+    expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'cases', redirectTo: '/app/matters' })
+    expect(appRouteDefinitions).toContainEqual({ kind: 'view', path: 'cases/:id', viewKey: 'caseRedirect', pageId: 'matters' })
     expect(reactRouteViews).toContain("legacyTargetFor('case', id)")
-    expect(reactRoutes).toContain('<Route path="module/chars" element={<Navigate to="/app/people" replace />} />')
-    expect(reactRoutes).toContain('<Route path="module/moments" element={<Navigate to="/app/module/posts" replace />} />')
-    expect(reactRoutes).toContain('<Route path="module/:id" element={<Navigate to="/app/module/inbox" replace />} />')
+    expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/chars', redirectTo: '/app/people' })
+    expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/moments', redirectTo: '/app/module/posts' })
+    expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/:id', redirectTo: '/app/module/inbox' })
+    expect(reactRoutes).toContain('appRouteDefinitions.map')
+    expect(reactRoutes).toContain('<Navigate to={route.redirectTo} replace />')
   })
 
   it('为 SceneView 的场景组、选择状态和装饰内容提供语义', () => {
@@ -125,8 +128,10 @@ describe('静态无障碍语义', () => {
     expect(reactApp).not.toContain('admin: <ReactAdminPage />')
     expect(reactApp).toContain("from './route-views'")
     expect(reactRouteViews).toContain('<p className="form-error" role="alert">{error}</p>')
-    expect(reactRoutes).toContain('path="admin" element={lazyView(\'设置与同步\', views.admin)}')
-    expect(reactRoutes).toContain('path="admin/advanced" element={lazyView(\'设置与同步（兼容地址）\', views.advancedAdmin)}')
+    expect(appRouteDefinitions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'view', path: 'admin', viewKey: 'admin' }),
+      expect.objectContaining({ kind: 'view', path: 'admin/advanced', viewKey: 'advancedAdmin' }),
+    ]))
     expect(reactApp).not.toContain("import('@/views/")
     expect(reactApp).toContain("export { LegacyTodayPage } from './pages/LegacyTodayPage'")
     expect(legacyToday).toContain('export function LegacyTodayPage')
@@ -147,10 +152,11 @@ describe('静态无障碍语义', () => {
     expect(matterDetailPage).toContain('export function MatterDetailPage')
     expect(existsSync(resolve(process.cwd(), 'src/react/pages/MatterDetailPage.tsx'))).toBe(true)
     expect(reactApp).toContain('flow: <FlowPage />')
-    expect(reactRoutes).toContain('path="flow" element={lazyView(\' Flow\', views.flow)}')
+    expect(appRouteDefinitions).toContainEqual(expect.objectContaining({ kind: 'view', path: 'flow', viewKey: 'flow' }))
     expect(reactLazyPages).toContain("export const FlowPage = lazy(() => import('./pages/FlowPage')")
     expect(flowPage).toContain('export function FlowPage')
-    expect(flowPage).toContain('已足够，结束 Flow')
+    expect(flowPage).toContain('回到今天去做')
+    expect(flowPage).toContain("navigate('/app/today')")
     expect(existsSync(resolve(process.cwd(), 'src/react/pages/AdminPage.tsx'))).toBe(false)
     expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
     const reactPagesDir = resolve(process.cwd(), 'src/react/pages')
@@ -170,7 +176,10 @@ describe('静态无障碍语义', () => {
       const page = source(file)
       expect(existsSync(resolve(process.cwd(), file))).toBe(true)
       expect(reactLazyPages).toContain(`import('./pages/${name}Page')`)
-      expect(reactRoutes).toContain(`path="${route}"`)
+      expect(appPageRegistry).toContainEqual(expect.objectContaining({ path: route === '/scene' ? route : `/app/${route}`, viewKey: name.toLowerCase() }))
+      if (route !== '/scene') {
+        expect(appRouteDefinitions).toContainEqual(expect.objectContaining({ kind: 'view', path: route, viewKey: name.toLowerCase() }))
+      }
       expect(/PageHead|page-head|page-title|font-title/.test(page)).toBe(true)
       expect(/aria-label|aria-labelledby|role=/.test(page)).toBe(true)
     }

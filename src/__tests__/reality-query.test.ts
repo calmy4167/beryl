@@ -48,6 +48,13 @@ describe('unified reality query', () => {
     expect(listRealityDocuments({ types: ['person'] })).toEqual([])
   })
 
+  it('preserves a journal category in record document projections', () => {
+    const record = recordRepository.create({ body: '刚才停下来休息', journalCategory: 'mind' })
+
+    expect(listRealityDocuments({ types: ['record'] }).find(item => item.id === record.calmyId))
+      .toMatchObject({ entityType: 'record', journalCategory: 'mind' })
+  })
+
   it('handles empty, zero-limit, and invalid ranges without leaking data', () => {
     matterRepository.create({ title: '不会被返回' })
 

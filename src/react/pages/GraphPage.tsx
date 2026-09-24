@@ -159,15 +159,15 @@ export function GraphPage() {
   }
 
   if (loading && !loaded) {
-    return <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}><div className="empty-state beryl-card" role="status">正在读取图谱…</div></div>
+    return <div className="graph-page"><div className="empty-state beryl-card" role="status">正在读取图谱…</div></div>
   }
 
   if (error && !loaded) {
-    return <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}><section className="empty-state beryl-card" role="alert"><h1 className="font-title">图谱暂时无法加载</h1><p>{error}</p><button className="react-btn primary" type="button" onClick={() => setTick(value => value + 1)}>重新读取</button></section></div>
+    return <div className="graph-page"><section className="empty-state beryl-card" role="alert"><h1 className="font-title">图谱暂时无法加载</h1><p>{error}</p><button className="react-btn primary" type="button" onClick={() => setTick(value => value + 1)}>重新读取</button></section></div>
   }
 
   return (
-    <div className="graph-page" style={{ maxWidth: 1120, margin: '0 auto' }}>
+    <div className="graph-page">
       <header className="page-head">
         <div>
           <p className="eyebrow">关系 · 图谱 · 试验</p>

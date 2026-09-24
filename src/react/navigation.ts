@@ -49,3 +49,20 @@ export const featureNavigationGroups: readonly FeatureNavigationGroup[] = featur
       ? [{ icon: page.navigation.icon, label: page.navigation.label, path: page.path }]
       : []),
 }))
+
+export type DesktopNavigationGroupId = 'daily' | FeatureNavigationGroupId
+
+export interface DesktopNavigationGroup {
+  id: DesktopNavigationGroupId
+  label: string
+  items: readonly FeatureNavigationItem[]
+}
+
+export const desktopNavigationGroups: readonly DesktopNavigationGroup[] = [
+  {
+    id: 'daily',
+    label: '日常',
+    items: primaryNavigation.map(({ icon, label, path }) => ({ icon, label, path })),
+  },
+  ...featureNavigationGroups,
+]

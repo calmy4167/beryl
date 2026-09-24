@@ -158,6 +158,17 @@ describe('recordAsyncRepository', () => {
     expect(isolated.values.get('b_realityRecords')).toContain('确认是睡眠影响学习')
   })
 
+  it('persists journal categories and accepts legacy records without one', async () => {
+    const created = await recordAsyncRepository.create({ body: '今天的事实记录', journalCategory: 'fact' })
+    const durableRecords = JSON.parse(isolated.values.get('b_realityRecords') || '[]') as RealityRecord[]
+
+    expect(created).toMatchObject({ type: 'fact', journalCategory: 'fact' })
+    expect(durableRecords.find(item => item.calmyId === created.calmyId)).toMatchObject({ journalCategory: 'fact' })
+    const legacy = record('legacy-async-record')
+    await recordAsyncRepository.importEntity(legacy)
+    await expect(recordAsyncRepository.find(legacy.calmyId)).resolves.not.toHaveProperty('journalCategory')
+  })
+
   it('keeps repeated command IDs idempotent for record creation', async () => {
     const first = await recordAsyncRepository.create({ body: '只保存一次' }, { commandId: 'record-command-1' })
     const repeated = await recordAsyncRepository.create({ body: '不应重复保存' }, { commandId: 'record-command-1' })

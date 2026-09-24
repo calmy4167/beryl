@@ -127,7 +127,7 @@ async function exportData() {
   a.download = `beryl_${new Date().toISOString().slice(0, 10)}.json`
   a.click()
   URL.revokeObjectURL(a.href)
-  ElMessage.success('数据已导出 📤')
+  ElMessage.success('数据已导出')
 }
 
 function importData(file: File) {
@@ -237,13 +237,13 @@ function openS3Dlg() {
 }
 
 const syncStatus = computed(() => {
-  if (sync.phase === 'syncing') return { color: 'var(--scene)', text: '☁️ 正在同步…', actions: true }
+  if (sync.phase === 'syncing') return { color: 'var(--scene)', text: '正在同步…', actions: true }
   if (sync.phase === 'dirty') return { color: 'var(--c-warn)', text: '⚠️ 本地有待同步变更', actions: true }
   if (sync.phase === 'offline') return { color: 'var(--c-warn)', text: '⌁ 当前离线，待恢复网络后同步', actions: true }
   if (sync.phase === 'error') return { color: 'var(--c-danger)', text: `⚠️ 同步失败：${sync.lastError || '网络或配置错误'}`, actions: true }
-  if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `☁️ 已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
-  if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `🗄️ 已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
-  if (sync.mode === 'file') return { color: 'var(--c-success)', text: `🔄 已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
+  if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
+  if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
+  if (sync.mode === 'file') return { color: 'var(--c-success)', text: `已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
   if (sync.saved.cloud) return { color: 'var(--c-warn)', text: '🟡 已保存 Cloudflare 配置（未连接）', actions: false }
   if (sync.saved.s3) return { color: 'var(--c-warn)', text: '🟡 已保存 S3 配置（未连接）', actions: false }
   return { color: 'var(--c-text-3)', text: '未连接 · 数据仅存于本浏览器', actions: false }
@@ -253,14 +253,14 @@ async function doCloudConnect() {
   connecting.value = true
   const ok = await cloudConnect(cloudUrl.value.trim(), cloudKey.value)
   connecting.value = false
-  if (ok) { cloudDlg.value = false; ElMessage.success('已连接云端 ☁️') }
+  if (ok) { cloudDlg.value = false; ElMessage.success('已连接云端') }
   else ElMessage.error(`连接失败：${sync.lastError || '请检查地址、同步密码或 Worker 配置'}`)
 }
 async function doS3Connect() {
   connecting.value = true
   const ok = await s3Connect({ ...s3Cfg.value })
   connecting.value = false
-  if (ok) { s3Dlg.value = false; ElMessage.success('已连接对象存储 🗄️') }
+  if (ok) { s3Dlg.value = false; ElMessage.success('已连接对象存储') }
   else ElMessage.error('连接失败：请检查配置与 CORS')
 }
 const fsOk = 'showOpenFilePicker' in window
@@ -270,7 +270,7 @@ async function doFileConnect() {
     if (!picker) return
     const [h] = await picker({ types: [{ description: 'Beryl 数据文件', accept: { 'application/json': ['.json'] } }] })
     const ok = await fileConnect(h)
-    if (ok) ElMessage.success('已连接本地文件 🔄')
+    if (ok) ElMessage.success('已连接本地文件')
     else ElMessage.error('连接失败：文件格式不正确')
   } catch { /* 用户取消 */ }
 }
@@ -449,7 +449,6 @@ onUnmounted(() => {
   <div class="admin-view">
     <div class="head">
       <el-button circle text aria-label="返回工作台" @click="router.push('/app/home')">←</el-button>
-      <span class="mod-icon" aria-hidden="true">⚙️</span>
       <div>
         <p class="head-kicker">WORKSPACE CONTROL</p>
         <h2 class="font-title mod-name">设置</h2>
@@ -509,20 +508,20 @@ onUnmounted(() => {
           @click="switchScene(s.id)"
         ><span aria-hidden="true">{{ s.icon }}</span> {{ s.name }}</button>
       </div>
-      <p class="mods-line">当前场景模块：{{ SCENES[scene].mods.map(m => MODS[m].icon + ' ' + MODS[m].name).join(' · ') }}</p>
+      <p class="mods-line">当前场景模块：{{ SCENES[scene].mods.map(m => MODS[m].name).join(' · ') }}</p>
     </div>
 
     <!-- 数据管理 -->
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">数据管理</h3>
       <div class="btns">
-        <el-button @click="exportData">📤 导出</el-button>
-        <el-button @click="openImport">📥 导入</el-button>
+        <el-button @click="exportData">导出</el-button>
+        <el-button @click="openImport">导入</el-button>
         <input id="file-import" type="file" accept="application/json,.json" aria-label="选择要导入的 JSON 数据文件" style="display:none" @change="onImportChange" />
-        <el-button type="danger" plain @click="resetData">🗑️ 重置</el-button>
+        <el-button type="danger" plain @click="resetData">重置</el-button>
       </div>
       <div class="persistence-status" role="status" aria-live="polite" aria-atomic="false" :style="{ color: persistenceStatus.state === 'degraded' ? 'var(--c-danger)' : persistenceStatus.state === 'ready' ? 'var(--c-success)' : 'var(--c-text-2)' }">
-        <p id="persistence-status-text" class="info"><span aria-hidden="true">💾</span> {{ persistenceStatusText }}</p>
+        <p id="persistence-status-text" class="info">{{ persistenceStatusText }}</p>
         <p class="info">待重试写入：{{ persistenceStatus.pendingWrites }} · 最近镜像：{{ persistenceStatus.lastMirrorAt ? new Date(persistenceStatus.lastMirrorAt).toLocaleString() : '暂无' }}</p>
         <el-button size="small" aria-describedby="persistence-status-text" :loading="persistenceBusy" @click="retryPersistence">重试持久化</el-button>
       </div>
@@ -533,32 +532,32 @@ onUnmounted(() => {
       <h3 class="font-title sec">系统信息</h3>
       <p class="info">版本：<span>v2.1.0（阶段 2–5：IndexedDB / 增量同步 / 加密 / PWA）</span></p>
       <p class="info">数据版本：<span>4</span></p>
-      <p class="info">当前场景：<span :style="{ color: SCENES[scene].color }">{{ SCENES[scene].icon }} {{ SCENES[scene].name }}</span></p>
+      <p class="info">当前场景：<span :style="{ color: SCENES[scene].color }">{{ SCENES[scene].name }}</span></p>
       <p class="info">日期：<span>{{ now.getFullYear() }} 年 {{ now.getMonth() + 1 }} 月 {{ now.getDate() }} 日</span></p>
       <div class="btns">
-        <el-button @click="goPass">🔑 修改密码</el-button>
-        <el-button type="danger" plain @click="logout">🚪 退出登录</el-button>
+        <el-button @click="goPass">修改密码</el-button>
+        <el-button type="danger" plain @click="logout">退出登录</el-button>
       </div>
     </div>
 
     <!-- 数据同步 -->
     <div class="beryl-card hoverable block">
-      <h3 class="font-title sec">🔄 数据同步</h3>
+      <h3 class="font-title sec">数据同步</h3>
       <p class="info" role="status" aria-live="polite" :style="{ color: syncStatus.color }">{{ syncStatus.text }}</p>
       <div class="btns">
         <template v-if="syncStatus.actions">
-          <el-button @click="syncNow()">💾 立即同步</el-button>
+          <el-button @click="syncNow()">立即同步</el-button>
           <el-button type="danger" plain @click="doDisconnect">断开连接</el-button>
         </template>
         <template v-else>
-          <el-button @click="openCloudDlg">☁️ Cloudflare</el-button>
-          <el-button @click="openS3Dlg">🗄️ 国内云(S3)</el-button>
-          <el-button v-if="fsOk" @click="doFileConnect">📂 本地文件</el-button>
+          <el-button @click="openCloudDlg">Cloudflare</el-button>
+          <el-button @click="openS3Dlg">国内云(S3)</el-button>
+          <el-button v-if="fsOk" @click="doFileConnect">本地文件</el-button>
         </template>
       </div>
       <p class="mods-line">本地变更 0.8s 自动上传 · 前台每 5 秒自动拉取 · 切回页面立即拉取 · 云端增量 LWW 合并 + 加密</p>
       <div class="btns" style="margin-top: 8px">
-        <el-button size="small" :loading="diagLoading" @click="runDiag">🔍 同步诊断</el-button>
+        <el-button size="small" :loading="diagLoading" @click="runDiag">同步诊断</el-button>
       </div>
       <div v-if="diag" class="diag" role="region" aria-label="同步诊断结果">
         <p class="diag-line">云端地址：{{ diag.url }}</p>
@@ -571,7 +570,7 @@ onUnmounted(() => {
 
     <!-- Obsidian Vault：显式差异预览与决策后写回 -->
     <div class="beryl-card hoverable block">
-      <h3 class="font-title sec">🗃️ Obsidian Vault</h3>
+      <h3 class="font-title sec">Obsidian Vault</h3>
       <p class="info">{{ vaultName ? `当前 Vault：${vaultName}` : '未连接 Vault' }}</p>
       <p class="info">只扫描和写入 Calmy Open Format 文件；Vault 独有实体的删除必须明确选择，并会留下 tombstone。</p>
       <div class="btns">
@@ -626,7 +625,7 @@ onUnmounted(() => {
 
     <!-- 实体同步迁移：默认键级同步不变，必须显式预览/备份后执行 -->
     <div class="beryl-card hoverable block">
-      <h3 class="font-title sec">🧬 实体同步迁移（P0）</h3>
+      <h3 class="font-title sec">实体同步迁移（P0）</h3>
       <p class="info">先生成迁移计划和本地回滚快照，再扫描冲突；确认后才会加密推送实体记录。</p>
       <div class="btns">
         <el-button @click="prepareEntityMigration">生成计划</el-button>
@@ -641,7 +640,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Cloudflare 连接对话框 -->
-    <el-dialog v-model="cloudDlg" title="☁️ 连接 Cloudflare 云端" width="92%" style="max-width: 420px">
+    <el-dialog v-model="cloudDlg" title="连接 Cloudflare 云端" width="92%" style="max-width: 420px">
       <el-input v-model="cloudUrl" aria-label="Cloudflare Worker 地址" placeholder="https://beryl-api.你的子域.workers.dev" class="mb-2" />
       <el-input v-model="cloudKey" aria-label="云端同步密码" type="password" placeholder="同步密码" show-password />
       <template #footer>
@@ -651,7 +650,7 @@ onUnmounted(() => {
     </el-dialog>
 
     <!-- S3 连接对话框 -->
-    <el-dialog v-model="s3Dlg" title="🗄️ 连接对象存储（S3 兼容）" width="92%" style="max-width: 420px">
+    <el-dialog v-model="s3Dlg" title="连接对象存储（S3 兼容）" width="92%" style="max-width: 420px">
       <el-form label-position="top">
         <el-form-item label="Endpoint"><el-input v-model="s3Cfg.endpoint" placeholder="https://oss-cn-hangzhou.aliyuncs.com" /></el-form-item>
         <el-form-item label="Bucket"><el-input v-model="s3Cfg.bucket" /></el-form-item>
