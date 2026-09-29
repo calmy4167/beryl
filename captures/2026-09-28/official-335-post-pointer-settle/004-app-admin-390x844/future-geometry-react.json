@@ -1,0 +1,53 @@
+[
+  {
+    "i": 0,
+    "tag": "MAIN",
+    "cls": "page-container",
+    "text": "←\n设置\n\n管理本机数据、同步连接、Vault 与实体迁移。\n\n外观\n\n分别为浅色和深色外观设置页面背景。\n\n浅色\n深色\n背景颜色\nHEX 色值\n应用背景\n恢复默认\n页面背景预览\n",
+    "rect": {
+      "x": 0,
+      "y": 62,
+      "width": 390,
+      "height": 2529.71875,
+      "top": 62,
+      "right": 390,
+      "bottom": 2591.71875,
+      "left": 0
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "14px 12px 92px",
+    "transform": "none",
+    "opacity": "1",
+    "letterSpacing": "normal",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontFeatureSettings": "normal",
+    "fontSynthesis": "weight style small-caps",
+    "fontVariationSettings": "normal",
+    "webkitTextStrokeWidth": "0px",
+    "textShadow": "none",
+    "webkitFontSmoothing": "antialiased",
+    "webkitTextFillColor": "rgb(32, 38, 36)",
+    "fontVariantLigatures": "normal",
+    "fontOpticalSizing": "auto",
+    "fontStretch": "100%",
+    "wordSpacing": "0px",
+    "whiteSpace": "normal",
+    "wordBreak": "normal",
+    "hyphens": "manual",
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "active": false,
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ]
+  }
+]

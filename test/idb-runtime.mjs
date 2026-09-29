@@ -13,7 +13,8 @@ const browserCandidates = [
 ]
 const browser = browserCandidates.find(existsSync)
 const debugPort = 9225
-const testUrl = 'http://127.0.0.1:4179/test/idb-runtime.html'
+const testUrl = 'http://127.0.0.1:4279/test/idb-runtime.html'
+const browserTestTimeoutMs = 120000
 
 if (!browser) {
   console.log('IndexedDB browser runtime skipped: Chrome/Chromium not found')
@@ -93,25 +94,16 @@ async function stopProcess(child) {
   await Promise.race([closed, new Promise(resolve => setTimeout(resolve, 2000))])
 }
 
-const profile = mkdtempSync(join(tmpdir(), 'beryl-idb-runtime-'))
-const server = spawn(process.execPath, [viteScript, '--host', '127.0.0.1', '--port', '4179'], {
-  cwd: root,
-  stdio: ['ignore', 'pipe', 'pipe']
-})
-let chrome
-let cdp
-
-try {
-  await waitForServer(testUrl)
-  chrome = spawn(browser, [
+function launchChrome(url) {
+  return spawn(browser, [
     '--headless=new', '--disable-gpu', '--no-sandbox', '--remote-allow-origins=*',
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${profile}`,
-    testUrl
+    url
   ], { stdio: ['ignore', 'pipe', 'pipe'] })
-  const target = await waitForTarget()
-  cdp = connectCdp(target)
-  await cdp.opened
+}
+
+async function readBrowserReport(cdp) {
   await cdp.call('Page.enable')
   const evaluation = await evaluateWhenStable(cdp, {
     awaitPromise: true,
@@ -121,7 +113,10 @@ try {
       const poll = () => {
         const value = document.querySelector('#result')?.textContent || ''
         if (value && value !== 'pending') return resolve(value)
-        if (Date.now() - started > 15000) return resolve(JSON.stringify({ ok: false, error: 'browser-test-timeout:' + value }))
+        if (Date.now() - started > ${browserTestTimeoutMs}) {
+          const stage = document.querySelector('#result')?.dataset.stage || 'unknown'
+          return resolve(JSON.stringify({ ok: false, error: 'browser-test-timeout:' + value, stage }))
+        }
         setTimeout(poll, 100)
       }
       poll()
@@ -131,7 +126,37 @@ try {
   if (typeof reportText !== 'string') throw new Error(`browser-result-missing:${JSON.stringify(evaluation)}`)
   const report = JSON.parse(reportText)
   if (!report.ok) throw new Error(`IndexedDB runtime checks failed: ${JSON.stringify(report)}`)
+  return report
+}
+
+const profile = mkdtempSync(join(tmpdir(), 'beryl-idb-runtime-'))
+const server = spawn(process.execPath, [viteScript, '--host', '127.0.0.1', '--port', '4279'], {
+  cwd: root,
+  stdio: ['ignore', 'pipe', 'pipe']
+})
+let chrome
+let cdp
+
+try {
+  await waitForServer(testUrl)
+  chrome = launchChrome(testUrl)
+  const target = await waitForTarget()
+  cdp = connectCdp(target)
+  await cdp.opened
+  const report = await readBrowserReport(cdp)
   console.log('IndexedDB browser runtime passed:', JSON.stringify(report.checks))
+
+  try { await cdp.call('Browser.close') } catch { /* browser may already be closed */ }
+  cdp.socket.close()
+  cdp = undefined
+  await stopProcess(chrome)
+  chrome = launchChrome(`${testUrl}?phase=restore-vault-handle`)
+  const restoredTarget = await waitForTarget()
+  cdp = connectCdp(restoredTarget)
+  await cdp.opened
+  const restartReport = await readBrowserReport(cdp)
+  if (!restartReport.checks.directoryHandleRestoredAfterBrowserRestart) throw new Error(`Vault handle restore check failed: ${JSON.stringify(restartReport)}`)
+  console.log('Vault browser restart check passed:', JSON.stringify(restartReport.checks))
 } finally {
   try { await cdp?.call('Browser.close') } catch { /* browser may already be closed */ }
   cdp?.socket.close()

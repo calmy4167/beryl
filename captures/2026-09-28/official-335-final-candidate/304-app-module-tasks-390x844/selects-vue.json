@@ -1,0 +1,35 @@
+[
+  {
+    "label": "关联处境",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 259,
+      "y": 312.703125,
+      "width": 104,
+      "height": 40,
+      "top": 312.703125,
+      "right": 363,
+      "bottom": 352.703125,
+      "left": 259
+    },
+    "text": "不关联课题",
+    "value": "",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "12px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "12px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

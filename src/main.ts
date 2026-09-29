@@ -4,6 +4,14 @@ import { ElButton, ElDialog, ElDrawer, ElForm, ElFormItem, ElInput, ElOption, El
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import './styles/main.css'
+import './styles/shared/app.css'
+import './styles/shared/mobile-nav.css'
+import './styles/shared/feishu-workspace.css'
+import './styles/shared/feishu-board.css'
+import './styles/shared/product-ui.css'
+import './styles/shared/ui-refresh.css'
+import './styles/shared/tactile-ui.css'
+import './styles/controls.css'
 import App from './App.vue'
 import router from './router'
 import { initDb, readKvSnapshot } from './core/db'
@@ -13,6 +21,7 @@ import { purgeCorruptedEncryptedKeys } from './core/sync'
 import { setModuleRealityReader } from './core/modules'
 import { listRealityDocuments, type RealityEntityType } from './domain/reality'
 import { ensureLegacyMigration } from './domain/legacy/migration'
+import { applyBackgroundPreferences } from './ui/theme-preferences'
 
 setModuleRealityReader(type => listRealityDocuments({ types: [type as RealityEntityType] }))
 
@@ -28,6 +37,9 @@ for (const [name, component] of Object.entries({ ElButton, ElDialog, ElDrawer, E
 let savedTheme: string | null = null
 try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }
 document.documentElement.classList.toggle('dark', savedTheme === 'dark')
+document.documentElement.classList.toggle('ui-refresh', new URLSearchParams(window.location.search).get('ui') === 'refresh')
+document.documentElement.classList.add('tactile-ui')
+applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
 
 async function bootstrap() {
   await initDb()

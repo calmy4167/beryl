@@ -13,7 +13,7 @@ Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与�
 - 唯识及其他思想影响数据结构和 AI 理解，不成为用户必须学习的页面概念。
 - 长期模式和方向从有来源的经历中被观察出来，不由用户手工创建，也不能成为人格标签。
 - `Today / Capture / Matters / Review`、Matter、Action、Record、Cycle、Stage、Trajectory 等暂为迁移兼容层；后续去留服从 OW-21 的验证和迁移设计。
-- 在 React 生产主路径及仍纳入发布范围的扩展页面完成异步持久化边界、真实离线恢复和人工可访问性检查前，不宣称“完整实现”；Vue 兼容层的退出由 OW-06 单独管理。
+- 生产前端现统一为 Vue 3；React 运行时代码、依赖和预览入口已从当前工程移除，配对截图保留为迁移验收档案。离线恢复、真实设备和人工可访问性检查仍按 OW-04 验收，不能由前端迁移测试代替。
 - 设置与同步以 `/app/admin` 为唯一主入口，集中展示备份、同步、Vault 与实体迁移；旧 `/app/admin/advanced` 仅为兼容地址，不能再形成第二套设置体验。
 
 ## 外部数据源规划
@@ -25,6 +25,8 @@ Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与�
 ## 文件说明
 
 - [当前产品总设计](CALMY_PRODUCT_DESIGN_2026-09-19.md)
+- [主数据与实体引用设计](MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md)
+- [开放数据与 Portable Vault 架构设计（规划提案）](CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md)
 - [Attention OS 迁移参考](CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)
 - [文档登记册](DOCUMENT_REGISTER.md)
 - [文档与界面统一审计](DOCUMENT_AUDIT_2026-09-19.md)

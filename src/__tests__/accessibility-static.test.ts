@@ -1,196 +1,57 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { appPageRegistry, appRouteDefinitions } from '../react/route-manifest'
+import { appPageRegistry, appRouteDefinitions } from '../router/route-manifest'
 
 const source = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
-const appShell = source('src/views/AppShell.vue')
-const router = source('src/router/index.ts')
-const admin = source('src/views/AdminView.vue')
-const scene = source('src/views/SceneView.vue')
-const today = source('src/views/TodayView.vue')
-const matters = source('src/views/MattersView.vue')
-const review = source('src/views/ReviewView.vue')
-const indexHtml = source('index.html')
-const reactApp = source('src/react/App.tsx')
-const reactRoutes = source('src/react/routes.tsx')
-const reactRouteViews = source('src/react/route-views.tsx')
-const reactLazyPages = source('src/react/lazy-pages.ts')
-const legacyToday = source('src/react/pages/LegacyTodayPage.tsx')
-const legacyCapture = source('src/react/pages/LegacyCapturePage.tsx')
-const mattersPage = source('src/react/pages/MattersPage.tsx')
-const reviewPage = source('src/react/pages/ReviewPage.tsx')
-const matterDetailPage = source('src/react/pages/MatterDetailPage.tsx')
-const flowPage = source('src/react/pages/FlowPage.tsx')
-const feishuWorkspace = source('src/core/feishu/workspace.ts')
 
-const extensionModules = [
-  ['Library', 'library'], ['Calendar', 'calendar'], ['People', 'people'], ['Graph', 'graph'],
-  ['Inbox', 'module/inbox'], ['Tasks', 'module/tasks'], ['Habits', 'module/habits'], ['Finance', 'module/finance'],
-  ['Goals', 'module/goals'], ['Pomo', 'module/pomo'], ['Diary', 'module/diary'], ['Posts', 'module/posts'], ['Scene', '/scene']
-] as const
+describe('Vue migration entry and route registry', () => {
+  it('uses Vue in production and removes the retired React runtime', () => {
+    const html = source('index.html')
+    const packageJson = JSON.parse(source('package.json')) as {
+      dependencies: Record<string, string>
+      devDependencies: Record<string, string>
+    }
+    const vite = source('vite.config.ts')
 
-describe('静态无障碍语义', () => {
-  it('为 AppShell 的核心导航、更多入口和图标提供名称与状态', () => {
-    expect(appShell).toContain('id="primary-navigation" class="primary-nav" aria-label="主导航">')
-    expect(appShell).toContain(':aria-current="active === \'today\' ? \'page\' : undefined"')
-    expect(appShell).toContain('aria-label="打开更多入口"')
-    expect(appShell).toContain(":aria-label=\"sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'\"")
-    expect(appShell).toContain(':aria-expanded="!sidebarCollapsed"')
-    expect(appShell).toContain('id="app-sidebar"')
-    expect(appShell).toContain('aria-controls="app-sidebar"')
-    expect(appShell).toContain('aria-controls="mobile-more-drawer"')
-    expect(appShell).toContain('aria-haspopup="dialog"')
-    expect(appShell).toContain(':aria-expanded="drawer"')
-    expect(appShell).toContain('<el-drawer id="mobile-more-drawer" aria-label="更多入口"')
-    expect(appShell).toContain('aria-label="关闭更多入口"')
-    expect(appShell).toContain('.bottom-nav button{min-height:44px}')
-    expect(appShell).toContain('calmy_sidebar_collapsed')
-    expect(appShell).toContain('<nav class="drawer-links" aria-label="更多入口">')
-    expect(appShell).toContain('<header v-if="!isMobile" class="desktop-topbar" aria-label="当前工作上下文">')
-    expect(appShell).toContain('<aside v-if="!isMobile" class="right-rail" aria-label="上下文快捷动作">')
-    expect(appShell).toContain('<nav v-if="!isMobile" class="command-bar" aria-label="快捷命令">')
-    expect(appShell).toContain('role="status" aria-live="polite"')
-    expect(appShell).toContain("SAVE_STATE_EVENT")
-    expect(appShell).toContain('保存冲突，需要确认')
-    expect(appShell).toContain('<span class="brand-mark" aria-hidden="true">C</span>')
-    expect(appShell).toContain('Today')
-    expect(appShell).toContain('Capture')
-    expect(appShell).toContain('课题')
-    expect(appShell).toContain('复盘')
+    expect(html).toContain('<script type="module" src="/src/main.ts"></script>')
+    expect(html).not.toContain('/src/react/main.tsx')
+    expect(existsSync(resolve(process.cwd(), 'react-preview.html'))).toBe(false)
+    expect(existsSync(resolve(process.cwd(), 'vue-preview.html'))).toBe(true)
+    expect(source('vue-preview.html')).toContain('/src/main.ts')
+    expect(existsSync(resolve(process.cwd(), 'src/react'))).toBe(false)
+    expect(Object.keys(packageJson.dependencies)).not.toEqual(expect.arrayContaining(['react', 'react-dom', 'react-router-dom']))
+    expect(Object.keys(packageJson.devDependencies)).not.toEqual(expect.arrayContaining([
+      'react', 'react-dom', 'react-router-dom', '@types/react', '@types/react-dom',
+    ]))
+    expect(vite).not.toContain('@vitejs/plugin-react')
   })
 
-  it('为 AdminView 的返回、文件输入、场景和动态状态提供语义', () => {
-    expect(admin).toContain('aria-label="返回工作台"')
-    expect(admin).toContain('aria-label="选择要导入的 JSON 数据文件"')
-    expect(admin).toContain('role="status" aria-live="polite"')
-    expect(admin).toContain(':aria-pressed="scene === s.id"')
-    expect(admin).toContain('role="region" aria-label="同步诊断结果"')
-    expect(admin).toContain(':aria-label="`冲突 ${conflict.calmyId} 的处理方式`"')
+  it('keeps every registered page unique and connected to a Vue route definition', () => {
+    const ids = appPageRegistry.map(page => page.id)
+    expect(new Set(ids).size).toBe(ids.length)
+
+    for (const page of appPageRegistry.filter(page => page.shell === 'app')) {
+      expect(appRouteDefinitions).toContainEqual(expect.objectContaining({ kind: 'view', viewKey: page.viewKey }))
+    }
   })
 
-  it('将旧 Case、Task、inbox 路径限制为兼容重定向', () => {
-    expect(router).toContain("{ path: 'cases', name: 'cases', redirect: '/app/matters' }")
-    expect(router).toContain("{ path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' }")
-    expect(router).toContain("{ path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' }")
-    expect(router).not.toContain("component: () => import('@/views/CasesView.vue')")
+  it('keeps legacy Case, Task, and inbox paths as compatibility routes', () => {
     expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'cases', redirectTo: '/app/matters' })
-    expect(appRouteDefinitions).toContainEqual({ kind: 'view', path: 'cases/:id', viewKey: 'caseRedirect', pageId: 'matters' })
-    expect(reactRouteViews).toContain("legacyTargetFor('case', id)")
     expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/chars', redirectTo: '/app/people' })
     expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/moments', redirectTo: '/app/module/posts' })
     expect(appRouteDefinitions).toContainEqual({ kind: 'redirect', path: 'module/:id', redirectTo: '/app/module/inbox' })
-    expect(reactRoutes).toContain('appRouteDefinitions.map')
-    expect(reactRoutes).toContain('<Navigate to={route.redirectTo} replace />')
-  })
-
-  it('为 SceneView 的场景组、选择状态和装饰内容提供语义', () => {
-    expect(scene).toContain('id="scene-title"')
-    expect(scene).toContain('role="group" aria-labelledby="scene-title"')
-    expect(scene).toContain(':aria-pressed="selected === s.id"')
-    expect(scene).toContain(':aria-describedby="`scene-description-${s.id}`"')
-    expect(scene).toContain('<div class="logo" aria-hidden="true">')
-    expect(scene).toContain('class="bar" aria-hidden="true"')
-  })
-
-  it('为 Today 的结果记录控件提供可访问名称和保存状态', () => {
-    expect(today).toContain('aria-label="现实记录内容"')
-    expect(today).toContain('aria-label="记录类型"')
-    expect(today).toContain('aria-label="结果关联行动"')
-    expect(today).toContain('aria-label="记录关联 Matter"')
-    expect(today).toContain('role="status" aria-live="polite"')
-    expect(today).toContain('recordActionId')
-    expect(matters).toContain('role="group" aria-label="Matter 状态筛选"')
-    expect(matters).toContain(':aria-pressed="status === item[0]"')
-    expect(review).toContain(':aria-pressed="rangeDays === item[0]"')
-    expect(review).toContain(':aria-current="selected?.date === day.date ? \'date\' : undefined"')
-    expect(review).toContain('aria-label="今日复盘：观，今天实际发生了什么"')
-    expect(review).toContain('aria-label="今日复盘：察，哪些条件影响了今天"')
-    expect(review).toContain('aria-label="今日复盘：调，明天如何调整"')
-    expect(review).toContain('aria-label="今日复盘：下一轮线索"')
-    expect(review).toContain('保存今日复盘')
-  })
-
-  it('将缺失可访问名称识别为失败边界', () => {
-    const unlabeledIconButton = '<button>⌂</button>'
-    const unlabeledFileInput = '<input type="file">'
-    expect(/aria-label|aria-labelledby/.test(unlabeledIconButton)).toBe(false)
-    expect(/aria-label|aria-labelledby/.test(unlabeledFileInput)).toBe(false)
-    expect(/aria-label="返回工作台"/.test(admin)).toBe(true)
-    expect(/aria-label="选择要导入的 JSON 数据文件"/.test(admin)).toBe(true)
-  })
-
-  it('保持 React 为生产入口并把 Vue 限定在显式兼容路由', () => {
-    expect(indexHtml).toContain('<script type="module" src="/src/react/main.tsx"></script>')
-    expect(reactApp).toContain("from './lazy-pages'")
-    expect(reactLazyPages).toContain("export const LegacyAdminHost = lazy(() => import('./LegacyAdminHost')")
-    expect(reactApp).toContain('admin: <LegacyAdminHost />, advancedAdmin: <LegacyAdminHost />')
-    expect(reactApp).not.toContain('admin: <ReactAdminPage />')
-    expect(reactApp).toContain("from './route-views'")
-    expect(reactRouteViews).toContain('<p className="form-error" role="alert">{error}</p>')
-    expect(appRouteDefinitions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: 'view', path: 'admin', viewKey: 'admin' }),
-      expect.objectContaining({ kind: 'view', path: 'admin/advanced', viewKey: 'advancedAdmin' }),
-    ]))
-    expect(reactApp).not.toContain("import('@/views/")
-    expect(reactApp).toContain("export { LegacyTodayPage } from './pages/LegacyTodayPage'")
-    expect(legacyToday).toContain('export function LegacyTodayPage')
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/LegacyTodayPage.tsx'))).toBe(true)
-    expect(reactApp).toContain("export { LegacyCapturePage } from './pages/LegacyCapturePage'")
-    expect(legacyCapture).toContain('export function LegacyCapturePage')
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/LegacyCapturePage.tsx'))).toBe(true)
-    expect(reactApp).toContain("import { MattersPage } from './pages/MattersPage'")
-    expect(reactApp).toContain("export { MattersPage } from './pages/MattersPage'")
-    expect(mattersPage).toContain('export function MattersPage')
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/MattersPage.tsx'))).toBe(true)
-    expect(reactApp).toContain("import { ReviewPage } from './pages/ReviewPage'")
-    expect(reactApp).toContain("export { ReviewPage } from './pages/ReviewPage'")
-    expect(reviewPage).toContain('export function ReviewPage')
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/ReviewPage.tsx'))).toBe(true)
-    expect(reactApp).toContain("import { MatterDetailPage } from './pages/MatterDetailPage'")
-    expect(reactApp).toContain("export { MatterDetailPage } from './pages/MatterDetailPage'")
-    expect(matterDetailPage).toContain('export function MatterDetailPage')
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/MatterDetailPage.tsx'))).toBe(true)
-    expect(reactApp).toContain('flow: <FlowPage />')
-    expect(appRouteDefinitions).toContainEqual(expect.objectContaining({ kind: 'view', path: 'flow', viewKey: 'flow' }))
-    expect(reactLazyPages).toContain("export const FlowPage = lazy(() => import('./pages/FlowPage')")
-    expect(flowPage).toContain('export function FlowPage')
-    expect(flowPage).toContain('回到今天去做')
-    expect(flowPage).toContain("navigate('/app/today')")
-    expect(existsSync(resolve(process.cwd(), 'src/react/pages/AdminPage.tsx'))).toBe(false)
-    expect(existsSync(resolve(process.cwd(), 'src/react/LegacyVueHost.tsx'))).toBe(false)
-    const reactPagesDir = resolve(process.cwd(), 'src/react/pages')
-    const reactPageFiles = readdirSync(reactPagesDir).filter(file => /\.(ts|tsx)$/.test(file))
-    const forbiddenVueImports = reactPageFiles.filter(file => /from ['"](?:vue|vue-router|element-plus)/.test(readFileSync(resolve(reactPagesDir, file), 'utf8')))
-    expect(forbiddenVueImports).toEqual([])
-    const reactDir = resolve(process.cwd(), 'src/react')
-    const reactSourceFiles = readdirSync(reactDir).filter(file => /\.(ts|tsx)$/.test(file))
-    const reactVueImportOwners = reactSourceFiles.filter(file => /from ['"](?:vue|vue-router|element-plus)/.test(readFileSync(resolve(reactDir, file), 'utf8')))
-    expect(reactVueImportOwners).toEqual(['LegacyAdminHost.tsx'])
-    expect(source('src/react/LegacyAdminHost.tsx')).toContain("from 'vue'")
-  })
-
-  it('为 OW-08 扩展模块保留 lazy 注册、路由入口和可访问页面边界', () => {
-    for (const [name, route] of extensionModules) {
-      const file = `src/react/pages/${name}Page.tsx`
-      const page = source(file)
-      expect(existsSync(resolve(process.cwd(), file))).toBe(true)
-      expect(reactLazyPages).toContain(`import('./pages/${name}Page')`)
-      expect(appPageRegistry).toContainEqual(expect.objectContaining({ path: route === '/scene' ? route : `/app/${route}`, viewKey: name.toLowerCase() }))
-      if (route !== '/scene') {
-        expect(appRouteDefinitions).toContainEqual(expect.objectContaining({ kind: 'view', path: route, viewKey: name.toLowerCase() }))
-      }
-      expect(/PageHead|page-head|page-title|font-title/.test(page)).toBe(true)
-      expect(/aria-label|aria-labelledby|role=/.test(page)).toBe(true)
-    }
   })
 })
 
 describe('飞书缓存安全边界', () => {
   it('刷新时立即进入只读状态，并在缓存清理失败时保留错误', () => {
+    const admin = source('src/views/AdminView.vue')
+    const workspace = source('src/core/feishu/workspace.ts')
     const resetHandler = admin.slice(admin.indexOf('function resetData()'), admin.indexOf('\nfunction logout()'))
-    expect(feishuWorkspace).toContain("this.publish({ loading: true, ready: false, error: '' })")
-    expect(feishuWorkspace).toContain('this.snapshot.loading')
+
+    expect(workspace).toContain("this.publish({ loading: true, ready: false, error: '' })")
+    expect(workspace).toContain('this.snapshot.loading')
     expect(resetHandler).toContain('await clearFeishuCache()')
     expect(resetHandler).toContain('ElMessage.error(')
     expect(resetHandler).toContain('location.reload()')

@@ -1,0 +1,176 @@
+{
+  "selectState": [
+    {
+      "html": "<select aria-label=\"关系起点\"><option value=\"\">起点节点</option><option value=\"migration-parity-device-muic8000-gmxk51\">处境 · 迁移验收关系处境</option><option value=\"migration-parity-device-muic8000-0wpxb3\">人物 · 迁移验收关系人物</option><option value=\"migration-parity-device-muic8000-cohn34\">关系 · matter supports person</option></select>",
+      "label": "关系起点",
+      "value": "",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "",
+          "text": "起点节点",
+          "selected": true
+        },
+        {
+          "value": "migration-parity-device-muic8000-gmxk51",
+          "text": "处境 · 迁移验收关系处境",
+          "selected": false
+        },
+        {
+          "value": "migration-parity-device-muic8000-0wpxb3",
+          "text": "人物 · 迁移验收关系人物",
+          "selected": false
+        },
+        {
+          "value": "migration-parity-device-muic8000-cohn34",
+          "text": "关系 · matter supports person",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "html": "<select aria-label=\"关系类型\"><option value=\"supports\">支持</option><option value=\"blocks\">阻碍</option><option value=\"contradicts\">冲突</option><option value=\"derived_from\">源自</option><option value=\"related_to\">相关</option><option value=\"belongs_to\">属于</option><option value=\"depends_on\">依赖</option><option value=\"practices\">实践</option><option value=\"evidences\">佐证</option><option value=\"part_of\">组成</option></select>",
+      "label": "关系类型",
+      "value": "supports",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "supports",
+          "text": "支持",
+          "selected": true
+        },
+        {
+          "value": "blocks",
+          "text": "阻碍",
+          "selected": false
+        },
+        {
+          "value": "contradicts",
+          "text": "冲突",
+          "selected": false
+        },
+        {
+          "value": "derived_from",
+          "text": "源自",
+          "selected": false
+        },
+        {
+          "value": "related_to",
+          "text": "相关",
+          "selected": false
+        },
+        {
+          "value": "belongs_to",
+          "text": "属于",
+          "selected": false
+        },
+        {
+          "value": "depends_on",
+          "text": "依赖",
+          "selected": false
+        },
+        {
+          "value": "practices",
+          "text": "实践",
+          "selected": false
+        },
+        {
+          "value": "evidences",
+          "text": "佐证",
+          "selected": false
+        },
+        {
+          "value": "part_of",
+          "text": "组成",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "html": "<select aria-label=\"关系终点\"><option value=\"\">终点节点</option><option value=\"migration-parity-device-muic8000-gmxk51\">处境 · 迁移验收关系处境</option><option value=\"migration-parity-device-muic8000-0wpxb3\">人物 · 迁移验收关系人物</option><option value=\"migration-parity-device-muic8000-cohn34\">关系 · matter supports person</option></select>",
+      "label": "关系终点",
+      "value": "",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "",
+          "text": "终点节点",
+          "selected": true
+        },
+        {
+          "value": "migration-parity-device-muic8000-gmxk51",
+          "text": "处境 · 迁移验收关系处境",
+          "selected": false
+        },
+        {
+          "value": "migration-parity-device-muic8000-0wpxb3",
+          "text": "人物 · 迁移验收关系人物",
+          "selected": false
+        },
+        {
+          "value": "migration-parity-device-muic8000-cohn34",
+          "text": "关系 · matter supports person",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "html": "<select aria-label=\"筛选节点类型\"><option value=\"all\">全部类型</option><option value=\"matter\">处境</option><option value=\"relation\">关系</option><option value=\"person\">人物</option></select>",
+      "label": "筛选节点类型",
+      "value": "all",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "all",
+          "text": "全部类型",
+          "selected": true
+        },
+        {
+          "value": "matter",
+          "text": "处境",
+          "selected": false
+        },
+        {
+          "value": "relation",
+          "text": "关系",
+          "selected": false
+        },
+        {
+          "value": "person",
+          "text": "人物",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    }
+  ],
+  "hovered": [],
+  "animations": []
+}

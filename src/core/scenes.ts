@@ -1,4 +1,4 @@
-/* ---------- 场景配置（平移 v1：各场景独立 tagline/mods/stats） ---------- */
+/* ---------- 产品展示配置（不是领域 Scene 实例；持久化 key 仍为 scene） ---------- */
 export interface SceneDef {
   id: string
   name: string

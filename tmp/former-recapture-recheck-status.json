@@ -1,0 +1,346 @@
+{
+  "start": 0,
+  "limit": 37,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "recapture-error": 19,
+    "nonzero": 13,
+    "exact": 5
+  },
+  "results": [
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538209291.9,\"currentTimeOrigin\":1790538209518.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .feature-group-button; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\041-app-today-390x844"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538209168.4,\"currentTimeOrigin\":1790538209469.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow 关联验收处境\r\n\r\n验证探索资料能关联到现实问题。\r\n\r\n当前要解决的问题\r\n\r\n如何验证这条资料是否有用？\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\053-app-matters-390x844"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538209257.1,\"currentTimeOrigin\":1790538209502.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/flow\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n20:00\r\n迁移验收回响现实记录\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\056-app-today-390x844"
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538244129.6,\"currentTimeOrigin\":1790538244333.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\074-app-flow-390x844"
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538244272.3,\"currentTimeOrigin\":1790538244467.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\077-app-flow-390x844"
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538244899.8,\"currentTimeOrigin\":1790538245086.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\083-app-matters-390x844"
+    },
+    {
+      "id": "108",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 42,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\108-app-graph-1440x900"
+    },
+    {
+      "id": "109",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 39,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\109-app-graph-1024x768"
+    },
+    {
+      "id": "110",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\110-app-graph-390x844"
+    },
+    {
+      "id": "111",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\111-app-graph-1440x900"
+    },
+    {
+      "id": "112",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 68,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\112-app-graph-1024x768"
+    },
+    {
+      "id": "113",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\113-app-graph-390x844"
+    },
+    {
+      "id": "114",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\114-app-graph-1440x900"
+    },
+    {
+      "id": "115",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\115-app-graph-1024x768"
+    },
+    {
+      "id": "116",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\116-app-graph-390x844"
+    },
+    {
+      "id": "117",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\117-app-graph-1440x900"
+    },
+    {
+      "id": "118",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\118-app-graph-1024x768"
+    },
+    {
+      "id": "119",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\119-app-graph-390x844"
+    },
+    {
+      "id": "120",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\120-app-graph-1440x900"
+    },
+    {
+      "id": "121",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\121-app-graph-1024x768"
+    },
+    {
+      "id": "122",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\122-app-graph-390x844"
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538316899.5,\"currentTimeOrigin\":1790538317075.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .immersive-entry; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\128-app-today-390x844"
+    },
+    {
+      "id": "243",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538317611.5,\"currentTimeOrigin\":1790538317783.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 概览数据暂时无法读取; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\243-app-profile-1440x900"
+    },
+    {
+      "id": "249",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538318672.2,\"currentTimeOrigin\":1790538318845.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\249-app-profile-1440x900"
+    },
+    {
+      "id": "250",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538333172,\"currentTimeOrigin\":1790538333354.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\250-app-profile-1024x768"
+    },
+    {
+      "id": "251",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538334224.9,\"currentTimeOrigin\":1790538334377.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=Calmy\r\n功能\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\251-app-profile-390x844"
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538348733.3,\"currentTimeOrigin\":1790538348888.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:61\r\n      if(!ok)throw new Error(`fill-selector-missing ${step.selector} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                   ^\r\n\r\nError: fill-selector-missing .global-search body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:61:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\281-app-today-390x844"
+    },
+    {
+      "id": "295",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538349922.7,\"currentTimeOrigin\":1790538350080.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\295-app-module-tasks-1440x900"
+    },
+    {
+      "id": "296",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538351300.2,\"currentTimeOrigin\":1790538351465.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\296-app-module-tasks-1024x768"
+    },
+    {
+      "id": "297",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538352517,\"currentTimeOrigin\":1790538352682.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\297-app-module-tasks-390x844"
+    },
+    {
+      "id": "298",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538353921.5,\"currentTimeOrigin\":1790538354073.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\298-app-module-tasks-1440x900"
+    },
+    {
+      "id": "299",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538355019.2,\"currentTimeOrigin\":1790538355159.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\299-app-module-tasks-1024x768"
+    },
+    {
+      "id": "300",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538356463.3,\"currentTimeOrigin\":1790538356630.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\300-app-module-tasks-390x844"
+    },
+    {
+      "id": "301",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\manifest-app_module_tasks-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538357564.2,\"currentTimeOrigin\":1790538357748.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时触控状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时触控状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\301-app-module-tasks-390x844"
+    },
+    {
+      "id": "327",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\327-app-module-tasks-1440x900"
+    },
+    {
+      "id": "328",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\328-app-module-tasks-1024x768"
+    },
+    {
+      "id": "329",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\former-recapture-errors-recheck\\329-app-module-tasks-390x844"
+    }
+  ]
+}

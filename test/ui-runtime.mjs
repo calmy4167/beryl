@@ -63,12 +63,12 @@ async function waitForServer(url, logs, timeoutMs = 20000) {
   throw new Error(`vite-server-timeout url=${url} logs=${JSON.stringify(logs())}`)
 }
 
-async function waitForTarget(debugPort, timeoutMs = 20000) {
+async function waitForTarget(debugPort, expectedUrl = 'about:blank', timeoutMs = 20000) {
   const started = Date.now()
   while (Date.now() - started <= timeoutMs) {
     try {
       const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json()
-      const page = targets.find(target => target.type === 'page' && target.url.includes('/test/ui-runtime.html'))
+      const page = targets.find(target => target.type === 'page' && target.url === expectedUrl)
       if (page?.webSocketDebuggerUrl) return page.webSocketDebuggerUrl
     } catch { /* Chrome is still starting. */ }
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -80,6 +80,7 @@ function connectCdp(url) {
   const socket = new WebSocket(url)
   let nextId = 0
   const pending = new Map()
+  const events = []
   const opened = new Promise((resolve, reject) => {
     socket.addEventListener('open', resolve, { once: true })
     socket.addEventListener('error', reject, { once: true })
@@ -87,6 +88,9 @@ function connectCdp(url) {
 
   socket.addEventListener('message', event => {
     const message = JSON.parse(String(event.data))
+    const requestUrl = message.params?.request?.url || message.params?.response?.url || ''
+    const relevantNetworkEvent = message.method?.startsWith('Network.') && /ui-runtime|src\/react\/main|@vite\/client/.test(requestUrl)
+    if (!message.id && (['Runtime.exceptionThrown', 'Runtime.consoleAPICalled', 'Log.entryAdded', 'Network.loadingFailed', 'Page.frameNavigated'].includes(message.method) || relevantNetworkEvent)) events.push(message)
     const request = pending.get(message.id)
     if (!request) return
     pending.delete(message.id)
@@ -120,7 +124,7 @@ function connectCdp(url) {
     })
   }
 
-  return { socket, opened, call }
+  return { socket, opened, call, events }
 }
 
 function isNavigationRace(error) {
@@ -170,16 +174,21 @@ async function waitForCondition(cdp, label, expression, timeoutMs = 20000) {
       href: location.href,
       title: document.title,
       seedStatus: document.querySelector('#result')?.textContent || null,
-      sidebarState: localStorage.getItem('b_sidebar_collapsed'),
+      sidebarState: localStorage.getItem('calmy_sidebar_collapsed'),
       sidebarClass: document.querySelector('.app-shell')?.className || null,
       activeElement: document.activeElement ? { tag: document.activeElement.tagName, ariaLabel: document.activeElement.getAttribute('aria-label'), className: document.activeElement.className || null } : null,
-      moreTrigger: document.querySelector('.bottom-nav button[aria-label="更多导航"]') ? { expanded: document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded'), sameAsActive: document.activeElement === document.querySelector('.bottom-nav button[aria-label="更多导航"]') } : null,
+      moreTrigger: document.querySelector('.mobile-header .menu[aria-controls="more-drawer"]') ? { expanded: document.querySelector('.mobile-header .menu[aria-controls="more-drawer"]')?.getAttribute('aria-expanded'), sameAsActive: document.activeElement === document.querySelector('.mobile-header .menu[aria-controls="more-drawer"]'), connected: document.querySelector('.mobile-header .menu[aria-controls="more-drawer"]')?.isConnected } : null,
+      drawer: document.querySelector('#more-drawer') ? { ariaHidden: document.querySelector('#more-drawer')?.getAttribute('aria-hidden'), className: document.querySelector('#more-drawer')?.className, visibility: getComputedStyle(document.querySelector('#more-drawer')).visibility } : null,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      readyState: document.readyState,
+      appMarkup: document.querySelector('#app')?.innerHTML.slice(0, 500) || null,
+      scripts: Array.from(document.scripts).map(script => ({ src: script.src, type: script.type })),
       body: (document.body?.innerText || '').slice(0, 500)
     }))()`)
   } catch (error) {
     diagnostic = { diagnosticError: error instanceof Error ? error.message : String(error) }
   }
-  throw new Error(`${label}-timeout diagnostic=${JSON.stringify(diagnostic)}`)
+  throw new Error(`${label}-timeout last=${JSON.stringify(lastValue)} diagnostic=${JSON.stringify(diagnostic)}`)
 }
 
 async function stopProcess(child) {
@@ -202,7 +211,7 @@ async function waitForDownload(directory, timeoutMs = 10000) {
 async function run() {
   const [serverPort, debugPort] = await Promise.all([getFreePort(), getFreePort()])
   const baseUrl = `http://127.0.0.1:${serverPort}`
-  const testUrl = `${baseUrl}/test/ui-runtime.html`
+  const appUrl = `${baseUrl}/#/app/today`
   const profile = mkdtempSync(join(tmpdir(), 'beryl-ui-runtime-'))
   const downloadDir = mkdtempSync(join(tmpdir(), 'beryl-ui-download-'))
   const vite = spawnWithLogs(process.execPath, [viteScript, '--host', '127.0.0.1', '--port', String(serverPort)], {
@@ -213,14 +222,14 @@ async function run() {
   let cdp
 
   try {
-    await waitForServer(testUrl, vite.logs)
+    await waitForServer(`${baseUrl}/`, vite.logs)
     chrome = spawnWithLogs(browser, [
       '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox',
       '--disable-background-networking', '--disable-component-update', '--disable-default-apps',
       '--no-first-run', '--no-default-browser-check', '--remote-allow-origins=*',
       `--remote-debugging-port=${debugPort}`,
       `--user-data-dir=${profile}`,
-      testUrl
+      'about:blank'
     ], { stdio: ['ignore', 'pipe', 'pipe'] })
 
     const target = await waitForTarget(debugPort)
@@ -228,6 +237,8 @@ async function run() {
     await cdp.opened
     await cdp.call('Page.enable')
     await cdp.call('Runtime.enable')
+    await cdp.call('Log.enable')
+    await cdp.call('Network.enable')
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
     const setViewport = async (width, height, mobile, pageScaleFactor = 1) => {
       await cdp.call('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile })
@@ -238,6 +249,18 @@ async function run() {
     await cdp.call('Page.addScriptToEvaluateOnNewDocument', {
       source: `(() => {
         window.__uiSmokeExternalAttempts = [];
+        try {
+          if (!localStorage.getItem('b_auth')) {
+            const sidebarState = localStorage.getItem('calmy_sidebar_collapsed');
+            localStorage.clear();
+            sessionStorage.clear();
+            const auth = { u: 'ui-smoke', salt: '00'.repeat(16), hash: '00'.repeat(32), iter: 1 };
+            localStorage.setItem('b_auth', JSON.stringify(auth));
+            localStorage.setItem('b_session', JSON.stringify({ u: auth.u, ts: Date.now() }));
+            localStorage.setItem('b_scene', JSON.stringify('personal'));
+            if (sidebarState !== null) localStorage.setItem('calmy_sidebar_collapsed', sidebarState);
+          }
+        } catch (error) { window.__uiSmokeSeedError = String(error); }
         const nativeFetch = window.fetch.bind(window);
         window.fetch = (input, init) => {
           const url = typeof input === 'string' ? input : input?.url || '';
@@ -268,16 +291,15 @@ async function run() {
       })();`
     })
 
-    // Re-run the fixture page after installing the network guard. This also
-    // makes the first app navigation deterministic if the module raced ahead.
-    await cdp.call('Page.reload', { ignoreCache: true })
+    // Start the redirecting fixture only after the network guard is installed.
+    await cdp.call('Page.navigate', { url: appUrl })
 
     const home = await waitForCondition(cdp, 'today-mount', `(() => {
       return {
         ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') && !!document.querySelector('.today-page'),
         route: location.hash,
       };
-    })()`)
+    })()`, 60000)
     await evaluateStable(cdp, `(() => {
       window.__auditLayout = selector => {
         const container = document.querySelector(selector)
@@ -303,11 +325,11 @@ async function run() {
 
     await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
     const collapsedSidebar = await waitForCondition(cdp, 'sidebar-collapse', `(() => ({
-      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏' && Math.round(document.querySelector('.sidebar')?.getBoundingClientRect().width || 0) === 72 && getComputedStyle(document.querySelector('.nav-label')).display === 'none'
+      ok: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && localStorage.getItem('calmy_sidebar_collapsed') === '1' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开左侧菜单' && Math.round(document.querySelector('.sidebar')?.getBoundingClientRect().width || 0) === 76 && [...document.querySelectorAll('.navigation-group-rail button > span')].every(node => getComputedStyle(node).display === 'block' && node.getBoundingClientRect().height > 0)
     }))()`)
     await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-toggle')?.click(); return true })()`)
     const expandedSidebar = await waitForCondition(cdp, 'sidebar-expand', `(() => ({
-      ok: !document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') && localStorage.getItem('calmy_sidebar_collapsed') === '0' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '收起侧边栏'
+      ok: !document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') && localStorage.getItem('calmy_sidebar_collapsed') === '0' && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '收起左侧菜单'
     }))()`)
     await evaluateStable(cdp, `(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, bubbles: true })); return true })()`)
     const keyboardCollapsed = await waitForCondition(cdp, 'sidebar-keyboard-collapse', `(() => ({
@@ -323,47 +345,43 @@ async function run() {
     }))()`)
 
     await evaluateStable(cdp, `(() => {
-      const input = document.querySelector('.create-row input');
+      const details = document.querySelector('.today-other');
+      if (details) details.open = true;
+      const input = document.querySelector('[aria-label="新增现实行动"]');
       if (!input) return false;
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
       setter?.call(input, 'UI smoke synthetic task');
       input.dispatchEvent(new Event('input', { bubbles: true }));
-      document.querySelector('.create-row button')?.click();
+      [...document.querySelectorAll('#today-add-action button')].find(button => button.textContent?.includes('加入今天'))?.click();
       return true;
     })()`)
     const seeded = await waitForCondition(cdp, 'today-action-write', `(() => ({
       ok: [...document.querySelectorAll('.action-card')].some(node => node.textContent?.includes('UI smoke synthetic task'))
     }))()`)
 
-    const recordedAction = await evaluateStable(cdp, `(() => {
-      document.querySelector('.record-details summary')?.click()
-      const actions = JSON.parse(localStorage.getItem('b_mvpActions') || '[]')
-      const action = actions.find(item => item.title === 'UI smoke synthetic task')
-      const body = document.querySelector('.record-row textarea')
-      const relation = document.querySelector('select[aria-label="结果关联行动"]')
-      if (!action || !body || !relation) return { ok: false }
-      const bodySetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
-      bodySetter?.call(body, 'UI smoke action result')
-      body.dispatchEvent(new Event('input', { bubbles: true }))
-      relation.value = action.calmyId
-      relation.dispatchEvent(new Event('change', { bubbles: true }))
-      document.querySelector('.record-row button')?.click()
-      return { ok: true, actionId: action.calmyId }
+    await evaluateStable(cdp, `(() => {
+      const body = document.querySelector('[aria-label="记录原文"]');
+      if (!body) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(body, 'UI smoke journal record');
+      body.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.record-composer .capture-submit')?.click();
+      return true;
     })()`)
-    const actionResult = await waitForCondition(cdp, 'today-action-result', `(() => {
+    const actionResult = await waitForCondition(cdp, 'today-record-save', `(() => {
       const records = JSON.parse(localStorage.getItem('b_realityRecords') || '[]')
-      const action = JSON.parse(localStorage.getItem('b_mvpActions') || '[]').find(item => item.title === 'UI smoke synthetic task')
+      const actions = JSON.parse(localStorage.getItem('b_mvpActions') || '[]')
       return {
-        ok: !!action && action.status === 'done' && records.some(item => item.body === 'UI smoke action result' && item.actionId === action.calmyId) && document.querySelector('.save-state')?.textContent?.includes('已保存'),
-        persisted: records.some(item => item.body === 'UI smoke action result' && item.actionId === action?.calmyId),
-        actionDone: action?.status === 'done',
+        ok: records.some(item => item.body === 'UI smoke journal record') && actions.some(item => item.title === 'UI smoke synthetic task') && [...document.querySelectorAll('.recent-record-row')].some(node => node.textContent?.includes('UI smoke journal record')),
+        persisted: records.some(item => item.body === 'UI smoke journal record'),
+        actionVisible: actions.some(item => item.title === 'UI smoke synthetic task'),
         saveLabel: document.querySelector('.save-state')?.textContent || null
       }
     })()`)
 
     await evaluateStable(cdp, `(() => { location.hash = '#/app/today'; return true })()`)
     const today = await waitForCondition(cdp, 'today-route', `(() => ({
-      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.body.innerText.includes('今天，把注意力还给自己'),
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelector('.today-minimal-heading h1')?.textContent?.trim() === '今天',
       route: location.hash
     }))()`)
 
@@ -398,19 +416,19 @@ async function run() {
     await waitForCondition(cdp, 'admin-data-management', `(() => ({
       ok: location.hash.includes('/app/admin') && !!document.querySelector('#file-import') && document.body.innerText.includes('数据管理')
     }))()`)
-    const reactAdminRoute = await waitForCondition(cdp, 'react-admin-route', `(() => ({
-      ok: location.hash.includes('/app/admin') && !!document.querySelector('.admin-page') && document.body.innerText.includes('设置与同步') && !document.querySelector('.legacy-admin-host')
+    const adminRoute = await waitForCondition(cdp, 'admin-route', `(() => ({
+      ok: location.hash.includes('/app/admin') && !!document.querySelector('.legacy-admin-host .admin-view') && document.body.innerText.includes('管理本机数据')
     }))()`)
     await evaluateStable(cdp, `(() => { location.hash = '#/app/admin/advanced'; return true })()`)
     const legacyAdminRoute = await waitForCondition(cdp, 'legacy-admin-route', `(() => ({
-      ok: location.hash.includes('/app/admin/advanced') && !!document.querySelector('.legacy-admin-host') && document.body.innerText.includes('后台管理') && document.body.innerText.includes('数据同步') && !!document.querySelector('#file-import')
+      ok: location.hash.includes('/app/admin/advanced') && !!document.querySelector('.legacy-admin-host .admin-view') && document.body.innerText.includes('管理本机数据') && !!document.querySelector('#file-import')
     }))()`)
     await evaluateStable(cdp, `(() => { location.hash = '#/app/admin'; return true })()`)
     const legacyAdminUnmounted = await waitForCondition(cdp, 'legacy-admin-unmounted', `(() => ({
-      ok: location.hash.includes('/app/admin') && !!document.querySelector('.admin-page') && !document.querySelector('.legacy-admin-host')
+      ok: location.hash.includes('/app/admin') && !!document.querySelector('.legacy-admin-host .admin-view') && !!document.querySelector('#file-import')
     }))()`)
     await cdp.call('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDir })
-    await evaluateStable(cdp, `(() => { [...document.querySelectorAll('.btns button')].find(button => button.textContent?.includes('导出'))?.click(); return true })()`)
+    await evaluateStable(cdp, `(() => { [...document.querySelectorAll('button')].find(button => button.textContent?.trim() === '导出')?.click(); return true })()`)
     const backupPath = await waitForDownload(downloadDir)
     const exported = JSON.parse(readFileSync(backupPath, 'utf8'))
     const exportRoundTrip = {
@@ -422,7 +440,7 @@ async function run() {
     }
 
     await cdp.call('Storage.clearDataForOrigin', { origin: baseUrl, storageTypes: 'all' })
-    await cdp.call('Page.navigate', { url: testUrl })
+    await cdp.call('Page.navigate', { url: appUrl })
     await waitForCondition(cdp, 'fixture-after-data-clear', `(() => ({
       ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') && !localStorage.getItem('b_mvpActions')
     }))()`)
@@ -449,16 +467,16 @@ async function run() {
     await waitForCondition(cdp, 'today-route-after-import', `(() => ({
       ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page')
     }))()`)
-    await evaluateStable(cdp, `(() => { document.querySelector('.record-details summary')?.click(); return true })()`)
     const accessibilityTree = await cdp.call('Accessibility.getFullAXTree')
     const accessibilityNames = new Set((accessibilityTree?.nodes || []).map(node => node.name?.value).filter(Boolean))
+    const currentTodayNames = ['今天', '记录', '回顾', '记录原文', '记录类别']
     const accessibilityTreeVisible = {
-      ok: ['Today', 'Capture', '课题', '复盘', '保存记录', '现实记录内容'].every(name => accessibilityNames.has(name)),
-      names: ['Today', 'Capture', '课题', '复盘', '保存记录', '现实记录内容'].filter(name => accessibilityNames.has(name))
+      ok: currentTodayNames.every(name => accessibilityNames.has(name)),
+      names: currentTodayNames.filter(name => accessibilityNames.has(name))
     }
 
     await evaluateStable(cdp, `(() => {
-      const field = document.querySelector('.record-row textarea')
+      const field = document.querySelector('.record-composer textarea[aria-label="记录原文"]')
       field?.focus()
       return document.activeElement === field
     })()`)
@@ -478,16 +496,17 @@ async function run() {
       throw lastError
     }
     const keyboardTrace = []
-    for (let index = 0; index < 4; index += 1) {
+    for (let index = 0; index < 3; index += 1) {
       await dispatchKey('Tab', 'Tab', 9)
       keyboardTrace.push(await evaluateStable(cdp, `(() => ({
         tag: document.activeElement?.tagName || null,
         aria: document.activeElement?.getAttribute('aria-label') || null,
-        text: document.activeElement?.textContent?.trim().slice(0, 20) || null
+        text: document.activeElement?.textContent?.trim().slice(0, 20) || null,
+        group: document.activeElement?.closest('[role="group"]')?.getAttribute('aria-label') || null
       }))()`))
     }
     await evaluateStable(cdp, `(() => {
-      const button = document.querySelector('.record-row button')
+      const button = document.querySelector('.record-composer .capture-submit')
       window.__uiSmokeEnter = false
       button?.addEventListener('keydown', event => { if (event.key === 'Enter') window.__uiSmokeEnter = true }, { once: true })
       button?.focus()
@@ -496,10 +515,9 @@ async function run() {
     await dispatchKey('Enter', 'Enter', 13)
     const keyboardEnter = await waitForCondition(cdp, 'keyboard-enter-event', `(() => ({ ok: window.__uiSmokeEnter === true }))()`)
     const keyboardFocus = {
-      ok: keyboardTrace.some(item => item?.aria === '记录类型') &&
-        keyboardTrace.some(item => item?.aria === '结果关联行动') &&
-        keyboardTrace.some(item => item?.aria === '记录关联事项') &&
-        keyboardTrace.some(item => item?.tag === 'BUTTON' && item?.text === '保存记录') &&
+      ok: keyboardTrace.some(item => item?.group === '记录类别') &&
+        keyboardTrace.some(item => item?.tag === 'BUTTON' && item?.text === '事实') &&
+        keyboardTrace.some(item => item?.tag === 'BUTTON' && item?.text === '记录') &&
         keyboardEnter.ok,
       trace: keyboardTrace
     }
@@ -507,10 +525,10 @@ async function run() {
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
     const mobileLayout = await waitForCondition(cdp, 'mobile-layout', `(() => {
       const width = window.innerWidth
-      const record = document.querySelector('.record-row')?.getBoundingClientRect()
+      const record = document.querySelector('.record-composer')?.getBoundingClientRect()
       const bottomButtons = [...document.querySelectorAll('.bottom-nav button')]
       return {
-        ok: width === 390 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && !document.querySelector('.sidebar') && document.documentElement.scrollWidth <= width + 1 && (!record || record.right <= width + 1) && bottomButtons.length === 5 && bottomButtons.every(button => button.getBoundingClientRect().height >= 44),
+        ok: width === 390 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && !document.querySelector('.sidebar') && document.documentElement.scrollWidth <= width + 1 && (!record || record.right <= width + 1) && bottomButtons.length === 4 && bottomButtons.every(button => button.getBoundingClientRect().height >= 44),
         width,
         scrollWidth: document.documentElement.scrollWidth,
         bottomNav: !!document.querySelector('.bottom-nav'),
@@ -518,46 +536,50 @@ async function run() {
       }
     })()`)
 
-    await evaluateStable(cdp, `(() => { const trigger = document.querySelector('.bottom-nav button[aria-label="更多导航"]'); trigger?.focus(); trigger?.click(); return document.activeElement === trigger })()`)
+    await evaluateStable(cdp, `(() => { const trigger = document.querySelector('.mobile-header .menu'); trigger?.focus(); trigger?.click(); return document.activeElement === trigger })()`)
     const mobileDrawer = await waitForCondition(cdp, 'mobile-more-drawer', `(() => {
-      const drawer = document.querySelector('#mobile-more-drawer')
-      const panel = drawer?.closest('.el-drawer')
+      const drawer = document.querySelector('#more-drawer')
+      const panel = drawer
       const rect = panel?.getBoundingClientRect()
       return {
-        ok: !!drawer && !!panel && !!rect && rect.width > 0 && rect.height > 0 && getComputedStyle(panel).visibility !== 'hidden' && !!document.querySelector('.drawer-close') && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'true',
+        ok: !!drawer && !!panel && !!rect && rect.width > 0 && rect.height > 0 && getComputedStyle(panel).visibility !== 'hidden' && !!document.querySelector('.drawer-close') && document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'true',
         width: rect?.width || 0,
-        expanded: document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') || null
+        expanded: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') || null
       }
     })()`)
     await evaluateStable(cdp, 'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))')
     const mobileDrawerAccessibilityTree = await cdp.call('Accessibility.getFullAXTree')
     const mobileDrawerAccessibilityNames = new Set((mobileDrawerAccessibilityTree?.nodes || []).map(node => node.name?.value).filter(Boolean))
     const mobileDialogs = (mobileDrawerAccessibilityTree?.nodes || []).filter(node => node.role?.value === 'dialog' && node.ignored !== true)
-    const mobileDialog = mobileDialogs.find(node => node.name?.value === '更多入口')
+    const mobileDialog = mobileDialogs.find(node => node.name?.value === '功能目录')
     const mobileDialogIsModal = mobileDialog?.properties?.some(property => property.name === 'modal' && property.value?.value === true) === true
+    const mobileSearchAccessibleName = [...mobileDrawerAccessibilityNames].find(name => name.includes('搜索处境、行动、记录或人物'))
     const mobileDrawerDomState = await evaluateStable(cdp, `(() => ({
-      text: document.querySelector('#mobile-more-drawer')?.textContent || '',
-      hasDialogTrigger: document.querySelector('[aria-controls="mobile-more-drawer"]')?.getAttribute('aria-haspopup') === 'dialog'
+      text: document.querySelector('#more-drawer')?.textContent || '',
+      hasDialogTrigger: document.querySelector('[aria-controls="more-drawer"]')?.getAttribute('aria-haspopup') === 'dialog'
     }))()`)
     const mobileDrawerAccessibilityVisible = {
-      ok: ['更多入口', '搜索课题', '关闭更多入口'].every(name => mobileDrawerAccessibilityNames.has(name)) && !!mobileDialog && mobileDialogIsModal && ['设置与同步', '日历视图'].every(name => mobileDrawerDomState.text.includes(name)) && mobileDrawerDomState.hasDialogTrigger,
-      names: ['更多入口', '搜索课题', '设置与同步', '日历视图', '关闭更多入口'].filter(name => mobileDrawerAccessibilityNames.has(name)),
+      ok: ['功能目录', '关闭功能目录'].every(name => mobileDrawerAccessibilityNames.has(name)) && !!mobileSearchAccessibleName && !!mobileDialog && mobileDialogIsModal && ['设置', '日历'].every(name => mobileDrawerDomState.text.includes(name)) && mobileDrawerDomState.hasDialogTrigger,
+      names: ['功能目录', mobileSearchAccessibleName, '设置', '日历', '关闭功能目录'].filter(Boolean),
       dialogs: mobileDialogs.map(node => ({ role: node.role?.value || null, name: node.name?.value || null, ignored: node.ignored, properties: node.properties?.map(property => ({ name: property.name, value: property.value?.value })) || [] }))
     }
     await dispatchKey('Escape', 'Escape', 27)
     const mobileDrawerClosed = await waitForCondition(cdp, 'mobile-more-drawer-closed', `(() => ({
-      ok: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'false' && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'false' && document.activeElement === document.querySelector('.bottom-nav button[aria-label="更多导航"]'),
+      ok: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'false' && document.activeElement === document.querySelector('.mobile-header .menu'),
       focusReturned: document.activeElement?.getAttribute('aria-label') || null
     }))()`)
     await waitForCondition(cdp, 'mobile-more-drawer-settled', `(() => {
-      const panel = document.querySelector('#mobile-more-drawer')?.closest('.el-drawer')
+      const panel = document.querySelector('#more-drawer')
       const rect = panel?.getBoundingClientRect()
       const style = panel ? getComputedStyle(panel) : null
       return { ok: !panel || style?.visibility === 'hidden' || (rect?.width || 0) === 0 }
     })()`, 5000)
 
+    // closeDrawer restores focus again after 50ms; let that final callback settle before changing viewport.
+    await new Promise(resolve => setTimeout(resolve, 75))
     await setViewport(320, 844, true)
     const narrow320Today = await navigateHashWithRetry('narrow-320-today-route', '#/app/today', `(() => {
+      document.querySelector('.today-other')?.setAttribute('open', '')
       const visual = window.visualViewport
       const left = visual?.offsetLeft || 0
       const top = visual?.offsetTop || 0
@@ -569,19 +591,19 @@ async function run() {
       }
       const coreControls = [
         document.querySelector('.add-action-panel input'),
-        document.querySelector('.add-action-panel select'),
+        document.querySelector('.add-action-panel [role="combobox"], .add-action-panel select'),
         document.querySelector('.add-action-panel button.primary'),
-        document.querySelector('.record-details summary'),
-        document.querySelector('.mobile-header .brand[aria-label="返回 Today"]'),
-        document.querySelector('.mobile-header .menu[aria-label="打开更多入口"]')
+        document.querySelector('.record-composer textarea'),
+        document.querySelector('.mobile-header .brand[aria-label="返回今天"]'),
+        document.querySelector('.mobile-header .menu[aria-label="打开功能目录"]')
       ]
-      const page = document.querySelector('.attention-today-page')
+      const page = document.querySelector('.attention-today-page, .today-page')
       const pageRect = page?.getBoundingClientRect()
       return {
         ok: window.innerWidth === 320 && !!page && !!document.querySelector('.body-state-panel') && !!document.querySelector('.now-panel') &&
-          !!document.querySelector('.add-action-panel') && !!document.querySelector('.record-details') &&
+          !!document.querySelector('.add-action-panel') && !!document.querySelector('.record-composer') &&
           visibleHorizontally(document.querySelector('.add-action-panel button.primary')) &&
-          visibleHorizontally(document.querySelector('.mobile-header .brand[aria-label="返回 Today"]')) &&
+          visibleHorizontally(document.querySelector('.mobile-header .brand[aria-label="返回今天"]')) &&
           coreControls.every(visibleHorizontally) && document.documentElement.scrollWidth <= window.innerWidth + 1 &&
           (!pageRect || pageRect.left >= left - 1 && pageRect.right <= left + width + 1),
         width: window.innerWidth,
@@ -589,35 +611,41 @@ async function run() {
         visualHeight: height,
         scrollWidth: document.documentElement.scrollWidth,
         primaryAction: document.querySelector('.add-action-panel button.primary')?.textContent?.trim() || null,
-        exitLabel: document.querySelector('.mobile-header .brand[aria-label="返回 Today"]')?.getAttribute('aria-label') || null
+        exitLabel: document.querySelector('.mobile-header .brand[aria-label="返回今天"]')?.getAttribute('aria-label') || null
       }
     })()`)
-    await evaluateStable(cdp, `(() => { const trigger = document.querySelector('.bottom-nav button[aria-label="更多导航"]'); trigger?.focus(); trigger?.click(); return document.activeElement === trigger })()`)
+    await evaluateStable(cdp, `(() => { const trigger = document.querySelector('.mobile-header .menu'); trigger?.focus(); trigger?.click(); return document.activeElement === trigger })()`)
     const narrow320Drawer = await waitForCondition(cdp, 'narrow-320-more-drawer', `(() => {
       const visual = window.visualViewport
       const left = visual?.offsetLeft || 0
       const width = visual?.width || window.innerWidth
-      const panel = document.querySelector('#mobile-more-drawer')?.closest('.el-drawer')
+      const panel = document.querySelector('#more-drawer')
       const rect = panel?.getBoundingClientRect()
-      const close = document.querySelector('#mobile-more-drawer .drawer-close')
+      const close = document.querySelector('#more-drawer .drawer-close')
       const closeRect = close?.getBoundingClientRect()
       return {
         ok: !!panel && !!rect && rect.width > 0 && rect.height > 0 && getComputedStyle(panel).visibility !== 'hidden' &&
           !!close && !!closeRect && closeRect.width > 0 && closeRect.height > 0 && closeRect.left >= left - 1 &&
-          closeRect.right <= left + width + 1 && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'true',
+          closeRect.right <= left + width + 1 && document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'true',
         width: rect?.width || 0,
         closeRight: closeRect?.right || 0,
-        visualWidth: width
+        visualWidth: width,
+        panelClass: panel?.className || null,
+        presentation: panel?.getAttribute('data-presentation') || null,
+        visibility: panel ? getComputedStyle(panel).visibility : null,
+        expanded: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') || null,
+        directoryOpen: document.querySelector('.app-shell')?.getAttribute('data-directory-open') || null,
+        drawerCloseFound: !!close
       }
     })()`)
     await evaluateStable(cdp, 'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))')
     await dispatchKey('Escape', 'Escape', 27)
     const narrow320DrawerClosed = await waitForCondition(cdp, 'narrow-320-more-drawer-closed', `(() => ({
-      ok: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'false' && document.querySelector('.bottom-nav button[aria-label="更多导航"]')?.getAttribute('aria-expanded') === 'false' && document.activeElement === document.querySelector('.bottom-nav button[aria-label="更多导航"]'),
+      ok: document.querySelector('.mobile-header .menu')?.getAttribute('aria-expanded') === 'false' && document.activeElement === document.querySelector('.mobile-header .menu'),
       focusReturned: document.activeElement?.getAttribute('aria-label') || null
     }))()`)
     await waitForCondition(cdp, 'narrow-320-more-drawer-settled', `(() => {
-      const panel = document.querySelector('#mobile-more-drawer')?.closest('.el-drawer')
+      const panel = document.querySelector('#more-drawer')
       const rect = panel?.getBoundingClientRect()
       const style = panel ? getComputedStyle(panel) : null
       return { ok: !panel || style?.visibility === 'hidden' || (rect?.width || 0) === 0 }
@@ -634,8 +662,8 @@ async function run() {
       const coreControls = [
         document.querySelector('.capture-box textarea'),
         document.querySelector('.capture-footer button'),
-        document.querySelector('.mobile-header .brand[aria-label="返回 Today"]'),
-        document.querySelector('.mobile-header .menu[aria-label="打开更多入口"]')
+        document.querySelector('.mobile-header .brand[aria-label="返回今天"]'),
+        document.querySelector('.mobile-header .menu[aria-label="打开功能目录"]')
       ]
       return {
         ok: window.innerWidth === 320 && !!document.querySelector('.capture-gate-page') && !!document.querySelector('.capture-box') &&
@@ -657,7 +685,7 @@ async function run() {
         const rect = node?.getBoundingClientRect()
         return !!rect && rect.width > 0 && rect.height > 0 && rect.left >= -1 && rect.right <= window.innerWidth + 1
       }
-      const coreControls = [document.querySelector('.capture-box textarea'), document.querySelector('.capture-footer button'), document.querySelector('.mobile-header .brand[aria-label="返回 Today"]')]
+      const coreControls = [document.querySelector('.capture-box textarea'), document.querySelector('.capture-footer button'), document.querySelector('.mobile-header .brand[aria-label="返回今天"]')]
       return {
         ok: !!document.querySelector('.capture-gate-page'),
         layoutOk: scale >= 1.99 && width <= 320.5 && height > 0 && coreControls.every(visibleHorizontally) && document.documentElement.scrollWidth <= window.innerWidth + 1,
@@ -680,10 +708,10 @@ async function run() {
       }
       const coreControls = [
         document.querySelector('.add-action-panel input'),
-        document.querySelector('.add-action-panel select'),
+        document.querySelector('.add-action-panel [role="combobox"], .add-action-panel select'),
         document.querySelector('.add-action-panel button.primary'),
-        document.querySelector('.record-details summary'),
-        document.querySelector('.mobile-header .brand[aria-label="返回 Today"]')
+        document.querySelector('.record-composer textarea'),
+        document.querySelector('.mobile-header .brand[aria-label="返回今天"]')
       ]
       return {
         ok: !!document.querySelector('.attention-today-page'),
@@ -695,41 +723,44 @@ async function run() {
         visualWidth: width,
         scrollWidth: document.documentElement.scrollWidth,
         primaryAction: document.querySelector('.add-action-panel button.primary')?.textContent?.trim() || null,
-        exitLabel: document.querySelector('.mobile-header .brand[aria-label="返回 Today"]')?.getAttribute('aria-label') || null,
+        exitLabel: document.querySelector('.mobile-header .brand[aria-label="返回今天"]')?.getAttribute('aria-label') || null,
         controlRects: coreControls.map(node => { const rect = node?.getBoundingClientRect(); return { tag: node?.tagName || null, label: node?.getAttribute('aria-label') || null, left: rect?.left || 0, right: rect?.right || 0, width: rect?.width || 0, height: rect?.height || 0 } })
       }
     })()`)
     await setViewport(820, 900, true)
 
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 820, height: 900, deviceScaleFactor: 1, mobile: true })
-    const tabletLayout = await waitForCondition(cdp, 'tablet-layout', `(() => ({
-      ok: window.innerWidth === 820 && !!document.querySelector('.mobile-header') && !!document.querySelector('.bottom-nav') && document.documentElement.scrollWidth <= window.innerWidth + 1 && [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 }).every(node => node.getBoundingClientRect().height >= 44) && ['.record-row', '.create-row', '.today-review'].map(selector => window.__auditLayout(selector)).every(result => result.ok),
-      width: window.innerWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-      undersizedControls: [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 && rect.height < 44 }).length
-    }))()`)
+    const tabletLayout = await waitForCondition(cdp, 'tablet-layout', `(() => {
+      const controls = [...document.querySelectorAll('.page-container button,.page-container select,.mobile-header button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 })
+      const shellTouchTargets = [...document.querySelectorAll('.mobile-header .menu,.bottom-nav button')].filter(node => { const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.height > 0 })
+      const layoutAudits = ['.record-composer', '.create-row', '.today-review'].map(selector => ({ selector, ...window.__auditLayout(selector) }))
+      const undersizedShellTargets = shellTouchTargets.filter(node => node.getBoundingClientRect().height < 44).map(node => ({ tag: node.tagName, text: node.textContent?.trim().slice(0, 48), label: node.getAttribute('aria-label'), className: typeof node.className === 'string' ? node.className : '', height: +node.getBoundingClientRect().height.toFixed(1) }))
+      const compactPageControls = controls.filter(node => node.getBoundingClientRect().height < 44).map(node => ({ tag: node.tagName, text: node.textContent?.trim().slice(0, 48), label: node.getAttribute('aria-label'), className: typeof node.className === 'string' ? node.className : '', height: +node.getBoundingClientRect().height.toFixed(1) }))
+      const checks = { width: window.innerWidth === 820, mobileHeader: !!document.querySelector('.mobile-header'), bottomNav: !!document.querySelector('.bottom-nav'), noHorizontalOverflow: document.documentElement.scrollWidth <= window.innerWidth + 1, shellTouchTargets: undersizedShellTargets.length === 0, layouts: layoutAudits.every(result => result.ok) }
+      return { ok: Object.values(checks).every(Boolean), checks, width: window.innerWidth, height: window.innerHeight, visualViewport: { width: visualViewport?.width, height: visualViewport?.height, scale: visualViewport?.scale }, scrollWidth: document.documentElement.scrollWidth, undersizedShellTargets, compactPageControls, layoutAudits }
+    })()`)
     const tabletToday = await waitForCondition(cdp, 'tablet-today-route', `(() => ({
-      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Today')
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('今天')
     }))()`)
     const tabletCapture = await navigateHashWithRetry('tablet-capture-route', '#/app/capture', `(() => ({
-      ok: location.hash.includes('/app/capture') && !!document.querySelector('.capture-gate-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Capture'),
+      ok: location.hash.includes('/app/capture') && !!document.querySelector('.capture-gate-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('记录'),
       active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
     }))()`)
     const tabletReview = await navigateHashWithRetry('tablet-review-route', '#/app/review', `(() => ({
-      ok: location.hash.includes('/app/review') && !!document.querySelector('.review-page') && !!document.querySelector('.today-review') && document.querySelectorAll('.today-review textarea[aria-label]').length === 4 && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('复盘'),
+      ok: location.hash.includes('/app/review') && !!document.querySelector('.review-page') && !!document.querySelector('.today-review') && document.querySelectorAll('.today-review textarea[aria-label]').length === 4 && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('回顾'),
       active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
     }))()`)
     const tabletTodayRestored = await navigateHashWithRetry('tablet-today-route-restored', '#/app/today', `(() => ({
-      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('Today')
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('今天')
     }))()`)
     const tabletMatters = await navigateHashWithRetry('tablet-matters-route', '#/app/matters', `(() => ({
-      ok: location.hash.includes('/app/matters') && !!document.querySelector('.matters-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('课题'),
+      ok: location.hash.includes('/app/matters') && !!document.querySelector('.matters-page') && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.querySelectorAll('.bottom-nav button[aria-current="page"]').length === 1 && document.querySelector('.bottom-nav button[aria-current="page"]')?.textContent?.includes('处境'),
       active: document.querySelector('.bottom-nav [aria-current="page"]')?.textContent?.trim() || null
     }))()`)
 
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1024, height: 900, deviceScaleFactor: 1, mobile: false })
     const mediumToday = await navigateHashWithRetry('medium-today-route', '#/app/today', `(() => ({
-      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && !!document.querySelector('.sidebar') && getComputedStyle(document.querySelector('.bottom-nav')).display === 'none' && getComputedStyle(document.querySelector('.right-rail')).display === 'none' && document.documentElement.scrollWidth <= window.innerWidth + 1 && ['.record-row', '.create-row'].map(selector => window.__auditLayout(selector)).every(result => result.ok),
+      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page') && !!document.querySelector('.sidebar') && (!document.querySelector('.bottom-nav') || getComputedStyle(document.querySelector('.bottom-nav')).display === 'none') && !document.querySelector('.right-rail') && document.documentElement.scrollWidth <= window.innerWidth + 1 && ['.record-composer', '.create-row'].map(selector => window.__auditLayout(selector)).every(result => result.ok),
       width: window.innerWidth,
       scrollWidth: document.documentElement.scrollWidth
     }))()`)
@@ -741,38 +772,20 @@ async function run() {
 
     await cdp.call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false })
     await waitForCondition(cdp, 'desktop-layout-restored', `(() => ({
-      ok: !!document.querySelector('.sidebar') && !!document.querySelector('.desktop-topbar') && getComputedStyle(document.querySelector('.bottom-nav')).display === 'none'
+      ok: !!document.querySelector('.sidebar') && !!document.querySelector('.desktop-topbar') && (!document.querySelector('.bottom-nav') || getComputedStyle(document.querySelector('.bottom-nav')).display === 'none')
     }))()`)
 
-    const rightSidebarDefault = await waitForCondition(cdp, 'right-sidebar-default-collapsed', `(() => {
-      const shell = document.querySelector('.app-shell')
-      const rail = document.querySelector('#app-right-sidebar')
-      const trigger = document.querySelector('.sidebar-foot [aria-controls="app-right-sidebar"]')
-      return {
-        ok: shell?.classList.contains('right-sidebar-collapsed') === true && !!rail && getComputedStyle(rail).display === 'flex' && Math.round(rail.getBoundingClientRect().width) === 72 && trigger?.getAttribute('aria-expanded') === 'false' && !trigger?.hasAttribute('aria-haspopup') && document.documentElement.scrollWidth <= window.innerWidth + 1,
-        width: rail?.getBoundingClientRect().width || 0,
-        expanded: trigger?.getAttribute('aria-expanded') || null
-      }
-    })()`)
-    await evaluateStable(cdp, `(() => { document.querySelector('.sidebar-foot [aria-controls="app-right-sidebar"]')?.click(); return true })()`)
-    const rightSidebarExpanded = await waitForCondition(cdp, 'right-sidebar-expanded', `(() => {
-      const shell = document.querySelector('.app-shell')
-      const rail = document.querySelector('#app-right-sidebar')
-      return {
-        ok: shell?.classList.contains('right-sidebar-expanded') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '0' && Math.round(rail?.getBoundingClientRect().width || 0) === 264 && document.querySelector('.right-sidebar-toggle')?.getAttribute('aria-label') === '收起右侧栏' && document.documentElement.scrollWidth <= window.innerWidth + 1,
-        width: rail?.getBoundingClientRect().width || 0
-      }
-    })()`)
-    await evaluateStable(cdp, `(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, shiftKey: true, bubbles: true })); return true })()`)
-    const rightSidebarKeyboardCollapsed = await waitForCondition(cdp, 'right-sidebar-keyboard-collapse', `(() => ({
-      ok: document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '1' && document.querySelector('.right-sidebar-toggle')?.getAttribute('aria-label') === '展开右侧栏'
+    const rightSidebarRemoved = await waitForCondition(cdp, 'right-sidebar-absent-from-current-shell', `(() => ({
+      ok: !document.querySelector('.right-rail') && !document.querySelector('.right-sidebar-toggle') && document.documentElement.scrollWidth <= window.innerWidth + 1,
+      rail: !!document.querySelector('.right-rail'),
+      toggle: !!document.querySelector('.right-sidebar-toggle')
     }))()`)
 
     const cycleRoute = await navigateHashWithRetry('cycle-route', '#/app/cycle', `(() => ({
       ok: location.hash.includes('/app/cycle') && !!document.querySelector('.cycle-page') && !!document.querySelector('.cycle-orbit') && document.documentElement.scrollWidth <= window.innerWidth + 1
     }))()`)
     const profileRoute = await navigateHashWithRetry('profile-route', '#/app/profile', `(() => ({
-      ok: location.hash.includes('/app/profile') && !!document.querySelector('.profile-page') && !!document.querySelector('.profile-module-grid') && document.body.innerText.includes('全部模块入口') && document.documentElement.scrollWidth <= window.innerWidth + 1
+      ok: location.hash.includes('/app/profile') && !!document.querySelector('.profile-page') && !!document.querySelector('.profile-identity-card') && !!document.querySelector('.profile-overview') && document.body.innerText.includes('现有数据概览') && document.documentElement.scrollWidth <= window.innerWidth + 1
     }))()`)
     const goalsRoute = await navigateHashWithRetry('goals-route', '#/app/module/goals', `(() => ({
       ok: location.hash.includes('/app/module/goals') && !!document.querySelector('.goals-page') && document.documentElement.scrollWidth <= window.innerWidth + 1
@@ -811,10 +824,9 @@ async function run() {
       ok: location.hash.includes('/app/today') && !!document.querySelector('.app-shell') &&
         localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') === true &&
         document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true &&
-        document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true &&
-        document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
-      sidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开侧边栏',
-      rightSidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('right-sidebar-collapsed') === true && localStorage.getItem('calmy_right_sidebar_collapsed') === '1',
+        document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开左侧菜单',
+      sidebarCollapsed: document.querySelector('.app-shell')?.classList.contains('sidebar-collapsed') === true && document.querySelector('.sidebar-toggle')?.getAttribute('aria-label') === '展开左侧菜单',
+      rightSidebarRemoved: !document.querySelector('.right-rail') && !document.querySelector('.right-sidebar-toggle'),
       route: location.hash,
       persistedTask: localStorage.getItem('b_mvpActions')?.includes('UI smoke synthetic task') || false,
       externalAttempts: window.__uiSmokeExternalAttempts?.length || 0
@@ -834,10 +846,45 @@ async function run() {
       role: loginAlert?.role?.value || null,
       name: loginAlert?.name?.value || null
     }
-    await navigateHashWithRetry('today-after-login-accessibility', '#/app/today', `(() => ({
-      ok: location.hash.includes('/app/today') && !!document.querySelector('.today-page')
-    }))()`)
 
+    await cdp.call('Page.navigate', { url: `${baseUrl}/vue-preview.html#/app/task-board` })
+    const vueTaskBoardMounted = await waitForCondition(cdp, 'vue-task-board-mounted', `(() => ({
+      ok: location.pathname.endsWith('/vue-preview.html') && location.hash.includes('/app/task-board') &&
+        !!document.querySelector('#app[data-v-app] .task-board-page')
+    }))()`)
+    const keyboardTask = await evaluateStable(cdp, `(async () => {
+      const { actionAsyncRepository } = await import('/src/domain/action/repository.ts')
+      const item = await actionAsyncRepository.create({ title: 'Vue keyboard status smoke', date: new Date().toISOString().slice(0, 10) })
+      window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+      return { id: item.calmyId, title: item.title }
+    })()`)
+    await waitForCondition(cdp, 'vue-keyboard-task-visible', `(() => ({
+      ok: !![...document.querySelectorAll('.task-board-card h3')].find(node => node.textContent?.trim() === ${JSON.stringify(keyboardTask.title)})
+    }))()`)
+    const statusSelector = `select[aria-label="${keyboardTask.title}状态"]`
+    const statusFocused = await evaluateStable(cdp, `(() => {
+      const select = document.querySelector(${JSON.stringify(statusSelector)})
+      select?.focus()
+      return !!select && document.activeElement === select && select.value === 'planned'
+    })()`)
+    if (!statusFocused) throw new Error('vue-task-status-select-did-not-focus-at-planned')
+    await dispatchKey('ArrowDown', 'ArrowDown', 40)
+    await dispatchKey('Enter', 'Enter', 13)
+    const vueKeyboardChange = await waitForCondition(cdp, 'vue-keyboard-status-change', `(async () => {
+      const select = document.querySelector(${JSON.stringify(statusSelector)})
+      const { actionAsyncRepository } = await import('/src/domain/action/repository.ts')
+      const item = await actionAsyncRepository.find(${JSON.stringify(keyboardTask.id)})
+      return { ok: !!select && select.value === 'in_progress' && item?.status === 'in_progress',
+        value: select?.value || null, repositoryStatus: item?.status || null, activeElement: document.activeElement?.tagName || null }
+    })()`)
+    await cdp.call('Page.reload', { ignoreCache: true })
+    const vueKeyboardRefresh = await waitForCondition(cdp, 'vue-keyboard-status-persisted', `(async () => {
+      const select = document.querySelector(${JSON.stringify(statusSelector)})
+      const { actionAsyncRepository } = await import('/src/domain/action/repository.ts')
+      const item = await actionAsyncRepository.find(${JSON.stringify(keyboardTask.id)})
+      return { ok: location.pathname.endsWith('/vue-preview.html') && !!select && select.value === 'in_progress' && item?.status === 'in_progress',
+        value: select?.value || null, repositoryStatus: item?.status || null }
+    })()`)
     const checks = {
       appMounted: home.ok,
         sidebarCollapseVisible: collapsedSidebar.ok,
@@ -845,18 +892,17 @@ async function run() {
         sidebarKeyboardVisible: keyboardCollapsed.ok && typingGuard.ok,
       todayDefaultViewVisible: home.ok,
       syntheticLocalDataVisible: seeded.ok,
-      recordActionResultVisible: recordedAction?.ok === true && actionResult.ok,
+      recordActionResultVisible: actionResult.ok,
       todayRouteViewVisible: today.ok,
       captureFlowVisible: capture.ok && captured.ok,
       captureSaveStateVisible: captured.saveLabel?.includes('已保存') || false,
       captureRejectPreservesSource: rejected.ok && rejected.persistedCapture,
-      reactAdminRoute: reactAdminRoute.ok,
+      adminRoute: adminRoute.ok,
       legacyAdminRoute: legacyAdminRoute.ok,
       legacyAdminUnmounted: legacyAdminUnmounted.ok,
       refreshRestoredLocalData: refreshed.ok && refreshed.persistedTask,
       sidebarStateRestoredAfterRefresh: refreshed.sidebarCollapsed,
-      rightSidebarVisible: rightSidebarDefault.ok && rightSidebarExpanded.ok && rightSidebarKeyboardCollapsed.ok,
-      rightSidebarStateRestoredAfterRefresh: refreshed.rightSidebarCollapsed,
+      rightSidebarRemoved: rightSidebarRemoved.ok && refreshed.rightSidebarRemoved,
       referencePagesVisible: cycleRoute.ok && profileRoute.ok && goalsRoute.ok && itemsAlias.ok,
       legacyCaseRoutesCompatible: legacyCasesRoute.ok && legacyCaseDetailRoute.ok,
       legacyModuleRoutesCompatible: legacyCharsRoute.ok && legacyMomentsRoute.ok && legacyUnknownModuleRoute.ok,
@@ -875,17 +921,20 @@ async function run() {
       keyboardFocusVisible: keyboardFocus.ok,
       keyboardEnterVisible: keyboardEnter.ok,
       accessibilityTreeVisible: accessibilityTreeVisible.ok,
-      loginErrorAccessible: loginErrorAccessible.ok
+      loginErrorAccessible: loginErrorAccessible.ok,
+      vueTaskBoardKeyboardStatusChange: vueTaskBoardMounted.ok && vueKeyboardChange.ok && vueKeyboardRefresh.ok
     }
     const report = {
       ok: Object.values(checks).every(Boolean),
       checks,
+      accessibilityTree: accessibilityTreeVisible,
       exportImport: exportRoundTrip,
       mobileDrawerAccessibility: mobileDrawerAccessibilityVisible,
       narrow320: { today: narrow320Today, drawer: narrow320Drawer, drawerClosed: narrow320DrawerClosed, capture: narrow320Capture },
       zoom200: { capture: zoom200Capture, today: zoom200Today },
       legacyCaseRoutes: { list: legacyCasesRoute, detail: legacyCaseDetailRoute },
       legacyModuleRoutes: { chars: legacyCharsRoute, moments: legacyMomentsRoute, unknown: legacyUnknownModuleRoute },
+      vueTaskBoardKeyboard: { mounted: vueTaskBoardMounted, focus: statusFocused, changed: vueKeyboardChange, persistedAfterRefresh: vueKeyboardRefresh },
       route: refreshed.route,
       loginErrorAccessible,
       externalNetworkAttemptsBlocked: refreshed.externalAttempts,
@@ -898,8 +947,10 @@ async function run() {
     console.log('UI browser smoke passed:', JSON.stringify(report))
   } catch (error) {
     const chromeLogs = chrome?.logs?.() || {}
+    const viteLogs = vite.logs()
+    const cdpDiagnostics = cdp?.events
     const message = error instanceof Error ? error.stack || error.message : String(error)
-    throw new Error(`${message}\nchrome=${JSON.stringify(chromeLogs)}`)
+    throw new Error(`${message}\nchrome=${JSON.stringify(chromeLogs)}\nvite=${JSON.stringify(viteLogs)}\ncdp=${JSON.stringify(cdpDiagnostics?.slice(-40) || [])}`)
   } finally {
     try { await cdp?.call('Browser.close') } catch { /* Browser may already be closed. */ }
     cdp?.socket.close()

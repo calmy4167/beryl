@@ -1,0 +1,50 @@
+[
+  {
+    "label": "处境筛选",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 1258,
+      "y": 202.578125,
+      "width": 92,
+      "height": 43,
+      "top": 202.578125,
+      "right": 1350,
+      "bottom": 245.578125,
+      "left": 1258
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "迁移恢复验收处境趋势",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 1247,
+      "y": 637.265625,
+      "width": 84,
+      "height": 40,
+      "top": 637.265625,
+      "right": 1331,
+      "bottom": 677.265625,
+      "left": 1247
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

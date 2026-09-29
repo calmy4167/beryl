@@ -1,0 +1,102 @@
+{
+  "route": "/app/capture",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T05:15:47.017Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"记录原文\"]",
+        "value": "我需要确认下一个能实际完成的小步骤。"
+      },
+      {
+        "type": "click",
+        "selector": ".capture-footer button"
+      },
+      {
+        "type": "waitText",
+        "text": "我需要确认下一个能实际完成的小步骤。"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\react-app_capture-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\react-app_capture-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "我需要确认下一个能实际完成的小步骤。",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 487.6,
+            "width": 306,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\react-app_capture-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\react-app_capture-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "我需要确认下一个能实际完成的小步骤。",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 398.6,
+            "width": 221,
+            "height": 44.9
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\vue-app_capture-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\vue-app_capture-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "我需要确认下一个能实际完成的小步骤。",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 487.6,
+            "width": 306,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\vue-app_capture-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\capture-submitted\\vue-app_capture-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "我需要确认下一个能实际完成的小步骤。",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 398.6,
+            "width": 221,
+            "height": 44.9
+          }
+        }
+      ]
+    }
+  ]
+}

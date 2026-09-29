@@ -1,0 +1,52 @@
+[
+  {
+    "label": "按事项筛选",
+    "attrs": [
+      "id",
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 1104.28125,
+      "y": 272.578125,
+      "width": 180,
+      "height": 43,
+      "top": 272.578125,
+      "right": 1284.28125,
+      "bottom": 315.578125,
+      "left": 1104.28125
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "临时看板状态行动状态",
+    "attrs": [
+      "aria-label",
+      "value"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 530.796875,
+      "y": 519.125,
+      "width": 71,
+      "height": 40,
+      "top": 519.125,
+      "right": 601.796875,
+      "bottom": 559.125,
+      "left": 530.796875
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

@@ -1,0 +1,150 @@
+{
+  "route": "/app/module/goals",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:47:18.356Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "input[aria-label=\"目标名称\"]",
+        "value": "迁移验收目标"
+      },
+      {
+        "type": "fill",
+        "selector": "textarea[aria-label=\"目标对应问题\"]",
+        "value": "完成 Vue 迁移验收"
+      },
+      {
+        "type": "fill",
+        "selector": "textarea[aria-label=\"目标下一步行动\"]",
+        "value": "复核浏览器关键状态"
+      },
+      {
+        "type": "click",
+        "selector": "form button[type=\"submit\"]"
+      },
+      {
+        "type": "waitText",
+        "text": "迁移验收目标"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 280,
+            "y": 561.2,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 280,
+            "y": 559.2,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\react-app_module_goals-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 28,
+            "y": 519.4,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 280,
+            "y": 561.2,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 280,
+            "y": 559.2,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\vue-app_module_goals-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收目标",
+          "visible": true,
+          "rect": {
+            "x": 28,
+            "y": 519.4,
+            "width": 112.3,
+            "height": 25
+          }
+        }
+      ]
+    }
+  ]
+}

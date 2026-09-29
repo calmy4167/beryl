@@ -1,0 +1,36 @@
+[
+  {
+    "label": "飞书任务关联项目",
+    "attrs": [
+      "aria-label",
+      "disabled"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 31,
+      "y": 815.765625,
+      "width": 132,
+      "height": 40,
+      "top": 815.765625,
+      "right": 163,
+      "bottom": 855.765625,
+      "left": 31
+    },
+    "text": "不关联项目",
+    "value": "",
+    "disabled": true,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "0.7",
+    "font": "12px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "12px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

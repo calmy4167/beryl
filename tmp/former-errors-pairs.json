@@ -1,0 +1,224 @@
+[
+  {
+    "id": "041",
+    "route": "/app/today",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "053",
+    "route": "/app/matters",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "056",
+    "route": "/app/today",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "074",
+    "route": "/app/flow",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "077",
+    "route": "/app/flow",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "083",
+    "route": "/app/matters",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "108",
+    "route": "/app/graph",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "109",
+    "route": "/app/graph",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "110",
+    "route": "/app/graph",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "111",
+    "route": "/app/graph",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "112",
+    "route": "/app/graph",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "113",
+    "route": "/app/graph",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "114",
+    "route": "/app/graph",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "115",
+    "route": "/app/graph",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "116",
+    "route": "/app/graph",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "117",
+    "route": "/app/graph",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "118",
+    "route": "/app/graph",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "119",
+    "route": "/app/graph",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "120",
+    "route": "/app/graph",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "121",
+    "route": "/app/graph",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "122",
+    "route": "/app/graph",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "128",
+    "route": "/app/today",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "243",
+    "route": "/app/profile",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "249",
+    "route": "/app/profile",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "250",
+    "route": "/app/profile",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "251",
+    "route": "/app/profile",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "281",
+    "route": "/app/today",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json"
+  },
+  {
+    "id": "295",
+    "route": "/app/module/tasks",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "296",
+    "route": "/app/module/tasks",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "297",
+    "route": "/app/module/tasks",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "298",
+    "route": "/app/module/tasks",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "299",
+    "route": "/app/module/tasks",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "300",
+    "route": "/app/module/tasks",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "301",
+    "route": "/app/module/tasks",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\manifest-app_module_tasks-390x844.json"
+  },
+  {
+    "id": "327",
+    "route": "/app/module/tasks",
+    "viewport": "1440x900",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "328",
+    "route": "/app/module/tasks",
+    "viewport": "1024x768",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "329",
+    "route": "/app/module/tasks",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json"
+  }
+]

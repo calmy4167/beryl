@@ -1,0 +1,28 @@
+{
+  "route": "/app/task-board",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:13:26.756Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-pointer-away-current\\react-app_task-board-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-pointer-away-current\\react-app_task-board-390x844.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-pointer-away-current\\vue-app_task-board-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-pointer-away-current\\vue-app_task-board-390x844.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

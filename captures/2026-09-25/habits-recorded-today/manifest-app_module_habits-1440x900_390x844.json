@@ -1,0 +1,49 @@
+{
+  "route": "/app/module/habits",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:37:29.229Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "click",
+        "selector": "button[aria-label=\"晨间准备 2026-09-25 未记录\"]"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\react-app_module_habits-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\react-app_module_habits-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\react-app_module_habits-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\react-app_module_habits-390x844.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\vue-app_module_habits-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\vue-app_module_habits-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\vue-app_module_habits-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\vue-app_module_habits-390x844.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

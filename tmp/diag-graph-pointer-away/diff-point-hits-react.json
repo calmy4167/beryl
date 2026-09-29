@@ -1,0 +1,406 @@
+[
+  {
+    "x": 267,
+    "y": 584,
+    "chain": [
+      {
+        "tag": "SECTION",
+        "cls": "beryl-card admin-block",
+        "rect": {
+          "x": 264,
+          "y": 529.453125,
+          "width": 535,
+          "height": 203.9375,
+          "top": 529.453125,
+          "right": 799,
+          "bottom": 733.390625,
+          "left": 264
+        },
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "1px solid rgb(226, 231, 239)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "graph-layout",
+        "rect": {
+          "x": 264,
+          "y": 529.453125,
+          "width": 1086,
+          "height": 203.9375,
+          "top": 529.453125,
+          "right": 1350,
+          "bottom": 733.390625,
+          "left": 264
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "graph-page",
+        "rect": {
+          "x": 264,
+          "y": 130,
+          "width": 1086,
+          "height": 603.390625,
+          "top": 130,
+          "right": 1350,
+          "bottom": 733.390625,
+          "left": 264
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "MAIN",
+        "cls": "page-container",
+        "rect": {
+          "x": 240,
+          "y": 112,
+          "width": 1134,
+          "height": 788,
+          "top": 112,
+          "right": 1374,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "auto"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-shell",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1200,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgb(248, 249, 248) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      }
+    ]
+  },
+  {
+    "x": 1347,
+    "y": 584,
+    "chain": [
+      {
+        "tag": "ASIDE",
+        "cls": "beryl-card admin-block",
+        "rect": {
+          "x": 815,
+          "y": 529.453125,
+          "width": 535,
+          "height": 203.9375,
+          "top": 529.453125,
+          "right": 1350,
+          "bottom": 733.390625,
+          "left": 815
+        },
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "1px solid rgb(226, 231, 239)",
+        "borderRadius": "8px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "graph-layout",
+        "rect": {
+          "x": 264,
+          "y": 529.453125,
+          "width": 1086,
+          "height": 203.9375,
+          "top": 529.453125,
+          "right": 1350,
+          "bottom": 733.390625,
+          "left": 264
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "graph-page",
+        "rect": {
+          "x": 264,
+          "y": 130,
+          "width": 1086,
+          "height": 603.390625,
+          "top": 130,
+          "right": 1350,
+          "bottom": 733.390625,
+          "left": 264
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "MAIN",
+        "cls": "page-container",
+        "rect": {
+          "x": 240,
+          "y": 112,
+          "width": 1134,
+          "height": 788,
+          "top": 112,
+          "right": 1374,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "auto"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-shell",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1200,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgb(248, 249, 248) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      }
+    ]
+  },
+  {
+    "x": 884,
+    "y": 53,
+    "chain": [
+      {
+        "tag": "BUTTON",
+        "cls": "react-btn topbar-search",
+        "rect": {
+          "x": 882,
+          "y": 14.5,
+          "width": 360,
+          "height": 40,
+          "top": 14.5,
+          "right": 1242,
+          "bottom": 54.5,
+          "left": 882
+        },
+        "background": "rgb(248, 250, 252) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "1px solid rgb(225, 229, 227)",
+        "borderRadius": "7px",
+        "boxShadow": "rgba(31, 44, 71, 0.03) 0px 1px 2px 0px inset",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "topbar-actions",
+        "rect": {
+          "x": 882,
+          "y": 14.5,
+          "width": 466,
+          "height": 40,
+          "top": 14.5,
+          "right": 1348,
+          "bottom": 54.5,
+          "left": 882
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "HEADER",
+        "cls": "desktop-topbar ",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1134,
+          "height": 70,
+          "top": 0,
+          "right": 1374,
+          "bottom": 70,
+          "left": 240
+        },
+        "background": "rgba(255, 255, 255, 0.94) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "",
+        "borderRadius": "0px",
+        "boxShadow": "rgba(43, 49, 47, 0.03) 0px 5px 20px 0px, rgba(255, 255, 255, 0.98) 0px 1px 0px 0px inset",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-shell",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1200,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgb(248, 249, 248) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      },
+      {
+        "tag": "DIV",
+        "cls": "app-shell  right-sidebar-collapsed",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0
+        },
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      }
+    ]
+  },
+  {
+    "x": 1238,
+    "y": 53,
+    "chain": [
+      {
+        "tag": "BUTTON",
+        "cls": "react-btn topbar-search",
+        "rect": {
+          "x": 882,
+          "y": 14.5,
+          "width": 360,
+          "height": 40,
+          "top": 14.5,
+          "right": 1242,
+          "bottom": 54.5,
+          "left": 882
+        },
+        "background": "rgb(248, 250, 252) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "1px solid rgb(225, 229, 227)",
+        "borderRadius": "7px",
+        "boxShadow": "rgba(31, 44, 71, 0.03) 0px 1px 2px 0px inset",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "topbar-actions",
+        "rect": {
+          "x": 882,
+          "y": 14.5,
+          "width": 466,
+          "height": 40,
+          "top": 14.5,
+          "right": 1348,
+          "bottom": 54.5,
+          "left": 882
+        },
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      {
+        "tag": "HEADER",
+        "cls": "desktop-topbar ",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1134,
+          "height": 70,
+          "top": 0,
+          "right": 1374,
+          "bottom": 70,
+          "left": 240
+        },
+        "background": "rgba(255, 255, 255, 0.94) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "",
+        "borderRadius": "0px",
+        "boxShadow": "rgba(43, 49, 47, 0.03) 0px 5px 20px 0px, rgba(255, 255, 255, 0.98) 0px 1px 0px 0px inset",
+        "overflow": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-shell",
+        "rect": {
+          "x": 240,
+          "y": 0,
+          "width": 1200,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 240
+        },
+        "background": "rgb(248, 249, 248) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      },
+      {
+        "tag": "DIV",
+        "cls": "app-shell  right-sidebar-collapsed",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900,
+          "top": 0,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0
+        },
+        "background": "rgb(255, 255, 255) none repeat scroll 0% 0% / auto padding-box border-box",
+        "border": "0px none rgb(32, 38, 36)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      }
+    ]
+  }
+]

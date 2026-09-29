@@ -1,0 +1,171 @@
+{
+  "selectState": [
+    {
+      "label": "关系起点",
+      "value": "",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "",
+          "text": "起点节点",
+          "selected": true
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-aib01i",
+          "text": "处境 · 迁移验收关系处境",
+          "selected": false
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-haipkj",
+          "text": "人物 · 迁移验收关系人物",
+          "selected": false
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-rsxvkx",
+          "text": "关系 · matter supports person",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "label": "关系类型",
+      "value": "supports",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "supports",
+          "text": "支持",
+          "selected": true
+        },
+        {
+          "value": "blocks",
+          "text": "阻碍",
+          "selected": false
+        },
+        {
+          "value": "contradicts",
+          "text": "冲突",
+          "selected": false
+        },
+        {
+          "value": "derived_from",
+          "text": "源自",
+          "selected": false
+        },
+        {
+          "value": "related_to",
+          "text": "相关",
+          "selected": false
+        },
+        {
+          "value": "belongs_to",
+          "text": "属于",
+          "selected": false
+        },
+        {
+          "value": "depends_on",
+          "text": "依赖",
+          "selected": false
+        },
+        {
+          "value": "practices",
+          "text": "实践",
+          "selected": false
+        },
+        {
+          "value": "evidences",
+          "text": "佐证",
+          "selected": false
+        },
+        {
+          "value": "part_of",
+          "text": "组成",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "label": "关系终点",
+      "value": "",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "",
+          "text": "终点节点",
+          "selected": true
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-aib01i",
+          "text": "处境 · 迁移验收关系处境",
+          "selected": false
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-haipkj",
+          "text": "人物 · 迁移验收关系人物",
+          "selected": false
+        },
+        {
+          "value": "dev-00000000-0000-4000-8000-000000000001-muic8000-rsxvkx",
+          "text": "关系 · matter supports person",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    },
+    {
+      "label": "筛选节点类型",
+      "value": "all",
+      "selectedIndex": 0,
+      "options": [
+        {
+          "value": "all",
+          "text": "全部类型",
+          "selected": true
+        },
+        {
+          "value": "matter",
+          "text": "处境",
+          "selected": false
+        },
+        {
+          "value": "relation",
+          "text": "关系",
+          "selected": false
+        },
+        {
+          "value": "person",
+          "text": "人物",
+          "selected": false
+        }
+      ],
+      "focused": false,
+      "focusVisible": false,
+      "hovered": false,
+      "colorScheme": "light",
+      "appearance": "auto",
+      "cursor": "default",
+      "transitionDuration": "0s"
+    }
+  ],
+  "hovered": []
+}

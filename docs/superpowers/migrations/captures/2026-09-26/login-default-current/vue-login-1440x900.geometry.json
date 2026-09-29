@@ -1,0 +1,352 @@
+{
+  "href": "http://127.0.0.1:3782/vue-preview.html#/login",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "devicePixelRatio": 1,
+    "visualWidth": 1440,
+    "visualHeight": 900,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 1440,
+    "height": 900
+  },
+  "focus": "BODY",
+  "loadedFonts": [],
+  "workspaceTabs": [],
+  "elements": [
+    {
+      "selector": "input[aria-label=\"用户名\"]",
+      "className": "",
+      "role": null,
+      "ariaLabel": "用户名",
+      "text": "",
+      "rawText": "",
+      "childNodes": [],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 553,
+        "y": 440,
+        "width": 334,
+        "height": 38
+      },
+      "fontSize": "12px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "borderColor": "rgb(220, 227, 237)",
+      "borderRadius": "6px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": "input[aria-label=\"密码\"]",
+      "className": "",
+      "role": null,
+      "ariaLabel": "密码",
+      "text": "",
+      "rawText": "",
+      "childNodes": [],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 553,
+        "y": 516,
+        "width": 334,
+        "height": 38
+      },
+      "fontSize": "12px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "borderColor": "rgb(220, 227, 237)",
+      "borderRadius": "6px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    }
+  ],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "missing": true
+      },
+      {
+        "selector": ".workspace-shell",
+        "missing": true
+      },
+      {
+        "selector": ".page-container",
+        "missing": true
+      },
+      {
+        "selector": ".route-motion",
+        "missing": true
+      }
+    ],
+    "viewport": {
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "innerHeight": 900
+    }
+  }
+}

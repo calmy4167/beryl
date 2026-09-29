@@ -1,0 +1,39 @@
+{
+  "start": 0,
+  "limit": 3,
+  "concurrency": 1,
+  "recaptureTimeoutMs": 180000,
+  "summary": {
+    "exact": 2,
+    "nonzero": 1
+  },
+  "results": [
+    {
+      "id": "105",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\conditional-settle-validation\\105-app-module-goals-1440x900"
+    },
+    {
+      "id": "188",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\conditional-settle-validation\\188-app-matters-1440x900"
+    },
+    {
+      "id": "292",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\conditional-settle-validation\\292-app-module-tasks-1440x900"
+    }
+  ]
+}

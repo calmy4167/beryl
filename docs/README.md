@@ -1,27 +1,31 @@
 # Calmy 文档中心
 
-> 状态：当前入口 · 更新日期：2026-09-19
+> 状态：当前入口 · 更新日期：2026-09-24
 
 本页是仓库文档的唯一入口。文档是否仍有约束力，以[文档登记册](product/DOCUMENT_REGISTER.md)为准；文件存在不代表其仍是当前产品规范。
 
-## 先读这五份
+## 核心产品与工程文档
 
 1. [当前产品总设计](product/CALMY_PRODUCT_DESIGN_2026-09-19.md)：人与世界之间的反思层、未来回望、双循环、外部工具边界与迁移原则。
-2. [产品决策](product/PRODUCT_DECISIONS_2026-08-19.md)：已接受决策、实验假设、废弃方向和变更纪律；D-018 定义最新产品本体。
-3. [当前未完成工作](product/OPEN_WORK.md)：唯一活跃的产品/工程待办和停止线。
-4. [工程评审](product/ENGINEERING_REVIEW_2026-08-22.md)：代码差距、风险和目标架构。
-5. [实现总档案](implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)：当前实现事实与验证证据。
+2. [主数据与实体引用设计](product/MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md)：内容素材、模块字典、跨模块引用模式与渐进实施范围。
+3. [开放数据与 Portable Vault 架构设计（规划提案）](product/CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md)：用户数据所有权、运行存储、开放文件、同步/附件边界与分阶段迁移。
+4. [产品决策](product/PRODUCT_DECISIONS_2026-08-19.md)：已接受决策、实验假设、废弃方向和变更纪律；D-018/D-019 为当前裁决，D-020 为待验证提案。
+5. [当前未完成工作](product/OPEN_WORK.md)：唯一活跃的产品/工程待办和停止线。
+6. [工程评审](product/ENGINEERING_REVIEW_2026-08-22.md)：代码差距、风险和目标架构。
+7. [实现总档案](implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)：当前实现事实与验证证据。
 
 旧 [Attention OS 统一设计](product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)继续解释现有四入口、页面和兼容对象，但不再定义新增功能的产品本体。2026-09-19 的[文档与界面统一审计](product/DOCUMENT_AUDIT_2026-09-19.md)仍是当时实现快照。
 
 项目代码、运行时入口和文件放置规则见[项目文件架构](PROJECT_STRUCTURE.md)。
 
-产品迁移的活跃入口是 [OPEN_WORK](product/OPEN_WORK.md) 中的 OW-21。飞书生活工作台仍是外部数据源规划提案，不自动成为新产品主线。
+产品迁移的活跃入口是 [OPEN_WORK](product/OPEN_WORK.md) 中的 OW-21；开放数据与 Portable Vault 的规划工作见 OW-23。飞书生活工作台仍是外部数据源规划提案，不自动成为新产品主线或用户开放文件库。
 
 ## 文档目录
 
 - `docs/product/`：当前产品、UI、视觉资产、路线图、评审和唯一未完成清单。
 - `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md`：当前产品本体与迁移方向。
+- `docs/product/MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md`：当前主数据与引用体系的产品设计及分阶段范围。
+- `docs/product/CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md`：开放数据、用户所有权和 Portable Vault 规划；当前实现差异以状态矩阵为准。
 - `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`：Attention OS 现有实现与迁移参考。
 - `docs/product/reference/`：旧版 MVP、领域模型、协议和测试参考。
 - `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md`：飞书多维表格接入、授权、字段映射和多人扩展边界。

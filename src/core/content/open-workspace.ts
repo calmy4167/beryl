@@ -1,4 +1,5 @@
 import { actionRepository } from '@/domain/action/repository'
+import { matterFromThing } from '@/domain/matter/model'
 import { matterRepository } from '@/domain/matter/repository'
 import { recordRepository } from '@/domain/record/repository'
 import { todayRepository } from '@/domain/today/repository'
@@ -50,6 +51,9 @@ function replaceOpenEntity(entity: OpenEntity): 'replaced' | 'unchanged' {
   if (isUnifiedOpenEntity(entity)) {
     const outcome = unifiedRepository.replaceImported(entity)
     return outcome === 'created' ? 'replaced' : outcome
+  }
+  if ('entityType' in entity && entity.entityType === 'thing') {
+    return matterRepository.replaceImported(matterFromThing(entity))
   }
   return 'currentStage' in entity
     ? matterRepository.replaceImported(entity)
@@ -112,6 +116,8 @@ export function applyOpenEntities(entities: OpenEntity[], decisions: Record<stri
       }
       const outcome = isUnifiedOpenEntity(entity)
         ? unifiedRepository.importEntity(entity)
+        : 'entityType' in entity && entity.entityType === 'thing'
+        ? matterRepository.importEntity(matterFromThing(entity))
         : 'currentStage' in entity
         ? matterRepository.importEntity(entity)
         : 'occurredAt' in entity

@@ -1,0 +1,68 @@
+[
+  {
+    "label": "处境筛选",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 12,
+      "y": 214.578125,
+      "width": 366,
+      "height": 43,
+      "top": 214.578125,
+      "right": 378,
+      "bottom": 257.578125,
+      "left": 12
+    },
+    "text": "全部",
+    "value": "all",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "迁移处境批次验收趋势",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 275,
+      "y": 647.265625,
+      "width": 84,
+      "height": 40,
+      "top": 647.265625,
+      "right": 359,
+      "bottom": 687.265625,
+      "left": 275
+    },
+    "text": "停滞",
+    "value": "stalled",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "10px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

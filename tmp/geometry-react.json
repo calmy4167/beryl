@@ -1,0 +1,268 @@
+{
+  ".simple-page": null,
+  ".compatibility-placeholder-card": null,
+  ".beryl-card.empty-state": {
+    "rect": {
+      "x": 264,
+      "y": 205.578125,
+      "width": 1086,
+      "height": 159,
+      "top": 205.578125,
+      "right": 1350,
+      "bottom": 364.578125,
+      "left": 264
+    },
+    "class": "beryl-card empty-state",
+    "text": "探索内容暂时无法读取\n\nInjected read failure\n\n重试",
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      }
+    ],
+    "textRects": [],
+    "active": false,
+    "hover": false,
+    "focus": false,
+    "focusVisible": false,
+    "style": {
+      "display": "block",
+      "position": "static",
+      "boxSizing": "border-box",
+      "width": "1086px",
+      "height": "159px",
+      "margin": "0px",
+      "padding": "22px 18px",
+      "gap": "normal",
+      "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgba(255, 255, 255, 0.62)",
+      "border": "1px dashed rgb(202, 212, 226)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal"
+    }
+  },
+  ".flow-page": {
+    "rect": {
+      "x": 264,
+      "y": 130,
+      "width": 1086,
+      "height": 710.171875,
+      "top": 130,
+      "right": 1350,
+      "bottom": 840.171875,
+      "left": 264
+    },
+    "class": "flow-page",
+    "text": "带着问题找资料\n\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\n\n探索内容暂时无法读取\n\nInjected read failure\n\n重",
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      }
+    ],
+    "textRects": [],
+    "active": false,
+    "hover": true,
+    "focus": false,
+    "focusVisible": false,
+    "style": {
+      "display": "block",
+      "position": "static",
+      "boxSizing": "border-box",
+      "width": "1086px",
+      "height": "710.172px",
+      "margin": "0px",
+      "padding": "0px",
+      "gap": "normal",
+      "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal"
+    }
+  },
+  ".page-container": {
+    "rect": {
+      "x": 240,
+      "y": 112,
+      "width": 1134,
+      "height": 788,
+      "top": 112,
+      "right": 1374,
+      "bottom": 900,
+      "left": 240
+    },
+    "class": "page-container",
+    "text": "带着问题找资料\n\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\n\n探索内容暂时无法读取\n\nInjected read failure\n\n重",
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ],
+    "textRects": [],
+    "active": false,
+    "hover": true,
+    "focus": false,
+    "focusVisible": false,
+    "style": {
+      "display": "block",
+      "position": "relative",
+      "boxSizing": "border-box",
+      "width": "1134px",
+      "height": "788px",
+      "margin": "0px",
+      "padding": "18px 24px 24px",
+      "gap": "normal",
+      "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal"
+    }
+  },
+  ".master-data-page": null,
+  ".master-data-heading": null,
+  ".master-data-heading h1": null,
+  ".master-data-heading p": null,
+  ".master-data-heading .load-pill": null,
+  ".master-data-tabs": null,
+  ".master-data-tabs button": null,
+  ".master-data-composer": null,
+  ".master-data-composer-heading": null,
+  ".master-data-composer h2": null,
+  ".master-data-composer p": null,
+  ".master-data-composer form": null,
+  ".master-data-composer label": null,
+  ".master-data-composer input": null,
+  ".master-data-composer textarea": null,
+  ".master-data-form-actions": null,
+  ".master-data-form-actions button": null,
+  ".master-data-library": null,
+  ".master-data-library-heading": null,
+  ".master-data-library h2": null,
+  ".master-data-library p": null,
+  ".master-data-archived-toggle": null,
+  ".master-data-search": null,
+  ".master-data-state": null,
+  ".master-data-dictionary-note": null,
+  ".goals-page": null,
+  ".page-head": {
+    "rect": {
+      "x": 264,
+      "y": 130,
+      "width": 1086,
+      "height": 61.578125,
+      "top": 130,
+      "right": 1350,
+      "bottom": 191.578125,
+      "left": 264
+    },
+    "class": "page-head",
+    "text": "带着问题找资料\n\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。",
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ],
+    "textRects": [],
+    "active": false,
+    "hover": true,
+    "focus": false,
+    "focusVisible": false,
+    "style": {
+      "display": "flex",
+      "position": "relative",
+      "boxSizing": "border-box",
+      "width": "1086px",
+      "height": "61.5781px",
+      "margin": "0px 0px 14px",
+      "padding": "0px",
+      "gap": "16px",
+      "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal"
+    }
+  },
+  ".goals-head-actions": null,
+  ".goals-head-actions .load-pill": null,
+  ".goals-head-actions button": null,
+  ".matter-create": null,
+  ".create-row": null,
+  ".create-row input": null,
+  ".create-row button": null,
+  ".goal-context-fields": null,
+  ".admin-block": null,
+  ".panel-head": null,
+  ".goals-toolbar": null,
+  ".range-tabs": null,
+  ".goals-list": null,
+  ".goal-item": null,
+  ".goal-item h3": null,
+  ".goal-context-summary": null,
+  ".goal-context-summary small": null,
+  ".goal-item .chk": null,
+  ".goal-item .load-pill": null,
+  ".goal-item input[type=range]": null,
+  ".goal-item input[type=number]": null,
+  ".goal-item .muted": null
+}

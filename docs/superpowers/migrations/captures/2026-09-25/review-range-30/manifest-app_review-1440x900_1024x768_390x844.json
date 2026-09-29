@@ -1,0 +1,60 @@
+{
+  "route": "/app/review",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T05:35:22.580Z",
+  "interaction": {
+    "clickSelector": ".range-tabs button:nth-child(2)",
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-1024x768.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\react-app_review-390x844.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-1024x768.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30\\vue-app_review-390x844.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

@@ -22,7 +22,7 @@ export function undoLast(): boolean {
   return ok
 }
 
-/** Async counterpart used by React pages and the shared shell after repository migration. */
+/** Async counterpart used by Vue pages and the shared shell after repository migration. */
 export async function undoLastAsync(): Promise<boolean> {
   const action = pending
   pending = null

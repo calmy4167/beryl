@@ -1,0 +1,126 @@
+{
+  "route": "/app/future",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T02:33:45.206Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 710,
+            "y": 393.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 502,
+            "y": 393.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\react-app_future-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 65,
+            "y": 367.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 710,
+            "y": 393.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 502,
+            "y": 393.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\vue-app_future-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实反馈已另存",
+          "visible": true,
+          "rect": {
+            "x": 65,
+            "y": 367.9,
+            "width": 91,
+            "height": 17
+          }
+        }
+      ]
+    }
+  ]
+}

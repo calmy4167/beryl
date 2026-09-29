@@ -1,0 +1,204 @@
+[
+  [
+    {
+      "tag": "SELECT",
+      "cls": "",
+      "attrs": [
+        "aria-label"
+      ],
+      "rect": {
+        "x": 27,
+        "y": 498.765625,
+        "width": 336,
+        "height": 40,
+        "top": 498.765625,
+        "right": 363,
+        "bottom": 538.765625,
+        "left": 27
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "auto",
+      "overflow": "clip",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+    },
+    {
+      "tag": "DIV",
+      "cls": "goal-context-fields",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 27,
+        "y": 318.765625,
+        "width": 336,
+        "height": 220,
+        "top": 318.765625,
+        "right": 363,
+        "bottom": 538.765625,
+        "left": 27
+      },
+      "display": "grid",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "beryl-card matter-create",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 219.765625,
+        "width": 366,
+        "height": 334,
+        "top": 219.765625,
+        "right": 378,
+        "bottom": 553.765625,
+        "left": 12
+      },
+      "display": "grid",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(226, 231, 239)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "DIV",
+      "cls": "goals-page",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 76,
+        "width": 366,
+        "height": 986.703125,
+        "top": 76,
+        "right": 378,
+        "bottom": 1062.703125,
+        "left": 12
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "MAIN",
+      "cls": "page-container",
+      "attrs": [
+        "class",
+        "data-page-id",
+        "data-page-archetype"
+      ],
+      "rect": {
+        "x": 0,
+        "y": 62,
+        "width": 390,
+        "height": 1092.703125,
+        "top": 62,
+        "right": 390,
+        "bottom": 1154.703125,
+        "left": 0
+      },
+      "display": "block",
+      "position": "relative",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "DIV",
+      "cls": "workspace-shell",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1154.703125,
+        "top": 0,
+        "right": 390,
+        "bottom": 1154.703125,
+        "left": 0
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgb(248, 249, 248)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    }
+  ]
+]

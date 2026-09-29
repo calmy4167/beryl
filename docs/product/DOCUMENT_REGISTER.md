@@ -1,6 +1,10 @@
 # Calmy 文档登记册
 
-> 更新日期：2026-09-19 · 目的：明确每份文档的用途、状态和冲突处理方式。
+> 更新日期：2026-09-26 · 目的：明确每份文档的用途、状态和冲突处理方式。
+
+> 2026-09-26 前端迁移状态更正：OW-06 未完成。最近记录的 335 组截图仅 272 组逐像素相同，63 组仍有差异；先前按容差标记完成无效。当前 Vue 生产入口及 React 清理早于严格验收，须在精确视觉门禁通过后重新核验迁移顺序与完整门禁。
+
+> 历史边界：本登记册中带日期的实现校准段落记录的是当时状态；严格视觉验收以迁移计划和台账的最新更正为准。
 
 > 2026-09-19 产品本体调整：`CALMY_PRODUCT_DESIGN_2026-09-19.md` 与 D-018 成为当前方向；原 Attention OS 统一总稿降为迁移期执行参考，不代表当前代码已经完成新方向。
 
@@ -36,6 +40,8 @@
 | `docs/product/DOCUMENT_AUDIT_2026-09-19.md` | 实现快照 | 2026-09-19 全量文档与界面收敛审计、修订范围和验证记录 |
 | `docs/product/PRODUCT_DECISIONS_2026-08-19.md` | 当前权威 | 已接受决策、废弃方向和变更纪律 |
 | `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md` | 当前权威 | 人与世界之间的反思层、未来回望、双循环、外部工具边界与迁移原则 |
+| `docs/product/MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md` | 当前权威 | 主数据中心、素材/字典、渐进式实体引用交互、兼容与分期验收；服从当前产品总设计 |
+| `docs/product/CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md` | 规划提案 | 用户数据所有权、Runtime Store / Portable Vault / Cloud / Backup 职责、开放格式、附件和冲突处理目标；不得将规划能力写成已实现，服从 D-018 与现有稳定存储契约 |
 | `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` | 执行参考 | Attention OS、四入口和 Matter 兼容实现；用于迁移，不再定义新增功能的产品本体 |
 | `docs/product/PRODUCT_REDESIGN_2026-08-22.md` | 执行参考 | 旧产品重设计细节；已合并到统一总稿 |
 | `docs/product/UX_UI_REDESIGN_2026-08-22.md` | 执行参考 | 旧信息架构、页面和 Flow UI 细节；已合并到统一总稿 |
@@ -45,7 +51,7 @@
 | `docs/product/FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md` | 规划提案 | D-014：飞书生活工作台、三个默认入口、字段映射、数据归属及分阶段验收；不等同于已实现 |
 | `docs/product/FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md` | 当前权威 | D-016：飞书官方多维表格能力、Calmy 适配状态、持续同步清单和验收规则 |
 | `docs/product/REVIEW_MEETING_2026-08-22.md` | 历史参考 | 2026-08-22 多角色评审、分歧和当时裁决依据 |
-| `docs/product/REACT_MIGRATION_2026-08-23.md` | 实现快照 | React 主入口、Vue 兼容层和迁移事实 |
+| `docs/product/REACT_MIGRATION_2026-08-23.md` | 历史参考 | 记录旧 React 主入口和 Vue 迁移来源；不描述当前代码结构 |
 | `docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx` | 执行参考 | 理念、领域语义和长期愿景；只读保留 |
 | `Obsidian_calmy/Calmy_产品设计完整整理_2026-09-02.md` | 思想母本 | 长篇设计语料的库内总文档；模块双向同步，但不覆盖当前产品总设计和已接受产品决策 |
 | `Obsidian_calmy/00_总纲与治理/02_为解决问题而学习.md` | 思想母本 | D-012 的完整理念、跨模块解释与示例；通过 Obsidian 同步工具进入总文档 |

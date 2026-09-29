@@ -1,0 +1,13 @@
+{
+  "capturedAt": "2026-09-27",
+  "route": "/app/master-data",
+  "state": "default empty sentence library",
+  "sourceManifest": "D:/dsharness/captures/2026-09-25/master-data-default/manifest-app_master-data-1440x900_1024x768_390x844.json",
+  "captureMethod": "one Chrome process per React/Vue pair; clear origin storage between frameworks; wait for route, fonts, and 1100ms after viewport setup",
+  "viewports": {
+    "1440x900": { "differentPixels": 29, "totalPixels": 1296000, "exact": false, "heatmap": "master-data-1440x900-heatmap.png", "regions": "heading text and right context settings icon" },
+    "1024x768": { "differentPixels": 11, "totalPixels": 786432, "exact": false, "heatmap": "master-data-1024x768-heatmap.png", "regions": "heading text" },
+    "390x844": { "differentPixels": 0, "totalPixels": 329160, "exact": true, "heatmap": null }
+  },
+  "diagnostics": "All 31 master-data subtree elements had matching measured rectangles and computed visual styles in the 390px pair; shell sizing also matches. Desktop/tablet residual source is unresolved and remains a strict failure. Not the formal 335-pair selector."
+}

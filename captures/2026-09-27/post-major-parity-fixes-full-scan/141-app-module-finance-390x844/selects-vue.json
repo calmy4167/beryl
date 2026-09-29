@@ -1,0 +1,76 @@
+[
+  {
+    "label": "收支类型",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 27,
+      "y": 388.515625,
+      "width": 24,
+      "height": 43,
+      "top": 388.515625,
+      "right": 51,
+      "bottom": 431.515625,
+      "left": 27
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "财务记录筛选",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 302,
+      "y": 511.515625,
+      "width": 76,
+      "height": 43,
+      "top": 511.515625,
+      "right": 378,
+      "bottom": 554.515625,
+      "left": 302
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "关联迁移验收分类课题",
+    "attrs": [
+      "class",
+      "aria-label",
+      "value"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 27,
+      "y": 719.046875,
+      "width": 108,
+      "height": 43,
+      "top": 719.046875,
+      "right": 135,
+      "bottom": 762.046875,
+      "left": 27
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

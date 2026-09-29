@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Matter } from '@/domain/matter/model'
 import { hashOpenText, exportOpenWorkspace, OPEN_MANIFEST_PATH } from '@/core/content/open-format'
-import { applyVaultSyncPlan, buildVaultSyncPlan } from '@/core/content/vault-sync'
+import { applyVaultSyncPlan, buildVaultSyncPlan, formatVaultSyncSummary } from '@/core/content/vault-sync'
 import type { VaultAdapter } from '@/core/content/obsidian-adapter'
 
 class MemoryVault implements VaultAdapter {
@@ -34,9 +34,73 @@ function putWorkspace(vault: MemoryVault, workspace: ReturnType<typeof exportOpe
   const manifest = { ...workspace.manifest, entities: workspace.manifest.entities.map(entry => ({ ...entry, path: targetPath, hash: hashOpenText(workspace.files[originalPath]) })) }
   vault.files.set(targetPath, workspace.files[originalPath])
   vault.files.set(OPEN_MANIFEST_PATH, JSON.stringify({ ...manifest, generated_at: new Date().toISOString() }, null, 2) + '\n')
+  workspace.assets.forEach(asset => vault.files.set(asset.path, asset.data))
 }
 
 describe('Obsidian Vault sync plan', () => {
+  it('preserves manifest MIME metadata for an unchanged Vault binary', async () => {
+    const path = 'assets/photo.png'
+    const workspace = exportOpenWorkspace({ matters: [matter], assets: [{ path, data: new Uint8Array([137, 80, 78, 71]), mimeType: 'image/png' }] })
+    const vault = new MemoryVault()
+    putWorkspace(vault, workspace)
+
+    const plan = await buildVaultSyncPlan(vault, workspace)
+
+    expect(plan.issues).toEqual([])
+    expect(plan.unchangedAssets.map(asset => [asset.path, asset.mimeType])).toEqual([[path, 'image/png']])
+    expect(plan.assetConflicts).toEqual([])
+  })
+
+  it('allows an explicitly reviewed external Markdown edit despite its stale manifest hash', async () => {
+    const vault = new MemoryVault()
+    const workspace = exportOpenWorkspace({ matters: [matter] })
+    putWorkspace(vault, workspace, 'Projects/custom-matter.md')
+    vault.files.set('Projects/custom-matter.md', String(vault.files.get('Projects/custom-matter.md')).replace('title: "Vault 原标题"', 'title: "外部编辑标题"'))
+
+    const plan = await buildVaultSyncPlan(vault, workspace)
+
+    expect(plan.conflicts).toEqual([expect.objectContaining({
+      calmyId: matter.calmyId,
+      vault: expect.objectContaining({ title: '外部编辑标题' }),
+      local: expect.objectContaining({ title: 'Vault 原标题' })
+    })])
+    expect(plan.warnings).toEqual([expect.stringContaining('manifest-hash-mismatch')])
+    expect(plan.issues).toEqual([])
+    expect(formatVaultSyncSummary(plan)).toContain('文件完整性提示')
+
+    const blocked = await applyVaultSyncPlan(vault, plan, {})
+    expect(blocked.missingDecisions).toEqual([matter.calmyId])
+    expect(vault.files.get('Projects/custom-matter.md')).toContain('外部编辑标题')
+
+    const applied = await applyVaultSyncPlan(vault, plan, { [matter.calmyId]: 'keep-vault' })
+    expect(applied.errors).toEqual([])
+    const verified = await buildVaultSyncPlan(vault, workspace)
+    expect(verified.issues).toEqual([])
+    expect(verified.snapshot.entities[0]).toMatchObject({ calmyId: matter.calmyId, title: '外部编辑标题' })
+  })
+
+  it('allows an explicitly reviewed external binary edit despite its stale manifest hash', async () => {
+    const path = 'assets/evidence.bin'
+    const workspace = exportOpenWorkspace({ matters: [matter], assets: [{ path, data: new Uint8Array([1, 2]), mimeType: 'application/octet-stream' }] })
+    const vault = new MemoryVault()
+    putWorkspace(vault, workspace)
+    vault.files.set(path, new Uint8Array([3, 4]))
+
+    const plan = await buildVaultSyncPlan(vault, workspace)
+
+    expect(plan.assetConflicts).toEqual([expect.objectContaining({ path })])
+    expect(plan.warnings).toEqual([expect.stringContaining('asset-hash-mismatch')])
+    expect(plan.issues).toEqual([])
+
+    const blocked = await applyVaultSyncPlan(vault, plan, {})
+    expect(blocked.missingDecisions).toEqual([`asset:${path}`])
+    const applied = await applyVaultSyncPlan(vault, plan, { [`asset:${path}`]: 'keep-vault' })
+    expect(applied.errors).toEqual([])
+    const verified = await buildVaultSyncPlan(vault, workspace)
+    expect(verified.issues).toEqual([])
+    expect(verified.snapshot.assets.map(asset => [...asset.data])).toEqual([[3, 4]])
+  })
+
   it('detects field-level conflicts and preserves the Vault path when local wins', async () => {
     const vault = new MemoryVault()
     putWorkspace(vault, exportOpenWorkspace({ matters: [matter] }), 'Projects/custom-matter.md')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, shallowRef, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
@@ -15,9 +15,10 @@ import { clearFeishuCache } from '@/core/feishu/cache'
 import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 import { listRealityDocuments } from '@/domain/reality'
 import { exportCurrentOpenWorkspace } from '@/core/content/open-workspace'
-import { createFileSystemVaultAdapter, type FileSystemDirectoryHandleLike, type VaultAdapter } from '@/core/content/obsidian-adapter'
-import { applyVaultSyncPlan, buildVaultSyncPlan, type VaultAssetDecision, type VaultEntityDecision, type VaultFieldDecision, type VaultSyncPlan } from '@/core/content/vault-sync'
-import { BACKGROUND_COLOR_PRESETS, applyBackgroundPreferences, getCanvasTextPalette, getDefaultBackgroundColor, getThemeMode, previewBackgroundColor, readBackgroundPreferences, resetBackgroundColor, saveBackgroundColor, setThemeMode, type ThemeMode } from '@/react/theme-preferences'
+import { createFileSystemVaultAdapter, type VaultAdapter } from '@/core/content/obsidian-adapter'
+import { clearVaultHandle, loadVaultHandle, queryVaultHandlePermission, requestVaultHandlePermission, saveVaultHandle, type PersistableVaultDirectoryHandle } from '@/core/content/vault-handle-store'
+import { applyVaultSyncPlan, buildVaultSyncPlan, formatVaultSyncSummary, type VaultAssetDecision, type VaultEntityDecision, type VaultFieldDecision, type VaultSyncPlan } from '@/core/content/vault-sync'
+import { BACKGROUND_COLOR_PRESETS, applyBackgroundPreferences, getCanvasTextPalette, getDefaultBackgroundColor, getThemeMode, previewBackgroundColor, readBackgroundPreferences, resetBackgroundColor, saveBackgroundColor, setThemeMode, type ThemeMode } from '@/ui/theme-preferences'
 
 const router = useRouter()
 const scene = ref(currentSceneId())
@@ -179,6 +180,7 @@ function resetData() {
   void (async () => {
     try {
       await clearFeishuCache()
+      await clearVaultHandle()
       await clearDb()
       keys.forEach(k => localStorage.removeItem(k))
       location.reload()
@@ -277,7 +279,10 @@ async function doFileConnect() {
 function doDisconnect() { disconnect(); ElMessage.success('已断开同步（数据仍在本机）') }
 
 /* ---------- Obsidian Vault 同步 ---------- */
-const vaultAdapter = ref<VaultAdapter | null>(null)
+const vaultAdapter = shallowRef<VaultAdapter | null>(null)
+const vaultHandle = shallowRef<PersistableVaultDirectoryHandle | null>(null)
+const vaultHandleStored = ref(false)
+const vaultRestoreNeeded = ref(false)
 const vaultName = ref('')
 const vaultPlan = ref<VaultSyncPlan | null>(null)
 const vaultDecisions = ref<Record<string, VaultEntityDecision | VaultAssetDecision>>({})
@@ -295,16 +300,84 @@ function defaultVaultDecisions(plan: VaultSyncPlan): Record<string, VaultEntityD
 }
 
 async function connectVault() {
-  const picker = (window as unknown as { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandleLike> }).showDirectoryPicker
+  const picker = (window as unknown as { showDirectoryPicker?: () => Promise<PersistableVaultDirectoryHandle> }).showDirectoryPicker
   if (!picker) { ElMessage.warning('当前浏览器不支持 File System Access API'); return }
   try {
     const root = await picker()
+    await saveVaultHandle(root)
+    vaultHandle.value = root
+    vaultHandleStored.value = true
+    vaultRestoreNeeded.value = false
     vaultAdapter.value = createFileSystemVaultAdapter(root)
-    vaultName.value = (root as unknown as { name?: string }).name || 'Obsidian Vault'
+    vaultName.value = root.name || 'Obsidian Vault'
     vaultPlan.value = null
     vaultReport.value = `已连接 ${vaultName.value}，请扫描差异`
     ElMessage.success('已连接 Obsidian Vault')
-  } catch { /* 用户取消 */ }
+  } catch (error) {
+    if (!(error instanceof DOMException && error.name === 'AbortError')) {
+      vaultReport.value = `Vault 连接未保存：${error instanceof Error ? error.message : '浏览器存储不可用'}`
+      ElMessage.error('Vault 连接未保存到本机')
+    }
+  }
+}
+
+async function restoreSavedVault() {
+  try {
+    const saved = await loadVaultHandle()
+    if (!saved) return
+    vaultHandle.value = saved.handle
+    vaultHandleStored.value = true
+    vaultName.value = saved.name
+    const permission = await queryVaultHandlePermission(saved.handle)
+    if (permission === 'granted') {
+      vaultAdapter.value = createFileSystemVaultAdapter(saved.handle)
+      vaultRestoreNeeded.value = false
+      vaultReport.value = `已恢复 ${saved.name} 的连接，请扫描差异`
+    } else {
+      vaultRestoreNeeded.value = true
+      vaultReport.value = permission === 'denied'
+        ? `${saved.name} 的目录访问被拒绝，可重新授权或断开 Vault`
+        : `${saved.name} 需要重新授权；Calmy 不会自动弹出权限请求`
+    }
+  } catch (error) {
+    vaultReport.value = `无法恢复 Vault 连接：${error instanceof Error ? error.message : '本地句柄读取失败'}`
+  }
+}
+
+async function restoreVaultPermission() {
+  if (!vaultHandle.value) return
+  try {
+    const permission = await requestVaultHandlePermission(vaultHandle.value)
+    if (permission !== 'granted') {
+      vaultReport.value = `${vaultName.value} 的目录权限尚未恢复`
+      return
+    }
+    vaultAdapter.value = createFileSystemVaultAdapter(vaultHandle.value)
+    vaultRestoreNeeded.value = false
+    vaultPlan.value = null
+    vaultReport.value = `已恢复 ${vaultName.value} 的连接，请扫描差异`
+    ElMessage.success('Vault 授权已恢复')
+  } catch (error) {
+    vaultReport.value = `恢复授权失败：${error instanceof Error ? error.message : '浏览器拒绝访问'}`
+  }
+}
+
+async function disconnectVault() {
+  try {
+    await clearVaultHandle()
+    vaultAdapter.value = null
+    vaultHandle.value = null
+    vaultHandleStored.value = false
+    vaultRestoreNeeded.value = false
+    vaultName.value = ''
+    vaultPlan.value = null
+    vaultDecisions.value = {}
+    vaultReport.value = '已断开 Vault；本地数据未受影响'
+    ElMessage.success('已断开 Vault')
+  } catch (error) {
+    vaultReport.value = `断开失败：${error instanceof Error ? error.message : '本地句柄清除失败'}`
+    ElMessage.error('未能清除本机保存的 Vault 句柄')
+  }
 }
 
 async function scanVault() {
@@ -314,9 +387,7 @@ async function scanVault() {
     const plan = await buildVaultSyncPlan(vaultAdapter.value, exportCurrentOpenWorkspace())
     vaultPlan.value = plan
     vaultDecisions.value = defaultVaultDecisions(plan)
-    vaultReport.value = plan.issues.length
-      ? `扫描被阻断：${plan.issues.join('；')}`
-      : `新增 ${plan.addedEntities.length} · 不变 ${plan.unchangedEntities.length} · 冲突 ${plan.conflicts.length} · Vault 独有 ${plan.vaultOnlyEntities.length} · Vault tombstone ${plan.vaultDeletedEntities.length}`
+    vaultReport.value = formatVaultSyncSummary(plan)
   } catch (error) { vaultReport.value = `扫描失败：${error instanceof Error ? error.message : 'Vault 读取失败'}` }
   finally { vaultBusy.value = false }
 }
@@ -438,6 +509,7 @@ onMounted(() => {
   applySceneTheme(scene.value)
   window.addEventListener('beryl-data-synced', onDataSynced)
   persistenceTimer = window.setInterval(() => { persistenceStatus.value = getDbStatus() }, 1500)
+  void restoreSavedVault()
 })
 onUnmounted(() => {
   window.removeEventListener('beryl-data-synced', onDataSynced)
@@ -571,10 +643,12 @@ onUnmounted(() => {
     <!-- Obsidian Vault：显式差异预览与决策后写回 -->
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">Obsidian Vault</h3>
-      <p class="info">{{ vaultName ? `当前 Vault：${vaultName}` : '未连接 Vault' }}</p>
+      <p class="info" role="status" aria-live="polite">{{ vaultRestoreNeeded ? `已记住 Vault：${vaultName} · 需要重新授权` : vaultName ? `当前 Vault：${vaultName}` : '未连接 Vault' }}</p>
       <p class="info">只扫描和写入 Calmy Open Format 文件；Vault 独有实体的删除必须明确选择，并会留下 tombstone。</p>
       <div class="btns">
         <el-button @click="connectVault">选择 Vault</el-button>
+        <el-button v-if="vaultRestoreNeeded" @click="restoreVaultPermission">恢复 Vault 授权</el-button>
+        <el-button v-if="vaultHandleStored" @click="disconnectVault">断开 Vault</el-button>
         <el-button :disabled="!vaultAdapter" :loading="vaultBusy" @click="scanVault">扫描差异</el-button>
         <el-button type="primary" :disabled="!vaultPlan" :loading="vaultBusy" @click="applyVault">应用同步</el-button>
       </div>
@@ -601,6 +675,16 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
+      <div v-if="vaultPlan && vaultPlan.assetConflicts.length" class="vault-list">
+        <p class="mods-line">附件内容冲突（需明确选择保留哪一份）</p>
+        <div v-for="conflict in vaultPlan.assetConflicts" :key="conflict.path" class="vault-item vault-item-head">
+          <span>附件 · {{ conflict.path }}</span>
+          <el-select v-model="vaultDecisions[`asset:${conflict.path}`]" :aria-label="`附件 ${conflict.path} 的冲突处理方式`" size="small">
+            <el-option label="保留 Vault" value="keep-vault" />
+            <el-option label="使用本地" value="use-local" />
+          </el-select>
+        </div>
+      </div>
       <div v-if="vaultPlan && vaultPlan.vaultOnlyEntities.length" class="vault-list">
         <p class="mods-line">Vault 独有实体</p>
         <div v-for="entity in vaultPlan.vaultOnlyEntities" :key="entity.calmyId" class="vault-item vault-item-head">
@@ -618,6 +702,16 @@ onUnmounted(() => {
           <el-select v-model="vaultDecisions[entity.calmyId]" :aria-label="`${entity.calmyId} 的 Vault 删除处理方式`" size="small">
             <el-option label="接受 Vault 删除" value="keep-vault" />
             <el-option label="恢复本地实体" value="use-local" />
+          </el-select>
+        </div>
+      </div>
+      <div v-if="vaultPlan && vaultPlan.vaultOnlyAssets.length" class="vault-list">
+        <p class="mods-line">Vault 独有附件</p>
+        <div v-for="asset in vaultPlan.vaultOnlyAssets" :key="asset.path" class="vault-item vault-item-head">
+          <span>附件 · {{ asset.path }}</span>
+          <el-select v-model="vaultDecisions[`asset:${asset.path}`]" :aria-label="`Vault 独有附件 ${asset.path} 的处理方式`" size="small">
+            <el-option label="保留 Vault" value="keep-vault" />
+            <el-option label="删除并记录" value="delete-vault" />
           </el-select>
         </div>
       </div>

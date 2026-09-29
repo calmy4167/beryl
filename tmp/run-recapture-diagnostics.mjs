@@ -1,0 +1,12 @@
+import { appendFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const [manifest, framework, viewport, outputDir, logPath] = process.argv.slice(2);
+process.env.CALMY_NEUTRAL_POINTER = '1';
+process.env.CALMY_POST_POINTER_SETTLE_MS = '400';
+process.env.CALMY_DUPLICATE_SCREENSHOT = '1';
+const log = (...args) => appendFileSync(logPath, args.join(' ') + String.fromCharCode(10), 'utf8');
+console.log = log; console.error = log;
+const runner = resolve('tmp/recapture-one.mjs');
+process.argv = [process.argv[0], runner, manifest, framework, viewport, outputDir];
+await import(pathToFileURL(runner).href);

@@ -1,0 +1,102 @@
+{
+  "route": "/app/library",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:44:24.735Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"资源标题\"]",
+        "value": "迁移 Flow 回响验收资源"
+      },
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"资源内容\"]",
+        "value": "用于验证 Flow 回响卡片与反馈状态。"
+      },
+      {
+        "type": "click",
+        "selector": ".library-create button.primary"
+      },
+      {
+        "type": "waitText",
+        "text": "迁移 Flow 回响验收资源"
+      },
+      {
+        "type": "click",
+        "selector": ".library-head-actions button.react-btn"
+      },
+      {
+        "type": "click",
+        "selector": ".flow-mode-picker button:nth-of-type(4)"
+      },
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"当前问题或探索意图\"]",
+        "value": "这条资料是否仍然有用？"
+      },
+      {
+        "type": "click",
+        "selector": ".flow-intent-controls button.primary"
+      },
+      {
+        "type": "click",
+        "selector": ".flow-card-head button"
+      },
+      {
+        "type": "waitText",
+        "text": "未绑定来源"
+      },
+      {
+        "type": "click",
+        "selector": ".flow-card-actions button:first-child"
+      },
+      {
+        "type": "waitText",
+        "text": "已保留这份资料，不会强制继续浏览"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired-check\\react-app_library-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired-check\\react-app_library-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "已保留这份资料，不会强制继续浏览",
+          "visible": true,
+          "rect": {
+            "x": 113.5,
+            "y": 777,
+            "width": 156,
+            "height": 32
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired-check\\vue-app_library-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired-check\\vue-app_library-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "已保留这份资料，不会强制继续浏览",
+          "visible": true,
+          "rect": {
+            "x": 113.5,
+            "y": 777,
+            "width": 156,
+            "height": 32
+          }
+        }
+      ]
+    }
+  ]
+}

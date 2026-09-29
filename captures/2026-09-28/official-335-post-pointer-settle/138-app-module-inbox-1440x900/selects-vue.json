@@ -1,0 +1,40 @@
+[
+  {
+    "label": "收集筛选",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "active": false,
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "rect": {
+      "x": 1114.40625,
+      "y": 385.578125,
+      "width": 180,
+      "height": 43,
+      "top": 385.578125,
+      "right": 1294.40625,
+      "bottom": 428.578125,
+      "left": 1114.40625
+    },
+    "text": "全部",
+    "value": "all",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

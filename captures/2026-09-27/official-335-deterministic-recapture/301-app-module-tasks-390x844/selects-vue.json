@@ -1,0 +1,70 @@
+[
+  {
+    "label": "按事项筛选",
+    "attrs": [
+      "id",
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 237,
+      "y": 333.578125,
+      "width": 126,
+      "height": 43,
+      "top": 333.578125,
+      "right": 363,
+      "bottom": 376.578125,
+      "left": 237
+    },
+    "text": "全部事项",
+    "value": "",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "临时触控状态行动状态",
+    "attrs": [
+      "aria-label",
+      "value"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 60,
+      "y": 603.125,
+      "width": 71,
+      "height": 40,
+      "top": 603.125,
+      "right": 131,
+      "bottom": 643.125,
+      "left": 60
+    },
+    "text": "待开始",
+    "value": "planned",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "9px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

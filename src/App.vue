@@ -1,42 +1,47 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { readSession, ensureAuth } from '@/core/auth'
-import { currentSceneId, applySceneTheme } from '@/core/scenes'
-import { lsGet } from '@/core/storage'
 import { restoreSync, startPolling, stopPolling, pollCheck } from '@/core/sync'
 
-const router = useRouter()
+const route = useRoute()
+let activeUser: string | null = null
+let generation = 0
 
-onMounted(async () => {
-  applySceneTheme(currentSceneId())
-  // 会话恢复
-  const s = readSession()
-  let authenticated = false
-  if (s) {
-    try {
-      const rec = await ensureAuth()
-      if (!rec._d && rec.u === s.u) {
-        authenticated = true
-        router.replace(lsGet('b_scene') != null ? '/app/home' : '/scene')
-      }
-    } catch { /* 保持登录页 */ }
-  }
-  if (!authenticated) return
-  // 同步：只有已恢复有效会话后才自动连接，避免登录页提前读取/写入业务数据。
-  void restoreSync()
-  startPolling()
-  document.addEventListener('visibilitychange', onVis)
-  window.addEventListener('focus', onFocus)
-})
 function onVis() {
   if (document.hidden) stopPolling()
   else { startPolling(); void pollCheck() }
 }
 function onFocus() { startPolling(); void pollCheck() }
-onUnmounted(() => {
+function stopActive() {
   document.removeEventListener('visibilitychange', onVis)
   window.removeEventListener('focus', onFocus)
+  if (activeUser) stopPolling()
+  activeUser = null
+}
+
+watch(() => route.path, path => {
+  const session = readSession()
+  const protectedPage = path.startsWith('/app') || path === '/scene'
+  if (protectedPage && session && activeUser === session.u) return
+
+  const currentGeneration = ++generation
+  stopActive()
+  if (!protectedPage || !session) return
+
+  void ensureAuth().then(record => {
+    if (currentGeneration !== generation || record._d || record.u !== session.u) return
+    activeUser = session.u
+    void restoreSync()
+    startPolling()
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('focus', onFocus)
+  }).catch(() => { /* 同步仅在有效登录会话恢复后启动 */ })
+}, { immediate: true })
+
+onUnmounted(() => {
+  generation++
+  stopActive()
 })
 </script>
 

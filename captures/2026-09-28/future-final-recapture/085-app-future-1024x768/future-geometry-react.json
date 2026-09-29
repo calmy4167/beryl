@@ -1,0 +1,149 @@
+[
+  {
+    "i": 0,
+    "tag": "DIV",
+    "cls": "future-page",
+    "text": "先去未来看看，再回来决定\n\n行动和暂缓，都可能有收获，也可能有代价。\n\n回到今天\n✓\n选择和反思已保存\n\n你可以稍后查看原文；推演内容没有保存。\n\n回来后可以在这里记下现实反馈；C",
+    "rect": {
+      "x": 264,
+      "y": 130,
+      "width": 736,
+      "height": 433.671875,
+      "top": 130,
+      "right": 1000,
+      "bottom": 563.671875,
+      "left": 264
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "0px 0px 36px"
+  },
+  {
+    "i": 1,
+    "tag": "HEADER",
+    "cls": "page-head future-page-head",
+    "text": "先去未来看看，再回来决定\n\n行动和暂缓，都可能有收获，也可能有代价。\n\n回到今天",
+    "rect": {
+      "x": 264,
+      "y": 130,
+      "width": 736,
+      "height": 61.578125,
+      "top": 130,
+      "right": 1000,
+      "bottom": 191.578125,
+      "left": 264
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "0px 0px 14px",
+    "padding": "0px"
+  },
+  {
+    "i": 2,
+    "tag": "P",
+    "cls": "eyebrow",
+    "text": "未来 · 试验",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "font": "700 9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "none",
+    "margin": "9px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 3,
+    "tag": "H1",
+    "cls": "font-title",
+    "text": "先去未来看看，再回来决定",
+    "rect": {
+      "x": 264,
+      "y": 130,
+      "width": 347.40625,
+      "height": 35.390625,
+      "top": 130,
+      "right": 611.40625,
+      "bottom": 165.390625,
+      "left": 264
+    },
+    "font": "760 30px / 35.4px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "35.4px",
+    "display": "block",
+    "margin": "0px",
+    "padding": "0px"
+  },
+  {
+    "i": 4,
+    "tag": "P",
+    "cls": "",
+    "text": "行动和暂缓，都可能有收获，也可能有代价。",
+    "rect": {
+      "x": 264,
+      "y": 172.390625,
+      "width": 347.40625,
+      "height": 19.1875,
+      "top": 172.390625,
+      "right": 611.40625,
+      "bottom": 191.578125,
+      "left": 264
+    },
+    "font": "12px / 19.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "19.2px",
+    "display": "block",
+    "margin": "7px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 5,
+    "tag": "DIV",
+    "cls": "future-actions",
+    "text": "查看已保存的内容\n回到今天\n再体验一次",
+    "rect": {
+      "x": 301,
+      "y": 450.671875,
+      "width": 662,
+      "height": 40,
+      "top": 450.671875,
+      "right": 963,
+      "bottom": 490.671875,
+      "left": 301
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "22px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 6,
+    "tag": "A",
+    "cls": "future-primary",
+    "text": "回到今天",
+    "rect": {
+      "x": 610,
+      "y": 450.671875,
+      "width": 80,
+      "height": 40,
+      "top": 450.671875,
+      "right": 690,
+      "bottom": 490.671875,
+      "left": 610
+    },
+    "font": "12px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "0px",
+    "padding": "9px 15px"
+  }
+]

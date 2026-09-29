@@ -2,6 +2,7 @@ import { hashOpenBytes } from './assets'
 import {
   compareOpenEntityFields,
   exportOpenWorkspace,
+  isUnifiedOpenEntity,
   hashOpenText,
   importOpenWorkspace,
   mergeOpenEntity,
@@ -60,6 +61,7 @@ export interface VaultSyncPlan {
   localWorkspace: OpenWorkspace
   localEntities: OpenEntity[]
   localAssets: OpenAsset[]
+  warnings: string[]
   addedEntities: OpenEntity[]
   unchangedEntities: OpenEntity[]
   conflicts: VaultEntityConflict[]
@@ -81,6 +83,13 @@ export interface VaultSyncApplyResult {
   errors: string[]
 }
 
+export function formatVaultSyncSummary(plan: VaultSyncPlan): string {
+  if (plan.issues.length) return `扫描被阻断：${plan.issues.join('；')}`
+  const summary = `新增 ${plan.addedEntities.length} · 不变 ${plan.unchangedEntities.length} · 实体冲突 ${plan.conflicts.length} · Vault 独有 ${plan.vaultOnlyEntities.length} · 附件新增 ${plan.addedAssets.length} · 附件冲突 ${plan.assetConflicts.length} · Vault 独有附件 ${plan.vaultOnlyAssets.length} · Vault tombstone ${plan.vaultDeletedEntities.length}`
+  const warnings = plan.warnings.length ? `；文件完整性提示：${plan.warnings.join('；')}` : ''
+  return summary + warnings
+}
+
 function pathById(snapshot: VaultImportSnapshot): Map<string, string> {
   return new Map((snapshot.manifest?.entities || []).map(entry => [entry.calmy_id, entry.path]))
 }
@@ -94,7 +103,12 @@ function assetHash(asset: OpenAsset): string { return hashOpenBytes(asset.data) 
 export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: OpenWorkspace): Promise<VaultSyncPlan> {
   const snapshot = await readVaultSnapshot(adapter)
   const localImport = importOpenWorkspace(localWorkspace.files, localWorkspace.assets)
-  const issues = [...snapshot.issues.map(issue => `${issue.path}: ${issue.message}`), ...localImport.issues.map(issue => `${issue.path}: ${issue.message}`)]
+  const reviewableDrift = new Set(['manifest-hash-mismatch', 'asset-hash-mismatch'])
+  const warnings = snapshot.issues
+    .filter(issue => reviewableDrift.has(issue.code))
+    .map(issue => `${issue.path}: ${issue.code} - ${issue.message}`)
+  const blockingSnapshotIssues = snapshot.issues.filter(issue => !reviewableDrift.has(issue.code))
+  const issues = [...blockingSnapshotIssues.map(issue => `${issue.path}: ${issue.message}`), ...localImport.issues.map(issue => `${issue.path}: ${issue.message}`)]
   if (snapshot.paths.length && !snapshot.manifest) issues.push('Vault 缺少 _calmy/manifest.json，无法安全保留现有实体路径')
   const localEntities = localImport.entities
   const localAssets = localImport.assets
@@ -133,21 +147,23 @@ export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: 
   }
   const vaultOnlyAssets = snapshot.assets.filter(asset => !localByAssetPath.has(asset.path))
   return {
-    snapshot, localWorkspace, localEntities, localAssets, addedEntities, unchangedEntities, conflicts,
+    snapshot, localWorkspace, localEntities, localAssets, warnings, addedEntities, unchangedEntities, conflicts,
     vaultOnlyEntities, vaultDeletedEntities, addedAssets, unchangedAssets, assetConflicts, vaultOnlyAssets, issues
   }
 }
 
 function generatedPathForEntity(entity: OpenEntity): string {
-  const workspace = 'entityType' in entity
+  const workspace = isUnifiedOpenEntity(entity)
     ? exportOpenWorkspace({ unified: [entity] })
-    : 'currentStage' in entity
-      ? exportOpenWorkspace({ matters: [entity] })
-      : 'occurredAt' in entity
-        ? exportOpenWorkspace({ records: [entity] })
-        : 'title' in entity
-          ? exportOpenWorkspace({ actions: [entity] })
-          : exportOpenWorkspace({ dailies: [entity] })
+    : 'entityType' in entity && entity.entityType === 'thing'
+      ? exportOpenWorkspace({ things: [entity] })
+      : 'currentStage' in entity
+        ? exportOpenWorkspace({ matters: [entity] })
+        : 'occurredAt' in entity
+          ? exportOpenWorkspace({ records: [entity] })
+          : 'title' in entity
+            ? exportOpenWorkspace({ actions: [entity] })
+            : exportOpenWorkspace({ dailies: [entity] })
   return Object.keys(workspace.files).find(path => path.toLowerCase().endsWith('.md')) as string
 }
 

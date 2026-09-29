@@ -1,0 +1,145 @@
+{
+  "route": "/app/library",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T03:02:19.043Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "input[aria-label=\"资源标题\"]",
+        "value": "迁移验收资源"
+      },
+      {
+        "type": "fill",
+        "selector": "input[aria-label=\"资源内容\"]",
+        "value": "保留来源与下一步"
+      },
+      {
+        "type": "click",
+        "selector": ".library-create button.primary"
+      },
+      {
+        "type": "waitText",
+        "text": "迁移验收资源"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 265,
+            "y": 650.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 265,
+            "y": 518.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\react-app_library-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 13,
+            "y": 526.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 265,
+            "y": 650.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 265,
+            "y": 518.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\vue-app_library-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收资源",
+          "visible": true,
+          "rect": {
+            "x": 13,
+            "y": 526.4,
+            "width": 96,
+            "height": 21
+          }
+        }
+      ]
+    }
+  ]
+}

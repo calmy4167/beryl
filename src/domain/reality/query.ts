@@ -292,7 +292,7 @@ export function listRealityDocuments(query: RealityQuery = {}): RealityDocument[
 }
 
 /**
- * 复盘需要的跨域证据查询。React 生产路径使用异步 Repository，避免历史/记录
+ * 复盘需要的跨域证据查询。生产路径使用异步 Repository，避免历史/记录
  * 查询绕过 IndexedDB durable 快照；旧的同步 listRealityDocuments 保留给 Vue
  * 兼容层和旧模块筛选。
  */
@@ -462,7 +462,7 @@ async function unifiedDocumentsAsync(): Promise<RealityDocument[]> {
   return groups.flat()
 }
 
-/** 全量跨域查询的异步入口，供 React 页面读取 durable 快照；同步入口只保留兼容层。 */
+/** 全量跨域查询的异步入口，供页面读取 durable 快照；同步入口只保留兼容层。 */
 export async function listRealityDocumentsAsync(query: RealityQuery = {}): Promise<RealityDocument[]> {
   const [legacy, unified] = await Promise.all([legacyDocumentsAsync(), unifiedDocumentsAsync()])
   const types = query.types?.length ? new Set(query.types) : undefined

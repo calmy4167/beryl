@@ -1,0 +1,145 @@
+{
+  "route": "/app/master-data",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T03:00:00.373Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "input[aria-label=\"句子素材名称\"]",
+        "value": "迁移验收句子"
+      },
+      {
+        "type": "fill",
+        "selector": "textarea[aria-label=\"句子素材内容\"]",
+        "value": "先确认事实，再选择下一步。"
+      },
+      {
+        "type": "click",
+        "selector": "form button[type=\"submit\"]"
+      },
+      {
+        "type": "waitText",
+        "text": "迁移验收句子"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 328,
+            "y": 616,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 292,
+            "y": 602,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\react-app_master-data-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 31,
+            "y": 549,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 328,
+            "y": 616,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 292,
+            "y": 602,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\vue-app_master-data-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移验收句子",
+          "visible": true,
+          "rect": {
+            "x": 31,
+            "y": 549,
+            "width": 84,
+            "height": 19
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+[
+  [
+    {
+      "tag": "SELECT",
+      "cls": "",
+      "attrs": [
+        "aria-label"
+      ],
+      "rect": {
+        "x": 31,
+        "y": 2156.28125,
+        "width": 328,
+        "height": 43,
+        "top": 2156.28125,
+        "right": 359,
+        "bottom": 2199.28125,
+        "left": 31
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "auto",
+      "overflow": "clip",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+    },
+    {
+      "tag": "DIV",
+      "cls": "create-row",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 31,
+        "y": 2107.28125,
+        "width": 328,
+        "height": 143,
+        "top": 2107.28125,
+        "right": 359,
+        "bottom": 2250.28125,
+        "left": 31
+      },
+      "display": "grid",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "add-action-panel beryl-card",
+      "attrs": [
+        "id",
+        "class"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 2006.09375,
+        "width": 366,
+        "height": 263.1875,
+        "top": 2006.09375,
+        "right": 378,
+        "bottom": 2269.28125,
+        "left": 12
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(226, 231, 239)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "DIV",
+      "cls": "today-secondary-region",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 1660.5,
+        "width": 366,
+        "height": 608.78125,
+        "top": 1660.5,
+        "right": 378,
+        "bottom": 2269.28125,
+        "left": 12
+      },
+      "display": "grid",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "DIV",
+      "cls": "today-other-content",
+      "attrs": [
+        "class"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 610.515625,
+        "width": 366,
+        "height": 1680.765625,
+        "top": 610.515625,
+        "right": 378,
+        "bottom": 2291.28125,
+        "left": 12
+      },
+      "display": "grid",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "DETAILS",
+      "cls": "today-other",
+      "attrs": [
+        "class",
+        "data-today-region"
+      ],
+      "rect": {
+        "x": 12,
+        "y": 577.515625,
+        "width": 366,
+        "height": 33,
+        "top": 577.515625,
+        "right": 378,
+        "bottom": 610.515625,
+        "left": 12
+      },
+      "display": "block",
+      "position": "static",
+      "transform": "none",
+      "opacity": "1",
+      "filter": "none",
+      "backdropFilter": "none",
+      "colorScheme": "light",
+      "forcedColorAdjust": "auto",
+      "direction": "ltr",
+      "appearance": "none",
+      "overflow": "visible",
+      "contain": "none",
+      "willChange": "auto",
+      "background": "rgba(0, 0, 0, 0)",
+      "border": "",
+      "boxShadow": "none"
+    }
+  ]
+]

@@ -1,0 +1,68 @@
+{
+  "capturedAt": "2026-09-26T17:03:41.196Z",
+  "sourceManifest": "D:\\dsharness\\captures\\2026-09-25\\goals-complete-selected\\manifest-app_module_goals-1440x900_390x844.json",
+  "route": "/app/module/goals",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"目标名称\"]",
+        "value": "Parity completed goal 2026-09-25"
+      },
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"目标对应问题\"]",
+        "value": "作品集尚未整理"
+      },
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"目标证据\"]",
+        "value": "发布了项目案例"
+      },
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"目标下一步行动\"]",
+        "value": "整理首页截图"
+      },
+      {
+        "type": "click",
+        "selector": "form button.primary"
+      },
+      {
+        "type": "waitText",
+        "text": "Parity completed goal 2026-09-25"
+      },
+      {
+        "type": "click",
+        "selector": ".goal-item .chk"
+      },
+      {
+        "type": "click",
+        "selector": ".goals-toolbar [role=\"tab\"]:last-child"
+      },
+      {
+        "type": "waitText",
+        "text": "Parity completed goal 2026-09-25"
+      }
+    ]
+  },
+  "images": {
+    "react": "D:\\dsharness\\captures\\2026-09-27\\goals-complete-context-rail-current-source\\react.png",
+    "vue": "D:\\dsharness\\captures\\2026-09-27\\goals-complete-context-rail-current-source\\vue.png"
+  },
+  "heatmap": "D:\\dsharness\\captures\\2026-09-27\\goals-complete-context-rail-current-source\\difference-heatmap.png",
+  "pixelComparison": {
+    "differentPixels": 16205,
+    "totalPixels": 1296000,
+    "percent": 1.2504,
+    "exact": false
+  },
+  "selectorStatus": "single-state diagnostic; not the formal 335-pair selector"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "label": "探索关联处境",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 283,
+      "y": 481.171875,
+      "width": 550,
+      "height": 40,
+      "top": 481.171875,
+      "right": 833,
+      "bottom": 521.171875,
+      "left": 283
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

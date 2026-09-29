@@ -1,0 +1,589 @@
+{
+  "start": 0,
+  "limit": 335,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 180000,
+  "results": [
+    {
+      "id": "001",
+      "route": "/app/admin/advanced",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\001-app-admin-advanced-1440x900"
+    },
+    {
+      "id": "002",
+      "route": "/app/admin/advanced",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\002-app-admin-advanced-1024x768"
+    },
+    {
+      "id": "003",
+      "route": "/app/admin/advanced",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\003-app-admin-advanced-390x844"
+    },
+    {
+      "id": "004",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-cloud-debug-current\\manifest-app_admin-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\004-app-admin-390x844"
+    },
+    {
+      "id": "005",
+      "route": "/app/admin",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\005-app-admin-1440x900"
+    },
+    {
+      "id": "006",
+      "route": "/app/admin",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\006-app-admin-1024x768"
+    },
+    {
+      "id": "007",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\007-app-admin-390x844"
+    },
+    {
+      "id": "008",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\008-app-calendar-date-2026-09-14-1440x900"
+    },
+    {
+      "id": "009",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\009-app-calendar-date-2026-09-14-1024x768"
+    },
+    {
+      "id": "010",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\010-app-calendar-date-2026-09-14-390x844"
+    },
+    {
+      "id": "011",
+      "route": "/app/capture",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-320-paired\\manifest-app_capture-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\011-app-capture-320x844"
+    },
+    {
+      "id": "012",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\012-app-capture-1440x900"
+    },
+    {
+      "id": "013",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\013-app-capture-1024x768"
+    },
+    {
+      "id": "014",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\014-app-capture-390x844"
+    },
+    {
+      "id": "015",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\015-app-capture-1440x900"
+    },
+    {
+      "id": "016",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\016-app-capture-1024x768"
+    },
+    {
+      "id": "017",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\017-app-capture-390x844"
+    },
+    {
+      "id": "018",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-zoom200-paired\\manifest-app_capture-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\018-app-capture-1440x900"
+    },
+    {
+      "id": "019",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\019-app-module-custom-legacy-entry-1440x900"
+    },
+    {
+      "id": "020",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\020-app-module-custom-legacy-entry-1024x768"
+    },
+    {
+      "id": "021",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\021-app-module-custom-legacy-entry-390x844"
+    },
+    {
+      "id": "022",
+      "route": "/",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\022--1440x900"
+    },
+    {
+      "id": "023",
+      "route": "/",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\023--1024x768"
+    },
+    {
+      "id": "024",
+      "route": "/",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\024--390x844"
+    },
+    {
+      "id": "025",
+      "route": "/app/unknown-current-page",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\025-app-unknown-current-page-1440x900"
+    },
+    {
+      "id": "026",
+      "route": "/app/unknown-current-page",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\026-app-unknown-current-page-1024x768"
+    },
+    {
+      "id": "027",
+      "route": "/app/unknown-current-page",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\027-app-unknown-current-page-390x844"
+    },
+    {
+      "id": "028",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\028-app-cycle-1440x900"
+    },
+    {
+      "id": "029",
+      "route": "/app/cycle",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\029-app-cycle-1024x768"
+    },
+    {
+      "id": "030",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\030-app-cycle-390x844"
+    },
+    {
+      "id": "031",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 26,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\031-app-module-diary-1440x900"
+    },
+    {
+      "id": "032",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 36,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\032-app-module-diary-1024x768"
+    },
+    {
+      "id": "033",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\033-app-module-diary-390x844"
+    },
+    {
+      "id": "034",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\034-app-module-diary-1440x900"
+    },
+    {
+      "id": "035",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\035-app-module-diary-1024x768"
+    },
+    {
+      "id": "036",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\036-app-module-diary-390x844"
+    },
+    {
+      "id": "037",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\037-app-today-320x844"
+    },
+    {
+      "id": "038",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\038-app-today-390x844"
+    },
+    {
+      "id": "039",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\039-app-today-1440x900"
+    },
+    {
+      "id": "040",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\040-app-today-1024x768"
+    },
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\041-app-today-390x844"
+    },
+    {
+      "id": "042",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\042-app-feishu-1440x900"
+    },
+    {
+      "id": "043",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\043-app-feishu-1024x768"
+    },
+    {
+      "id": "044",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\044-app-feishu-390x844"
+    },
+    {
+      "id": "045",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\045-app-module-finance-1440x900"
+    },
+    {
+      "id": "046",
+      "route": "/app/module/finance",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 21,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\046-app-module-finance-1024x768"
+    },
+    {
+      "id": "047",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\047-app-module-finance-390x844"
+    },
+    {
+      "id": "048",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\048-app-library-1440x900"
+    },
+    {
+      "id": "049",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 7,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\049-app-library-1024x768"
+    },
+    {
+      "id": "050",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\050-app-library-390x844"
+    },
+    {
+      "id": "051",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 12,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\051-app-matters-1440x900"
+    },
+    {
+      "id": "052",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\052-app-matters-1024x768"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\053-app-matters-390x844"
+    },
+    {
+      "id": "054",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 37,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\054-app-today-1440x900"
+    },
+    {
+      "id": "055",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 37,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\055-app-today-1024x768"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "running"
+    },
+    {
+      "id": "057",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\057-app-library-1440x900"
+    },
+    {
+      "id": "058",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\058-app-library-1024x768"
+    },
+    {
+      "id": "059",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\059-app-library-390x844"
+    },
+    {
+      "id": "060",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\060-app-library-1440x900"
+    },
+    {
+      "id": "061",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\061-app-library-1024x768"
+    },
+    {
+      "id": "062",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\062-app-library-390x844"
+    },
+    {
+      "id": "063",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\063-app-library-1440x900"
+    },
+    {
+      "id": "064",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-synchronized\\064-app-library-1024x768"
+    },
+    {
+      "id": "065",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "running"
+    }
+  ]
+}

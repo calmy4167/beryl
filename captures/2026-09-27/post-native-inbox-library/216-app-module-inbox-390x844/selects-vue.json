@@ -1,0 +1,26 @@
+[
+  {
+    "label": "收集筛选",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 152.40625,
+      "y": 473.578125,
+      "width": 180,
+      "height": 41,
+      "top": 473.578125,
+      "right": 332.40625,
+      "bottom": 514.578125,
+      "left": 152.40625
+    },
+    "background": "rgb(255, 255, 255)",
+    "backgroundImage": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2365716d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+    "appearance": "none",
+    "padding": "0px 36px 0px 12px",
+    "border": "1px solid rgb(225, 229, 227)",
+    "borderRadius": "10px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

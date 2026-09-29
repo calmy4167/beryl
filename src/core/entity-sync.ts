@@ -3,11 +3,15 @@ import { DEVICE_ID, getDbStatus, readDbMeta, readEntityChanges, writeDbMeta, typ
 import { decryptValue, encryptValue } from './crypto'
 import { lsGet, lsSet, safeParse } from './storage'
 import { flushRepositoryWrites } from './repository'
+import { CORE_ENTITY_TYPES } from '@/domain/unified/model'
 
 export interface EntitySyncCursor { ts: number; device: string; entity: string; entityId: string }
 export interface EntitySyncRecord { entity: string; entityId: string; value?: unknown; updatedAt: number; device: string; deleted?: boolean }
 
-const ENTITY_COLLECTIONS = ['tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments']
+const ENTITY_COLLECTIONS = [
+  'tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments', 'matters',
+  ...CORE_ENTITY_TYPES.map(type => `core:${type}`)
+]
 const ENTITY_CURSOR_KEY = 'b_entity_pull_cursor'
 const ENTITY_READY_KEY = 'b_entity_sync_ready'
 const ENTITY_PUSH_TS_KEY = 'b_entity_push_ts'
@@ -36,6 +40,7 @@ async function writeEntitySyncState<T>(metaKey: string, legacyKey: string, value
 
 function idFor(entity: string, item: Record<string, unknown>): string | undefined {
   if (item.id != null) return String(item.id)
+  if (item.calmyId != null) return String(item.calmyId)
   if (entity === 'diary' && item.date != null) return String(item.date)
   return undefined
 }

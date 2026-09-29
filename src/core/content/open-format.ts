@@ -1,18 +1,18 @@
 import type { ActionItem } from '@/domain/action/model'
-import type { Matter } from '@/domain/matter/model'
+import { matterFromThing, type Matter, type Thing } from '@/domain/matter/model'
 import type { RealityRecord } from '@/domain/record/model'
 import type { TodayPlan } from '@/domain/today/model'
-import { CORE_ENTITY_TYPES, type CoreEntity, type CoreEntitySource, type CoreEntityType, type RelationType } from '@/domain/unified/model'
+import { CORE_ENTITY_TYPES, type CoreEntity, type CoreEntitySource, type CoreEntityType, type EntityRef, type RelationType } from '@/domain/unified/model'
 import type { OpenAsset } from './assets'
 import { hashOpenBytes } from './assets'
 
 export type { OpenAsset } from './assets'
 
-export const OPEN_FORMAT_VERSION = 1
+export const OPEN_FORMAT_VERSION = 2
 export const OPEN_MANIFEST_PATH = '_calmy/manifest.json'
 
-export type OpenEntity = Matter | ActionItem | RealityRecord | TodayPlan | CoreEntity
-export type OpenEntityType = 'matter' | 'action' | 'record' | 'daily' | CoreEntity['entityType']
+export type OpenEntity = Matter | Thing | ActionItem | RealityRecord | TodayPlan | CoreEntity
+export type OpenEntityType = 'matter' | 'thing' | 'action' | 'record' | 'daily' | CoreEntity['entityType']
 type OpenScalar = string | number | boolean | null | string[]
 type OpenFrontmatter = Record<string, OpenScalar>
 
@@ -63,6 +63,7 @@ export interface OpenWorkspace {
 
 export interface OpenWorkspaceInput {
   matters?: Matter[]
+  things?: Thing[]
   actions?: ActionItem[]
   records?: RealityRecord[]
   dailies?: TodayPlan[]
@@ -116,12 +117,14 @@ export function isUnifiedOpenEntity(entity: OpenEntity): entity is CoreEntity {
   return 'entityType' in entity && (CORE_ENTITY_TYPES as readonly string[]).includes(entity.entityType)
 }
 
-function isMatter(entity: OpenEntity): entity is Matter { return 'currentStage' in entity }
+function isThing(entity: OpenEntity): entity is Thing { return 'entityType' in entity && entity.entityType === 'thing' }
+function isMatter(entity: OpenEntity): entity is Matter { return !('entityType' in entity) && 'currentStage' in entity }
 function isAction(entity: OpenEntity): entity is ActionItem { return 'title' in entity && 'status' in entity && !('currentStage' in entity) }
 function isRecord(entity: OpenEntity): entity is RealityRecord { return 'occurredAt' in entity }
 
 function entityType(entity: OpenEntity): OpenEntityType {
   if (isUnifiedOpenEntity(entity)) return entity.entityType
+  if (isThing(entity)) return 'thing'
   if (isMatter(entity)) return 'matter'
   if (isAction(entity)) return 'action'
   if (isRecord(entity)) return 'record'
@@ -181,12 +184,14 @@ function pathFor(entity: OpenEntity): string {
     const folders: Record<CoreEntity['entityType'], string> = {
       person: '10 People', relationship: '10 People', shared_space: '10 People', cycle: '30 Cycles',
       stage: '30 Cycles', resource: '60 Resources', relation: '60 Resources', seed: '70 Insights',
-      insight: '70 Insights', outcome: '50 Records', practice: '70 Insights', daily_state: '80 Daily', asset: '60 Resources'
+      insight: '70 Insights', outcome: '50 Records', practice: '70 Insights', daily_state: '80 Daily', asset: '60 Resources',
+      scene: '20 Scenes', scene_participant: '20 Scenes', space: '10 People', domain: '10 Domains', scope: '10 Sharing', permission: '10 Sharing'
     }
     const title = 'title' in entity && typeof entity.title === 'string' ? entity.title : entity.entityType
     const date = entity.entityType === 'daily_state' ? entity.date + '__' : ''
     return `${folders[entity.entityType]}/${date}${safeName(title, entity.entityType)}__${id}.md`
   }
+  if (isThing(entity)) return `20 Things/${safeName(entity.title, id)}__${id}.md`
   if (isMatter(entity)) return `20 Matters/${safeName(entity.title, id)}__${id}.md`
   if (isAction(entity)) return `40 Actions/${entity.date}__${safeName(entity.title, id)}__${id}.md`
   if (isRecord(entity)) return `50 Records/${new Date(entity.occurredAt).toISOString().slice(0, 10)}__${id}.md`
@@ -196,9 +201,15 @@ function pathFor(entity: OpenEntity): string {
 function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
   const common = { calmy_id: entityId(entity), calmy_type: entityType(entity), b_version: OPEN_FORMAT_VERSION, revision: entityRevision(entity) }
   if (isUnifiedOpenEntity(entity)) {
-    const readable: OpenFrontmatter = { ...common, source: entity.source, created_at: entity.createdAt, updated_at: entity.updatedAt, payload_json: JSON.stringify(entity) }
+    const readable: OpenFrontmatter = { ...common, source: entity.source, created_at: entity.createdAt, updated_at: entity.updatedAt, ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null, payload_json: JSON.stringify(entity) }
     switch (entity.entityType) {
-      case 'person': return { ...readable, display_name: entity.displayName, status: entity.status, roles: entity.roles, domain: entity.domain || null, notes: entity.notes || null, tags: entity.tags }
+      case 'person': return { ...readable, display_name: entity.displayName, status: entity.status, roles: entity.roles, domain: entity.domain || null, notes: entity.notes || null, tags: entity.tags, linked_user_id: entity.linkedUserId || null }
+      case 'scene': return { ...readable, title: entity.title, thing_id: entity.thingId || null, space_id: entity.spaceId || null, started_at: entity.startedAt ?? null, ended_at: entity.endedAt ?? null, status: entity.status }
+      case 'scene_participant': return { ...readable, scene_id: entity.sceneId, person_id: entity.personId, role: entity.role || null, joined_at: entity.joinedAt, left_at: entity.leftAt ?? null }
+      case 'space': return { ...readable, title: entity.title, purpose: entity.purpose || null, boundary: entity.boundary || null, member_person_ids: entity.memberPersonIds, relationship_ids: entity.relationshipIds, thing_ids: entity.thingIds, scene_ids: entity.sceneIds, owner_ref_json: entity.ownerRef ? JSON.stringify(entity.ownerRef) : null, legacy_boundary_json: entity.legacyBoundary ? JSON.stringify(entity.legacyBoundary) : null, status: entity.status }
+      case 'domain': return { ...readable, key: entity.key, display_name: entity.displayName, status: entity.status }
+      case 'scope': return { ...readable, person_id: entity.personId || null, domain_id: entity.domainId || null, thing_id: entity.thingId || null, scene_id: entity.sceneId || null, space_id: entity.spaceId || null }
+      case 'permission': return { ...readable, principal_user_id: entity.principalUserId, scope_id: entity.scopeId || null, entity_ref_json: entity.entityRef ? JSON.stringify(entity.entityRef) : null, effect: entity.effect, actions: entity.actions }
       case 'relationship': return { ...readable, person_a_id: entity.personAId, person_b_id: entity.personBId, label: entity.label, status: entity.status, boundary: entity.boundary || null, rhythm: entity.rhythm || null, shared_space_ids: entity.sharedSpaceIds, matter_ids: entity.matterIds, evidence_ids: entity.evidenceIds, owner_id: entity.ownerId || null }
       case 'shared_space': return { ...readable, title: entity.title, status: entity.status, purpose: entity.purpose || null, member_ids: entity.memberIds, relationship_ids: entity.relationshipIds, matter_ids: entity.matterIds, owner_id: entity.ownerId || null }
       case 'cycle': return { ...readable, matter_id: entity.matterId, title: entity.title, theme: entity.theme, current_stage: entity.currentStage, status: entity.status, trajectory: entity.trajectory, stage_ids: entity.stageIds, parent_cycle_id: entity.parentCycleId || null, parent_stage: entity.parentStage || null, owner_id: entity.ownerId || null }
@@ -211,6 +222,18 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
       case 'practice': return { ...readable, title: entity.title, status: entity.status, cadence: entity.cadence || null, matter_ids: entity.matterIds, outcome_ids: entity.outcomeIds, evidence_ids: entity.evidenceIds }
       case 'daily_state': return { ...readable, date: entity.date, body_state: entity.bodyState, mental_state: entity.mentalState, load: entity.load, actual_time_minutes: entity.actualTimeMinutes ?? null, trajectory: entity.trajectory, today_plan_id: entity.todayPlanId || null, protected_items: entity.protectedItems }
       case 'asset': return { ...readable, path: entity.path, mime_type: entity.mimeType, size_bytes: entity.sizeBytes, hash: entity.hash, lifecycle: entity.lifecycle, version: entity.version, external_uri: entity.externalUri || null }
+    }
+  }
+  if (isThing(entity)) {
+    const legacyMatter = matterFromThing(entity)
+    return {
+      ...common, source: entity.source || null, title: entity.title, status: entity.status, why: entity.why,
+      primary_contradiction: entity.primaryContradiction, problem: entity.problem || null, desired_change: entity.desiredChange || null,
+      progress_evidence: entity.progressEvidence || null, current_gap: entity.currentGap || null, next_test: entity.nextTest || null,
+      stop_condition: entity.stopCondition || null, current_stage: entity.currentStage, trajectory: entity.trajectory,
+      current_cycle_id: entity.currentCycleId || null, evidence_ids: entity.evidenceIds,
+      subject_person_ids: entity.subjectPersonIds || [], created_at: entity.createdAt, updated_at: entity.updatedAt,
+      payload_json: JSON.stringify({ ...entity, ...legacyMatter, entityType: 'thing', source: entity.source, subjectPersonIds: entity.subjectPersonIds })
     }
   }
   if (isMatter(entity)) {
@@ -265,6 +288,7 @@ function bodyFor(entity: OpenEntity): string {
     ].filter(Boolean).join('\n\n')
     return `# ${entity.title}\n\n${entity.why || '尚未写下为什么。'}${sections ? `\n\n${sections}` : ''}`
   }
+  if (isThing(entity)) return bodyFor(matterFromThing(entity))
   if (isAction(entity)) return `# ${entity.title}\n\n${entity.resultNote || '尚未记录结果。'}`
   if (isRecord(entity)) return entity.body
   return `# ${entity.date}\n\n## 今日保护\n${entity.mustProtect.map(item => `- ${item}`).join('\n') || '- 暂无'}\n\n## 今日放下\n${entity.letGo.map(item => `- ${item}`).join('\n') || '- 暂无'}`
@@ -351,9 +375,11 @@ function readableBody(body: string, title: string): string {
 }
 
 function unifiedMeta(frontmatter: OpenFrontmatter, id: string, type: CoreEntityType, revision: number) {
+  const ownership = optionalString(frontmatter, 'ownership_json')
   return {
     calmyId: id, entityType: type, source: requiredString(frontmatter, 'source') as CoreEntitySource,
-    createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision
+    createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision,
+    ownership: ownership ? JSON.parse(ownership) : undefined
   }
 }
 
@@ -366,7 +392,7 @@ function unifiedPayload(frontmatter: OpenFrontmatter, id: string, type: string):
 
 function hasReadableUnifiedFields(frontmatter: OpenFrontmatter, type: CoreEntityType): boolean {
   const markers: Record<CoreEntityType, string> = {
-    person: 'display_name', relationship: 'person_a_id', shared_space: 'member_ids', cycle: 'matter_id', stage: 'cycle_id',
+    person: 'display_name', scene: 'thing_id', scene_participant: 'scene_id', space: 'member_person_ids', domain: 'key', scope: 'person_id', permission: 'principal_user_id', relationship: 'person_a_id', shared_space: 'member_ids', cycle: 'matter_id', stage: 'cycle_id',
     resource: 'kind', relation: 'from_entity_type', seed: 'status', insight: 'status', outcome: 'action_id', practice: 'title',
     daily_state: 'body_state', asset: 'path'
   }
@@ -377,13 +403,19 @@ function parseUnifiedEntity(frontmatter: OpenFrontmatter, body: string, id: stri
   if (!hasReadableUnifiedFields(frontmatter, type)) return unifiedPayload(frontmatter, id, type)
   const meta = unifiedMeta(frontmatter, id, type, revision)
   switch (type) {
-    case 'person': return { ...meta, entityType: 'person', displayName: requiredString(frontmatter, 'display_name'), status: requiredString(frontmatter, 'status') as 'active' | 'archived', roles: stringArray(frontmatter, 'roles'), domain: optionalString(frontmatter, 'domain'), notes: optionalString(frontmatter, 'notes'), tags: stringArray(frontmatter, 'tags') }
+    case 'person': return { ...meta, entityType: 'person', displayName: requiredString(frontmatter, 'display_name'), status: requiredString(frontmatter, 'status') as 'active' | 'archived', roles: stringArray(frontmatter, 'roles'), domain: optionalString(frontmatter, 'domain'), notes: optionalString(frontmatter, 'notes'), tags: stringArray(frontmatter, 'tags'), linkedUserId: optionalString(frontmatter, 'linked_user_id') }
+    case 'scene': return { ...meta, entityType: 'scene', title: requiredString(frontmatter, 'title'), thingId: optionalString(frontmatter, 'thing_id'), spaceId: optionalString(frontmatter, 'space_id'), startedAt: optionalNumber(frontmatter, 'started_at'), endedAt: optionalNumber(frontmatter, 'ended_at'), status: requiredString(frontmatter, 'status') as 'draft' | 'active' | 'paused' | 'completed' | 'archived' }
+    case 'scene_participant': return { ...meta, entityType: 'scene_participant', sceneId: requiredString(frontmatter, 'scene_id'), personId: requiredString(frontmatter, 'person_id'), role: optionalString(frontmatter, 'role'), joinedAt: requiredNumber(frontmatter, 'joined_at'), leftAt: optionalNumber(frontmatter, 'left_at') }
+    case 'space': return { ...meta, entityType: 'space', title: requiredString(frontmatter, 'title'), purpose: optionalString(frontmatter, 'purpose'), boundary: optionalString(frontmatter, 'boundary'), memberPersonIds: stringArray(frontmatter, 'member_person_ids'), relationshipIds: stringArray(frontmatter, 'relationship_ids'), thingIds: stringArray(frontmatter, 'thing_ids'), sceneIds: stringArray(frontmatter, 'scene_ids'), ownerRef: optionalString(frontmatter, 'owner_ref_json') ? JSON.parse(requiredString(frontmatter, 'owner_ref_json')) : undefined, legacyBoundary: optionalString(frontmatter, 'legacy_boundary_json') ? JSON.parse(requiredString(frontmatter, 'legacy_boundary_json')) : undefined, status: requiredString(frontmatter, 'status') as 'active' | 'closed' | 'archived' }
+    case 'domain': return { ...meta, entityType: 'domain', key: requiredString(frontmatter, 'key'), displayName: requiredString(frontmatter, 'display_name'), status: requiredString(frontmatter, 'status') as 'active' | 'retired' }
+    case 'scope': return { ...meta, entityType: 'scope', personId: optionalString(frontmatter, 'person_id'), domainId: optionalString(frontmatter, 'domain_id'), thingId: optionalString(frontmatter, 'thing_id'), sceneId: optionalString(frontmatter, 'scene_id'), spaceId: optionalString(frontmatter, 'space_id') }
+    case 'permission': return { ...meta, entityType: 'permission', principalUserId: requiredString(frontmatter, 'principal_user_id'), scopeId: optionalString(frontmatter, 'scope_id'), entityRef: optionalString(frontmatter, 'entity_ref_json') ? JSON.parse(requiredString(frontmatter, 'entity_ref_json')) as EntityRef : undefined, effect: requiredString(frontmatter, 'effect') as 'allow' | 'deny', actions: stringArray(frontmatter, 'actions') as ('view' | 'comment' | 'edit' | 'manage')[] }
     case 'relationship': return { ...meta, entityType: 'relationship', personAId: requiredString(frontmatter, 'person_a_id'), personBId: requiredString(frontmatter, 'person_b_id'), label: requiredString(frontmatter, 'label'), status: requiredString(frontmatter, 'status') as 'active' | 'paused' | 'ended', boundary: optionalString(frontmatter, 'boundary'), rhythm: optionalString(frontmatter, 'rhythm'), sharedSpaceIds: stringArray(frontmatter, 'shared_space_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), evidenceIds: stringArray(frontmatter, 'evidence_ids'), ownerId: optionalString(frontmatter, 'owner_id') }
     case 'shared_space': return { ...meta, entityType: 'shared_space', title: requiredString(frontmatter, 'title'), status: requiredString(frontmatter, 'status') as 'active' | 'archived', purpose: optionalString(frontmatter, 'purpose'), memberIds: stringArray(frontmatter, 'member_ids'), relationshipIds: stringArray(frontmatter, 'relationship_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), ownerId: optionalString(frontmatter, 'owner_id') }
     case 'cycle': return { ...meta, entityType: 'cycle', matterId: requiredString(frontmatter, 'matter_id'), title: requiredString(frontmatter, 'title'), theme: requiredString(frontmatter, 'theme'), currentStage: requiredString(frontmatter, 'current_stage') as 'wood' | 'fire' | 'earth' | 'metal' | 'water', status: requiredString(frontmatter, 'status') as 'planned' | 'active' | 'paused' | 'completed' | 'archived', trajectory: requiredString(frontmatter, 'trajectory') as 'advancing' | 'stable' | 'stalled' | 'retreating' | 'diverging' | 'lost' | 'recovering' | 'restarting' | 'unknown', stageIds: stringArray(frontmatter, 'stage_ids'), parentCycleId: optionalString(frontmatter, 'parent_cycle_id'), parentStage: optionalString(frontmatter, 'parent_stage') as 'wood' | 'fire' | 'earth' | 'metal' | 'water' | undefined, ownerId: optionalString(frontmatter, 'owner_id') }
     case 'stage': return { ...meta, entityType: 'stage', cycleId: requiredString(frontmatter, 'cycle_id'), title: requiredString(frontmatter, 'title'), element: requiredString(frontmatter, 'element') as 'wood' | 'fire' | 'earth' | 'metal' | 'water', status: requiredString(frontmatter, 'status') as 'planned' | 'active' | 'paused' | 'completed' | 'skipped', actionIds: stringArray(frontmatter, 'action_ids'), recordIds: stringArray(frontmatter, 'record_ids'), order: optionalNumber(frontmatter, 'order') }
     case 'resource': return { ...meta, entityType: 'resource', title: requiredString(frontmatter, 'title'), kind: requiredString(frontmatter, 'kind') as 'reference' | 'tool' | 'template' | 'knowledge' | 'person_asset' | 'other', status: requiredString(frontmatter, 'status') as 'active' | 'expired' | 'retired', body: readableBody(body, requiredString(frontmatter, 'title')), uri: optionalString(frontmatter, 'uri'), assetIds: stringArray(frontmatter, 'asset_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), sourceIds: stringArray(frontmatter, 'source_ids'), tags: stringArray(frontmatter, 'tags'), expiresAt: optionalNumber(frontmatter, 'expires_at') }
-    case 'relation': return { ...meta, entityType: 'relation', from: { entityType: requiredString(frontmatter, 'from_entity_type') as CoreEntityType, calmyId: requiredString(frontmatter, 'from_id') }, to: { entityType: requiredString(frontmatter, 'to_entity_type') as CoreEntityType, calmyId: requiredString(frontmatter, 'to_id') }, relationType: requiredString(frontmatter, 'relation_type') as RelationType, directed: requiredBoolean(frontmatter, 'directed'), confidence: optionalNumber(frontmatter, 'confidence'), sourceIds: stringArray(frontmatter, 'source_ids') }
+    case 'relation': return { ...meta, entityType: 'relation', from: { entityType: requiredString(frontmatter, 'from_entity_type') as EntityRef['entityType'], calmyId: requiredString(frontmatter, 'from_id') }, to: { entityType: requiredString(frontmatter, 'to_entity_type') as EntityRef['entityType'], calmyId: requiredString(frontmatter, 'to_id') }, relationType: requiredString(frontmatter, 'relation_type') as RelationType, directed: requiredBoolean(frontmatter, 'directed'), confidence: optionalNumber(frontmatter, 'confidence'), sourceIds: stringArray(frontmatter, 'source_ids') }
     case 'seed': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'seed', title, body: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'open' | 'cultivating' | 'promoted' | 'retired', sourceRecordIds: stringArray(frontmatter, 'source_record_ids'), targetMatterIds: stringArray(frontmatter, 'target_matter_ids'), tags: stringArray(frontmatter, 'tags') } }
     case 'insight': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'insight', title, body: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'draft' | 'confirmed' | 'retired', confidence: optionalNumber(frontmatter, 'confidence'), memoryLayer: optionalString(frontmatter, 'memory_layer') as 'ai_inference' | 'preference' | 'principle' | undefined, confirmedAt: optionalNumber(frontmatter, 'confirmed_at'), deniedAt: optionalNumber(frontmatter, 'denied_at'), sourceRecordIds: stringArray(frontmatter, 'source_record_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), resourceIds: stringArray(frontmatter, 'resource_ids') } }
     case 'outcome': return { ...meta, entityType: 'outcome', actionId: requiredString(frontmatter, 'action_id'), matterId: optionalString(frontmatter, 'matter_id'), summary: requiredString(frontmatter, 'summary'), result: optionalString(frontmatter, 'result'), status: requiredString(frontmatter, 'status') as 'observed' | 'accepted' | 'revised', evidenceRecordIds: stringArray(frontmatter, 'evidence_record_ids') }
@@ -395,7 +427,7 @@ function parseUnifiedEntity(frontmatter: OpenFrontmatter, body: string, id: stri
 
 function parseEntity(input: string): OpenEntity {
   const { frontmatter, body } = parseMarkdown(input)
-  if (frontmatter.b_version !== OPEN_FORMAT_VERSION) throw new Error('unsupported-format-version')
+  if (frontmatter.b_version !== 1 && frontmatter.b_version !== OPEN_FORMAT_VERSION) throw new Error('unsupported-format-version')
   const id = requiredString(frontmatter, 'calmy_id')
   const type = requiredString(frontmatter, 'calmy_type')
   const revision = requiredNumber(frontmatter, 'revision')
@@ -408,6 +440,22 @@ function parseEntity(input: string): OpenEntity {
       currentStage: requiredString(frontmatter, 'current_stage') as Matter['currentStage'], trajectory: requiredString(frontmatter, 'trajectory') as Matter['trajectory'],
       currentCycleId: optionalString(frontmatter, 'current_cycle_id'), evidenceIds: stringArray(frontmatter, 'evidence_ids'),
       createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision
+    }
+  }
+  if (type === 'thing') {
+    const payloadJson = optionalString(frontmatter, 'payload_json')
+    const payload = payloadJson ? JSON.parse(payloadJson) as Partial<Thing> : {}
+    return {
+      ...payload,
+      entityType: 'thing', calmyId: id, title: requiredString(frontmatter, 'title'), why: requiredString(frontmatter, 'why'),
+      primaryContradiction: requiredString(frontmatter, 'primary_contradiction'), problem: optionalString(frontmatter, 'problem'),
+      desiredChange: optionalString(frontmatter, 'desired_change'), progressEvidence: optionalString(frontmatter, 'progress_evidence'),
+      currentGap: optionalString(frontmatter, 'current_gap'), nextTest: optionalString(frontmatter, 'next_test'),
+      stopCondition: optionalString(frontmatter, 'stop_condition'), status: requiredString(frontmatter, 'status') as Matter['status'],
+      currentStage: requiredString(frontmatter, 'current_stage') as Matter['currentStage'], trajectory: requiredString(frontmatter, 'trajectory') as Matter['trajectory'],
+      currentCycleId: optionalString(frontmatter, 'current_cycle_id'), evidenceIds: stringArray(frontmatter, 'evidence_ids'),
+      createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision,
+      source: optionalString(frontmatter, 'source') as Thing['source'], subjectPersonIds: stringArray(frontmatter, 'subject_person_ids')
     }
   }
   if (type === 'action') {
@@ -547,16 +595,20 @@ export function compareOpenAssets(local: OpenAsset[], incoming: OpenAsset[]): Op
 }
 
 export function exportOpenWorkspace(input: OpenWorkspaceInput): OpenWorkspace {
-  const entities: OpenEntity[] = [...(input.matters || []), ...(input.actions || []), ...(input.records || []), ...(input.dailies || []), ...(input.unified || [])]
+  const entities: OpenEntity[] = [...(input.matters || []), ...(input.things || []), ...(input.actions || []), ...(input.records || []), ...(input.dailies || []), ...(input.unified || [])]
   const assets = (input.assets || []).map(asset => ({ ...asset, path: assetPath(asset.path) }))
   const files: Record<string, string> = {}
   const manifestEntries: OpenManifestEntry[] = []
+  const seenEntityIds = new Set<string>()
   for (const entity of entities) {
+    const id = entityId(entity)
+    if (seenEntityIds.has(id)) throw new Error(`duplicate-entity-id:${id}`)
+    seenEntityIds.add(id)
     const path = pathFor(entity)
     const content = serializeOpenEntity(entity)
     if (files[path]) throw new Error(`duplicate-path:${path}`)
     files[path] = content
-    manifestEntries.push({ calmy_id: entityId(entity), calmy_type: entityType(entity), path, revision: entityRevision(entity), hash: hashOpenText(content) })
+    manifestEntries.push({ calmy_id: id, calmy_type: entityType(entity), path, revision: entityRevision(entity), hash: hashOpenText(content) })
   }
   const manifestAssets: OpenManifestAsset[] = []
   const seenAssetPaths = new Set<string>()
@@ -578,7 +630,7 @@ function parseManifest(files: Record<string, string>, issues: OpenImportIssue[])
   if (raw === undefined) return undefined
   try {
     const parsed = JSON.parse(raw) as OpenManifest
-    if (parsed.format !== 'calmy-open' || parsed.format_version !== OPEN_FORMAT_VERSION || !Array.isArray(parsed.entities)) throw new Error('manifest-shape-invalid')
+    if (parsed.format !== 'calmy-open' || ![1, OPEN_FORMAT_VERSION].includes(parsed.format_version) || !Array.isArray(parsed.entities)) throw new Error('manifest-shape-invalid')
     return { ...parsed, assets: Array.isArray(parsed.assets) ? parsed.assets : [], asset_references: Array.isArray(parsed.asset_references) ? parsed.asset_references : [], tombstones: Array.isArray(parsed.tombstones) ? parsed.tombstones : [] }
   } catch (error) {
     issues.push({ path: OPEN_MANIFEST_PATH, code: 'invalid-entity', message: error instanceof Error ? error.message : 'manifest-invalid' })

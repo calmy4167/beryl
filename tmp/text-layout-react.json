@@ -1,0 +1,398 @@
+[
+  {
+    "text": "带着问题找资料",
+    "parent": "H1.font-title",
+    "rects": [
+      {
+        "x": 264,
+        "y": 127,
+        "width": 202.65625,
+        "height": 40,
+        "top": 127,
+        "right": 466.65625,
+        "bottom": 167,
+        "left": 264
+      }
+    ],
+    "font": "760 30px / 35.4px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(36, 44, 40)"
+  },
+  {
+    "text": "先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 264,
+        "y": 173.390625,
+        "width": 374.140625,
+        "height": 16,
+        "top": 173.390625,
+        "right": 638.140625,
+        "bottom": 189.390625,
+        "left": 264
+      }
+    ],
+    "font": "12px / 19.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(101, 113, 109)"
+  },
+  {
+    "text": "探索内容暂时无法读取",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 727,
+        "y": 228.578125,
+        "width": 160,
+        "height": 21,
+        "top": 228.578125,
+        "right": 887,
+        "bottom": 249.578125,
+        "left": 727
+      }
+    ],
+    "font": "700 16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(101, 113, 109)"
+  },
+  {
+    "text": "Injected read failure",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 730.84375,
+        "y": 265.578125,
+        "width": 152.3125,
+        "height": 21,
+        "top": 265.578125,
+        "right": 883.15625,
+        "bottom": 286.578125,
+        "left": 730.84375
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(101, 113, 109)"
+  },
+  {
+    "text": "重试",
+    "parent": "BUTTON.react-btn ",
+    "rects": [
+      {
+        "x": 791,
+        "y": 311.578125,
+        "width": 32,
+        "height": 21,
+        "top": 311.578125,
+        "right": 823,
+        "bottom": 332.578125,
+        "left": 791
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "当前意图",
+    "parent": "P.eyebrow",
+    "rects": [
+      {
+        "x": 283,
+        "y": 393.578125,
+        "width": 45.203125,
+        "height": 14,
+        "top": 393.578125,
+        "right": 328.203125,
+        "bottom": 407.578125,
+        "left": 283
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(47, 158, 104)"
+  },
+  {
+    "text": "这次为什么打开探索？",
+    "parent": "H2.font-title",
+    "rects": [
+      {
+        "x": 283,
+        "y": 417.578125,
+        "width": 200,
+        "height": 26,
+        "top": 417.578125,
+        "right": 483,
+        "bottom": 443.578125,
+        "left": 283
+      }
+    ],
+    "font": "700 20px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(32, 38, 36)"
+  },
+  {
+    "text": "可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 283,
+        "y": 449.578125,
+        "width": 374,
+        "height": 15,
+        "top": 449.578125,
+        "right": 657,
+        "bottom": 464.578125,
+        "left": 283
+      }
+    ],
+    "font": "11px / 17.6px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(104, 118, 110)"
+  },
+  {
+    "text": "选择这次的方式",
+    "parent": "SPAN.",
+    "rects": [
+      {
+        "x": 287,
+        "y": 646.671875,
+        "width": 70,
+        "height": 14,
+        "top": 646.671875,
+        "right": 357,
+        "bottom": 660.671875,
+        "left": 287
+      }
+    ],
+    "font": "10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "专注",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 373,
+        "y": 639.171875,
+        "width": 20,
+        "height": 14,
+        "top": 639.171875,
+        "right": 393,
+        "bottom": 653.171875,
+        "left": 373
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "只看一条",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 373,
+        "y": 656.171875,
+        "width": 36,
+        "height": 12,
+        "top": 656.171875,
+        "right": 409,
+        "bottom": 668.171875,
+        "left": 373
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "漫游",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 567,
+        "y": 639.171875,
+        "width": 20,
+        "height": 14,
+        "top": 639.171875,
+        "right": 587,
+        "bottom": 653.171875,
+        "left": 567
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "有限探索",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 567,
+        "y": 656.171875,
+        "width": 36,
+        "height": 12,
+        "top": 656.171875,
+        "right": 603,
+        "bottom": 668.171875,
+        "left": 567
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "解题",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 761,
+        "y": 639.171875,
+        "width": 20,
+        "height": 14,
+        "top": 639.171875,
+        "right": 781,
+        "bottom": 653.171875,
+        "left": 761
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "优先看线索",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 761,
+        "y": 656.171875,
+        "width": 45,
+        "height": 12,
+        "top": 656.171875,
+        "right": 806,
+        "bottom": 668.171875,
+        "left": 761
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(47, 158, 104)"
+  },
+  {
+    "text": "回响",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 955,
+        "y": 639.171875,
+        "width": 20,
+        "height": 14,
+        "top": 639.171875,
+        "right": 975,
+        "bottom": 653.171875,
+        "left": 955
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "回看资料",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 955,
+        "y": 656.171875,
+        "width": 36,
+        "height": 12,
+        "top": 656.171875,
+        "right": 991,
+        "bottom": 668.171875,
+        "left": 955
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "专题",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 1149,
+        "y": 639.171875,
+        "width": 20,
+        "height": 14,
+        "top": 639.171875,
+        "right": 1169,
+        "bottom": 653.171875,
+        "left": 1149
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "混合上下文",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 1149,
+        "y": 656.171875,
+        "width": 45,
+        "height": 12,
+        "top": 656.171875,
+        "right": 1194,
+        "bottom": 668.171875,
+        "left": 1149
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "关联处境（可选）",
+    "parent": "LABEL.",
+    "rects": [
+      {
+        "x": 283,
+        "y": 693.171875,
+        "width": 88,
+        "height": 15,
+        "top": 693.171875,
+        "right": 371,
+        "bottom": 708.171875,
+        "left": 283
+      }
+    ],
+    "font": "11px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(104, 118, 110)"
+  },
+  {
+    "text": "开始这一批",
+    "parent": "BUTTON.react-btn primary",
+    "rects": [
+      {
+        "x": 1236,
+        "y": 722.171875,
+        "width": 80,
+        "height": 21,
+        "top": 722.171875,
+        "right": 1316,
+        "bottom": 743.171875,
+        "left": 1236
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(255, 255, 255)"
+  },
+  {
+    "text": "写下问题并选择方式后，探索才会开始显示有限内容。",
+    "parent": "DIV.empty-state",
+    "rects": [
+      {
+        "x": 615,
+        "y": 796.171875,
+        "width": 384,
+        "height": 21,
+        "top": 796.171875,
+        "right": 999,
+        "bottom": 817.171875,
+        "left": 615
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(101, 113, 109)"
+  }
+]

@@ -1,0 +1,227 @@
+{
+  "href": "http://127.0.0.1:14676/#/login",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "devicePixelRatio": 1,
+    "visualWidth": 1440,
+    "visualHeight": 900,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 1440,
+    "height": 900
+  },
+  "focus": "BODY",
+  "workspaceTabs": [],
+  "elements": [
+    {
+      "selector": "input[aria-label=\"用户名\"]",
+      "className": "",
+      "role": null,
+      "ariaLabel": "用户名",
+      "rect": {
+        "x": 553,
+        "y": 440,
+        "width": 334,
+        "height": 38
+      },
+      "fontSize": "12px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "borderColor": "rgb(220, 227, 237)",
+      "borderRadius": "6px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": "input[aria-label=\"密码\"]",
+      "className": "",
+      "role": null,
+      "ariaLabel": "密码",
+      "rect": {
+        "x": 553,
+        "y": 516,
+        "width": 334,
+        "height": 38
+      },
+      "fontSize": "12px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 250, 252)",
+      "border": "1px solid rgb(220, 227, 237)",
+      "borderColor": "rgb(220, 227, 237)",
+      "borderRadius": "6px",
+      "boxShadow": "none"
+    }
+  ],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "missing": true
+      },
+      {
+        "selector": ".workspace-shell",
+        "missing": true
+      },
+      {
+        "selector": ".page-container",
+        "missing": true
+      },
+      {
+        "selector": ".route-motion",
+        "missing": true
+      }
+    ],
+    "viewport": {
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "innerHeight": 900
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import type { OpenAsset, OpenImportResult, OpenWorkspace } from './open-format'
 import { hashOpenBytes } from './assets'
-import { hashOpenText, importOpenWorkspace, OPEN_MANIFEST_PATH } from './open-format'
+import { hashOpenText, importOpenWorkspace, OPEN_FORMAT_VERSION, OPEN_MANIFEST_PATH, type OpenManifest } from './open-format'
 
 export interface VaultAdapter {
   listPaths(): Promise<string[]>
@@ -107,11 +107,21 @@ export function createFileSystemVaultAdapter(root: FileSystemDirectoryHandleLike
 export async function readVaultSnapshot(adapter: VaultAdapter): Promise<VaultImportSnapshot> {
   const paths = (await adapter.listPaths()).map(normalizePath).filter(path => !isIgnoredPath(path))
   const textEntries: Record<string, string> = {}
-  const assets: OpenAsset[] = []
+  const binaryEntries: Array<{ path: string; data: Uint8Array }> = []
   for (const path of paths) {
     if (isTextPath(path)) textEntries[path] = await adapter.readText(path)
-    else assets.push({ path, data: await adapter.readBinary(path), mimeType: 'application/octet-stream' })
+    else binaryEntries.push({ path, data: await adapter.readBinary(path) })
   }
+  const mimeTypes = new Map<string, string>()
+  try {
+    const manifest = JSON.parse(textEntries[OPEN_MANIFEST_PATH] || '') as Partial<OpenManifest>
+    if (manifest.format === 'calmy-open' && manifest.format_version === OPEN_FORMAT_VERSION && Array.isArray(manifest.assets)) {
+      for (const asset of manifest.assets) {
+        if (typeof asset.path === 'string' && typeof asset.mime_type === 'string') mimeTypes.set(asset.path, asset.mime_type)
+      }
+    }
+  } catch { /* The normal Open Format parser reports malformed manifests below. */ }
+  const assets: OpenAsset[] = binaryEntries.map(asset => ({ ...asset, mimeType: mimeTypes.get(asset.path) || 'application/octet-stream' }))
   return { ...importOpenWorkspace(textEntries, assets), paths, files: textEntries }
 }
 
@@ -168,6 +178,7 @@ export async function syncWorkspaceToVault(adapter: VaultAdapter, workspace: Ope
     }
   }
   await writeTextEntries()
+  if (result.errors.length) return result
   for (const asset of workspace.assets) {
     try {
       if (await sameBinary(adapter, asset.path, asset.data)) result.unchangedPaths.push(asset.path)
@@ -179,6 +190,7 @@ export async function syncWorkspaceToVault(adapter: VaultAdapter, workspace: Ope
       result.errors.push(asset.path + ': ' + (error instanceof Error ? error.message : 'write-failed'))
     }
   }
+  if (result.errors.length) return result
   const manifest = workspace.files[OPEN_MANIFEST_PATH]
   if (manifest !== undefined) {
     try {

@@ -1,0 +1,428 @@
+[
+  {
+    "text": "带着问题找资料",
+    "parent": "H1.font-title",
+    "rects": [
+      {
+        "x": 12,
+        "y": 73,
+        "width": 202.65625,
+        "height": 40,
+        "top": 73,
+        "right": 214.65625,
+        "bottom": 113,
+        "left": 12
+      }
+    ],
+    "font": "760 30px / 35.4px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(36, 44, 40)"
+  },
+  {
+    "text": "先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 12,
+        "y": 119.390625,
+        "width": 350.140625,
+        "height": 16,
+        "top": 119.390625,
+        "right": 362.140625,
+        "bottom": 135.390625,
+        "left": 12
+      },
+      {
+        "x": 12,
+        "y": 138.578125,
+        "width": 24,
+        "height": 16,
+        "top": 138.578125,
+        "right": 36,
+        "bottom": 154.578125,
+        "left": 12
+      }
+    ],
+    "font": "12px / 19.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(101, 113, 109)"
+  },
+  {
+    "text": "当前意图",
+    "parent": "P.eyebrow",
+    "rects": [
+      {
+        "x": 31,
+        "y": 197.765625,
+        "width": 45.203125,
+        "height": 14,
+        "top": 197.765625,
+        "right": 76.203125,
+        "bottom": 211.765625,
+        "left": 31
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(47, 158, 104)"
+  },
+  {
+    "text": "这次为什么打开探索？",
+    "parent": "H2.font-title",
+    "rects": [
+      {
+        "x": 31,
+        "y": 221.765625,
+        "width": 200,
+        "height": 26,
+        "top": 221.765625,
+        "right": 231,
+        "bottom": 247.765625,
+        "left": 31
+      }
+    ],
+    "font": "700 20px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(32, 38, 36)"
+  },
+  {
+    "text": "可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 31,
+        "y": 253.765625,
+        "width": 319,
+        "height": 15,
+        "top": 253.765625,
+        "right": 350,
+        "bottom": 268.765625,
+        "left": 31
+      },
+      {
+        "x": 31,
+        "y": 271.359375,
+        "width": 55,
+        "height": 15,
+        "top": 271.359375,
+        "right": 86,
+        "bottom": 286.359375,
+        "left": 31
+      }
+    ],
+    "font": "11px / 17.6px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(104, 118, 110)"
+  },
+  {
+    "text": "选择这次的方式",
+    "parent": "SPAN.",
+    "rects": [
+      {
+        "x": 35,
+        "y": 377.953125,
+        "width": 70,
+        "height": 14,
+        "top": 377.953125,
+        "right": 105,
+        "bottom": 391.953125,
+        "left": 35
+      }
+    ],
+    "font": "10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "专注",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 403.953125,
+        "width": 20,
+        "height": 14,
+        "top": 403.953125,
+        "right": 68,
+        "bottom": 417.953125,
+        "left": 48
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "只看一条",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 420.953125,
+        "width": 36,
+        "height": 12,
+        "top": 420.953125,
+        "right": 84,
+        "bottom": 432.953125,
+        "left": 48
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(47, 158, 104)"
+  },
+  {
+    "text": "漫游",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 209.5,
+        "y": 403.953125,
+        "width": 20,
+        "height": 14,
+        "top": 403.953125,
+        "right": 229.5,
+        "bottom": 417.953125,
+        "left": 209.5
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "有限探索",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 209.5,
+        "y": 420.953125,
+        "width": 36,
+        "height": 12,
+        "top": 420.953125,
+        "right": 245.5,
+        "bottom": 432.953125,
+        "left": 209.5
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "解题",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 453.953125,
+        "width": 20,
+        "height": 14,
+        "top": 453.953125,
+        "right": 68,
+        "bottom": 467.953125,
+        "left": 48
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "优先看线索",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 470.953125,
+        "width": 45,
+        "height": 12,
+        "top": 470.953125,
+        "right": 93,
+        "bottom": 482.953125,
+        "left": 48
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "回响",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 209.5,
+        "y": 453.953125,
+        "width": 20,
+        "height": 14,
+        "top": 453.953125,
+        "right": 229.5,
+        "bottom": 467.953125,
+        "left": 209.5
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "回看资料",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 209.5,
+        "y": 470.953125,
+        "width": 36,
+        "height": 12,
+        "top": 470.953125,
+        "right": 245.5,
+        "bottom": 482.953125,
+        "left": 209.5
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "专题",
+    "parent": "B.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 503.953125,
+        "width": 20,
+        "height": 14,
+        "top": 503.953125,
+        "right": 68,
+        "bottom": 517.953125,
+        "left": 48
+      }
+    ],
+    "font": "700 10px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  },
+  {
+    "text": "混合上下文",
+    "parent": "SMALL.",
+    "rects": [
+      {
+        "x": 48,
+        "y": 520.953125,
+        "width": 45,
+        "height": 12,
+        "top": 520.953125,
+        "right": 93,
+        "bottom": 532.953125,
+        "left": 48
+      }
+    ],
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(137, 149, 142)"
+  },
+  {
+    "text": "关联处境（可选）",
+    "parent": "LABEL.",
+    "rects": [
+      {
+        "x": 31,
+        "y": 557.953125,
+        "width": 88,
+        "height": 15,
+        "top": 557.953125,
+        "right": 119,
+        "bottom": 572.953125,
+        "left": 31
+      }
+    ],
+    "font": "11px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(104, 118, 110)"
+  },
+  {
+    "text": "重新开始本批",
+    "parent": "BUTTON.app-button primary",
+    "rects": [
+      {
+        "x": 46,
+        "y": 641.953125,
+        "width": 96,
+        "height": 21,
+        "top": 641.953125,
+        "right": 142,
+        "bottom": 662.953125,
+        "left": 46
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(255, 255, 255)"
+  },
+  {
+    "text": "这一批已结束",
+    "parent": "H2.font-title",
+    "rects": [
+      {
+        "x": 123,
+        "y": 737.953125,
+        "width": 144,
+        "height": 31,
+        "top": 737.953125,
+        "right": 267,
+        "bottom": 768.953125,
+        "left": 123
+      }
+    ],
+    "font": "700 24px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(32, 38, 36)"
+  },
+  {
+    "text": "你可以回到现实去验证，或稍后带着新的问题再来。不需要继续浏览。",
+    "parent": "P.",
+    "rects": [
+      {
+        "x": 45,
+        "y": 780.953125,
+        "width": 300,
+        "height": 16,
+        "top": 780.953125,
+        "right": 345,
+        "bottom": 796.953125,
+        "left": 45
+      },
+      {
+        "x": 159,
+        "y": 796.953125,
+        "width": 72,
+        "height": 16,
+        "top": 796.953125,
+        "right": 231,
+        "bottom": 812.953125,
+        "left": 159
+      }
+    ],
+    "font": "12px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(104, 118, 110)"
+  },
+  {
+    "text": "回到今天去做",
+    "parent": "BUTTON.app-button primary",
+    "rects": [
+      {
+        "x": 98,
+        "y": 837.953125,
+        "width": 96,
+        "height": 21,
+        "top": 837.953125,
+        "right": 194,
+        "bottom": 858.953125,
+        "left": 98
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(255, 255, 255)"
+  },
+  {
+    "text": "返回本批",
+    "parent": "BUTTON.app-button",
+    "rects": [
+      {
+        "x": 230,
+        "y": 837.953125,
+        "width": 64,
+        "height": 21,
+        "top": 837.953125,
+        "right": 294,
+        "bottom": 858.953125,
+        "left": 230
+      }
+    ],
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "color": "rgb(20, 33, 58)"
+  }
+]

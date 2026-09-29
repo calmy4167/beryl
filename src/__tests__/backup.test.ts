@@ -43,6 +43,14 @@ describe('backup contract', () => {
     expect(parseBackup(backup)).toEqual(backup)
   })
 
+  it('preserves local binary assets in the JSON disaster-recovery backup', () => {
+    const assets = JSON.stringify([{ path: 'assets/photo.png', data: 'iVBORw0KGgo=', mimeType: 'image/png' }])
+    const backup = createBackup(new StorageMock({ b_openAssets: assets }))
+
+    expect(backup).toEqual({ b_openAssets: assets })
+    expect(parseBackup(backup)).toEqual({ b_openAssets: assets })
+  })
+
   it('round-trips journal categories and remains compatible with older record JSON', () => {
     const categorized = '[{"calmyId":"r2","journalCategory":"mind"}]'
     const legacy = '[{"calmyId":"r1","type":"fact"}]'

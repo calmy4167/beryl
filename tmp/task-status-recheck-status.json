@@ -1,0 +1,75 @@
+{
+  "start": 0,
+  "limit": 7,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "recapture-error": 3,
+    "exact": 4
+  },
+  "results": [
+    {
+      "id": "295",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538740745.5,\"currentTimeOrigin\":1790538741033.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:83\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:83:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\295-app-module-tasks-1440x900"
+    },
+    {
+      "id": "296",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538740741.7,\"currentTimeOrigin\":1790538741061.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:83\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:83:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\296-app-module-tasks-1024x768"
+    },
+    {
+      "id": "297",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790538740755.6,\"currentTimeOrigin\":1790538741033.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:83\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:83:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\297-app-module-tasks-390x844"
+    },
+    {
+      "id": "298",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\298-app-module-tasks-1440x900"
+    },
+    {
+      "id": "299",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\299-app-module-tasks-1024x768"
+    },
+    {
+      "id": "300",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\300-app-module-tasks-390x844"
+    },
+    {
+      "id": "301",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\manifest-app_module_tasks-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\task-status-recheck\\301-app-module-tasks-390x844"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "label": "关联处境",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 1225,
+      "y": 298.515625,
+      "width": 110,
+      "height": 40,
+      "top": 298.515625,
+      "right": 1335,
+      "bottom": 338.515625,
+      "left": 1225
+    },
+    "background": "rgb(255, 255, 255)",
+    "backgroundImage": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2365716d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+    "appearance": "none",
+    "padding": "0px 36px 0px 12px",
+    "border": "1px solid rgb(225, 229, 227)",
+    "borderRadius": "10px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

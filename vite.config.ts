@@ -1,10 +1,9 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
-export default defineConfig({
-  plugins: [vue(), react()],
+export default defineConfig(() => ({
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -28,4 +27,4 @@ export default defineConfig({
     globals: false,
     include: ['src/**/*.test.ts'] // 只收集 src 下的 vitest 用例（node 测试见 test/node，用 npm run test:node）
   }
-})
+}))

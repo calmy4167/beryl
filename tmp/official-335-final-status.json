@@ -1,0 +1,3028 @@
+{
+  "start": 0,
+  "limit": 335,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "exact": 208,
+    "nonzero": 90,
+    "recapture-error": 37
+  },
+  "results": [
+    {
+      "id": "001",
+      "route": "/app/admin/advanced",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\001-app-admin-advanced-1440x900"
+    },
+    {
+      "id": "002",
+      "route": "/app/admin/advanced",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\002-app-admin-advanced-1024x768"
+    },
+    {
+      "id": "003",
+      "route": "/app/admin/advanced",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\003-app-admin-advanced-390x844"
+    },
+    {
+      "id": "004",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-cloud-debug-current\\manifest-app_admin-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\004-app-admin-390x844"
+    },
+    {
+      "id": "005",
+      "route": "/app/admin",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\005-app-admin-1440x900"
+    },
+    {
+      "id": "006",
+      "route": "/app/admin",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\006-app-admin-1024x768"
+    },
+    {
+      "id": "007",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\007-app-admin-390x844"
+    },
+    {
+      "id": "008",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\008-app-calendar-date-2026-09-14-1440x900"
+    },
+    {
+      "id": "009",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\009-app-calendar-date-2026-09-14-1024x768"
+    },
+    {
+      "id": "010",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\010-app-calendar-date-2026-09-14-390x844"
+    },
+    {
+      "id": "011",
+      "route": "/app/capture",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-320-paired\\manifest-app_capture-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\011-app-capture-320x844"
+    },
+    {
+      "id": "012",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\012-app-capture-1440x900"
+    },
+    {
+      "id": "013",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\013-app-capture-1024x768"
+    },
+    {
+      "id": "014",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\014-app-capture-390x844"
+    },
+    {
+      "id": "015",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 16,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\015-app-capture-1440x900"
+    },
+    {
+      "id": "016",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\016-app-capture-1024x768"
+    },
+    {
+      "id": "017",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\017-app-capture-390x844"
+    },
+    {
+      "id": "018",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-zoom200-paired\\manifest-app_capture-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\018-app-capture-1440x900-scale2"
+    },
+    {
+      "id": "019",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\019-app-module-custom-legacy-entry-1440x900"
+    },
+    {
+      "id": "020",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\020-app-module-custom-legacy-entry-1024x768"
+    },
+    {
+      "id": "021",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\021-app-module-custom-legacy-entry-390x844"
+    },
+    {
+      "id": "022",
+      "route": "/",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\022--1440x900"
+    },
+    {
+      "id": "023",
+      "route": "/",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\023--1024x768"
+    },
+    {
+      "id": "024",
+      "route": "/",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\024--390x844"
+    },
+    {
+      "id": "025",
+      "route": "/app/unknown-current-page",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\025-app-unknown-current-page-1440x900"
+    },
+    {
+      "id": "026",
+      "route": "/app/unknown-current-page",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\026-app-unknown-current-page-1024x768"
+    },
+    {
+      "id": "027",
+      "route": "/app/unknown-current-page",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\027-app-unknown-current-page-390x844"
+    },
+    {
+      "id": "028",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\028-app-cycle-1440x900"
+    },
+    {
+      "id": "029",
+      "route": "/app/cycle",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\029-app-cycle-1024x768"
+    },
+    {
+      "id": "030",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\030-app-cycle-390x844"
+    },
+    {
+      "id": "031",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\031-app-module-diary-1440x900"
+    },
+    {
+      "id": "032",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 26,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\032-app-module-diary-1024x768"
+    },
+    {
+      "id": "033",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 16,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\033-app-module-diary-390x844"
+    },
+    {
+      "id": "034",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\034-app-module-diary-1440x900"
+    },
+    {
+      "id": "035",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\035-app-module-diary-1024x768"
+    },
+    {
+      "id": "036",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\036-app-module-diary-390x844"
+    },
+    {
+      "id": "037",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\037-app-today-320x844"
+    },
+    {
+      "id": "038",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\038-app-today-390x844"
+    },
+    {
+      "id": "039",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\039-app-today-1440x900"
+    },
+    {
+      "id": "040",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\040-app-today-1024x768"
+    },
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536490558.1,\"currentTimeOrigin\":1790536490783.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .feature-group-button; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\041-app-today-390x844"
+    },
+    {
+      "id": "042",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\042-app-feishu-1440x900"
+    },
+    {
+      "id": "043",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\043-app-feishu-1024x768"
+    },
+    {
+      "id": "044",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\044-app-feishu-390x844"
+    },
+    {
+      "id": "045",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\045-app-module-finance-1440x900"
+    },
+    {
+      "id": "046",
+      "route": "/app/module/finance",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\046-app-module-finance-1024x768"
+    },
+    {
+      "id": "047",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\047-app-module-finance-390x844"
+    },
+    {
+      "id": "048",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 22,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\048-app-library-1440x900"
+    },
+    {
+      "id": "049",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\049-app-library-1024x768"
+    },
+    {
+      "id": "050",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\050-app-library-390x844"
+    },
+    {
+      "id": "051",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 12,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\051-app-matters-1440x900"
+    },
+    {
+      "id": "052",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\052-app-matters-1024x768"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536550310.9,\"currentTimeOrigin\":1790536550499.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow 关联验收处境\r\n\r\n验证探索资料能关联到现实问题。\r\n\r\n当前要解决的问题\r\n\r\n如何验证这条资料是否有用？\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\053-app-matters-390x844"
+    },
+    {
+      "id": "054",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 37,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\054-app-today-1440x900"
+    },
+    {
+      "id": "055",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 37,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\055-app-today-1024x768"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536563088.3,\"currentTimeOrigin\":1790536563255.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/flow\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n20:00\r\n迁移验收回响现实记录\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\056-app-today-390x844"
+    },
+    {
+      "id": "057",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\057-app-library-1440x900"
+    },
+    {
+      "id": "058",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\058-app-library-1024x768"
+    },
+    {
+      "id": "059",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\059-app-library-390x844"
+    },
+    {
+      "id": "060",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\060-app-library-1440x900"
+    },
+    {
+      "id": "061",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\061-app-library-1024x768"
+    },
+    {
+      "id": "062",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\062-app-library-390x844"
+    },
+    {
+      "id": "063",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\063-app-library-1440x900"
+    },
+    {
+      "id": "064",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\064-app-library-1024x768"
+    },
+    {
+      "id": "065",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\065-app-library-390x844"
+    },
+    {
+      "id": "066",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\066-app-flow-1440x900"
+    },
+    {
+      "id": "067",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\067-app-flow-1024x768"
+    },
+    {
+      "id": "068",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\068-app-flow-390x844"
+    },
+    {
+      "id": "069",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 21,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\069-app-library-1440x900"
+    },
+    {
+      "id": "070",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 1,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\070-app-library-1024x768"
+    },
+    {
+      "id": "071",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\071-app-library-390x844"
+    },
+    {
+      "id": "072",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\072-app-flow-1440x900"
+    },
+    {
+      "id": "073",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\073-app-flow-1024x768"
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536623146.6,\"currentTimeOrigin\":1790536623345.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\074-app-flow-390x844"
+    },
+    {
+      "id": "075",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\075-app-flow-1440x900"
+    },
+    {
+      "id": "076",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\076-app-flow-1024x768"
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536632928,\"currentTimeOrigin\":1790536633102.3,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\077-app-flow-390x844"
+    },
+    {
+      "id": "078",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\078-app-flow-1440x900"
+    },
+    {
+      "id": "079",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\079-app-flow-1024x768"
+    },
+    {
+      "id": "080",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\080-app-flow-390x844"
+    },
+    {
+      "id": "081",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\081-app-matters-1440x900"
+    },
+    {
+      "id": "082",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\082-app-matters-1024x768"
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536667564.2,\"currentTimeOrigin\":1790536667704.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing #secondary-navigation button[data-path=\"/app/library\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\083-app-matters-390x844"
+    },
+    {
+      "id": "084",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\084-app-future-1440x900"
+    },
+    {
+      "id": "085",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\085-app-future-1024x768"
+    },
+    {
+      "id": "086",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\086-app-future-390x844"
+    },
+    {
+      "id": "087",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\087-app-future-1440x900"
+    },
+    {
+      "id": "088",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\088-app-future-1024x768"
+    },
+    {
+      "id": "089",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\089-app-future-390x844"
+    },
+    {
+      "id": "090",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\090-app-future-1440x900"
+    },
+    {
+      "id": "091",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\091-app-future-1024x768"
+    },
+    {
+      "id": "092",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\092-app-future-390x844"
+    },
+    {
+      "id": "093",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\093-app-future-1440x900"
+    },
+    {
+      "id": "094",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\094-app-future-1024x768"
+    },
+    {
+      "id": "095",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\095-app-future-390x844"
+    },
+    {
+      "id": "096",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\096-app-future-1440x900"
+    },
+    {
+      "id": "097",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\097-app-future-1024x768"
+    },
+    {
+      "id": "098",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\098-app-future-390x844"
+    },
+    {
+      "id": "099",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\099-app-future-1440x900"
+    },
+    {
+      "id": "100",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\100-app-future-1024x768"
+    },
+    {
+      "id": "101",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\101-app-future-390x844"
+    },
+    {
+      "id": "102",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\manifest-app_future-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\102-app-future-320x844"
+    },
+    {
+      "id": "103",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-settled-paired\\manifest-app_future-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\103-app-future-320x844"
+    },
+    {
+      "id": "104",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-zoom200-paired\\manifest-app_future-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\104-app-future-1440x900-scale2"
+    },
+    {
+      "id": "105",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\105-app-module-goals-1440x900"
+    },
+    {
+      "id": "106",
+      "route": "/app/module/goals",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\106-app-module-goals-1024x768"
+    },
+    {
+      "id": "107",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\107-app-module-goals-390x844"
+    },
+    {
+      "id": "108",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536784898.2,\"currentTimeOrigin\":1790536785074,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\108-app-graph-1440x900"
+    },
+    {
+      "id": "109",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536785292.9,\"currentTimeOrigin\":1790536785492.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\109-app-graph-1024x768"
+    },
+    {
+      "id": "110",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536786816,\"currentTimeOrigin\":1790536787003.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\110-app-graph-390x844"
+    },
+    {
+      "id": "111",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536787715.1,\"currentTimeOrigin\":1790536787910.2,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\111-app-graph-1440x900"
+    },
+    {
+      "id": "112",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536788040.9,\"currentTimeOrigin\":1790536788242.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\112-app-graph-1024x768"
+    },
+    {
+      "id": "113",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536789385,\"currentTimeOrigin\":1790536789591.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\113-app-graph-390x844"
+    },
+    {
+      "id": "114",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536790626.8,\"currentTimeOrigin\":1790536790906.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\114-app-graph-1440x900"
+    },
+    {
+      "id": "115",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536790780.2,\"currentTimeOrigin\":1790536791051.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\115-app-graph-1024x768"
+    },
+    {
+      "id": "116",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536792280.7,\"currentTimeOrigin\":1790536792469.3,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\116-app-graph-390x844"
+    },
+    {
+      "id": "117",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536793507.1,\"currentTimeOrigin\":1790536793775.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\117-app-graph-1440x900"
+    },
+    {
+      "id": "118",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536793720.1,\"currentTimeOrigin\":1790536793989.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\118-app-graph-1024x768"
+    },
+    {
+      "id": "119",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536795184.6,\"currentTimeOrigin\":1790536795357.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\119-app-graph-390x844"
+    },
+    {
+      "id": "120",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536796429.8,\"currentTimeOrigin\":1790536796707,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\120-app-graph-1440x900"
+    },
+    {
+      "id": "121",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536796544.8,\"currentTimeOrigin\":1790536796819,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\121-app-graph-1024x768"
+    },
+    {
+      "id": "122",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536798106.3,\"currentTimeOrigin\":1790536798289.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:176\r\n      if(!result?.ok)throw new Error(`graph-relation-setup-failed ${JSON.stringify(result)}`)\r\n                           ^\r\n\r\nError: graph-relation-setup-failed {\"ok\":false,\"reason\":\"missing-from-node\"}\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:176:28\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\122-app-graph-390x844"
+    },
+    {
+      "id": "123",
+      "route": "/app/module/habits",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\123-app-module-habits-1440x900"
+    },
+    {
+      "id": "124",
+      "route": "/app/module/habits",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\124-app-module-habits-1024x768"
+    },
+    {
+      "id": "125",
+      "route": "/app/module/habits",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 148,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\125-app-module-habits-390x844"
+    },
+    {
+      "id": "126",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\126-app-today-1440x900"
+    },
+    {
+      "id": "127",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\127-app-today-1024x768"
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790536808389.3,\"currentTimeOrigin\":1790536808573.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .immersive-entry; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\128-app-today-390x844"
+    },
+    {
+      "id": "129",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\129-app-module-inbox-1440x900"
+    },
+    {
+      "id": "130",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\130-app-module-inbox-1024x768"
+    },
+    {
+      "id": "131",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\131-app-module-inbox-390x844"
+    },
+    {
+      "id": "132",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\132-app-module-inbox-1440x900"
+    },
+    {
+      "id": "133",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 48,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\133-app-module-inbox-1024x768"
+    },
+    {
+      "id": "134",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\134-app-module-inbox-390x844"
+    },
+    {
+      "id": "135",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\135-app-module-inbox-1440x900"
+    },
+    {
+      "id": "136",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\136-app-module-inbox-1024x768"
+    },
+    {
+      "id": "137",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\137-app-module-inbox-390x844"
+    },
+    {
+      "id": "138",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\138-app-module-inbox-1440x900"
+    },
+    {
+      "id": "139",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\139-app-module-inbox-1024x768"
+    },
+    {
+      "id": "140",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\140-app-module-inbox-390x844"
+    },
+    {
+      "id": "141",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 55,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\141-app-library-1440x900"
+    },
+    {
+      "id": "142",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\142-app-library-1024x768"
+    },
+    {
+      "id": "143",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\143-app-library-390x844"
+    },
+    {
+      "id": "144",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\144-app-library-1440x900"
+    },
+    {
+      "id": "145",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\145-app-library-1024x768"
+    },
+    {
+      "id": "146",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\146-app-library-390x844"
+    },
+    {
+      "id": "147",
+      "route": "/login",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\147-login-1440x900"
+    },
+    {
+      "id": "148",
+      "route": "/login",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\148-login-1024x768"
+    },
+    {
+      "id": "149",
+      "route": "/login",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\149-login-390x844"
+    },
+    {
+      "id": "150",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\150-app-master-data-1440x900"
+    },
+    {
+      "id": "151",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\151-app-master-data-1024x768"
+    },
+    {
+      "id": "152",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\152-app-master-data-390x844"
+    },
+    {
+      "id": "153",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\153-app-master-data-1440x900"
+    },
+    {
+      "id": "154",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\154-app-master-data-1024x768"
+    },
+    {
+      "id": "155",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\155-app-master-data-390x844"
+    },
+    {
+      "id": "156",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\156-app-matters-1440x900"
+    },
+    {
+      "id": "157",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\157-app-matters-1024x768"
+    },
+    {
+      "id": "158",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\158-app-matters-390x844"
+    },
+    {
+      "id": "159",
+      "route": "/app/matters/mat-42",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\159-app-matters-mat-42-1440x900"
+    },
+    {
+      "id": "160",
+      "route": "/app/matters/mat-42",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\160-app-matters-mat-42-1024x768"
+    },
+    {
+      "id": "161",
+      "route": "/app/matters/mat-42",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\161-app-matters-mat-42-390x844"
+    },
+    {
+      "id": "162",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\162-app-matters-1440x900"
+    },
+    {
+      "id": "163",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\163-app-matters-1024x768"
+    },
+    {
+      "id": "164",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\164-app-matters-390x844"
+    },
+    {
+      "id": "165",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-320-final-paired\\manifest-app_matters-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\165-app-matters-320x844"
+    },
+    {
+      "id": "166",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-320-paired\\manifest-app_matters-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\166-app-matters-320x844"
+    },
+    {
+      "id": "167",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\167-app-matters-1440x900"
+    },
+    {
+      "id": "168",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\168-app-matters-1024x768"
+    },
+    {
+      "id": "169",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\169-app-matters-390x844"
+    },
+    {
+      "id": "170",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\170-app-matters-1440x900"
+    },
+    {
+      "id": "171",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\171-app-matters-1024x768"
+    },
+    {
+      "id": "172",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\172-app-matters-390x844"
+    },
+    {
+      "id": "173",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\173-app-matters-1440x900"
+    },
+    {
+      "id": "174",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 12,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\174-app-matters-1024x768"
+    },
+    {
+      "id": "175",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\175-app-matters-390x844"
+    },
+    {
+      "id": "176",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\176-app-matters-1440x900"
+    },
+    {
+      "id": "177",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\177-app-matters-1024x768"
+    },
+    {
+      "id": "178",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\178-app-matters-390x844"
+    },
+    {
+      "id": "179",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\179-app-matters-1440x900"
+    },
+    {
+      "id": "180",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\180-app-matters-1024x768"
+    },
+    {
+      "id": "181",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\181-app-matters-390x844"
+    },
+    {
+      "id": "182",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 66,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\182-app-matters-1440x900"
+    },
+    {
+      "id": "183",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\183-app-matters-1024x768"
+    },
+    {
+      "id": "184",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 29,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\184-app-matters-390x844"
+    },
+    {
+      "id": "185",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\185-app-matters-1440x900"
+    },
+    {
+      "id": "186",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 16,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\186-app-matters-1024x768"
+    },
+    {
+      "id": "187",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\187-app-matters-390x844"
+    },
+    {
+      "id": "188",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\188-app-matters-1440x900"
+    },
+    {
+      "id": "189",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\189-app-matters-1024x768"
+    },
+    {
+      "id": "190",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\190-app-matters-390x844"
+    },
+    {
+      "id": "191",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\191-app-matters-1440x900"
+    },
+    {
+      "id": "192",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 16,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\192-app-matters-1024x768"
+    },
+    {
+      "id": "193",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\193-app-matters-390x844"
+    },
+    {
+      "id": "194",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\194-app-matters-1440x900"
+    },
+    {
+      "id": "195",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\195-app-matters-1024x768"
+    },
+    {
+      "id": "196",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\196-app-matters-390x844"
+    },
+    {
+      "id": "197",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\197-app-matters-1440x900"
+    },
+    {
+      "id": "198",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 74,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\198-app-matters-1024x768"
+    },
+    {
+      "id": "199",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\199-app-matters-390x844"
+    },
+    {
+      "id": "200",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\200-app-matters-1440x900"
+    },
+    {
+      "id": "201",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\201-app-matters-1024x768"
+    },
+    {
+      "id": "202",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\202-app-matters-390x844"
+    },
+    {
+      "id": "203",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-zoom200-final-paired\\manifest-app_matters-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\203-app-matters-1440x900-scale2"
+    },
+    {
+      "id": "204",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-zoom200-paired\\manifest-app_matters-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\204-app-matters-1440x900-scale2"
+    },
+    {
+      "id": "205",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\205-app-memory-1440x900"
+    },
+    {
+      "id": "206",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\206-app-memory-1024x768"
+    },
+    {
+      "id": "207",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\207-app-memory-390x844"
+    },
+    {
+      "id": "208",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\208-app-memory-1440x900"
+    },
+    {
+      "id": "209",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\209-app-memory-1024x768"
+    },
+    {
+      "id": "210",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\210-app-memory-390x844"
+    },
+    {
+      "id": "211",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-daily\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\211-app-today-1440x900"
+    },
+    {
+      "id": "212",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-daily-tools\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\212-app-today-1440x900"
+    },
+    {
+      "id": "213",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-data\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\213-app-today-1440x900"
+    },
+    {
+      "id": "214",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-experiments\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\214-app-today-1440x900"
+    },
+    {
+      "id": "215",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-personal\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\215-app-today-1440x900"
+    },
+    {
+      "id": "216",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-records\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\216-app-today-1440x900"
+    },
+    {
+      "id": "217",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-understanding\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\217-app-today-1440x900"
+    },
+    {
+      "id": "218",
+      "route": "/pass",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\218-pass-1440x900"
+    },
+    {
+      "id": "219",
+      "route": "/pass",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\219-pass-1024x768"
+    },
+    {
+      "id": "220",
+      "route": "/pass",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\220-pass-390x844"
+    },
+    {
+      "id": "221",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\221-app-people-1440x900"
+    },
+    {
+      "id": "222",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\222-app-people-1024x768"
+    },
+    {
+      "id": "223",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\223-app-people-390x844"
+    },
+    {
+      "id": "224",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\224-app-people-1440x900"
+    },
+    {
+      "id": "225",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\225-app-people-1024x768"
+    },
+    {
+      "id": "226",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\226-app-people-390x844"
+    },
+    {
+      "id": "227",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\227-app-people-1440x900"
+    },
+    {
+      "id": "228",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\228-app-people-1024x768"
+    },
+    {
+      "id": "229",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\229-app-people-390x844"
+    },
+    {
+      "id": "230",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\230-app-module-pomo-1440x900"
+    },
+    {
+      "id": "231",
+      "route": "/app/module/pomo",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\231-app-module-pomo-1024x768"
+    },
+    {
+      "id": "232",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\232-app-module-pomo-390x844"
+    },
+    {
+      "id": "233",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-paused-repeat-current\\manifest-app_module_pomo-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\233-app-module-pomo-1440x900"
+    },
+    {
+      "id": "234",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\234-app-module-posts-1440x900"
+    },
+    {
+      "id": "235",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\235-app-module-posts-1024x768"
+    },
+    {
+      "id": "236",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\236-app-module-posts-390x844"
+    },
+    {
+      "id": "237",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\237-app-module-posts-1440x900"
+    },
+    {
+      "id": "238",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\238-app-module-posts-1024x768"
+    },
+    {
+      "id": "239",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\239-app-module-posts-390x844"
+    },
+    {
+      "id": "240",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\240-app-profile-1440x900"
+    },
+    {
+      "id": "241",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\241-app-profile-1024x768"
+    },
+    {
+      "id": "242",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\242-app-profile-390x844"
+    },
+    {
+      "id": "243",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537345785.7,\"currentTimeOrigin\":1790537345972.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 概览数据暂时无法读取; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\243-app-profile-1440x900"
+    },
+    {
+      "id": "244",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\244-app-profile-1024x768"
+    },
+    {
+      "id": "245",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\245-app-profile-390x844"
+    },
+    {
+      "id": "246",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\246-app-profile-1440x900"
+    },
+    {
+      "id": "247",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\247-app-profile-1024x768"
+    },
+    {
+      "id": "248",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\248-app-profile-390x844"
+    },
+    {
+      "id": "249",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537361933.2,\"currentTimeOrigin\":1790537362131.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n设置\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\n概览数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹姒傝璇诲彇澶辫触\r\n\r\n重试\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n0\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\249-app-profile-1440x900"
+    },
+    {
+      "id": "250",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537364859,\"currentTimeOrigin\":1790537365066.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n设置\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\n概览数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹姒傝璇诲彇澶辫触\r\n\r\n重试\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n0\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\250-app-profile-1024x768"
+    },
+    {
+      "id": "251",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537367532.7,\"currentTimeOrigin\":1790537367718.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=Calmy\r\n功能\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\n概览数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹姒傝璇诲彇澶辫触\r\n\r\n重试\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n0\r\n条数据\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\251-app-profile-390x844"
+    },
+    {
+      "id": "252",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\252-app-profile-1440x900"
+    },
+    {
+      "id": "253",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\253-app-profile-1024x768"
+    },
+    {
+      "id": "254",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\254-app-profile-390x844"
+    },
+    {
+      "id": "255",
+      "route": "/app/review",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-320-paired\\manifest-app_review-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\255-app-review-320x844"
+    },
+    {
+      "id": "256",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\256-app-review-1440x900"
+    },
+    {
+      "id": "257",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\257-app-review-1024x768"
+    },
+    {
+      "id": "258",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\258-app-review-390x844"
+    },
+    {
+      "id": "259",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\259-app-review-1440x900"
+    },
+    {
+      "id": "260",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\260-app-review-1024x768"
+    },
+    {
+      "id": "261",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\261-app-review-390x844"
+    },
+    {
+      "id": "262",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\262-app-review-1440x900"
+    },
+    {
+      "id": "263",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\263-app-review-1024x768"
+    },
+    {
+      "id": "264",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\264-app-review-390x844"
+    },
+    {
+      "id": "265",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\265-app-review-1440x900"
+    },
+    {
+      "id": "266",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\266-app-review-1024x768"
+    },
+    {
+      "id": "267",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\267-app-review-390x844"
+    },
+    {
+      "id": "268",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\268-app-review-1440x900"
+    },
+    {
+      "id": "269",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\269-app-review-1024x768"
+    },
+    {
+      "id": "270",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\270-app-review-390x844"
+    },
+    {
+      "id": "271",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\271-app-review-1440x900"
+    },
+    {
+      "id": "272",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\272-app-review-1024x768"
+    },
+    {
+      "id": "273",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\273-app-review-390x844"
+    },
+    {
+      "id": "274",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-zoom200-paired\\manifest-app_review-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\274-app-review-1440x900-scale2"
+    },
+    {
+      "id": "275",
+      "route": "/scene",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\275-scene-1440x900"
+    },
+    {
+      "id": "276",
+      "route": "/scene",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\276-scene-1024x768"
+    },
+    {
+      "id": "277",
+      "route": "/scene",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\277-scene-390x844"
+    },
+    {
+      "id": "278",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-desktop\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\278-app-today-1440x900"
+    },
+    {
+      "id": "279",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-mobile\\manifest-app_today-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\279-app-today-390x844"
+    },
+    {
+      "id": "280",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-desktop\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\280-app-today-1440x900"
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537440639.9,\"currentTimeOrigin\":1790537440849.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:61\r\n      if(!ok)throw new Error(`fill-selector-missing ${step.selector} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                   ^\r\n\r\nError: fill-selector-missing .global-search body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:61:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\281-app-today-390x844"
+    },
+    {
+      "id": "282",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\shell-320-drawer-close-focus-paired\\manifest-app_today-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\282-app-today-320x844"
+    },
+    {
+      "id": "283",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\283-app-today-1440x900"
+    },
+    {
+      "id": "284",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\284-app-today-1024x768"
+    },
+    {
+      "id": "285",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\285-app-today-390x844"
+    },
+    {
+      "id": "286",
+      "route": "/app/task-board",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\286-app-task-board-1440x900"
+    },
+    {
+      "id": "287",
+      "route": "/app/task-board",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\287-app-task-board-1024x768"
+    },
+    {
+      "id": "288",
+      "route": "/app/task-board",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\288-app-task-board-390x844"
+    },
+    {
+      "id": "289",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 36,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\289-app-module-tasks-1440x900"
+    },
+    {
+      "id": "290",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\290-app-module-tasks-1024x768"
+    },
+    {
+      "id": "291",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\291-app-module-tasks-390x844"
+    },
+    {
+      "id": "292",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 47,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\292-app-module-tasks-1440x900"
+    },
+    {
+      "id": "293",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\293-app-module-tasks-1024x768"
+    },
+    {
+      "id": "294",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\294-app-module-tasks-390x844"
+    },
+    {
+      "id": "295",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537497193,\"currentTimeOrigin\":1790537497362.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\295-app-module-tasks-1440x900"
+    },
+    {
+      "id": "296",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537499892.2,\"currentTimeOrigin\":1790537500102.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\296-app-module-tasks-1024x768"
+    },
+    {
+      "id": "297",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537499900.2,\"currentTimeOrigin\":1790537500124.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时键盘状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时键盘状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\297-app-module-tasks-390x844"
+    },
+    {
+      "id": "298",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537502501.1,\"currentTimeOrigin\":1790537502715.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\298-app-module-tasks-1440x900"
+    },
+    {
+      "id": "299",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537502504.7,\"currentTimeOrigin\":1790537502705.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n看板\r\n/\r\n按状态查看行动\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\299-app-module-tasks-1024x768"
+    },
+    {
+      "id": "300",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537505284.8,\"currentTimeOrigin\":1790537505484.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时看板状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时看板状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\300-app-module-tasks-390x844"
+    },
+    {
+      "id": "301",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\manifest-app_module_tasks-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537505335.7,\"currentTimeOrigin\":1790537505548,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:75\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"临时触控状态行动状态\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n看板\r\n\r\n拖动任务改变状态；每一次移动都会保留在统一的现实行动记录里。\r\n\r\n列表视图\r\n添加任务\r\n全部\r\n未结束\r\n今天\r\n全部事项\r\n1 条任务\r\n待开始\r\n还没有进入现实行动\r\n1\r\n待开始\r\n⋮⋮\r\n临时触控状态行动\r\n9月26日 · 未关联事项\r\n状态\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n进行中\r\n正在现实中推进\r\n0\r\n拖动任务到这里\r\n已完成\r\n已经发生并可以离开\r\n0\r\n拖动任务到这里\r\n已跳过\r\n暂时不投入注意力\r\n0\r\n拖动任务到这里\r\n已取消\r\n不再继续这一步\r\n0\r\n拖动任务到这里\r\n\r\n提示：拖动只是改变任务状态，不会删除原文或修改事项；手机端可使用每张卡片的状态选择。\r\n\r\n今天\r\n记录\r\n处境\r\n回顾\r\n任务已创建，并加入当天行动\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:75:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\301-app-module-tasks-390x844"
+    },
+    {
+      "id": "302",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\302-app-module-tasks-1440x900"
+    },
+    {
+      "id": "303",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\303-app-module-tasks-1024x768"
+    },
+    {
+      "id": "304",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\304-app-module-tasks-390x844"
+    },
+    {
+      "id": "305",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 30,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\305-app-module-tasks-1440x900"
+    },
+    {
+      "id": "306",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\306-app-module-tasks-1024x768"
+    },
+    {
+      "id": "307",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\307-app-module-tasks-390x844"
+    },
+    {
+      "id": "308",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\308-app-module-tasks-1440x900"
+    },
+    {
+      "id": "309",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\309-app-module-tasks-1024x768"
+    },
+    {
+      "id": "310",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\310-app-module-tasks-390x844"
+    },
+    {
+      "id": "311",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\311-app-module-tasks-1440x900"
+    },
+    {
+      "id": "312",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\312-app-module-tasks-1024x768"
+    },
+    {
+      "id": "313",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\313-app-module-tasks-390x844"
+    },
+    {
+      "id": "314",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\314-app-module-tasks-1440x900"
+    },
+    {
+      "id": "315",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\315-app-module-tasks-1024x768"
+    },
+    {
+      "id": "316",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\316-app-module-tasks-390x844"
+    },
+    {
+      "id": "317",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-check\\manifest-app_module_tasks-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\317-app-module-tasks-390x844"
+    },
+    {
+      "id": "318",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\318-app-module-tasks-1440x900"
+    },
+    {
+      "id": "319",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\319-app-module-tasks-1024x768"
+    },
+    {
+      "id": "320",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\320-app-module-tasks-390x844"
+    },
+    {
+      "id": "321",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\321-app-module-tasks-1440x900"
+    },
+    {
+      "id": "322",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\322-app-module-tasks-1024x768"
+    },
+    {
+      "id": "323",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\323-app-module-tasks-390x844"
+    },
+    {
+      "id": "324",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 21,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\324-app-module-tasks-1440x900"
+    },
+    {
+      "id": "325",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\325-app-module-tasks-1024x768"
+    },
+    {
+      "id": "326",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\326-app-module-tasks-390x844"
+    },
+    {
+      "id": "327",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537704796,\"currentTimeOrigin\":1790537704964.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n任务数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹璇诲彇澶辫触\r\n\r\n重试\r\n迁移刷新失败验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\327-app-module-tasks-1440x900"
+    },
+    {
+      "id": "328",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537705992.8,\"currentTimeOrigin\":1790537706163.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n任务数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹璇诲彇澶辫触\r\n\r\n重试\r\n迁移刷新失败验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\328-app-module-tasks-1024x768"
+    },
+    {
+      "id": "329",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790537720610,\"currentTimeOrigin\":1790537720763.2,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收读取失败; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n任务数据暂时无法读取\r\n\r\n杩佺Щ楠屾敹璇诲彇澶辫触\r\n\r\n重试\r\n迁移刷新失败验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\329-app-module-tasks-390x844"
+    },
+    {
+      "id": "330",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\330-app-module-tasks-1440x900"
+    },
+    {
+      "id": "331",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\331-app-module-tasks-1024x768"
+    },
+    {
+      "id": "332",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\332-app-module-tasks-390x844"
+    },
+    {
+      "id": "333",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\333-app-module-tasks-1440x900"
+    },
+    {
+      "id": "334",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\334-app-module-tasks-1024x768"
+    },
+    {
+      "id": "335",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\official-335-final-candidate\\335-app-module-tasks-390x844"
+    }
+  ]
+}

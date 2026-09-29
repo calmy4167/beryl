@@ -1,0 +1,1312 @@
+{
+  "href": "http://127.0.0.1:39990/vue-preview.html#/app/matters/mat-42",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "devicePixelRatio": 1,
+    "visualWidth": 390,
+    "visualHeight": 844,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 390,
+    "height": 844
+  },
+  "focus": "BODY",
+  "loadedFonts": [],
+  "workspaceTabs": [],
+  "elements": [
+    {
+      "selector": ".app-shell",
+      "className": "app-shell",
+      "role": null,
+      "ariaLabel": null,
+      "text": "Calmy\n功能\n找不到这个处境\n\n它可能已被归档或从当前设备移除。\n\n今天\n记录\n处境\n回顾",
+      "rawText": "Calmy功能找不到这个处境它可能已被归档或从当前设备移除。今天记录处境回顾×Calmy现实行动系统⌕ 搜索处境、行动、记录或人物工作▦ 看板✓ 任务◇ 目标□ 日历▤ 飞书◌ 周期内容↓ 收集▧ 资料◌ 探索▤ 日记✎ 文章关系♙ 人物⌁",
+      "childNodes": [
+        {
+          "type": 8,
+          "value": "v-if"
+        },
+        {
+          "type": 8,
+          "value": "v-if"
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 8,
+          "value": "v-if"
+        },
+        {
+          "type": 8,
+          "value": "v-if"
+        },
+        {
+          "type": 8,
+          "value": "v-if"
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".workspace-shell",
+      "className": "workspace-shell",
+      "role": null,
+      "ariaLabel": null,
+      "text": "Calmy\n功能\n找不到这个处境\n\n它可能已被归档或从当前设备移除。",
+      "rawText": "Calmy功能找不到这个处境它可能已被归档或从当前设备移除。",
+      "childNodes": [
+        {
+          "type": 1
+        },
+        {
+          "type": 8,
+          "value": "v-if"
+        },
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "1 1 0%",
+      "flexBasis": "0%",
+      "flexGrow": "1",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 249, 248)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".mobile-header",
+      "className": "mobile-header",
+      "role": null,
+      "ariaLabel": null,
+      "text": "Calmy\n功能",
+      "rawText": "Calmy功能",
+      "childNodes": [
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 62
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "flex",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px 16px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(255, 255, 255, 0.96)",
+      "border": "",
+      "borderColor": "rgb(32, 38, 36) rgb(32, 38, 36) rgb(225, 229, 227)",
+      "borderRadius": "0px",
+      "boxShadow": "rgba(31, 44, 71, 0.05) 0px 5px 18px 0px",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".immersive-toggle",
+      "className": "immersive-toggle",
+      "role": null,
+      "ariaLabel": "进入沉浸模式",
+      "text": "",
+      "rawText": "",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 216,
+        "y": 8.5,
+        "width": 44,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "grid",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "outlineColor": "rgb(101, 113, 109)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".immersive-toggle svg",
+      "className": null,
+      "role": null,
+      "ariaLabel": null,
+      "rawText": "",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 229.5,
+        "y": 22,
+        "width": 17,
+        "height": 17
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "outlineColor": "rgb(101, 113, 109)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(101, 113, 109)",
+      "borderColor": "rgb(101, 113, 109)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "rgb(101, 113, 109)",
+      "strokeWidth": "1.8px",
+      "fill": "none",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".brand-mark svg",
+      "className": null,
+      "role": null,
+      "ariaLabel": null,
+      "rawText": "",
+      "childNodes": [
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 16,
+        "y": 15.5,
+        "width": 30,
+        "height": 30
+      },
+      "fontSize": "19px",
+      "fontFamily": "\"Noto Serif SC\", \"Songti SC\", STSong, serif",
+      "fontWeight": "600",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(255, 255, 255) none 3px",
+      "outlineColor": "rgb(255, 255, 255)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(255, 255, 255)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(255, 255, 255)",
+      "borderColor": "rgb(255, 255, 255)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".page-container",
+      "className": "page-container",
+      "role": null,
+      "ariaLabel": null,
+      "text": "找不到这个处境\n\n它可能已被归档或从当前设备移除。",
+      "rawText": "找不到这个处境它可能已被归档或从当前设备移除。",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 0,
+        "y": 62,
+        "width": 390,
+        "height": 226
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "14px 12px 92px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": ".route-motion",
+      "className": "route-motion",
+      "role": null,
+      "ariaLabel": null,
+      "text": "找不到这个处境\n\n它可能已被归档或从当前设备移除。",
+      "rawText": "找不到这个处境它可能已被归档或从当前设备移除。",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 12,
+        "y": 76,
+        "width": 366,
+        "height": 120
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)"
+    },
+    {
+      "selector": ".bottom-nav",
+      "className": "bottom-nav mobile-only",
+      "role": null,
+      "ariaLabel": "移动端主导航",
+      "text": "今天\n记录\n处境\n回顾",
+      "rawText": "今天记录处境回顾",
+      "childNodes": [
+        {
+          "type": 3,
+          "value": ""
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        },
+        {
+          "type": 3,
+          "value": ""
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 0,
+        "y": 774,
+        "width": 390,
+        "height": 70
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "start",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "isolate",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "optimizelegibility",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "flex",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(32, 38, 36) none 3px",
+      "outlineColor": "rgb(32, 38, 36)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "7px 8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(255, 255, 255, 0.96)",
+      "border": "",
+      "borderColor": "rgb(225, 229, 227) rgb(32, 38, 36) rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px -8px 24px 0px",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": "button[aria-label=\"返回今天\"]",
+      "className": "brand compact",
+      "role": null,
+      "ariaLabel": "返回今天",
+      "text": "Calmy",
+      "rawText": "Calmy",
+      "childNodes": [
+        {
+          "type": 1
+        },
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 16,
+        "y": 8.5,
+        "width": 101.156,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "flex",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(36, 44, 40) none 3px",
+      "outlineColor": "rgb(36, 44, 40)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "9px",
+      "padding": "0px",
+      "color": "rgb(36, 44, 40)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(36, 44, 40)",
+      "borderColor": "rgb(36, 44, 40)",
+      "borderRadius": "0px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": "button[aria-label=\"进入沉浸模式\"]",
+      "className": "immersive-toggle",
+      "role": null,
+      "ariaLabel": "进入沉浸模式",
+      "text": "",
+      "rawText": "",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 216,
+        "y": 8.5,
+        "width": 44,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "grid",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "outlineColor": "rgb(101, 113, 109)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "none",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": "button[aria-label=\"搜索内容\"]",
+      "className": "search-btn",
+      "role": null,
+      "ariaLabel": "搜索内容",
+      "text": "",
+      "rawText": "",
+      "childNodes": [
+        {
+          "type": 1
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 266,
+        "y": 8.5,
+        "width": 44,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "grid",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "outlineColor": "rgb(101, 113, 109)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "1px 6px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px 2px 7px 0px",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    },
+    {
+      "selector": "button[aria-label=\"打开功能目录\"]",
+      "className": "menu",
+      "role": null,
+      "ariaLabel": "打开功能目录",
+      "text": "功能",
+      "rawText": "功能",
+      "childNodes": [
+        {
+          "type": 3,
+          "value": "功能"
+        }
+      ],
+      "lang": "zh-CN",
+      "rect": {
+        "x": 316,
+        "y": 8.5,
+        "width": 58,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "fontStyle": "normal",
+      "fontStretch": "100%",
+      "fontVariant": "normal",
+      "fontSynthesis": "weight style small-caps",
+      "fontOpticalSizing": "auto",
+      "fontVariantLigatures": "normal",
+      "fontVariantCaps": "normal",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "wordSpacing": "0px",
+      "textAlign": "center",
+      "textIndent": "0px",
+      "textTransform": "none",
+      "textDecoration": "none",
+      "textShadow": "none",
+      "direction": "ltr",
+      "unicodeBidi": "normal",
+      "writingMode": "horizontal-tb",
+      "verticalAlign": "baseline",
+      "textRendering": "auto",
+      "fontKerning": "auto",
+      "fontFeatureSettings": "normal",
+      "webkitFontSmoothing": "antialiased",
+      "display": "block",
+      "whiteSpace": "normal",
+      "flex": "0 1 auto",
+      "flexBasis": "auto",
+      "flexGrow": "0",
+      "flexShrink": "1",
+      "outline": "rgb(101, 113, 109) none 3px",
+      "outlineColor": "rgb(101, 113, 109)",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineOffset": "0px",
+      "gap": "normal",
+      "padding": "0px 12px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px 2px 7px 0px",
+      "stroke": "none",
+      "strokeWidth": "1px",
+      "fill": "rgb(0, 0, 0)",
+      "opacity": "1",
+      "transform": "none"
+    }
+  ],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "tag": "DIV",
+        "id": "",
+        "className": "app-shell",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "hidden"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".workspace-shell",
+        "tag": "DIV",
+        "id": "",
+        "className": "workspace-shell",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".page-container",
+        "tag": "MAIN",
+        "id": "",
+        "className": "page-container",
+        "rect": {
+          "x": 0,
+          "y": 62,
+          "width": 390,
+          "height": 226
+        },
+        "scroll": {
+          "width": 390,
+          "height": 226,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 226
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "thin",
+          "color": "rgb(191, 200, 215) rgba(0, 0, 0, 0)",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "relative",
+        "display": "block"
+      },
+      {
+        "selector": ".route-motion",
+        "tag": "DIV",
+        "id": "",
+        "className": "route-motion",
+        "rect": {
+          "x": 12,
+          "y": 76,
+          "width": 366,
+          "height": 120
+        },
+        "scroll": {
+          "width": 366,
+          "height": 120,
+          "top": 0
+        },
+        "client": {
+          "width": 366,
+          "height": 120
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "rgb(191, 200, 215) rgba(0, 0, 0, 0)",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      }
+    ],
+    "viewport": {
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "innerHeight": 844
+    }
+  }
+}

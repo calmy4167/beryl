@@ -1,0 +1,135 @@
+{
+  "route": "/app/review",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T05:36:56.824Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "waitText",
+        "text": "今天的复盘"
+      },
+      {
+        "type": "click",
+        "selector": ".range-tabs button:nth-child(2)"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 279,
+            "y": 240.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 279,
+            "y": 240.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\react-app_review-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 257.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 279,
+            "y": 240.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 279,
+            "y": 240.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-range-30-ready\\vue-app_review-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "今天的复盘",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 257.6,
+            "width": 85,
+            "height": 22
+          }
+        }
+      ]
+    }
+  ]
+}

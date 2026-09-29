@@ -1,0 +1,84 @@
+{
+  "start": 0,
+  "limit": 8,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "exact": 3,
+    "recapture-error": 5
+  },
+  "results": [
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\041-app-today-390x844"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539819353.8,\"currentTimeOrigin\":1790539819690.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:61\r\n      if(!ok)throw new Error(`fill-selector-missing ${step.selector} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                   ^\r\n\r\nError: fill-selector-missing [aria-label=\"资源标题\"] body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow 关联验收处境\r\n\r\n验证探索资料能关联到现实问题。\r\n\r\n当前要解决的问题\r\n\r\n如何验证这条资料是否有用？\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:61:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\053-app-matters-390x844"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539819365.7,\"currentTimeOrigin\":1790539819670.2,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:77\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .flow-mode-picker button:nth-of-type(4); body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n20:00\r\n迁移验收回响现实记录\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:77:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\056-app-today-390x844"
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539825263.6,\"currentTimeOrigin\":1790539825422.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:77\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .library-head-actions button.react-btn; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:77:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\074-app-flow-390x844"
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539887018,\"currentTimeOrigin\":1790539887168.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:77\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .library-head-actions button.react-btn; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:77:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\077-app-flow-390x844"
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539887425.8,\"currentTimeOrigin\":1790539887611.9,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:77\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing [aria-label=\"资源类型\"]; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:77:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\083-app-matters-390x844"
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\128-app-today-390x844"
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck2\\281-app-today-390x844"
+    }
+  ]
+}

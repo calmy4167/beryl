@@ -1,0 +1,18 @@
+[
+  {
+    "id": "188",
+    "route": "/app/matters",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+    "viewport": "1440x900",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "id": "292",
+    "route": "/app/module/tasks",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+    "viewport": "1440x900",
+    "width": 1440,
+    "height": 900
+  }
+]

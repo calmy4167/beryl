@@ -1,0 +1,68 @@
+{
+  "route": "/app/future",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T02:45:40.846Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "click",
+        "selector": "[aria-label=\"选择一个想回头看的事情\"] button:first-child"
+      },
+      {
+        "type": "fill",
+        "selector": "textarea[placeholder=\"写下一件你正在考虑的事\"]",
+        "value": "了解一个新的工作机会"
+      },
+      {
+        "type": "click",
+        "selector": ".future-primary"
+      },
+      {
+        "type": "waitText",
+        "text": "影响推演"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 320,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\react-app_future-320x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\react-app_future-320x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "影响推演",
+          "visible": true,
+          "rect": {
+            "x": 22,
+            "y": 227,
+            "width": 40,
+            "height": 14
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 320,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\vue-app_future-320x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\vue-app_future-320x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "影响推演",
+          "visible": true,
+          "rect": {
+            "x": 22,
+            "y": 227,
+            "width": 40,
+            "height": 14
+          }
+        }
+      ]
+    }
+  ]
+}

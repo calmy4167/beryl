@@ -1,0 +1,70 @@
+[
+  {
+    "label": "按事项筛选",
+    "attrs": [
+      "id",
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 744.28125,
+      "y": 272.578125,
+      "width": 180,
+      "height": 43,
+      "top": 272.578125,
+      "right": 924.28125,
+      "bottom": 315.578125,
+      "left": 744.28125
+    },
+    "text": "全部事项",
+    "value": "",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "16px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  },
+  {
+    "label": "临时看板状态行动状态",
+    "attrs": [
+      "aria-label",
+      "value"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 312,
+      "y": 519.125,
+      "width": 71,
+      "height": 40,
+      "top": 519.125,
+      "right": 383,
+      "bottom": 559.125,
+      "left": 312
+    },
+    "text": "待开始",
+    "value": "planned",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "9px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

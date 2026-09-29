@@ -1,0 +1,18 @@
+{
+  "fonts": [],
+  "usedFonts": [],
+  "rendering": {
+    "dpr": 1,
+    "zoom": 1,
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSmoothing": "antialiased",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontSynthesis": "weight style small-caps",
+    "colorScheme": "light",
+    "opacity": "1",
+    "transform": "none",
+    "rootSmoothing": "antialiased",
+    "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+  }
+}

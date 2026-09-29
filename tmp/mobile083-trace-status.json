@@ -1,0 +1,20 @@
+{
+  "start": 4,
+  "limit": 1,
+  "concurrency": 1,
+  "recaptureTimeoutMs": 180000,
+  "summary": {
+    "exact": 1
+  },
+  "results": [
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile083-trace\\083-app-matters-390x844"
+    }
+  ]
+}

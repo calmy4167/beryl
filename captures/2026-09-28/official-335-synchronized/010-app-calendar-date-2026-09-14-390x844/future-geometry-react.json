@@ -1,0 +1,53 @@
+[
+  {
+    "i": 0,
+    "tag": "MAIN",
+    "cls": "page-container",
+    "text": "日历\n\n按日期回看行动、记录和当天状态，必要时回到今天或对应处境继续处理。\n\n←\n2026年9月\n→\n一\n二\n三\n四\n五\n六\n日\n31\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n1",
+    "rect": {
+      "x": 0,
+      "y": 62,
+      "width": 390,
+      "height": 1409.546875,
+      "top": 62,
+      "right": 390,
+      "bottom": 1471.546875,
+      "left": 0
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "14px 12px 92px",
+    "transform": "none",
+    "opacity": "1",
+    "letterSpacing": "normal",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontFeatureSettings": "normal",
+    "fontSynthesis": "weight style small-caps",
+    "fontVariationSettings": "normal",
+    "webkitTextStrokeWidth": "0px",
+    "textShadow": "none",
+    "webkitFontSmoothing": "antialiased",
+    "webkitTextFillColor": "rgb(32, 38, 36)",
+    "fontVariantLigatures": "normal",
+    "fontOpticalSizing": "auto",
+    "fontStretch": "100%",
+    "wordSpacing": "0px",
+    "whiteSpace": "normal",
+    "wordBreak": "normal",
+    "hyphens": "manual",
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "active": false,
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ]
+  }
+]

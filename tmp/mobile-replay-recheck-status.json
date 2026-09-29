@@ -1,0 +1,84 @@
+{
+  "start": 0,
+  "limit": 8,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "recapture-error": 7,
+    "exact": 1
+  },
+  "results": [
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539667437.3,\"currentTimeOrigin\":1790539667737.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":669,\"scriptId\":\"116\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-4877673473687785109.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\041-app-today-390x844"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539667413.4,\"currentTimeOrigin\":1790539667736,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":671,\"scriptId\":\"119\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-6635330336073108689.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\053-app-matters-390x844"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539667432.4,\"currentTimeOrigin\":1790539667740.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":664,\"scriptId\":\"117\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-222260150908586238.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\056-app-today-390x844"
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539669673.7,\"currentTimeOrigin\":1790539670006.3,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":717,\"scriptId\":\"116\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-1403441684304379358.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\074-app-flow-390x844"
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539669804.5,\"currentTimeOrigin\":1790539670080,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":717,\"scriptId\":\"116\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-8916924155578969434.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\077-app-flow-390x844"
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539669798.1,\"currentTimeOrigin\":1790539670081.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":678,\"scriptId\":\"119\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"7486755439078435162.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\083-app-matters-390x844"
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539672182.8,\"currentTimeOrigin\":1790539672377.7,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:29\r\n  const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result?.value}\r\n                                                                                                                                                       ^\r\n\r\nError: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":681,\"scriptId\":\"115\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Unexpected identifier '资料'\",\"objectId\":\"-3161008501819817750.2.2\"}}\r\n    at evalJS (file:///D:/dsharness/tmp/recapture-one.mjs:29:152)\r\n    at async file:///D:/dsharness/tmp/recapture-one.mjs:76:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\128-app-today-390x844"
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\mobile-replay-recheck\\281-app-today-390x844"
+    }
+  ]
+}

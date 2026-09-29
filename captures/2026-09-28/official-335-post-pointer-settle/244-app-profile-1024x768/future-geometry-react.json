@@ -1,0 +1,53 @@
+[
+  {
+    "i": 0,
+    "tag": "MAIN",
+    "cls": "page-container",
+    "text": "我的\n\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\n\n切换场景\n设置\n概览数据暂时无法读取\n\n迁移验收概览读取失败\n\n重试\nC\n\nLOCAL USER\n\ncal",
+    "rect": {
+      "x": 240,
+      "y": 112,
+      "width": 784,
+      "height": 656,
+      "top": 112,
+      "right": 1024,
+      "bottom": 768,
+      "left": 240
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "18px 24px 24px",
+    "transform": "none",
+    "opacity": "1",
+    "letterSpacing": "normal",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontFeatureSettings": "normal",
+    "fontSynthesis": "weight style small-caps",
+    "fontVariationSettings": "normal",
+    "webkitTextStrokeWidth": "0px",
+    "textShadow": "none",
+    "webkitFontSmoothing": "antialiased",
+    "webkitTextFillColor": "rgb(32, 38, 36)",
+    "fontVariantLigatures": "normal",
+    "fontOpticalSizing": "auto",
+    "fontStretch": "100%",
+    "wordSpacing": "0px",
+    "whiteSpace": "normal",
+    "wordBreak": "normal",
+    "hyphens": "manual",
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "active": false,
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ]
+  }
+]

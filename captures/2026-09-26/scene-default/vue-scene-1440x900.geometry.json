@@ -1,0 +1,275 @@
+{
+  "href": "http://127.0.0.1:28471/vue-preview.html#/scene",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "devicePixelRatio": 1,
+    "visualWidth": 1440,
+    "visualHeight": 900,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 1440,
+    "height": 900
+  },
+  "focus": "BODY",
+  "workspaceTabs": [],
+  "elements": [
+    {
+      "selector": "button[aria-label=\"选择个人场景\"]",
+      "className": "beryl-card hoverable card sel",
+      "role": null,
+      "ariaLabel": "选择个人场景",
+      "rect": {
+        "x": 296,
+        "y": 206,
+        "width": 417,
+        "height": 210
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "20px",
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "color(srgb 0.993719 0.997071 0.99544 / 0.947294)",
+      "border": "1px solid rgb(47, 158, 104)",
+      "borderColor": "rgb(47, 158, 104)",
+      "borderRadius": "10px",
+      "boxShadow": "rgba(47, 158, 104, 0.267) 0px 0px 0px 1px, rgba(47, 158, 104, 0.1) 0px 8px 24px 0px"
+    },
+    {
+      "selector": "button[aria-label=\"选择情侣场景\"]",
+      "className": "beryl-card hoverable card",
+      "role": null,
+      "ariaLabel": "选择情侣场景",
+      "rect": {
+        "x": 727,
+        "y": 206,
+        "width": 417,
+        "height": 210
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "20px",
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "color(srgb 0.993719 0.997071 0.99544 / 0.947294)",
+      "border": "1px solid color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderColor": "color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderRadius": "10px",
+      "boxShadow": "rgba(25, 46, 34, 0.055) 0px 10px 28px 0px"
+    },
+    {
+      "selector": "button[aria-label=\"选择夫妻场景\"]",
+      "className": "beryl-card hoverable card",
+      "role": null,
+      "ariaLabel": "选择夫妻场景",
+      "rect": {
+        "x": 296,
+        "y": 430,
+        "width": 417,
+        "height": 177
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "20px",
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "color(srgb 0.993719 0.997071 0.99544 / 0.947294)",
+      "border": "1px solid color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderColor": "color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderRadius": "10px",
+      "boxShadow": "rgba(25, 46, 34, 0.055) 0px 10px 28px 0px"
+    },
+    {
+      "selector": "button[aria-label=\"选择家庭场景\"]",
+      "className": "beryl-card hoverable card",
+      "role": null,
+      "ariaLabel": "选择家庭场景",
+      "rect": {
+        "x": 727,
+        "y": 430,
+        "width": 417,
+        "height": 177
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "20px",
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "color(srgb 0.993719 0.997071 0.99544 / 0.947294)",
+      "border": "1px solid color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderColor": "color(srgb 0.879293 0.923896 0.896207 / 0.856)",
+      "borderRadius": "10px",
+      "boxShadow": "rgba(25, 46, 34, 0.055) 0px 10px 28px 0px"
+    }
+  ],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 687
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 687,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 687
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 900,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 900
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 687
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 687,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 687
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 687
+        },
+        "scroll": {
+          "width": 1440,
+          "height": 687,
+          "top": 0
+        },
+        "client": {
+          "width": 1440,
+          "height": 687
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "missing": true
+      },
+      {
+        "selector": ".workspace-shell",
+        "missing": true
+      },
+      {
+        "selector": ".page-container",
+        "missing": true
+      },
+      {
+        "selector": ".route-motion",
+        "missing": true
+      }
+    ],
+    "viewport": {
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "innerHeight": 900
+    }
+  }
+}

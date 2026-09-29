@@ -1,0 +1,26 @@
+[
+  {
+    "label": "行动关联事项",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 531,
+      "y": 2087.828125,
+      "width": 118,
+      "height": 43,
+      "top": 2087.828125,
+      "right": 649,
+      "bottom": 2130.828125,
+      "left": 531
+    },
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

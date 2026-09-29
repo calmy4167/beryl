@@ -1,0 +1,102 @@
+{
+  "start": 0,
+  "limit": 10,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "nonzero": 6,
+    "exact": 4
+  },
+  "results": [
+    {
+      "id": "169",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\169-app-matters-390x844"
+    },
+    {
+      "id": "172",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\172-app-matters-390x844"
+    },
+    {
+      "id": "175",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\175-app-matters-390x844"
+    },
+    {
+      "id": "184",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 31,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\184-app-matters-390x844"
+    },
+    {
+      "id": "187",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 19,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\187-app-matters-390x844"
+    },
+    {
+      "id": "190",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\190-app-matters-390x844"
+    },
+    {
+      "id": "193",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\193-app-matters-390x844"
+    },
+    {
+      "id": "196",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\196-app-matters-390x844"
+    },
+    {
+      "id": "199",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\199-app-matters-390x844"
+    },
+    {
+      "id": "202",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 25,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\matters-post-fix\\202-app-matters-390x844"
+    }
+  ]
+}

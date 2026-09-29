@@ -1,0 +1,40 @@
+[
+  {
+    "label": "目标关联处境",
+    "attrs": [
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "active": false,
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "rect": {
+      "x": 870.984375,
+      "y": 302.578125,
+      "width": 104.015625,
+      "height": 52,
+      "top": 302.578125,
+      "right": 975,
+      "bottom": 354.578125,
+      "left": 870.984375
+    },
+    "text": "不关联处境",
+    "value": "",
+    "disabled": false,
+    "color": "rgb(32, 38, 36)",
+    "opacity": "1",
+    "font": "12px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "fontSize": "12px",
+    "lineHeight": "normal",
+    "background": "rgb(248, 250, 252)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "9px 11px",
+    "border": "1px solid rgb(220, 227, 237)",
+    "borderRadius": "6px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

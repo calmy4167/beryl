@@ -1,0 +1,32 @@
+[
+  {
+    "id": "053",
+    "route": "/app/matters",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "056",
+    "route": "/app/today",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "074",
+    "route": "/app/flow",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "077",
+    "route": "/app/flow",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json"
+  },
+  {
+    "id": "083",
+    "route": "/app/matters",
+    "viewport": "390x844",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json"
+  }
+]

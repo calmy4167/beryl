@@ -1,0 +1,140 @@
+{
+  "route": "/app/capture",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:41:20.442Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"记录原文\"]",
+        "value": "迁移批次验收：记录一条想法"
+      },
+      {
+        "type": "click",
+        "selector": ".capture-footer button.primary"
+      },
+      {
+        "type": "waitText",
+        "text": "迁移批次验收：记录一条想法"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 487.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 421.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\react-app_capture-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 410.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 487.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-1024x768.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 283,
+            "y": 421.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\vue-app_capture-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "迁移批次验收：记录一条想法",
+          "visible": true,
+          "rect": {
+            "x": 27,
+            "y": 410.6,
+            "width": 221,
+            "height": 22
+          }
+        }
+      ]
+    }
+  ]
+}

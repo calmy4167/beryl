@@ -1,0 +1,28 @@
+{
+  "route": "/app/future",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T07:20:55.357Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\future-zoom-200\\react-app_future-1024x768-zoom2x.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\future-zoom-200\\react-app_future-1024x768-zoom2x.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\future-zoom-200\\vue-app_future-1024x768-zoom2x.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\future-zoom-200\\vue-app_future-1024x768-zoom2x.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

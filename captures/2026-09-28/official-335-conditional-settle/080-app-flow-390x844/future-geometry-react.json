@@ -1,0 +1,53 @@
+[
+  {
+    "i": 0,
+    "tag": "MAIN",
+    "cls": "page-container",
+    "text": "带着问题找资料\n\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\n\n当前意图\n\n这次为什么打开探索？\n\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡",
+    "rect": {
+      "x": 0,
+      "y": 62,
+      "width": 390,
+      "height": 1122.953125,
+      "top": 62,
+      "right": 390,
+      "bottom": 1184.953125,
+      "left": 0
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "14px 12px 92px",
+    "transform": "none",
+    "opacity": "1",
+    "letterSpacing": "normal",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontFeatureSettings": "normal",
+    "fontSynthesis": "weight style small-caps",
+    "fontVariationSettings": "normal",
+    "webkitTextStrokeWidth": "0px",
+    "textShadow": "none",
+    "webkitFontSmoothing": "antialiased",
+    "webkitTextFillColor": "rgb(32, 38, 36)",
+    "fontVariantLigatures": "normal",
+    "fontOpticalSizing": "auto",
+    "fontStretch": "100%",
+    "wordSpacing": "0px",
+    "whiteSpace": "normal",
+    "wordBreak": "normal",
+    "hyphens": "manual",
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "active": false,
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      }
+    ]
+  }
+]

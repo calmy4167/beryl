@@ -4,7 +4,7 @@ import { recordRepository } from '@/domain/record/repository'
 import { todayRepository } from '@/domain/today/repository'
 import { CORE_ENTITY_TYPES, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle, type DailyState, type Insight, type Outcome, type Practice, type Relation, type Relationship, type Resource, type Seed, type SharedSpace, type Stage } from '@/domain/unified'
 
-export type GraphNodeType = CoreEntityType | 'matter' | 'action' | 'record' | 'today'
+export type GraphNodeType = CoreEntityType | 'thing' | 'matter' | 'action' | 'record' | 'today'
 
 export interface GraphNode {
   id: string
@@ -44,16 +44,18 @@ interface GraphContext {
 const TYPE_LABEL: Record<GraphNodeType, string> = {
   matter: '处境', action: '行动', record: '记录', today: '今天',
   person: '人物', relationship: '关系', shared_space: '空间',
+  scene: '情境', scene_participant: '参与者', space: '空间', domain: '领域',
+  scope: '范围', permission: '权限', thing: '事项',
   cycle: '周期', stage: '阶段', resource: '资料', relation: '关系',
   seed: '线索', insight: '洞见', outcome: '结果', practice: '练习',
   daily_state: '日常', asset: '文件'
 }
 
 function routeFor(type: GraphNodeType, id: string, context: GraphContext = {}): string {
-  if (type === 'matter') return `/app/matters/${id}`
+  if (type === 'matter' || type === 'thing') return `/app/matters/${id}`
   if (type === 'action' || type === 'record') return context.matterId ? `/app/matters/${context.matterId}` : '/app/today'
   if (type === 'today' || type === 'daily_state') return '/app/today'
-  if (type === 'person' || type === 'relationship' || type === 'shared_space') return '/app/people'
+  if (type === 'person' || type === 'relationship' || type === 'shared_space' || type === 'space' || type === 'scene' || type === 'scene_participant') return '/app/people'
   if (type === 'cycle') return context.matterId ? `/app/matters/${context.matterId}` : '/app/library'
   if (type === 'stage') {
     const cycle = context.cycleId ? unifiedRepository.find<{ entityType: 'cycle' } & CoreEntity>('cycle', context.cycleId) as CoreEntity | undefined : undefined
@@ -80,6 +82,12 @@ function graphContext(entity: CoreEntity): GraphContext {
 function coreLabel(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return entity.displayName
+    case 'scene': return entity.title
+    case 'scene_participant': return `${entity.personId} participates in ${entity.sceneId}`
+    case 'space': return entity.title
+    case 'domain': return entity.displayName
+    case 'scope': return `Scope ${entity.calmyId}`
+    case 'permission': return `Permission for ${entity.principalUserId}`
     case 'relationship': return entity.label
     case 'shared_space': return entity.title
     case 'cycle': return entity.title
@@ -98,6 +106,12 @@ function coreLabel(entity: CoreEntity): string {
 function coreSummary(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return [entity.domain, entity.notes, ...entity.roles].filter(Boolean).join(' ')
+    case 'scene': return [entity.status, entity.thingId, entity.spaceId].filter(Boolean).join(' · ')
+    case 'scene_participant': return [entity.role, entity.joinedAt, entity.leftAt].filter(Boolean).join(' · ')
+    case 'space': return [entity.purpose, entity.status].filter(Boolean).join(' · ')
+    case 'domain': return [entity.key, entity.status].join(' · ')
+    case 'scope': return [entity.personId, entity.domainId, entity.thingId, entity.sceneId, entity.spaceId].filter(Boolean).join(' · ')
+    case 'permission': return [entity.effect, entity.actions.join(', ')].join(' · ')
     case 'relationship': return [entity.boundary, entity.rhythm].filter(Boolean).join(' ')
     case 'shared_space': return entity.purpose || ''
     case 'cycle': return [entity.theme, entity.status, entity.trajectory].join(' · ')

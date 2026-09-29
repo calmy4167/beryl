@@ -1,0 +1,44 @@
+{
+  "route": "/app/task-board",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T06:58:52.779Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\react-app_task-board-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\react-app_task-board-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\react-app_task-board-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\react-app_task-board-390x844.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\vue-app_task-board-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\vue-app_task-board-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\vue-app_task-board-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\task-board-default\\vue-app_task-board-390x844.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

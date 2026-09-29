@@ -68,7 +68,7 @@ describe('global search query', () => {
     expect(searchAll('不存在的词')).toEqual([])
   })
 
-  it('searches React production data through the async Reality boundary', async () => {
+  it('searches 迁移前界面基线 production data through the async Reality boundary', async () => {
     const action = await actionAsyncRepository.create({ title: '异步搜索行动', date: '2026-08-28' })
 
     const results = await searchAllAsync('异步搜索')

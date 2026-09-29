@@ -1,0 +1,583 @@
+{
+  "href": "http://127.0.0.1:59765/#/app/profile",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "devicePixelRatio": 1,
+    "visualWidth": 390,
+    "visualHeight": 844,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 390,
+    "height": 1576
+  },
+  "focus": "BODY",
+  "workspaceTabs": [],
+  "elements": [
+    {
+      "selector": ".app-shell",
+      "className": "app-shell ",
+      "role": null,
+      "ariaLabel": null,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1575.8
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": ".workspace-shell",
+      "className": "workspace-shell",
+      "role": null,
+      "ariaLabel": null,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1575.8
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgb(248, 249, 248)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": ".mobile-header",
+      "className": "mobile-header",
+      "role": null,
+      "ariaLabel": null,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 62
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px 16px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(255, 255, 255, 0.96)",
+      "border": "",
+      "borderColor": "rgb(32, 38, 36) rgb(32, 38, 36) rgb(225, 229, 227)",
+      "borderRadius": "0px",
+      "boxShadow": "rgba(31, 44, 71, 0.05) 0px 5px 18px 0px"
+    },
+    {
+      "selector": ".page-container",
+      "className": "page-container",
+      "role": null,
+      "ariaLabel": null,
+      "rect": {
+        "x": 0,
+        "y": 62,
+        "width": 390,
+        "height": 1513.8
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "14px 12px 92px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": ".route-motion",
+      "className": "route-motion",
+      "role": null,
+      "ariaLabel": null,
+      "rect": {
+        "x": 12,
+        "y": 76,
+        "width": 366,
+        "height": 1407.8
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(32, 38, 36)",
+      "borderColor": "rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": ".bottom-nav",
+      "className": "bottom-nav mobile-only",
+      "role": null,
+      "ariaLabel": "移动端主导航",
+      "rect": {
+        "x": 0,
+        "y": 774,
+        "width": 390,
+        "height": 70
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "7px 8px",
+      "color": "rgb(32, 38, 36)",
+      "backgroundColor": "rgba(255, 255, 255, 0.96)",
+      "border": "",
+      "borderColor": "rgb(225, 229, 227) rgb(32, 38, 36) rgb(32, 38, 36)",
+      "borderRadius": "0px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px -8px 24px 0px"
+    },
+    {
+      "selector": "button[aria-label=\"返回今天\"]",
+      "className": "react-btn brand compact",
+      "role": null,
+      "ariaLabel": "返回今天",
+      "rect": {
+        "x": 16,
+        "y": 8.5,
+        "width": 101.2,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "9px",
+      "padding": "0px",
+      "color": "rgb(36, 44, 40)",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "border": "0px none rgb(36, 44, 40)",
+      "borderColor": "rgb(36, 44, 40)",
+      "borderRadius": "0px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": "button[aria-label=\"进入沉浸模式\"]",
+      "className": "react-btn immersive-toggle",
+      "role": null,
+      "ariaLabel": "进入沉浸模式",
+      "rect": {
+        "x": 216,
+        "y": 8.5,
+        "width": 44,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "none"
+    },
+    {
+      "selector": "button[aria-label=\"搜索内容\"]",
+      "className": "react-btn search-btn",
+      "role": null,
+      "ariaLabel": "搜索内容",
+      "rect": {
+        "x": 266,
+        "y": 8.5,
+        "width": 44,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "1px 6px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px 2px 7px 0px"
+    },
+    {
+      "selector": "button[aria-label=\"打开功能目录\"]",
+      "className": "react-btn menu",
+      "role": null,
+      "ariaLabel": "打开功能目录",
+      "rect": {
+        "x": 316,
+        "y": 8.5,
+        "width": 58,
+        "height": 44
+      },
+      "fontSize": "16px",
+      "fontFamily": "\"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "gap": "normal",
+      "padding": "0px 12px",
+      "color": "rgb(101, 113, 109)",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "border": "1px solid rgb(225, 229, 227)",
+      "borderColor": "rgb(225, 229, 227)",
+      "borderRadius": "8px",
+      "boxShadow": "rgba(31, 44, 71, 0.06) 0px 2px 7px 0px"
+    }
+  ],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1576
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1576
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1576
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "tag": "DIV",
+        "id": "",
+        "className": "app-shell ",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1576
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "hidden"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".workspace-shell",
+        "tag": "DIV",
+        "id": "",
+        "className": "workspace-shell",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 1575.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1576,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1576
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".page-container",
+        "tag": "MAIN",
+        "id": "",
+        "className": "page-container",
+        "rect": {
+          "x": 0,
+          "y": 62,
+          "width": 390,
+          "height": 1513.765625
+        },
+        "scroll": {
+          "width": 390,
+          "height": 1514,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 1514
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "thin",
+          "color": "rgb(191, 200, 215) rgba(0, 0, 0, 0)",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "relative",
+        "display": "block"
+      },
+      {
+        "selector": ".route-motion",
+        "tag": "DIV",
+        "id": "",
+        "className": "route-motion",
+        "rect": {
+          "x": 12,
+          "y": 76,
+          "width": 366,
+          "height": 1407.765625
+        },
+        "scroll": {
+          "width": 366,
+          "height": 1408,
+          "top": 0
+        },
+        "client": {
+          "width": 366,
+          "height": 1408
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "rgb(191, 200, 215) rgba(0, 0, 0, 0)",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      }
+    ],
+    "viewport": {
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "innerHeight": 844
+    }
+  }
+}

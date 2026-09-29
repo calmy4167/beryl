@@ -1,0 +1,13 @@
+from pathlib import Path
+p=Path('src/vue/pages/CompatibilityPlaceholderPage.vue')
+s=p.read_text(encoding='utf-8')
+s=s.replace("<section\n      class=\"beryl-card empty-state compatibility-placeholder-card\"\n      :class=\"{ 'compatibility-placeholder-card--standalone': title !== '模块入口' }\"\n    >", "<section class=\"beryl-card empty-state compatibility-placeholder-card\">")
+s=s.replace("\n<style scoped>\n.compatibility-placeholder-card--standalone {\n  width: min(100%, 520px);\n  max-width: 520px;\n  padding: 38px 30px;\n}\n</style>\n", "\n")
+p.write_text(s, encoding='utf-8')
+p=Path('src/router/index.ts')
+s=p.read_text(encoding='utf-8').replace("description: '旧模块入口已经统一收敛到当前工作台。'", "description: '旧模块入口已经统一收敛到 React 工作台。'")
+p.write_text(s, encoding='utf-8')
+p=Path('src/__tests__/vue-compatibility-route-parity.test.ts')
+s=p.read_text(encoding='utf-8').replace("description: '旧模块入口已经统一收敛到当前工作台。'", "description: '旧模块入口已经统一收敛到 React 工作台。'")
+s=s.replace("  it('gives the in-shell placeholder the React reference card width', () => {\n    const page = mount(CompatibilityPlaceholderPage)\n    expect(page.get('section').classes()).toContain('compatibility-placeholder-card')\n    expect(page.get('section').classes()).toContain('compatibility-placeholder-card--standalone')\n\n    const modulePage = mount(CompatibilityPlaceholderPage, { props: { title: '模块入口' } })\n    expect(modulePage.get('section').classes()).not.toContain('compatibility-placeholder-card--standalone')\n  })", "  it('keeps standalone and module fallbacks on the reference card styles', () => {\n    const page = mount(CompatibilityPlaceholderPage)\n    expect(page.get('section').classes()).toContain('compatibility-placeholder-card')\n\n    const modulePage = mount(CompatibilityPlaceholderPage, { props: { title: '模块入口' } })\n    expect(modulePage.get('section').classes()).toContain('compatibility-placeholder-card')\n  })")
+p.write_text(s, encoding='utf-8')

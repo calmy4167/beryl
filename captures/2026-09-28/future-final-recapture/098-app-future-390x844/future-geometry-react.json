@@ -1,0 +1,317 @@
+[
+  {
+    "i": 0,
+    "tag": "DIV",
+    "cls": "future-page",
+    "text": "先去未来看看，再回来决定\n\n行动和暂缓，都可能有收获，也可能有代价。\n\n回到今天\n影响推演\n如果从五年后回头看\n\n「了解一个新的工作机会」可能带来的收获与代价。\n\n半年后\n五年后\n",
+    "rect": {
+      "x": 12,
+      "y": 76,
+      "width": 366,
+      "height": 983.171875,
+      "top": 76,
+      "right": 378,
+      "bottom": 1059.171875,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "0px 0px 36px"
+  },
+  {
+    "i": 1,
+    "tag": "HEADER",
+    "cls": "page-head future-page-head",
+    "text": "先去未来看看，再回来决定\n\n行动和暂缓，都可能有收获，也可能有代价。\n\n回到今天",
+    "rect": {
+      "x": 12,
+      "y": 76,
+      "width": 366,
+      "height": 89.578125,
+      "top": 76,
+      "right": 378,
+      "bottom": 165.578125,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "0px 0px 12px",
+    "padding": "0px"
+  },
+  {
+    "i": 2,
+    "tag": "P",
+    "cls": "eyebrow",
+    "text": "未来 · 试验",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "font": "700 9px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "none",
+    "margin": "9px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 3,
+    "tag": "H1",
+    "cls": "font-title",
+    "text": "先去未来看看，再回来决定",
+    "rect": {
+      "x": 12,
+      "y": 76,
+      "width": 366,
+      "height": 35.390625,
+      "top": 76,
+      "right": 378,
+      "bottom": 111.390625,
+      "left": 12
+    },
+    "font": "760 30px / 35.4px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "35.4px",
+    "display": "block",
+    "margin": "0px",
+    "padding": "0px"
+  },
+  {
+    "i": 4,
+    "tag": "P",
+    "cls": "",
+    "text": "行动和暂缓，都可能有收获，也可能有代价。",
+    "rect": {
+      "x": 12,
+      "y": 118.390625,
+      "width": 366,
+      "height": 19.1875,
+      "top": 118.390625,
+      "right": 378,
+      "bottom": 137.578125,
+      "left": 12
+    },
+    "font": "12px / 19.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "19.2px",
+    "display": "block",
+    "margin": "7px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 5,
+    "tag": "SECTION",
+    "cls": "future-scenarios",
+    "text": "影响推演\n如果从五年后回头看\n\n「了解一个新的工作机会」可能带来的收获与代价。\n\n半年后\n五年后\n你补充的背景\n\n已经发生的事：找到一个岗位要求清单\n\n你的理解或担心：担心目前作品",
+    "rect": {
+      "x": 12,
+      "y": 185.578125,
+      "width": 366,
+      "height": 837.59375,
+      "top": 185.578125,
+      "right": 378,
+      "bottom": 1023.171875,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "20px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 6,
+    "tag": "DIV",
+    "cls": "future-section-head",
+    "text": "影响推演\n如果从五年后回头看\n\n「了解一个新的工作机会」可能带来的收获与代价。\n\n半年后\n五年后",
+    "rect": {
+      "x": 12,
+      "y": 185.578125,
+      "width": 366,
+      "height": 150.796875,
+      "top": 185.578125,
+      "right": 378,
+      "bottom": 336.375,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "0px 0px 14px",
+    "padding": "0px"
+  },
+  {
+    "i": 7,
+    "tag": "ARTICLE",
+    "cls": "future-path beryl-card",
+    "text": "如果去做\n需要先查明会带来什么\n长期影响需要证据和条件\n\n需要先了解这件事的领域事实、所需投入和你的现实条件，再建立可信的长期影响链。",
+    "rect": {
+      "x": 12,
+      "y": 490.796875,
+      "width": 366,
+      "height": 206.1875,
+      "top": 490.796875,
+      "right": 378,
+      "bottom": 696.984375,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "18px"
+  },
+  {
+    "i": 8,
+    "tag": "H3",
+    "cls": "font-title",
+    "text": "需要先查明会带来什么",
+    "rect": {
+      "x": 31,
+      "y": 535.796875,
+      "width": 328,
+      "height": 25.1875,
+      "top": 535.796875,
+      "right": 359,
+      "bottom": 560.984375,
+      "left": 31
+    },
+    "font": "700 18px / 25.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "25.2px",
+    "display": "block",
+    "margin": "5px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 9,
+    "tag": "SECTION",
+    "cls": "future-possibility future-uncertain",
+    "text": "长期影响需要证据和条件\n\n需要先了解这件事的领域事实、所需投入和你的现实条件，再建立可信的长期影响链。",
+    "rect": {
+      "x": 31,
+      "y": 585.984375,
+      "width": 328,
+      "height": 92,
+      "top": 585.984375,
+      "right": 359,
+      "bottom": 677.984375,
+      "left": 31
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "11px 0px 0px",
+    "padding": "13px 14px"
+  },
+  {
+    "i": 10,
+    "tag": "ARTICLE",
+    "cls": "future-path beryl-card",
+    "text": "如果暂时不做\n需要先确认会错过什么\n暂不作长期判断\n\n在没有事实依据时，系统不把想象写成你的未来，也不使用空泛模板制造后悔。",
+    "rect": {
+      "x": 12,
+      "y": 709.984375,
+      "width": 366,
+      "height": 206.1875,
+      "top": 709.984375,
+      "right": 378,
+      "bottom": 916.171875,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "18px"
+  },
+  {
+    "i": 11,
+    "tag": "H3",
+    "cls": "font-title",
+    "text": "需要先确认会错过什么",
+    "rect": {
+      "x": 31,
+      "y": 754.984375,
+      "width": 328,
+      "height": 25.1875,
+      "top": 754.984375,
+      "right": 359,
+      "bottom": 780.171875,
+      "left": 31
+    },
+    "font": "700 18px / 25.2px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "25.2px",
+    "display": "block",
+    "margin": "5px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 12,
+    "tag": "SECTION",
+    "cls": "future-possibility future-uncertain",
+    "text": "暂不作长期判断\n\n在没有事实依据时，系统不把想象写成你的未来，也不使用空泛模板制造后悔。",
+    "rect": {
+      "x": 31,
+      "y": 805.171875,
+      "width": 328,
+      "height": 92,
+      "top": 805.171875,
+      "right": 359,
+      "bottom": 897.171875,
+      "left": 31
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "11px 0px 0px",
+    "padding": "13px 14px"
+  },
+  {
+    "i": 13,
+    "tag": "DIV",
+    "cls": "future-actions",
+    "text": "修改这件事\n回到我现在的想法",
+    "rect": {
+      "x": 12,
+      "y": 979.171875,
+      "width": 366,
+      "height": 44,
+      "top": 979.171875,
+      "right": 378,
+      "bottom": 1023.171875,
+      "left": 12
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "18px 0px 0px",
+    "padding": "0px"
+  },
+  {
+    "i": 14,
+    "tag": "BUTTON",
+    "cls": "future-primary",
+    "text": "回到我现在的想法",
+    "rect": {
+      "x": 199,
+      "y": 979.171875,
+      "width": 179,
+      "height": 44,
+      "top": 979.171875,
+      "right": 378,
+      "bottom": 1023.171875,
+      "left": 199
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "flex",
+    "margin": "0px",
+    "padding": "9px 15px"
+  }
+]

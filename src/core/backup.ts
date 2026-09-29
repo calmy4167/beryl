@@ -12,6 +12,7 @@ const DOMAIN_COLLECTION_KEYS = [
   'b_realityRecords', 'b_realityRecordRevisions', 'b_recordCommands',
   'b_mvpTodayPlans',
   'b_coreEntityMutations', 'b_coreEntityCommands',
+  'b_openAssets',
   'b_sharedCollaborationAudit'
 ]
 const CORE_ENTITY_KEYS = CORE_ENTITY_TYPES.map(type => `b_core:${type}`)

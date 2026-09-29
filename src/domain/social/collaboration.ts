@@ -9,7 +9,8 @@ import type { RealityRecord, RecordCreateInput } from '@/domain/record/model'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
-import { unifiedAsyncRepository, unifiedFactories, unifiedRepository, type Relationship, type SharedSpace } from '@/domain/unified'
+import { sharedSpaceFromSpace, spaceFromSharedSpace, unifiedAsyncRepository, unifiedFactories, unifiedRepository, type EntityRef, type RealityActivity, type Relationship, type SharedSpace, type Space, type SpaceCompatibilityProjection } from '@/domain/unified'
+import { evaluatePermission } from '@/domain/permission/policy'
 
 export type SharedOwnerType = 'relationship' | 'shared_space'
 export type SharedMemberRole = 'owner' | 'member' | 'none'
@@ -50,6 +51,29 @@ const asyncAudit = createAsyncCollectionRepository<SharedAuditEntry>('sharedColl
 
 export function currentCollaboratorId(): string { return readSession()?.u || 'local-user' }
 
+/** Lifecycle gate for new canonical Space collaboration flows; membership still requires Permission evaluation. */
+export function spaceCollaborativeWritesOpen(space: Pick<Space, 'status'>): boolean {
+  return space.status === 'active'
+}
+
+/** Read a legacy SharedSpace through canonical Space semantics without changing its stored record. */
+export function readSpaceCompatibilityProjection(sharedSpaceId: string): SpaceCompatibilityProjection | undefined {
+  const shared = unifiedRepository.find<SharedSpace>('shared_space', sharedSpaceId)
+  return shared ? spaceFromSharedSpace(shared) : undefined
+}
+
+/** Adapt a canonical Space view back to the existing SharedSpace repository boundary. */
+export function writeSpaceCompatibilityProjection(projection: SpaceCompatibilityProjection): SharedSpace {
+  return sharedSpaceFromSpace(projection)
+}
+
+export function assertSpaceAllowsNewCollaborativeWrites(spaceId: string): Space {
+  const space = unifiedRepository.find<Space>('space', spaceId)
+  if (!space) throw new SharedPermissionError('Space 不存在')
+  if (!spaceCollaborativeWritesOpen(space)) throw new SharedPermissionError('Space 已关闭或归档，不能新增协作写入')
+  return space
+}
+
 function ownerEntity(owner: SharedOwnerType, ownerId: string): Relationship | SharedSpace | undefined {
   return owner === 'relationship'
     ? unifiedRepository.find<Relationship>('relationship', ownerId)
@@ -72,18 +96,26 @@ function matterAccess(entity: Relationship | SharedSpace, matterId: string): 'sh
   return undefined
 }
 
+function legacyWriteDecision(owner: SharedOwnerType, ownerId: string, actorId: string, matterId: string | undefined, effect: 'allow' | 'deny'): boolean {
+  const resourceRef = matterId
+    ? { entityType: 'matter' as const, calmyId: matterId }
+    : { entityType: owner === 'relationship' ? 'relationship' as const : 'shared_space' as const, calmyId: ownerId }
+  const rule = unifiedFactories.permission({ principalUserId: actorId, entityRef: resourceRef, effect, actions: ['edit'] })
+  return evaluatePermission({ principalUserId: actorId, action: 'edit', resourceRef, permissions: [rule], scopes: [] }).allowed
+}
+
 export function sharedWriteAccess(owner: SharedOwnerType, ownerId: string, actorId = currentCollaboratorId(), matterId?: string): SharedWriteAccess {
   const entity = ownerEntity(owner, ownerId)
-  if (!entity) return { allowed: false, role: 'none', owner, ownerId, matterId, reason: '共享上下文不存在' }
+  if (!entity) return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'deny'), role: 'none', owner, ownerId, matterId, reason: '共享上下文不存在' }
   const role = roleFor(owner, entity, actorId)
-  if (entity.status !== 'active') return { allowed: false, role, owner, ownerId, matterId, reason: '共享上下文已暂停或归档' }
-  if (role === 'none') return { allowed: false, role, owner, ownerId, matterId, reason: '操作者不是该共享上下文成员' }
+  if (entity.status !== 'active') return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'deny'), role, owner, ownerId, matterId, reason: '共享上下文已暂停或归档' }
+  if (role === 'none') return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'deny'), role, owner, ownerId, matterId, reason: '操作者不是该共享上下文成员' }
   if (matterId) {
     const access = matterAccess(entity, matterId)
-    if (access === 'blocked') return { allowed: false, role, owner, ownerId, matterId, reason: '该 Matter 被共享边界阻止' }
-    if (!access) return { allowed: false, role, owner, ownerId, matterId, reason: '该 Matter 不在共享边界内' }
+    if (access === 'blocked') return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'deny'), role, owner, ownerId, matterId, reason: '该 Matter 被共享边界阻止' }
+    if (!access) return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'deny'), role, owner, ownerId, matterId, reason: '该 Matter 不在共享边界内' }
   }
-  return { allowed: true, role, owner, ownerId, matterId, reason: '允许写入' }
+  return { allowed: legacyWriteDecision(owner, ownerId, actorId, matterId, 'allow'), role, owner, ownerId, matterId, reason: '允许写入' }
 }
 
 function assertWrite(owner: SharedOwnerType, ownerId: string, actorId: string, matterId?: string, manage = false): SharedWriteAccess {
@@ -119,6 +151,54 @@ export async function listSharedAuditAsync(owner?: SharedOwnerType, ownerId?: st
   return (await asyncAudit.list())
     .filter(item => (!owner || item.owner === owner) && (!ownerId || item.ownerId === ownerId) && (!matterId || item.matterId === matterId))
     .sort((a, b) => a.occurredAt - b.occurredAt || a.id.localeCompare(b.id))
+}
+
+/** Read-only normalized activity view. RealityRecord remains a fact, not an object mutation. */
+export function listRealityActivity(ref: EntityRef): RealityActivity[] {
+  const id = ref.calmyId
+  const activity: RealityActivity[] = []
+  const isThingRef = ref.entityType === 'thing' || ref.entityType === 'matter'
+
+  if (isThingRef) {
+    for (const mutation of matterRepository.mutations(id)) activity.push({
+      source: 'matter_mutation', originalId: mutation.id, entityRef: ref, operation: mutation.operation,
+      actor: mutation.actor, actorUserId: mutation.actorId, sourceIds: mutation.sourceIds.slice(), fromRevision: mutation.fromRevision,
+      toRevision: mutation.toRevision, occurredAt: mutation.occurredAt, patch: mutation.patch
+    })
+  }
+
+  for (const mutation of unifiedRepository.mutations()) {
+    if (mutation.entityId !== id) continue
+    activity.push({
+      source: 'core_entity_mutation', originalId: mutation.id,
+      entityRef: { entityType: mutation.entityType, calmyId: mutation.entityId }, operation: mutation.operation,
+      actor: mutation.actor, actorUserId: mutation.actorId, sourceIds: mutation.sourceIds.slice(), fromRevision: mutation.fromRevision,
+      toRevision: mutation.toRevision, occurredAt: mutation.occurredAt, patch: mutation.patch
+    })
+  }
+
+  for (const entry of listSharedAudit()) {
+    if (entry.entityId !== id && !(isThingRef && entry.matterId === id)) continue
+    activity.push({
+      source: 'shared_audit', originalId: entry.id,
+      entityRef: { entityType: entry.entityType, calmyId: entry.entityId }, operation: entry.operation,
+      actorUserId: entry.actorId, sourceIds: [], fromRevision: entry.fromRevision,
+      toRevision: entry.toRevision, occurredAt: entry.occurredAt, patch: entry.patch
+    })
+  }
+
+  const records = ref.entityType === 'record'
+    ? [recordRepository.find(id)].filter((record): record is RealityRecord => !!record)
+    : isThingRef ? recordRepository.listForMatter(id) : []
+  for (const record of records) activity.push({
+    source: 'reality_record', originalId: record.calmyId,
+    entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'recorded',
+    sourceIds: [], occurredAt: record.occurredAt,
+    recordRevision: record.revision, recordType: record.type, recordSource: record.source,
+    evidenceIds: record.evidenceIds.slice(), body: record.body
+  })
+
+  return activity.sort((a, b) => a.occurredAt - b.occurredAt || a.originalId.localeCompare(b.originalId))
 }
 
 export function createCollaborativeRelationship(input: Omit<Relationship, 'calmyId' | 'entityType' | 'createdAt' | 'updatedAt' | 'revision' | 'source'>, actorId = currentCollaboratorId()): Relationship {

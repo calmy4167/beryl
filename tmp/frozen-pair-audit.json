@@ -1,0 +1,2355 @@
+{
+  "source": "tmp\\official-current-pairs.json",
+  "count": 335,
+  "summary": {
+    "exact": 205,
+    "nonzero": 130
+  },
+  "results": [
+    {
+      "id": "001",
+      "route": "/app/admin/advanced",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "002",
+      "route": "/app/admin/advanced",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "003",
+      "route": "/app/admin/advanced",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "004",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "005",
+      "route": "/app/admin",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "006",
+      "route": "/app/admin",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "007",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "008",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "009",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 5
+    },
+    {
+      "id": "010",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "011",
+      "route": "/app/capture",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "012",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "013",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "014",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "015",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "016",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "017",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "018",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "019",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "020",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "021",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "022",
+      "route": "/",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "023",
+      "route": "/",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "024",
+      "route": "/",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "025",
+      "route": "/app/unknown-current-page",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "026",
+      "route": "/app/unknown-current-page",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "027",
+      "route": "/app/unknown-current-page",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "028",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "029",
+      "route": "/app/cycle",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "030",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "031",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "032",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 7
+    },
+    {
+      "id": "033",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "034",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "035",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 7
+    },
+    {
+      "id": "036",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "037",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "038",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "039",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "040",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "042",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 16
+    },
+    {
+      "id": "043",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 16
+    },
+    {
+      "id": "044",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "045",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 26
+    },
+    {
+      "id": "046",
+      "route": "/app/module/finance",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "047",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "048",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 35
+    },
+    {
+      "id": "049",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "050",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "051",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "052",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "054",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 42
+    },
+    {
+      "id": "055",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 17
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "057",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 31
+    },
+    {
+      "id": "058",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "059",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "060",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 25
+    },
+    {
+      "id": "061",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "062",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "063",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "064",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "065",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "066",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "067",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "068",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "069",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 5
+    },
+    {
+      "id": "070",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "071",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "072",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "073",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "075",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "076",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "078",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 5
+    },
+    {
+      "id": "079",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "080",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "081",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 15
+    },
+    {
+      "id": "082",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "084",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 6248
+    },
+    {
+      "id": "085",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 6221
+    },
+    {
+      "id": "086",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 8308
+    },
+    {
+      "id": "087",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 6238
+    },
+    {
+      "id": "088",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 6221
+    },
+    {
+      "id": "089",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 8308
+    },
+    {
+      "id": "090",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "091",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "092",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "093",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "094",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "095",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "096",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 413723
+    },
+    {
+      "id": "097",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 193185
+    },
+    {
+      "id": "098",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 84164
+    },
+    {
+      "id": "099",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "100",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "101",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "102",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "status": "nonzero",
+      "differentPixels": 2494
+    },
+    {
+      "id": "103",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "104",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "105",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 21
+    },
+    {
+      "id": "106",
+      "route": "/app/module/goals",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "107",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "108",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "109",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "110",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "111",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "112",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "113",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "114",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "115",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "116",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "117",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "118",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "119",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "120",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "121",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "122",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "123",
+      "route": "/app/module/habits",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "124",
+      "route": "/app/module/habits",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 5
+    },
+    {
+      "id": "125",
+      "route": "/app/module/habits",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "126",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "127",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "129",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "130",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "131",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "132",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "133",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "134",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "135",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 267
+    },
+    {
+      "id": "136",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 236
+    },
+    {
+      "id": "137",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 89
+    },
+    {
+      "id": "138",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "139",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 13
+    },
+    {
+      "id": "140",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "141",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 209
+    },
+    {
+      "id": "142",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 189
+    },
+    {
+      "id": "143",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2787
+    },
+    {
+      "id": "144",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 35
+    },
+    {
+      "id": "145",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 35
+    },
+    {
+      "id": "146",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 35
+    },
+    {
+      "id": "147",
+      "route": "/login",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "148",
+      "route": "/login",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "149",
+      "route": "/login",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "150",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 174
+    },
+    {
+      "id": "151",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "152",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2852
+    },
+    {
+      "id": "153",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "154",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "155",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "156",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "157",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "158",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "159",
+      "route": "/app/matters/mat-42",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "160",
+      "route": "/app/matters/mat-42",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "161",
+      "route": "/app/matters/mat-42",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "162",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 296
+    },
+    {
+      "id": "163",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 276
+    },
+    {
+      "id": "164",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 128
+    },
+    {
+      "id": "165",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "166",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "167",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "168",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "169",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "170",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 411
+    },
+    {
+      "id": "171",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 411
+    },
+    {
+      "id": "172",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 263
+    },
+    {
+      "id": "173",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 814
+    },
+    {
+      "id": "174",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 814
+    },
+    {
+      "id": "175",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 666
+    },
+    {
+      "id": "176",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "177",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "178",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "179",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "180",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "181",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "182",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "183",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 3
+    },
+    {
+      "id": "184",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "185",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "186",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "187",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "188",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 411
+    },
+    {
+      "id": "189",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 411
+    },
+    {
+      "id": "190",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 263
+    },
+    {
+      "id": "191",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 814
+    },
+    {
+      "id": "192",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 814
+    },
+    {
+      "id": "193",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 666
+    },
+    {
+      "id": "194",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "195",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "196",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "197",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 458
+    },
+    {
+      "id": "198",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 411
+    },
+    {
+      "id": "199",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 263
+    },
+    {
+      "id": "200",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 1029
+    },
+    {
+      "id": "201",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 1004
+    },
+    {
+      "id": "202",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 856
+    },
+    {
+      "id": "203",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "204",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 98
+    },
+    {
+      "id": "205",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "206",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "207",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2596
+    },
+    {
+      "id": "208",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "209",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "210",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "211",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "212",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "213",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "214",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "215",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "216",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "217",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "218",
+      "route": "/pass",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "219",
+      "route": "/pass",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "220",
+      "route": "/pass",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "221",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 27
+    },
+    {
+      "id": "222",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 21
+    },
+    {
+      "id": "223",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "224",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 182
+    },
+    {
+      "id": "225",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 175
+    },
+    {
+      "id": "226",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2508
+    },
+    {
+      "id": "227",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 2
+    },
+    {
+      "id": "228",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 19
+    },
+    {
+      "id": "229",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "230",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "231",
+      "route": "/app/module/pomo",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "232",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "233",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 60
+    },
+    {
+      "id": "234",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 174
+    },
+    {
+      "id": "235",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "236",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2752
+    },
+    {
+      "id": "237",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "238",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "239",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "240",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "241",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "242",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "243",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "244",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 5
+    },
+    {
+      "id": "245",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "246",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 154
+    },
+    {
+      "id": "247",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 159
+    },
+    {
+      "id": "248",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "249",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "250",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "251",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "252",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "253",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 15
+    },
+    {
+      "id": "254",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 6
+    },
+    {
+      "id": "255",
+      "route": "/app/review",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "256",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "257",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "258",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "259",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 179
+    },
+    {
+      "id": "260",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 184
+    },
+    {
+      "id": "261",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2187
+    },
+    {
+      "id": "262",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 179
+    },
+    {
+      "id": "263",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 179
+    },
+    {
+      "id": "264",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 2187
+    },
+    {
+      "id": "265",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "266",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "267",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "268",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "269",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "270",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "271",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "272",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "273",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "274",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "275",
+      "route": "/scene",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "276",
+      "route": "/scene",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "277",
+      "route": "/scene",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "278",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "279",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 34035
+    },
+    {
+      "id": "280",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "282",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "283",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "284",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "285",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "286",
+      "route": "/app/task-board",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "287",
+      "route": "/app/task-board",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "288",
+      "route": "/app/task-board",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "289",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 16
+    },
+    {
+      "id": "290",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "291",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "292",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "293",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "294",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "295",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 790
+    },
+    {
+      "id": "296",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "nonzero",
+      "differentPixels": 770
+    },
+    {
+      "id": "297",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 622
+    },
+    {
+      "id": "298",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 26
+    },
+    {
+      "id": "299",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "300",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "301",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "302",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 20
+    },
+    {
+      "id": "303",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "304",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "305",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 44
+    },
+    {
+      "id": "306",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "307",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "308",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 34
+    },
+    {
+      "id": "309",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "310",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "nonzero",
+      "differentPixels": 10
+    },
+    {
+      "id": "311",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 34
+    },
+    {
+      "id": "312",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "313",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "314",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "315",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "316",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "317",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "318",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "319",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "320",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "321",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "322",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "323",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "324",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 13
+    },
+    {
+      "id": "325",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "326",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "327",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 23
+    },
+    {
+      "id": "328",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "329",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "330",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 23
+    },
+    {
+      "id": "331",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "332",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "333",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "status": "nonzero",
+      "differentPixels": 31
+    },
+    {
+      "id": "334",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "status": "exact",
+      "differentPixels": 0
+    },
+    {
+      "id": "335",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "status": "exact",
+      "differentPixels": 0
+    }
+  ]
+}

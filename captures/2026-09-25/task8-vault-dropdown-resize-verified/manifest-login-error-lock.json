@@ -1,0 +1,327 @@
+{
+  "capturedAt": "2026-09-25T07:58:36.689Z",
+  "browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "server": "isolated local Vite",
+  "captures": [
+    {
+      "framework": "react",
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-login-error-1440x900.png",
+      "path": "#/login",
+      "alert": "用户名或密码错误",
+      "button": "登 录",
+      "disabled": false,
+      "overflow": false,
+      "buttonRect": {
+        "x": 553,
+        "y": 584.5,
+        "width": 334,
+        "height": 43
+      }
+    },
+    {
+      "framework": "react",
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-login-error-390x844.png",
+      "path": "#/login",
+      "alert": "用户名或密码错误",
+      "button": "登 录",
+      "disabled": false,
+      "overflow": false,
+      "buttonRect": {
+        "x": 41,
+        "y": 556.5,
+        "width": 308,
+        "height": 43
+      }
+    },
+    {
+      "framework": "react",
+      "state": "lock",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-login-lock-1440x900.png",
+      "path": "#/login",
+      "alert": "登录失败 5 次，已锁定 30 秒",
+      "button": "锁定 30s",
+      "disabled": true,
+      "overflow": false,
+      "buttonRect": {
+        "x": 553,
+        "y": 584.5,
+        "width": 334,
+        "height": 43
+      }
+    },
+    {
+      "framework": "react",
+      "state": "lock",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-login-lock-390x844.png",
+      "path": "#/login",
+      "alert": "登录失败 5 次，已锁定 30 秒",
+      "button": "锁定 30s",
+      "disabled": true,
+      "overflow": false,
+      "buttonRect": {
+        "x": 41,
+        "y": 556.5,
+        "width": 308,
+        "height": 43
+      }
+    },
+    {
+      "framework": "react",
+      "state": "vault-dropdown",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-vault-dropdown-1440x900.png",
+      "path": "#/app/admin",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appCompact": "false",
+      "bottomNavCount": 1,
+      "mobileHeaderCount": 0,
+      "conflict": true,
+      "listbox": true,
+      "overflow": false,
+      "scroll": {
+        "width": 1440,
+        "height": 900
+      },
+      "controlRect": {
+        "x": 436.625,
+        "y": 627.53125,
+        "width": 157,
+        "height": 40
+      },
+      "bottomNav": {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "backgroundColor": "rgba(255, 255, 255, 0.96)",
+        "backdropFilter": "blur(16px)",
+        "borderTopColor": "rgb(225, 229, 227)",
+        "opacity": "1",
+        "bodyBackground": "rgb(239, 241, 241)"
+      }
+    },
+    {
+      "framework": "react",
+      "state": "vault-dropdown",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\react-vault-dropdown-390x844.png",
+      "path": "#/app/admin",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "appCompact": "true",
+      "bottomNavCount": 1,
+      "mobileHeaderCount": 1,
+      "conflict": true,
+      "listbox": true,
+      "overflow": false,
+      "scroll": {
+        "width": 390,
+        "height": 2843
+      },
+      "controlRect": {
+        "x": 154.390625,
+        "y": 440.5,
+        "width": 157,
+        "height": 40
+      },
+      "bottomNav": {
+        "rect": {
+          "x": 0,
+          "y": 774,
+          "width": 390,
+          "height": 70
+        },
+        "backgroundColor": "rgba(255, 255, 255, 0.96)",
+        "backdropFilter": "blur(16px)",
+        "borderTopColor": "rgb(225, 229, 227)",
+        "opacity": "1",
+        "bodyBackground": "rgb(239, 241, 241)"
+      }
+    },
+    {
+      "framework": "vue",
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-login-error-1440x900.png",
+      "path": "#/login",
+      "alert": "用户名或密码错误",
+      "button": "登 录",
+      "disabled": false,
+      "overflow": false,
+      "buttonRect": {
+        "x": 553,
+        "y": 584.5,
+        "width": 334,
+        "height": 43
+      }
+    },
+    {
+      "framework": "vue",
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-login-error-390x844.png",
+      "path": "#/login",
+      "alert": "用户名或密码错误",
+      "button": "登 录",
+      "disabled": false,
+      "overflow": false,
+      "buttonRect": {
+        "x": 41,
+        "y": 556.5,
+        "width": 308,
+        "height": 43
+      }
+    },
+    {
+      "framework": "vue",
+      "state": "lock",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-login-lock-1440x900.png",
+      "path": "#/login",
+      "alert": "登录失败 5 次，已锁定 30 秒",
+      "button": "锁定 30s",
+      "disabled": true,
+      "overflow": false,
+      "buttonRect": {
+        "x": 553,
+        "y": 584.5,
+        "width": 334,
+        "height": 43
+      }
+    },
+    {
+      "framework": "vue",
+      "state": "lock",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-login-lock-390x844.png",
+      "path": "#/login",
+      "alert": "登录失败 5 次，已锁定 30 秒",
+      "button": "锁定 30s",
+      "disabled": true,
+      "overflow": false,
+      "buttonRect": {
+        "x": 41,
+        "y": 556.5,
+        "width": 308,
+        "height": 43
+      }
+    },
+    {
+      "framework": "vue",
+      "state": "vault-dropdown",
+      "width": 1440,
+      "height": 900,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-vault-dropdown-1440x900.png",
+      "path": "#/app/admin",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "appCompact": "false",
+      "bottomNavCount": 0,
+      "mobileHeaderCount": 0,
+      "conflict": true,
+      "listbox": true,
+      "overflow": false,
+      "scroll": {
+        "width": 1440,
+        "height": 900
+      },
+      "controlRect": {
+        "x": 436.625,
+        "y": 627.53125,
+        "width": 157,
+        "height": 40
+      },
+      "bottomNav": null
+    },
+    {
+      "framework": "vue",
+      "state": "vault-dropdown",
+      "width": 390,
+      "height": 844,
+      "image": "C:\\Users\\30916\\AppData\\Local\\Temp\\calmy-task8-auth-states\\vue-vault-dropdown-390x844.png",
+      "path": "#/app/admin",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "appCompact": "true",
+      "bottomNavCount": 1,
+      "mobileHeaderCount": 1,
+      "conflict": true,
+      "listbox": true,
+      "overflow": false,
+      "scroll": {
+        "width": 390,
+        "height": 2843
+      },
+      "controlRect": {
+        "x": 154.390625,
+        "y": 440.5,
+        "width": 157,
+        "height": 40
+      },
+      "bottomNav": {
+        "rect": {
+          "x": 0,
+          "y": 774,
+          "width": 390,
+          "height": 70
+        },
+        "backgroundColor": "rgba(255, 255, 255, 0.96)",
+        "backdropFilter": "blur(16px)",
+        "borderTopColor": "rgb(225, 229, 227)",
+        "opacity": "1",
+        "bodyBackground": "rgb(239, 241, 241)"
+      }
+    }
+  ],
+  "vaultAttempts": [
+    {
+      "framework": "react",
+      "status": "captured",
+      "fixture": {
+        "files": [
+          "20 Matters/本地标题__task8-vault-matter.md",
+          "_calmy/manifest.json"
+        ],
+        "rootName": ""
+      }
+    },
+    {
+      "framework": "vue",
+      "status": "captured",
+      "fixture": {
+        "files": [
+          "20 Matters/本地标题__task8-vault-matter.md",
+          "_calmy/manifest.json"
+        ],
+        "rootName": ""
+      }
+    }
+  ]
+}

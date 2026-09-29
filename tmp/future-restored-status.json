@@ -1,0 +1,138 @@
+{
+  "start": 0,
+  "limit": 14,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "exact": 9,
+    "nonzero": 5
+  },
+  "results": [
+    {
+      "id": "085",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\085-app-future-1024x768"
+    },
+    {
+      "id": "086",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\086-app-future-390x844"
+    },
+    {
+      "id": "088",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\088-app-future-1024x768"
+    },
+    {
+      "id": "089",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\089-app-future-390x844"
+    },
+    {
+      "id": "091",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\091-app-future-1024x768"
+    },
+    {
+      "id": "092",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\092-app-future-390x844"
+    },
+    {
+      "id": "094",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\094-app-future-1024x768"
+    },
+    {
+      "id": "095",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 1862,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\095-app-future-390x844"
+    },
+    {
+      "id": "097",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\097-app-future-1024x768"
+    },
+    {
+      "id": "098",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 1862,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\098-app-future-390x844"
+    },
+    {
+      "id": "100",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\100-app-future-1024x768"
+    },
+    {
+      "id": "101",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\101-app-future-390x844"
+    },
+    {
+      "id": "102",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\manifest-app_future-320x844.json",
+      "status": "nonzero",
+      "differentPixels": 1862,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\102-app-future-320x844"
+    },
+    {
+      "id": "103",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-settled-paired\\manifest-app_future-320x844.json",
+      "status": "nonzero",
+      "differentPixels": 1862,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-restored\\103-app-future-320x844"
+    }
+  ]
+}

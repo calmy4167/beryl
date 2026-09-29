@@ -1,0 +1,546 @@
+/* Shared native + Element Plus form controls. Keep control geometry consistent
+   across Vue pages and shared workspace controls. */
+:root {
+  --calmy-control-surface: var(--t-surface, var(--c-card, #fff));
+  --calmy-control-surface-hover: var(--t-surface-subtle, var(--c-hover, #f3f6f4));
+  --calmy-control-border: var(--t-border, var(--c-border, #d9e1dc));
+  --calmy-control-border-hover: var(--t-border-strong, var(--c-border, #cbd6cf));
+  --calmy-control-text: var(--t-text, var(--c-text, #202624));
+  --calmy-control-muted: var(--t-text-muted, var(--c-text-3, #748079));
+  --calmy-control-accent: var(--t-blue, var(--scene, #438b6b));
+  --calmy-control-accent-soft: var(--t-surface-subtle, var(--scene-soft, #edf5ef));
+  --calmy-control-focus: var(--t-focus-ring, 0 0 0 3px var(--scene-focus, rgba(67, 139, 107, .2)));
+  --calmy-control-radius: 10px;
+  --calmy-control-height: 40px;
+  --calmy-control-menu-shadow: 0 14px 34px rgba(31, 44, 38, .12), 0 2px 7px rgba(31, 44, 38, .05);
+}
+
+html.dark {
+  --calmy-control-surface: var(--c-card, #252b28);
+  --calmy-control-surface-hover: var(--c-hover, #303833);
+  --calmy-control-border: var(--c-border, #414a44);
+  --calmy-control-border-hover: var(--c-text-3, #8d968e);
+  --calmy-control-text: var(--c-text, #f1eee7);
+  --calmy-control-muted: var(--c-text-3, #8d968e);
+  --calmy-control-accent: var(--scene, #65bb8a);
+  --calmy-control-accent-soft: var(--scene-soft, rgba(101, 187, 138, .16));
+  --calmy-control-focus: 0 0 0 3px var(--scene-focus, rgba(101, 187, 138, .28));
+  --calmy-control-menu-shadow: 0 14px 34px rgba(0, 0, 0, .34), 0 2px 7px rgba(0, 0, 0, .2);
+}
+
+html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)) {
+  min-width: 0;
+  min-height: var(--calmy-control-height);
+  padding: 0 36px 0 12px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: var(--calmy-control-radius);
+  color: var(--calmy-control-text);
+  background-color: var(--calmy-control-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2365716d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  appearance: none;
+  box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
+  cursor: default;
+  transition: all 0s ease;
+}
+
+html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):hover:not(:disabled) {
+  border-color: var(--calmy-control-border-hover);
+  background-color: var(--calmy-control-surface);
+}
+
+html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):focus-visible {
+  outline: none;
+  border-color: var(--calmy-control-accent);
+  box-shadow: var(--calmy-control-focus);
+}
+
+html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):disabled {
+  color: var(--calmy-control-muted);
+  background-color: var(--c-bg-soft, #f2f5f3);
+  cursor: not-allowed;
+  opacity: .72;
+}
+
+html select option {
+  color: var(--calmy-control-text);
+  background: var(--calmy-control-surface);
+}
+
+/* Element Plus select trigger */
+html .el-select__wrapper {
+  min-height: var(--calmy-control-height);
+  padding: 0 12px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: var(--calmy-control-radius);
+  color: var(--calmy-control-text);
+  background: var(--calmy-control-surface);
+  box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+}
+
+html .el-select__wrapper:hover:not(.is-disabled) {
+  box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
+  border-color: var(--calmy-control-border-hover);
+}
+
+html .el-select__wrapper.is-focused,
+html .el-select__wrapper:focus-visible {
+  border-color: var(--calmy-control-accent);
+  box-shadow: var(--calmy-control-focus);
+}
+
+html .el-select__placeholder,
+html .el-select__selected-item {
+  color: var(--calmy-control-text);
+  font: inherit;
+}
+
+html .el-select__placeholder.is-transparent {
+  color: var(--calmy-control-muted);
+}
+
+html .el-select.is-disabled .el-select__wrapper {
+  color: var(--calmy-control-muted);
+  background: var(--c-bg-soft, #f2f5f3);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Element Plus popup is teleported to body, so these rules stay global. */
+html .el-select__popper.el-popper,
+html .el-select-dropdown {
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: 12px;
+  background: var(--calmy-control-surface);
+  box-shadow: var(--calmy-control-menu-shadow);
+}
+
+html .el-select__popper.el-popper .el-popper__arrow::before {
+  border-color: var(--calmy-control-border);
+  background: var(--calmy-control-surface);
+}
+
+html .el-select-dropdown__list {
+  padding: 0;
+}
+
+html .el-select-dropdown__item {
+  min-height: 36px;
+  height: auto;
+  margin: 2px 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: var(--calmy-control-text);
+  line-height: 1.45;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+html .el-select-dropdown__item.hover,
+html .el-select-dropdown__item:hover {
+  color: var(--calmy-control-text);
+  background: var(--calmy-control-surface-hover);
+}
+
+html .el-select-dropdown__item.is-selected {
+  color: var(--calmy-control-accent);
+  background: var(--calmy-control-accent-soft);
+  font-weight: 650;
+}
+
+html .el-select-dropdown__item.is-disabled {
+  color: var(--calmy-control-muted);
+  background: transparent;
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+html .el-select-dropdown__empty {
+  padding: 12px;
+  color: var(--calmy-control-muted);
+}
+
+/* Custom replacement for native single-select popups, whose option menu is
+   drawn by the operating system and cannot be themed consistently. */
+.calmy-select {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: var(--calmy-control-text);
+}
+
+.calmy-select__trigger {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--calmy-control-height);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: var(--calmy-control-radius);
+  color: var(--calmy-control-text);
+  background: var(--calmy-control-surface);
+  box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.calmy-select.is-compact {
+  width: auto;
+  flex: 0 1 auto;
+}
+
+.calmy-select.is-compact .calmy-select__trigger {
+  min-height: 30px;
+  padding: 5px 18px 5px 6px;
+  border-radius: 6px;
+}
+
+.calmy-select__trigger:hover:not(:disabled) {
+  border-color: var(--calmy-control-border-hover);
+}
+
+.calmy-select__trigger:focus-visible {
+  outline: none;
+  border-color: var(--calmy-control-accent);
+  box-shadow: var(--calmy-control-focus);
+}
+
+.calmy-select__trigger:disabled {
+  color: var(--calmy-control-muted);
+  background: var(--c-bg-soft, #f2f5f3);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.calmy-select__value {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calmy-select__value.is-placeholder {
+  color: var(--calmy-control-muted);
+}
+
+.calmy-select__chevron {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: var(--calmy-control-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 140ms ease;
+}
+
+.calmy-select__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.calmy-select__popup {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: max(100%, 176px);
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 5px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: 12px;
+  background: var(--calmy-control-surface);
+  box-shadow: var(--calmy-control-menu-shadow);
+  animation: calmy-select-in 140ms cubic-bezier(.22, .8, .24, 1) both;
+}
+
+.calmy-select__listbox {
+  max-height: min(320px, 45vh);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.calmy-select__option {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  color: var(--calmy-control-text);
+  line-height: 1.45;
+  cursor: pointer;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.calmy-select__option:is(:hover, .is-active) {
+  background: var(--calmy-control-surface-hover);
+}
+
+.calmy-select__option.is-selected {
+  color: var(--calmy-control-accent);
+  background: var(--calmy-control-accent-soft);
+  font-weight: 650;
+}
+
+.calmy-select__option.is-disabled {
+  color: var(--calmy-control-muted);
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+.calmy-select__check {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.calmy-select__option.is-selected .calmy-select__check {
+  border-color: var(--calmy-control-accent);
+  background: var(--calmy-control-accent);
+}
+
+.calmy-select__option.is-selected .calmy-select__check::after {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 4px;
+  height: 7px;
+  border: solid #fff;
+  border-width: 0 1.5px 1.5px 0;
+  content: '';
+  transform: rotate(45deg);
+}
+
+@keyframes calmy-select-in {
+  from { opacity: 0; transform: translateY(-3px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* The page-field rule in tactile-ui.css intentionally has stronger scope;
+   repeat only the select-specific visual properties here so its arrow remains
+   visible without changing the surrounding input treatment. */
+html.tactile-ui #app .page-container :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)) {
+  min-height: var(--calmy-control-height);
+  padding: 0 36px 0 12px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: var(--calmy-control-radius);
+  color: var(--calmy-control-text);
+  background-color: var(--calmy-control-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2365716d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  appearance: none;
+}
+
+html.tactile-ui #app .page-container :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):focus-visible {
+  border-color: var(--calmy-control-accent);
+  background-color: var(--calmy-control-surface);
+  box-shadow: var(--calmy-control-focus);
+}
+
+/* The Goals relation field is a native control in the React reference. */
+html.tactile-ui #app .page-container .goal-context-fields select {
+  width: 104px;
+  min-height: 40px;
+  padding: 9px 11px;
+  border-color: #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+/* Feishu selectors use the same tactile native control surface as React. */
+html.tactile-ui #app .page-container .feishu-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+/* The task form's native matter selector follows the same tactile treatment as React. */
+html.tactile-ui #app .page-container .tasks-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+/* Task board's native selectors inherit the same tactile field treatment in React. */
+html.tactile-ui #app .page-container .task-board-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+/* Graph and Finance use native controls in the React parity reference. These
+   selectors match the shared page-select specificity so their local contract
+   can override the common Vue control surface. */
+html.tactile-ui #app .page-container .graph-page select {
+  min-width: auto;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+html.tactile-ui #app .page-container .finance-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+html.tactile-ui #app .page-container .inbox-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+html.tactile-ui #app .page-container .library-page select {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+html.tactile-ui #app .page-container .matters-page select:not(.matter-trajectory-select) {
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #dce3ed;
+  border-radius: var(--t-radius-sm);
+  color: var(--t-text);
+  background: #f8fafc;
+  background-image: none;
+  box-shadow: inset 0 1px 2px rgba(31, 44, 71, .025);
+  appearance: auto;
+}
+
+@media (max-width: 760px) {
+  html.tactile-ui #app .page-container .goal-context-fields select {
+    width: 100%;
+  }
+}
+
+/* Chrome's native select disabled state is 0.7 opacity in the React reference. */
+html.tactile-ui #app .page-container :is(.goal-context-fields, .feishu-page, .tasks-page, .task-board-page, .graph-page, .finance-page, .inbox-page, .library-page, .matters-page) select:disabled {
+  opacity: .7;
+}
+
+html.tactile-ui #app .page-container .calmy-select__trigger {
+  min-height: var(--calmy-control-height);
+  padding: 0 12px;
+  border: 1px solid var(--calmy-control-border);
+  border-radius: var(--calmy-control-radius);
+  color: var(--calmy-control-text);
+  background: var(--calmy-control-surface);
+  box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
+  font: inherit;
+}
+
+html.tactile-ui #app .page-container .calmy-select__trigger:hover:not(:disabled) {
+  border-color: var(--calmy-control-border-hover);
+}
+
+html.tactile-ui #app .page-container .calmy-select__trigger:focus-visible {
+  border-color: var(--calmy-control-accent);
+  box-shadow: var(--calmy-control-focus);
+}
+
+html .record-controls .calmy-select {
+  flex: 1 1 145px;
+}
+
+html .record-controls .calmy-select__trigger {
+  min-height: 40px;
+}
+
+@media (max-width: 900px) {
+  html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)) {
+    min-height: 44px;
+  }
+
+  html .el-select__wrapper {
+    min-height: 44px;
+  }
+
+  .calmy-select__trigger {
+    min-height: 44px;
+  }
+
+  html .record-controls .calmy-select__trigger {
+    min-height: 44px;
+  }
+
+  html .el-select-dropdown__item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html :where(select:not([multiple]):not([size])),
+  html .el-select__wrapper,
+  .calmy-select__trigger,
+  .calmy-select__chevron,
+  .calmy-select__option,
+  .calmy-select__popup,
+  html .el-select-dropdown__item {
+    transition: none;
+    animation: none;
+  }
+}

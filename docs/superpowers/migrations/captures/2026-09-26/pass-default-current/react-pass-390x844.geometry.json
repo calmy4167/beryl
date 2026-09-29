@@ -1,0 +1,219 @@
+{
+  "href": "http://127.0.0.1:22213/#/pass",
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "devicePixelRatio": 1,
+    "visualWidth": 390,
+    "visualHeight": 844,
+    "visualScale": 1
+  },
+  "scroll": {
+    "width": 390,
+    "height": 844
+  },
+  "focus": "BODY",
+  "loadedFonts": [],
+  "workspaceTabs": [],
+  "elements": [],
+  "layoutDiagnostics": {
+    "bodyChildren": [
+      {
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "tag": "SCRIPT",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "scroll": {
+          "width": 0,
+          "height": 0,
+          "top": 0
+        },
+        "client": {
+          "width": 0,
+          "height": 0
+        },
+        "overflow": {
+          "x": "visible",
+          "y": "visible"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "none"
+      }
+    ],
+    "roots": [
+      {
+        "selector": "html",
+        "tag": "HTML",
+        "id": "",
+        "className": "tactile-ui",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "body",
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": "#app",
+        "tag": "DIV",
+        "id": "app",
+        "className": "",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        },
+        "scroll": {
+          "width": 390,
+          "height": 844,
+          "top": 0
+        },
+        "client": {
+          "width": 390,
+          "height": 844
+        },
+        "overflow": {
+          "x": "hidden",
+          "y": "auto"
+        },
+        "scrollbar": {
+          "width": "auto",
+          "color": "auto",
+          "webkitWidth": "auto",
+          "webkitDisplay": "inline",
+          "thumbColor": "rgba(0, 0, 0, 0)",
+          "trackColor": "rgba(0, 0, 0, 0)"
+        },
+        "position": "static",
+        "display": "block"
+      },
+      {
+        "selector": ".app-shell",
+        "missing": true
+      },
+      {
+        "selector": ".workspace-shell",
+        "missing": true
+      },
+      {
+        "selector": ".page-container",
+        "missing": true
+      },
+      {
+        "selector": ".route-motion",
+        "missing": true
+      }
+    ],
+    "viewport": {
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "innerHeight": 844
+    }
+  }
+}

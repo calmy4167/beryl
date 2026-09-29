@@ -1,0 +1,47 @@
+[
+  {
+    "id": "044",
+    "route": "/app/feishu",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+    "viewport": "390x844",
+    "width": 390,
+    "height": 844,
+    "visualScale": 1,
+    "visualWidth": 390,
+    "visualHeight": 844,
+    "reactImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\react-app_feishu-390x844.png",
+    "vueImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\vue-app_feishu-390x844.png",
+    "interactionSteps": 0,
+    "stateDirectory": "feishu-cached-tasks-current"
+  },
+  {
+    "id": "112",
+    "route": "/app/graph",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+    "viewport": "1024x768",
+    "width": 1024,
+    "height": 768,
+    "visualScale": 1,
+    "visualWidth": 1024,
+    "visualHeight": 768,
+    "reactImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\react-app_graph-1024x768.png",
+    "vueImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\vue-app_graph-1024x768.png",
+    "interactionSteps": 2,
+    "stateDirectory": "graph-relation-failure-paired"
+  },
+  {
+    "id": "138",
+    "route": "/app/module/inbox",
+    "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+    "viewport": "1440x900",
+    "width": 1440,
+    "height": 900,
+    "visualScale": 1,
+    "visualWidth": 1440,
+    "visualHeight": 900,
+    "reactImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\react-app_module_inbox-1440x900.png",
+    "vueImage": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\vue-app_module_inbox-1440x900.png",
+    "interactionSteps": 5,
+    "stateDirectory": "inbox-reject-suggestion-settled-paired"
+  }
+]

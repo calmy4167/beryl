@@ -1,0 +1,10 @@
+{
+  "capturedAt": "2026-09-27",
+  "route": "/app/module/goals",
+  "state": "create and complete goal, then filter to completed",
+  "viewport": { "width": 1440, "height": 900, "deviceScaleFactor": 1 },
+  "sourceManifest": "D:/dsharness/captures/2026-09-25/goals-complete-selected/manifest-app_module_goals-1440x900_390x844.json",
+  "images": { "react": "react.png", "vue": "vue.png", "heatmap": "difference-heatmap.png" },
+  "pixelComparison": { "differentPixels": 697, "totalPixels": 1296000, "percent": 0.0538, "exact": false },
+  "diagnostics": "Shell and goal controls match computed layout; Vue count-label text nodes and element styles match the React DOM reference after parity adjustments. Remaining difference is unresolved; this is a single-state diagnostic, not the formal 335-pair gate."
+}

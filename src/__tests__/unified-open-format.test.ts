@@ -23,6 +23,18 @@ describe('unified entities in Open Format', () => {
     expect(imported.entities).toEqual(expect.arrayContaining([person, cycle]))
   })
 
+  it('round-trips reusable sentence templates with their stable ID and source links', () => {
+    const template = unifiedFactories.resource({
+      title: '写下事实', kind: 'template', status: 'active', body: '我观察到……',
+      assetIds: [], matterIds: ['matter-source'], sourceIds: ['record-source'], tags: ['reflection']
+    })
+    const workspace = exportOpenWorkspace({ unified: [template] })
+    const imported = importOpenWorkspace(workspace.files, workspace.assets)
+
+    expect(imported.issues).toEqual([])
+    expect(imported.entities).toEqual([template])
+  })
+
   it('applies imported unified entities without sending them to legacy repositories', () => {
     const person = unifiedFactories.person({ displayName: '只进入统一域' })
     const result = applyOpenEntities([person])
@@ -45,7 +57,8 @@ describe('unified entities in Open Format', () => {
     const outcome = unifiedFactories.outcome({ actionId: 'action-readable', matterId: 'matter-readable', summary: '完成一次验证', result: '得到反馈', status: 'observed', evidenceRecordIds: [] })
     const practice = unifiedFactories.practice({ title: '先做验证', description: '先验证再扩展', status: 'candidate', matterIds: ['matter-readable'], outcomeIds: [outcome.calmyId], evidenceIds: [], cadence: '每次开始前' })
     const daily = unifiedFactories.dailyState({ date: '2026-08-19', bodyState: 'normal', mentalState: 'clear', load: 35, actualTimeMinutes: 90, trajectory: 'advancing', todayPlanId: 'daily_2026-08-19', protectedItems: ['睡眠'] })
-    const entities = [person, relationship, sharedSpace, cycle, stage, resource, relation, seed, insight, outcome, practice, daily]
+    const asset = unifiedFactories.asset({ path: 'assets/evidence/report.pdf', mimeType: 'application/pdf', sizeBytes: 2048, hash: 'fnv1a-1234abcd', lifecycle: 'active', version: 1, externalUri: 'https://example.com/report.pdf' })
+    const entities = [person, relationship, sharedSpace, cycle, stage, resource, relation, seed, insight, outcome, practice, daily, asset]
     const workspace = exportOpenWorkspace({ unified: entities })
 
     expect(workspace.files[Object.keys(workspace.files).find(path => path.includes('可读周期')) || '']).toContain('matter_id: "matter-readable"')

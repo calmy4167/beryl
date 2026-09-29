@@ -1,6 +1,7 @@
 import { createAsyncCollectionRepository, createCollectionRepository, createEntityId, flushRepositoryWrites, type RepositoryReadyStatus } from '@/core/repository'
 import {
   CoreDomainError,
+  CORE_ENTITY_TYPES,
   canTransitionCycle,
   canTransitionStage,
   type CoreCommandMeta,
@@ -8,22 +9,32 @@ import {
   type CoreEntityMutation,
   type CoreEntitySource,
   type CoreEntityType,
+  type EntityRef,
   type Cycle,
   type CycleStatus,
   type DailyState,
+  type Domain,
   type Asset,
   type Insight,
   type Outcome,
   type Person,
+  type Permission,
   type Practice,
   type Relation,
   type Relationship,
   type Resource,
   type Seed,
   type SharedSpace,
+  type Scene,
+  type SceneParticipant,
+  type SceneStatus,
+  type Scope,
+  type Space,
   type Stage,
-  type StageStatus
+  type StageStatus,
+  validateRelation
 } from './model'
+import { matterRepository } from '@/domain/matter/repository'
 
 type RepositoryItem = CoreEntity
 
@@ -65,6 +76,59 @@ function requireText(value: string | undefined, label: string): string {
 function assertEntity(entity: RepositoryItem): void {
   if (!entity.calmyId || !entity.entityType) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity id and type are required')
   if (!Number.isFinite(entity.revision) || entity.revision < 1) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity revision must be positive')
+  if (entity.entityType === 'scene') {
+    requireText(entity.title, 'Scene title')
+    if (entity.thingId && !matterRepository.find(entity.thingId)) throw new CoreDomainError('NOT_FOUND', `thing ${entity.thingId} not found`)
+    if (entity.spaceId && !unifiedRepository.find<Space>('space', entity.spaceId)) throw new CoreDomainError('NOT_FOUND', `space ${entity.spaceId} not found`)
+    if (entity.endedAt !== undefined && entity.startedAt !== undefined && entity.endedAt < entity.startedAt) {
+      throw new CoreDomainError('VALIDATION_FAILED', 'Scene endedAt must be on or after startedAt')
+    }
+  }
+  if (entity.entityType === 'scene_participant') {
+    if (!unifiedRepository.find<Scene>('scene', entity.sceneId)) throw new CoreDomainError('NOT_FOUND', `scene ${entity.sceneId} not found`)
+    if (!unifiedRepository.find<Person>('person', entity.personId)) throw new CoreDomainError('NOT_FOUND', `person ${entity.personId} not found`)
+    if (!Number.isFinite(entity.joinedAt) || (entity.leftAt !== undefined && entity.leftAt < entity.joinedAt)) {
+      throw new CoreDomainError('VALIDATION_FAILED', 'SceneParticipant leftAt must be on or after joinedAt')
+    }
+  }
+  if (entity.entityType === 'space') {
+    requireText(entity.title, 'Space title')
+    for (const thingId of entity.thingIds) {
+      if (!matterRepository.find(thingId)) throw new CoreDomainError('NOT_FOUND', `thing ${thingId} not found`)
+    }
+    for (const sceneId of entity.sceneIds) {
+      if (!unifiedRepository.find<Scene>('scene', sceneId)) throw new CoreDomainError('NOT_FOUND', `scene ${sceneId} not found`)
+    }
+  }
+  if (entity.entityType === 'relation') {
+    const result = validateRelation(entity, undefined, (ref: EntityRef) => {
+      if (ref.entityType === 'thing' || ref.entityType === 'matter') return !!matterRepository.find(ref.calmyId)
+      if ((CORE_ENTITY_TYPES as readonly string[]).includes(ref.entityType)) return !!storeFor(ref.entityType as CoreEntityType).find(ref.calmyId)
+      return false
+    })
+    if (!result.valid) throw new CoreDomainError('VALIDATION_FAILED', result.reason)
+  }
+  if (entity.entityType === 'domain' && (!entity.key.trim() || !entity.displayName.trim())) {
+    throw new CoreDomainError('VALIDATION_FAILED', 'Domain key and displayName are required')
+  }
+  if (entity.entityType === 'scope' && Object.values(entity).some(value => value === '')) {
+    throw new CoreDomainError('VALIDATION_FAILED', 'Scope filters cannot be blank')
+  }
+  if (entity.entityType === 'permission' && (
+    !entity.principalUserId.trim() || !entity.actions.length || (!!entity.scopeId === !!entity.entityRef) ||
+    !['allow', 'deny'].includes(entity.effect) || entity.actions.some(action => !['view', 'comment', 'edit', 'manage'].includes(action))
+  )) {
+    throw new CoreDomainError('VALIDATION_FAILED', 'Permission requires a principal, actions, and exactly one Scope or entity reference')
+  }
+}
+
+function canTransitionScene(from: SceneStatus, to: SceneStatus): boolean {
+  if (from === to) return true
+  if (from === 'draft') return to === 'active' || to === 'archived'
+  if (from === 'active') return to === 'paused' || to === 'completed' || to === 'archived'
+  if (from === 'paused') return to === 'active' || to === 'completed' || to === 'archived'
+  if (from === 'completed') return to === 'archived'
+  return from === 'archived' && to === 'completed'
 }
 
 function appendMutation(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): void {
@@ -199,6 +263,18 @@ export const unifiedRepository = {
     if (!canTransitionStage(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
     return this.update<Stage>('stage', calmyId, { status }, meta)
   },
+  transitionScene(calmyId: string, status: SceneStatus, meta: CoreCommandMeta = {}): Scene {
+    const current = this.find<Scene>('scene', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `scene ${calmyId} not found`)
+    if (!canTransitionScene(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
+    return this.update<Scene>('scene', calmyId, { status, endedAt: status === 'completed' ? (current.endedAt ?? Date.now()) : current.endedAt }, meta)
+  },
+  transitionSpace(calmyId: string, status: Space['status'], meta: CoreCommandMeta = {}): Space {
+    const current = this.find<Space>('space', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `space ${calmyId} not found`)
+    if (current.status === 'archived' && status !== 'archived') throw new CoreDomainError('INVALID_TRANSITION', 'Archived Space cannot be reopened')
+    return this.update<Space>('space', calmyId, { status, archivedAt: status === 'archived' ? (current.archivedAt ?? Date.now()) : current.archivedAt }, meta)
+  },
   createCycleForMatter(input: Omit<Cycle, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Cycle {
     return this.create(unifiedFactories.cycle(input), meta)
   },
@@ -314,6 +390,18 @@ export const unifiedAsyncRepository = {
     if (!canTransitionStage(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
     return this.update<Stage>('stage', calmyId, { status }, meta)
   },
+  async transitionScene(calmyId: string, status: SceneStatus, meta: CoreCommandMeta = {}): Promise<Scene> {
+    const current = await this.find<Scene>('scene', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `scene ${calmyId} not found`)
+    if (!canTransitionScene(current.status, status)) throw new CoreDomainError('INVALID_TRANSITION', `${current.status} → ${status} is not allowed`)
+    return this.update<Scene>('scene', calmyId, { status, endedAt: status === 'completed' ? (current.endedAt ?? Date.now()) : current.endedAt }, meta)
+  },
+  async transitionSpace(calmyId: string, status: Space['status'], meta: CoreCommandMeta = {}): Promise<Space> {
+    const current = await this.find<Space>('space', calmyId)
+    if (!current) throw new CoreDomainError('NOT_FOUND', `space ${calmyId} not found`)
+    if (current.status === 'archived' && status !== 'archived') throw new CoreDomainError('INVALID_TRANSITION', 'Archived Space cannot be reopened')
+    return this.update<Space>('space', calmyId, { status, archivedAt: status === 'archived' ? (current.archivedAt ?? Date.now()) : current.archivedAt }, meta)
+  },
   async createCycleForMatter(input: Omit<Cycle, keyof CoreEntityMetaSeed>, meta: CoreCommandMeta = {}): Promise<Cycle> {
     return this.create(unifiedFactories.cycle(input), meta)
   },
@@ -382,8 +470,26 @@ export const unifiedFactories = {
   person(input: Pick<Person, 'displayName'> & Partial<Omit<Person, keyof CoreEntityMetaSeed | 'displayName'>>): Person {
     return {
       ...createMeta('person'), displayName: requireText(input.displayName, 'Person displayName'), status: input.status || 'active',
-      roles: input.roles || [], domain: input.domain, notes: input.notes, tags: input.tags || []
+      roles: input.roles || [], domain: input.domain, notes: input.notes, tags: input.tags || [], linkedUserId: input.linkedUserId
     }
+  },
+  scene(input: Omit<Scene, keyof CoreEntityMetaSeed | 'status'> & { status?: SceneStatus }): Scene {
+    return { ...createMeta('scene'), ...input, title: requireText(input.title, 'Scene title'), status: input.status || 'draft' }
+  },
+  sceneParticipant(input: Omit<SceneParticipant, keyof CoreEntityMetaSeed>): SceneParticipant {
+    return { ...createMeta('scene_participant'), ...input }
+  },
+  space(input: Omit<Space, keyof CoreEntityMetaSeed | 'status'> & { status?: Space['status'] }): Space {
+    return { ...createMeta('space'), ...input, title: requireText(input.title, 'Space title'), status: input.status || 'active' }
+  },
+  domain(input: Pick<Domain, 'key' | 'displayName'> & Partial<Pick<Domain, 'status'>>): Domain {
+    return { ...createMeta('domain'), key: requireText(input.key, 'Domain key'), displayName: requireText(input.displayName, 'Domain displayName'), status: input.status || 'active' }
+  },
+  scope(input: Omit<Scope, keyof CoreEntityMetaSeed>): Scope {
+    return { ...createMeta('scope'), ...input }
+  },
+  permission(input: Omit<Permission, keyof CoreEntityMetaSeed>): Permission {
+    return { ...createMeta('permission'), ...input }
   },
   cycle(input: Omit<Cycle, keyof CoreEntityMetaSeed>): Cycle {
     return { ...createMeta('cycle'), ...input }

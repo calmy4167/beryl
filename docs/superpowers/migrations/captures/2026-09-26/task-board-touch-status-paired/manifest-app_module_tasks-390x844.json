@@ -1,0 +1,76 @@
+{
+  "route": "/app/module/tasks",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:57:42.759Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "input[aria-label=\"任务名称\"]",
+        "value": "临时触控状态行动"
+      },
+      {
+        "type": "click",
+        "selector": ".create-row button[type=\"submit\"]"
+      },
+      {
+        "type": "click",
+        "selector": ".task-board-head-actions button:first-child"
+      },
+      {
+        "type": "tap",
+        "selector": "button[aria-label=\"临时触控状态行动状态\"]"
+      },
+      {
+        "type": "tap",
+        "selector": ".calmy-select__option[data-value=\"in_progress\"]"
+      },
+      {
+        "type": "waitText",
+        "text": "已移动到「进行中」"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\react-app_module_tasks-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\react-app_module_tasks-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "已移动到「进行中」",
+          "visible": true,
+          "rect": {
+            "x": 141,
+            "y": 793,
+            "width": 108,
+            "height": 16
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\vue-app_module_tasks-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\vue-app_module_tasks-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "已移动到「进行中」",
+          "visible": true,
+          "rect": {
+            "x": 141,
+            "y": 793,
+            "width": 108,
+            "height": 16
+          }
+        }
+      ]
+    }
+  ]
+}

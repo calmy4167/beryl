@@ -1,0 +1,139 @@
+{
+  "start": 0,
+  "limit": 14,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "exact": 5,
+    "recapture-error": 8,
+    "nonzero": 1
+  },
+  "results": [
+    {
+      "id": "085",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\085-app-future-1024x768"
+    },
+    {
+      "id": "086",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532633377.9,\"currentTimeOrigin\":1790532633678.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\086-app-future-390x844"
+    },
+    {
+      "id": "088",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\088-app-future-1024x768"
+    },
+    {
+      "id": "089",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532642347.8,\"currentTimeOrigin\":1790532642495.1,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\089-app-future-390x844"
+    },
+    {
+      "id": "091",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\091-app-future-1024x768"
+    },
+    {
+      "id": "092",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532649287.5,\"currentTimeOrigin\":1790532649421.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\092-app-future-390x844"
+    },
+    {
+      "id": "094",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\094-app-future-1024x768"
+    },
+    {
+      "id": "095",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532657699.8,\"currentTimeOrigin\":1790532657854.4,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\095-app-future-390x844"
+    },
+    {
+      "id": "097",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\097-app-future-1024x768"
+    },
+    {
+      "id": "098",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532664879.4,\"currentTimeOrigin\":1790532665092.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\098-app-future-390x844"
+    },
+    {
+      "id": "100",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\100-app-future-1024x768"
+    },
+    {
+      "id": "101",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532672027.9,\"currentTimeOrigin\":1790532672168.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\101-app-future-390x844"
+    },
+    {
+      "id": "102",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\manifest-app_future-320x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532673337.8,\"currentTimeOrigin\":1790532673486.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\102-app-future-320x844"
+    },
+    {
+      "id": "103",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-settled-paired\\manifest-app_future-320x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790532680595.6,\"currentTimeOrigin\":1790532680723.8,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:192\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:192:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\future-autoscroll-fix\\103-app-future-320x844"
+    }
+  ]
+}

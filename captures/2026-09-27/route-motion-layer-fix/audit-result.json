@@ -1,0 +1,10 @@
+{
+  "capturedAt": "2026-09-27",
+  "route": "/app/module/goals",
+  "state": "create and complete goal, then filter to completed",
+  "viewport": { "width": 1440, "height": 900, "deviceScaleFactor": 1 },
+  "sourceManifest": "D:/dsharness/captures/2026-09-25/goals-complete-selected/manifest-app_module_goals-1440x900_390x844.json",
+  "images": { "react": "react-goals-complete-1440x900.png", "vue": "vue-goals-complete-1440x900.png", "heatmap": "difference-heatmap.png" },
+  "pixelComparison": { "differentPixels": 18, "totalPixels": 1296000, "percent": 0.0014, "exact": false },
+  "diagnostics": "Removing persistent route animation fill/compositor hint reduced this recapture from 697 to 18 differing pixels. Residual lies at the right context rail settings icon. This is a single-state diagnostic, not the formal 335-pair gate."
+}

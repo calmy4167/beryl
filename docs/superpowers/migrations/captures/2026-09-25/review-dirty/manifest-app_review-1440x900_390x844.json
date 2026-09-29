@@ -1,0 +1,98 @@
+{
+  "route": "/app/review",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T05:40:10.185Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"今日复盘：观，今天实际发生了什么\"]",
+        "value": "今天先处理了最重要的一件事。"
+      },
+      {
+        "type": "waitText",
+        "text": "尚未保存"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\react-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\react-app_review-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "尚未保存",
+          "visible": true,
+          "rect": {
+            "x": 1353,
+            "y": 207.6,
+            "width": 48,
+            "height": 16
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\react-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\react-app_review-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "尚未保存",
+          "visible": true,
+          "rect": {
+            "x": 315,
+            "y": 224.6,
+            "width": 48,
+            "height": 16
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\vue-app_review-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\vue-app_review-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "尚未保存",
+          "visible": true,
+          "rect": {
+            "x": 1353,
+            "y": 207.6,
+            "width": 48,
+            "height": 16
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\vue-app_review-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\review-dirty\\vue-app_review-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "尚未保存",
+          "visible": true,
+          "rect": {
+            "x": 315,
+            "y": 224.6,
+            "width": 48,
+            "height": 16
+          }
+        }
+      ]
+    }
+  ]
+}

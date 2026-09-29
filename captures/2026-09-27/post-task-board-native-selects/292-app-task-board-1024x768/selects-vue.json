@@ -1,0 +1,27 @@
+[
+  {
+    "label": "按事项筛选",
+    "attrs": [
+      "id",
+      "aria-label"
+    ],
+    "scopedMatch": false,
+    "rect": {
+      "x": 744.28125,
+      "y": 273.578125,
+      "width": 180,
+      "height": 41,
+      "top": 273.578125,
+      "right": 924.28125,
+      "bottom": 314.578125,
+      "left": 744.28125
+    },
+    "background": "rgb(247, 250, 248)",
+    "backgroundImage": "none",
+    "appearance": "auto",
+    "padding": "8px 10px",
+    "border": "1px solid rgb(225, 229, 227)",
+    "borderRadius": "8px",
+    "boxShadow": "rgba(31, 44, 71, 0.024) 0px 1px 2px 0px inset"
+  }
+]

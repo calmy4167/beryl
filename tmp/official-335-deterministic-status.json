@@ -1,0 +1,3028 @@
+{
+  "start": 0,
+  "limit": 335,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 120000,
+  "summary": {
+    "exact": 179,
+    "nonzero": 91,
+    "recapture-error": 65
+  },
+  "results": [
+    {
+      "id": "001",
+      "route": "/app/admin/advanced",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\001-app-admin-advanced-1440x900"
+    },
+    {
+      "id": "002",
+      "route": "/app/admin/advanced",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\002-app-admin-advanced-1024x768"
+    },
+    {
+      "id": "003",
+      "route": "/app/admin/advanced",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\003-app-admin-advanced-390x844"
+    },
+    {
+      "id": "004",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-cloud-debug-current\\manifest-app_admin-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\004-app-admin-390x844"
+    },
+    {
+      "id": "005",
+      "route": "/app/admin",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\005-app-admin-1440x900"
+    },
+    {
+      "id": "006",
+      "route": "/app/admin",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\006-app-admin-1024x768"
+    },
+    {
+      "id": "007",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\007-app-admin-390x844"
+    },
+    {
+      "id": "008",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\008-app-calendar-date-2026-09-14-1440x900"
+    },
+    {
+      "id": "009",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\009-app-calendar-date-2026-09-14-1024x768"
+    },
+    {
+      "id": "010",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\010-app-calendar-date-2026-09-14-390x844"
+    },
+    {
+      "id": "011",
+      "route": "/app/capture",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-320-paired\\manifest-app_capture-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\011-app-capture-320x844"
+    },
+    {
+      "id": "012",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\012-app-capture-1440x900"
+    },
+    {
+      "id": "013",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\013-app-capture-1024x768"
+    },
+    {
+      "id": "014",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\014-app-capture-390x844"
+    },
+    {
+      "id": "015",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\015-app-capture-1440x900"
+    },
+    {
+      "id": "016",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\016-app-capture-1024x768"
+    },
+    {
+      "id": "017",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\017-app-capture-390x844"
+    },
+    {
+      "id": "018",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-zoom200-paired\\manifest-app_capture-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\018-app-capture-1440x900-scale2"
+    },
+    {
+      "id": "019",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\019-app-module-custom-legacy-entry-1440x900"
+    },
+    {
+      "id": "020",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\020-app-module-custom-legacy-entry-1024x768"
+    },
+    {
+      "id": "021",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\021-app-module-custom-legacy-entry-390x844"
+    },
+    {
+      "id": "022",
+      "route": "/",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\022--1440x900"
+    },
+    {
+      "id": "023",
+      "route": "/",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\023--1024x768"
+    },
+    {
+      "id": "024",
+      "route": "/",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\024--390x844"
+    },
+    {
+      "id": "025",
+      "route": "/app/unknown-current-page",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\025-app-unknown-current-page-1440x900"
+    },
+    {
+      "id": "026",
+      "route": "/app/unknown-current-page",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\026-app-unknown-current-page-1024x768"
+    },
+    {
+      "id": "027",
+      "route": "/app/unknown-current-page",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\027-app-unknown-current-page-390x844"
+    },
+    {
+      "id": "028",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\028-app-cycle-1440x900"
+    },
+    {
+      "id": "029",
+      "route": "/app/cycle",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\029-app-cycle-1024x768"
+    },
+    {
+      "id": "030",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\030-app-cycle-390x844"
+    },
+    {
+      "id": "031",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\031-app-module-diary-1440x900"
+    },
+    {
+      "id": "032",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 34,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\032-app-module-diary-1024x768"
+    },
+    {
+      "id": "033",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\033-app-module-diary-390x844"
+    },
+    {
+      "id": "034",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\034-app-module-diary-1440x900"
+    },
+    {
+      "id": "035",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 34,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\035-app-module-diary-1024x768"
+    },
+    {
+      "id": "036",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\036-app-module-diary-390x844"
+    },
+    {
+      "id": "037",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\037-app-today-320x844"
+    },
+    {
+      "id": "038",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\038-app-today-390x844"
+    },
+    {
+      "id": "039",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 28961,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\039-app-today-1440x900"
+    },
+    {
+      "id": "040",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 19764,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\040-app-today-1024x768"
+    },
+    {
+      "id": "041",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\041-app-today-390x844"
+    },
+    {
+      "id": "042",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\042-app-feishu-1440x900"
+    },
+    {
+      "id": "043",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\043-app-feishu-1024x768"
+    },
+    {
+      "id": "044",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\044-app-feishu-390x844"
+    },
+    {
+      "id": "045",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\045-app-module-finance-1440x900"
+    },
+    {
+      "id": "046",
+      "route": "/app/module/finance",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\046-app-module-finance-1024x768"
+    },
+    {
+      "id": "047",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\047-app-module-finance-390x844"
+    },
+    {
+      "id": "048",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\048-app-library-1440x900"
+    },
+    {
+      "id": "049",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 这一批已结束; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“我可以如何验证这条资料？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 现实出口验收资源\r\n\r\n用于验证从回响模式创建现实行动并结束探索。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\049-app-library-1024x768"
+    },
+    {
+      "id": "050",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 这一批已结束; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“我可以如何验证这条资料？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 现实出口验收资源\r\n\r\n用于验证从回响模式创建现实行动并结束探索。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\050-app-library-390x844"
+    },
+    {
+      "id": "051",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\051-app-matters-1440x900"
+    },
+    {
+      "id": "052",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已关联当前问题，可以继续验证; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n处境\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n迁移 Flow 关联验收处境\r\n重新开始本批\r\n当前问题上下文：迁移 Flow 关联验收处境\r\n\r\n如何验证这条资料是否有用？\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料能帮助我解决什么？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 关联验收资源\r\n\r\n与关联处境配对的临时资料。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n当前处境 · 最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\052-app-matters-1024x768"
+    },
+    {
+      "id": "053",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:81\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .calmy-select__option:nth-child(2); body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n资料已加入\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:81:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\053-app-matters-390x844"
+    },
+    {
+      "id": "054",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\054-app-today-1440x900"
+    },
+    {
+      "id": "055",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\055-app-today-1024x768"
+    },
+    {
+      "id": "056",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已保留为当前语境的重要证据; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“回看这条现实记录”\r\n已足够，结束探索\r\n过去的现实证据\r\n最近 5 条\r\n2026/9/26 20:00:00 · user\r\n\r\n迁移验收回响现实记录\r\n\r\n仍重要\r\n已完成\r\n需要更新\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\056-app-today-390x844"
+    },
+    {
+      "id": "057",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\057-app-library-1440x900"
+    },
+    {
+      "id": "058",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已保留这份资料，不会强制继续浏览; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料是否仍然有用？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n收起来源\r\n迁移 Flow 回响验收资源\r\n\r\n用于验证 Flow 回响卡片与反馈状态。\r\n\r\n2026/9/26 · knowledge\r\n来源：未绑定来源\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\058-app-library-1024x768"
+    },
+    {
+      "id": "059",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 未绑定来源; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料是否仍然有用？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 回响验收资源\r\n\r\n用于验证 Flow 回响卡片与反馈状态。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\059-app-library-390x844"
+    },
+    {
+      "id": "060",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\060-app-library-1440x900"
+    },
+    {
+      "id": "061",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已从本次探索移除，不代表失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料还需要留在本批吗？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 移除验收资源\r\n\r\n用于验证从当前探索批次移除的路径。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\061-app-library-1024x768"
+    },
+    {
+      "id": "062",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-retire-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已从本次探索移除，不代表失败; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料还需要留在本批吗？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 移除验收资源\r\n\r\n用于验证从当前探索批次移除的路径。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\062-app-library-390x844"
+    },
+    {
+      "id": "063",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\063-app-library-1440x900"
+    },
+    {
+      "id": "064",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 请选择关联处境，或先到处境页新建; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料是否与某个问题有关？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 未关联问题验收资源\r\n\r\n用于验证未关联处境时的保护提示。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\064-app-library-1024x768"
+    },
+    {
+      "id": "065",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-unlinked-matter-guard-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 请选择关联处境，或先到处境页新建; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料是否与某个问题有关？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 未关联问题验收资源\r\n\r\n用于验证未关联处境时的保护提示。\r\n\r\n2026/9/26 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\065-app-library-390x844"
+    },
+    {
+      "id": "066",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\066-app-flow-1440x900"
+    },
+    {
+      "id": "067",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\067-app-flow-1024x768"
+    },
+    {
+      "id": "068",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-ended-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 这一批已结束; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n专注 · 本批 · 0 项\r\n\r\n围绕“我是否已经收集到足够线索？”\r\n已足够，结束探索\r\n资料里还没有符合本模式的内容；可以回到记录页先保存一条线索。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\068-app-flow-390x844"
+    },
+    {
+      "id": "069",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 19,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\069-app-library-1440x900"
+    },
+    {
+      "id": "070",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 23,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\070-app-library-1024x768"
+    },
+    {
+      "id": "071",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-focus-keyboard-exit-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\071-app-library-390x844"
+    },
+    {
+      "id": "072",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\072-app-flow-1440x900"
+    },
+    {
+      "id": "073",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\073-app-flow-1024x768"
+    },
+    {
+      "id": "074",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-error-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\074-app-flow-390x844"
+    },
+    {
+      "id": "075",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\075-app-flow-1440x900"
+    },
+    {
+      "id": "076",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\076-app-flow-1024x768"
+    },
+    {
+      "id": "077",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-read-retry-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\077-app-flow-390x844"
+    },
+    {
+      "id": "078",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\078-app-flow-1440x900"
+    },
+    {
+      "id": "079",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\079-app-flow-1024x768"
+    },
+    {
+      "id": "080",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-empty-paired\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 资料里还没有符合本模式的内容; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\080-app-flow-390x844"
+    },
+    {
+      "id": "081",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已关联当前问题，可以继续验证; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n处境\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n迁移 Flow Seed 验收处境\r\n重新开始本批\r\n当前问题上下文：迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n解题 · 本批 · 1 项\r\n\r\n围绕“如何继续验证这条线索？”\r\n证据：收到一次实际反馈 · 应用：下一次讨论\r\n已足够，结束探索\r\n线索 · 尚未成熟\r\n展开来源\r\n迁移 Flow Seed 验收线索\r\n\r\n用于验证线索关联当前问题。\r\n\r\n2026/9/26 · open\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\081-app-matters-1440x900"
+    },
+    {
+      "id": "082",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已关联当前问题，可以继续验证; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n处境\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n迁移 Flow Seed 验收处境\r\n重新开始本批\r\n当前问题上下文：迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n解题 · 本批 · 1 项\r\n\r\n围绕“如何继续验证这条线索？”\r\n证据：收到一次实际反馈 · 应用：下一次讨论\r\n已足够，结束探索\r\n线索 · 尚未成熟\r\n展开来源\r\n迁移 Flow Seed 验收线索\r\n\r\n用于验证线索关联当前问题。\r\n\r\n2026/9/26 · open\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\082-app-matters-1024x768"
+    },
+    {
+      "id": "083",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-solve-seed-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:81\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .flow-card-actions button:nth-child(2); body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n迁移 Flow Seed 验收处境\r\n开始这一批\r\n当前问题上下文：迁移 Flow Seed 验收处境\r\n\r\n验证线索如何进入现实问题。\r\n\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:81:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\083-app-matters-390x844"
+    },
+    {
+      "id": "084",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\084-app-future-1440x900"
+    },
+    {
+      "id": "085",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\085-app-future-1024x768"
+    },
+    {
+      "id": "086",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-final-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\086-app-future-390x844"
+    },
+    {
+      "id": "087",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\087-app-future-1440x900"
+    },
+    {
+      "id": "088",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\088-app-future-1024x768"
+    },
+    {
+      "id": "089",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\089-app-future-390x844"
+    },
+    {
+      "id": "090",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\090-app-future-1440x900"
+    },
+    {
+      "id": "091",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\091-app-future-1024x768"
+    },
+    {
+      "id": "092",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-feedback-success-links-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\092-app-future-390x844"
+    },
+    {
+      "id": "093",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\093-app-future-1440x900"
+    },
+    {
+      "id": "094",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\094-app-future-1024x768"
+    },
+    {
+      "id": "095",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-fixed-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\095-app-future-390x844"
+    },
+    {
+      "id": "096",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\096-app-future-1440x900"
+    },
+    {
+      "id": "097",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\097-app-future-1024x768"
+    },
+    {
+      "id": "098",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-five-year-scenario-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\098-app-future-390x844"
+    },
+    {
+      "id": "099",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\099-app-future-1440x900"
+    },
+    {
+      "id": "100",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n未来\r\n/\r\n看看一个选择的不同可能\r\n本地优先 · 离线可用\r\n今天\r\n未来\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\100-app-future-1024x768"
+    },
+    {
+      "id": "101",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-reflection-paired\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\101-app-future-390x844"
+    },
+    {
+      "id": "102",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-paired\\manifest-app_future-320x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\102-app-future-320x844"
+    },
+    {
+      "id": "103",
+      "route": "/app/future",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-320-settled-paired\\manifest-app_future-320x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 影响推演; body=Calmy\r\n功能\r\n先去未来看看，再回来决定\r\n\r\n行动和暂缓，都可能有收获，也可能有代价。\r\n\r\n回到今天\r\n第一步\r\n你想提前想想什么？\r\n\r\n选项可以修改，也可以自己填写。\r\n\r\n工作与机会\r\n关系与沟通\r\n学习 Python\r\n为自己留时间\r\n自己填写\r\n你的选择\r\n已经发生的事（可选）\r\n我的理解或担心（可选）\r\n自定义内容需要先查证事实，当前原型不会编造结果。\r\n10/120\r\n从什么时候回头看？\r\n半年后\r\n五年后\r\n\r\n这些是有条件的可能性，不是结果保证；本页不会根据你的个人情况预测结果。\r\n\r\n开始体验\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\103-app-future-320x844"
+    },
+    {
+      "id": "104",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\future-scenario-zoom200-paired\\manifest-app_future-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\104-app-future-1440x900-scale2"
+    },
+    {
+      "id": "105",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\105-app-module-goals-1440x900"
+    },
+    {
+      "id": "106",
+      "route": "/app/module/goals",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\106-app-module-goals-1024x768"
+    },
+    {
+      "id": "107",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\goals-create-paired\\manifest-app_module_goals-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\107-app-module-goals-390x844"
+    },
+    {
+      "id": "108",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 42,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\108-app-graph-1440x900"
+    },
+    {
+      "id": "109",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\109-app-graph-1024x768"
+    },
+    {
+      "id": "110",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-filter-no-results-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\110-app-graph-390x844"
+    },
+    {
+      "id": "111",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\111-app-graph-1440x900"
+    },
+    {
+      "id": "112",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 68,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\112-app-graph-1024x768"
+    },
+    {
+      "id": "113",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-failure-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\113-app-graph-390x844"
+    },
+    {
+      "id": "114",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\114-app-graph-1440x900"
+    },
+    {
+      "id": "115",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\115-app-graph-1024x768"
+    },
+    {
+      "id": "116",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-final-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\116-app-graph-390x844"
+    },
+    {
+      "id": "117",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\117-app-graph-1440x900"
+    },
+    {
+      "id": "118",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 85,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\118-app-graph-1024x768"
+    },
+    {
+      "id": "119",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-shell-fixed-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\119-app-graph-390x844"
+    },
+    {
+      "id": "120",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 40,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\120-app-graph-1440x900"
+    },
+    {
+      "id": "121",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\121-app-graph-1024x768"
+    },
+    {
+      "id": "122",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\graph-relation-success-paired\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\122-app-graph-390x844"
+    },
+    {
+      "id": "123",
+      "route": "/app/module/habits",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\123-app-module-habits-1440x900"
+    },
+    {
+      "id": "124",
+      "route": "/app/module/habits",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\124-app-module-habits-1024x768"
+    },
+    {
+      "id": "125",
+      "route": "/app/module/habits",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\habits-create-record-paired\\manifest-app_module_habits-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\125-app-module-habits-390x844"
+    },
+    {
+      "id": "126",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\126-app-today-1440x900"
+    },
+    {
+      "id": "127",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\127-app-today-1024x768"
+    },
+    {
+      "id": "128",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\immersive-mode\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\128-app-today-390x844"
+    },
+    {
+      "id": "129",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\129-app-module-inbox-1440x900"
+    },
+    {
+      "id": "130",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\130-app-module-inbox-1024x768"
+    },
+    {
+      "id": "131",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-create-capture-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\131-app-module-inbox-390x844"
+    },
+    {
+      "id": "132",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\132-app-module-inbox-1440x900"
+    },
+    {
+      "id": "133",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 0 条待确认建议; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n收集\r\n已保存到本地\r\n今天\r\n收集\r\n收集\r\n\r\n先保留原文，再把它处理成行动或现实处境。\r\n\r\n1 条 · 1 条待确认建议\r\nCtrl / ⌘ + Enter 保存原文\r\n收入收件箱\r\n全部\r\n待处理\r\n有建议\r\n已处理\r\n已拒绝\r\n已归档\r\n1 条\r\n\r\nCAPTURE · 待确认建议\r\n\r\n迁移验收：下周整理问题清单。\r\n2026/9/26 20:00:00\r\n查看原文\r\n归档\r\n删除\r\n\r\nSUGGESTION · 70%\r\n\r\nMatter 现实事项\r\n可拒绝\r\n\r\n内容更像需要持续理解和推进的现实事项。\r\n\r\n采纳并处理\r\n拒绝建议\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\133-app-module-inbox-1024x768"
+    },
+    {
+      "id": "134",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-deterministic-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 0 条待确认建议; body=Calmy\r\n功能\r\n收集\r\n\r\n先保留原文，再把它处理成行动或现实处境。\r\n\r\n1 条 · 1 条待确认建议\r\nCtrl / ⌘ + Enter 保存原文\r\n收入收件箱\r\n全部\r\n待处理\r\n有建议\r\n已处理\r\n已拒绝\r\n已归档\r\n1 条\r\n\r\nCAPTURE · 待确认建议\r\n\r\n迁移验收：下周整理问题清单。\r\n2026/9/26 20:00:00\r\n查看原文\r\n归档\r\n删除\r\n\r\nSUGGESTION · 70%\r\n\r\nMatter 现实事项\r\n可拒绝\r\n\r\n内容更像需要持续理解和推进的现实事项。\r\n\r\n采纳并处理\r\n拒绝建议\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\134-app-module-inbox-390x844"
+    },
+    {
+      "id": "135",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 16,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\135-app-module-inbox-1440x900"
+    },
+    {
+      "id": "136",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 0 条待确认建议; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n收集\r\n已保存到本地\r\n今天\r\n收集\r\n收集\r\n\r\n先保留原文，再把它处理成行动或现实处境。\r\n\r\n1 条 · 1 条待确认建议\r\nCtrl / ⌘ + Enter 保存原文\r\n收入收件箱\r\n全部\r\n待处理\r\n有建议\r\n已处理\r\n已拒绝\r\n已归档\r\n1 条\r\n\r\nCAPTURE · 待确认建议\r\n\r\n迁移验收：下周整理问题清单。\r\n2026/9/26 20:00:00\r\n查看原文\r\n归档\r\n删除\r\n\r\nSUGGESTION · 70%\r\n\r\nMatter 现实事项\r\n可拒绝\r\n\r\n内容更像需要持续理解和推进的现实事项。\r\n\r\n采纳并处理\r\n拒绝建议\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\136-app-module-inbox-1024x768"
+    },
+    {
+      "id": "137",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-final-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 0 条待确认建议; body=Calmy\r\n功能\r\n收集\r\n\r\n先保留原文，再把它处理成行动或现实处境。\r\n\r\n1 条 · 1 条待确认建议\r\nCtrl / ⌘ + Enter 保存原文\r\n收入收件箱\r\n全部\r\n待处理\r\n有建议\r\n已处理\r\n已拒绝\r\n已归档\r\n1 条\r\n\r\nCAPTURE · 待确认建议\r\n\r\n迁移验收：下周整理问题清单。\r\n2026/9/26 20:00:00\r\n查看原文\r\n归档\r\n删除\r\n\r\nSUGGESTION · 70%\r\n\r\nMatter 现实事项\r\n可拒绝\r\n\r\n内容更像需要持续理解和推进的现实事项。\r\n\r\n采纳并处理\r\n拒绝建议\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\137-app-module-inbox-390x844"
+    },
+    {
+      "id": "138",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\138-app-module-inbox-1440x900"
+    },
+    {
+      "id": "139",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\139-app-module-inbox-1024x768"
+    },
+    {
+      "id": "140",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\inbox-reject-suggestion-settled-paired\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\140-app-module-inbox-390x844"
+    },
+    {
+      "id": "141",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 55,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\141-app-library-1440x900"
+    },
+    {
+      "id": "142",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\142-app-library-1024x768"
+    },
+    {
+      "id": "143",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\143-app-library-390x844"
+    },
+    {
+      "id": "144",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 55,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\144-app-library-1440x900"
+    },
+    {
+      "id": "145",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\145-app-library-1024x768"
+    },
+    {
+      "id": "146",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\library-create-resource-settled-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\146-app-library-390x844"
+    },
+    {
+      "id": "147",
+      "route": "/login",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\147-login-1440x900"
+    },
+    {
+      "id": "148",
+      "route": "/login",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\148-login-1024x768"
+    },
+    {
+      "id": "149",
+      "route": "/login",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\149-login-390x844"
+    },
+    {
+      "id": "150",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\150-app-master-data-1440x900"
+    },
+    {
+      "id": "151",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\151-app-master-data-1024x768"
+    },
+    {
+      "id": "152",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\152-app-master-data-390x844"
+    },
+    {
+      "id": "153",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 7,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\153-app-master-data-1440x900"
+    },
+    {
+      "id": "154",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\154-app-master-data-1024x768"
+    },
+    {
+      "id": "155",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\master-data-create-settled-paired\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\155-app-master-data-390x844"
+    },
+    {
+      "id": "156",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\156-app-matters-1440x900"
+    },
+    {
+      "id": "157",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 15,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\157-app-matters-1024x768"
+    },
+    {
+      "id": "158",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-deterministic-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移详情验收处境; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n\r\n先写问题，再决定最小必要的学习；没有现实问题时，不需要为了“自律”制造学习。\r\n\r\n创建处境\r\n还没有匹配的处境。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\158-app-matters-390x844"
+    },
+    {
+      "id": "159",
+      "route": "/app/matters/mat-42",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\159-app-matters-mat-42-1440x900"
+    },
+    {
+      "id": "160",
+      "route": "/app/matters/mat-42",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\160-app-matters-mat-42-1024x768"
+    },
+    {
+      "id": "161",
+      "route": "/app/matters/mat-42",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-not-found-paired\\manifest-app_matters_mat-42-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\161-app-matters-mat-42-390x844"
+    },
+    {
+      "id": "162",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\162-app-matters-1440x900"
+    },
+    {
+      "id": "163",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\163-app-matters-1024x768"
+    },
+    {
+      "id": "164",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matter-detail-populated-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移详情验收处境; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n\r\n先写问题，再决定最小必要的学习；没有现实问题时，不需要为了“自律”制造学习。\r\n\r\n创建处境\r\n还没有匹配的处境。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\164-app-matters-390x844"
+    },
+    {
+      "id": "165",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-320-final-paired\\manifest-app_matters-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\165-app-matters-320x844"
+    },
+    {
+      "id": "166",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-320-paired\\manifest-app_matters-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\166-app-matters-320x844"
+    },
+    {
+      "id": "167",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\167-app-matters-1440x900"
+    },
+    {
+      "id": "168",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\168-app-matters-1024x768"
+    },
+    {
+      "id": "169",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 268,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\169-app-matters-390x844"
+    },
+    {
+      "id": "170",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\170-app-matters-1440x900"
+    },
+    {
+      "id": "171",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 4,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\171-app-matters-1024x768"
+    },
+    {
+      "id": "172",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 268,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\172-app-matters-390x844"
+    },
+    {
+      "id": "173",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 15,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\173-app-matters-1440x900"
+    },
+    {
+      "id": "174",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\174-app-matters-1024x768"
+    },
+    {
+      "id": "175",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-archive-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 257,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\175-app-matters-390x844"
+    },
+    {
+      "id": "176",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\176-app-matters-1440x900"
+    },
+    {
+      "id": "177",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\177-app-matters-1024x768"
+    },
+    {
+      "id": "178",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\178-app-matters-390x844"
+    },
+    {
+      "id": "179",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\179-app-matters-1440x900"
+    },
+    {
+      "id": "180",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\180-app-matters-1024x768"
+    },
+    {
+      "id": "181",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\181-app-matters-390x844"
+    },
+    {
+      "id": "182",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选暂停验收; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n还没有匹配的处境。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\182-app-matters-1440x900"
+    },
+    {
+      "id": "183",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选暂停验收; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n还没有匹配的处境。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\183-app-matters-1024x768"
+    },
+    {
+      "id": "184",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-filter-paused-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选暂停验收; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n还没有匹配的处境。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\184-app-matters-390x844"
+    },
+    {
+      "id": "185",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\185-app-matters-1440x900"
+    },
+    {
+      "id": "186",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\186-app-matters-1024x768"
+    },
+    {
+      "id": "187",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\187-app-matters-390x844"
+    },
+    {
+      "id": "188",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\188-app-matters-1440x900"
+    },
+    {
+      "id": "189",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\189-app-matters-1024x768"
+    },
+    {
+      "id": "190",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\190-app-matters-390x844"
+    },
+    {
+      "id": "191",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\191-app-matters-1440x900"
+    },
+    {
+      "id": "192",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n处境\r\n/\r\n持续影响你的现实处境\r\n已保存到本地\r\n今天\r\n处境\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\192-app-matters-1024x768"
+    },
+    {
+      "id": "193",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 处境已恢复; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n处境\r\n\r\n记录持续影响你的现实问题，并写下想看到的变化。\r\n\r\n全部\r\n进行中\r\n已暂停\r\n已结束\r\n如果这是一个学习问题，补充解决闭环（可选）\r\n创建处境\r\n进行中\r\n暂停\r\n结束\r\n迁移恢复验收处境\r\n\r\n验证处境暂停后可以恢复。\r\n\r\n阶段：wood\r\n趋势\r\n推进\r\n稳定\r\n停滞\r\n回退\r\n绕路\r\n失去连接\r\n恢复\r\n重启\r\n未知\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\193-app-matters-390x844"
+    },
+    {
+      "id": "194",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 31,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\194-app-matters-1440x900"
+    },
+    {
+      "id": "195",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 31,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\195-app-matters-1024x768"
+    },
+    {
+      "id": "196",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-final-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 268,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\196-app-matters-390x844"
+    },
+    {
+      "id": "197",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\197-app-matters-1440x900"
+    },
+    {
+      "id": "198",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\198-app-matters-1024x768"
+    },
+    {
+      "id": "199",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 257,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\199-app-matters-390x844"
+    },
+    {
+      "id": "200",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 21,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\200-app-matters-1440x900"
+    },
+    {
+      "id": "201",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\201-app-matters-1024x768"
+    },
+    {
+      "id": "202",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-trajectory-pause-success-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 268,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\202-app-matters-390x844"
+    },
+    {
+      "id": "203",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-zoom200-final-paired\\manifest-app_matters-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\203-app-matters-1440x900-scale2"
+    },
+    {
+      "id": "204",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-zoom200-paired\\manifest-app_matters-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\204-app-matters-1440x900-scale2"
+    },
+    {
+      "id": "205",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\205-app-memory-1440x900"
+    },
+    {
+      "id": "206",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\206-app-memory-1024x768"
+    },
+    {
+      "id": "207",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-saved-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\207-app-memory-390x844"
+    },
+    {
+      "id": "208",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\208-app-memory-1440x900"
+    },
+    {
+      "id": "209",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\209-app-memory-1024x768"
+    },
+    {
+      "id": "210",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\memory-preference-settled-paired\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\210-app-memory-390x844"
+    },
+    {
+      "id": "211",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-daily\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\211-app-today-1440x900"
+    },
+    {
+      "id": "212",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-daily-tools\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\212-app-today-1440x900"
+    },
+    {
+      "id": "213",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-data\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\213-app-today-1440x900"
+    },
+    {
+      "id": "214",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-experiments\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\214-app-today-1440x900"
+    },
+    {
+      "id": "215",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-personal\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\215-app-today-1440x900"
+    },
+    {
+      "id": "216",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-records\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\216-app-today-1440x900"
+    },
+    {
+      "id": "217",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\nav-understanding\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\217-app-today-1440x900"
+    },
+    {
+      "id": "218",
+      "route": "/pass",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\218-pass-1440x900"
+    },
+    {
+      "id": "219",
+      "route": "/pass",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\219-pass-1024x768"
+    },
+    {
+      "id": "220",
+      "route": "/pass",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\220-pass-390x844"
+    },
+    {
+      "id": "221",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\221-app-people-1440x900"
+    },
+    {
+      "id": "222",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\222-app-people-1024x768"
+    },
+    {
+      "id": "223",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-archive-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\223-app-people-390x844"
+    },
+    {
+      "id": "224",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\224-app-people-1440x900"
+    },
+    {
+      "id": "225",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\225-app-people-1024x768"
+    },
+    {
+      "id": "226",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\226-app-people-390x844"
+    },
+    {
+      "id": "227",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\227-app-people-1440x900"
+    },
+    {
+      "id": "228",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\228-app-people-1024x768"
+    },
+    {
+      "id": "229",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\people-create-settled-paired\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\229-app-people-390x844"
+    },
+    {
+      "id": "230",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\230-app-module-pomo-1440x900"
+    },
+    {
+      "id": "231",
+      "route": "/app/module/pomo",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\231-app-module-pomo-1024x768"
+    },
+    {
+      "id": "232",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-pause-short-paired\\manifest-app_module_pomo-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\232-app-module-pomo-390x844"
+    },
+    {
+      "id": "233",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pomo-paused-repeat-current\\manifest-app_module_pomo-1440x900.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\233-app-module-pomo-1440x900"
+    },
+    {
+      "id": "234",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\234-app-module-posts-1440x900"
+    },
+    {
+      "id": "235",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\235-app-module-posts-1024x768"
+    },
+    {
+      "id": "236",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\236-app-module-posts-390x844"
+    },
+    {
+      "id": "237",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\237-app-module-posts-1440x900"
+    },
+    {
+      "id": "238",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 1,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\238-app-module-posts-1024x768"
+    },
+    {
+      "id": "239",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\posts-create-settled-paired\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\239-app-module-posts-390x844"
+    },
+    {
+      "id": "240",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\240-app-profile-1440x900"
+    },
+    {
+      "id": "241",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\241-app-profile-1024x768"
+    },
+    {
+      "id": "242",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\242-app-profile-390x844"
+    },
+    {
+      "id": "243",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\243-app-profile-1440x900"
+    },
+    {
+      "id": "244",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 1,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\244-app-profile-1024x768"
+    },
+    {
+      "id": "245",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\245-app-profile-390x844"
+    },
+    {
+      "id": "246",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\246-app-profile-1440x900"
+    },
+    {
+      "id": "247",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\247-app-profile-1024x768"
+    },
+    {
+      "id": "248",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\248-app-profile-390x844"
+    },
+    {
+      "id": "249",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 15,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\249-app-profile-1440x900"
+    },
+    {
+      "id": "250",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\250-app-profile-1024x768"
+    },
+    {
+      "id": "251",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\251-app-profile-390x844"
+    },
+    {
+      "id": "252",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\252-app-profile-1440x900"
+    },
+    {
+      "id": "253",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\253-app-profile-1024x768"
+    },
+    {
+      "id": "254",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-shell-fixed-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\254-app-profile-390x844"
+    },
+    {
+      "id": "255",
+      "route": "/app/review",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-320-paired\\manifest-app_review-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\255-app-review-320x844"
+    },
+    {
+      "id": "256",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\256-app-review-1440x900"
+    },
+    {
+      "id": "257",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\257-app-review-1024x768"
+    },
+    {
+      "id": "258",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\258-app-review-390x844"
+    },
+    {
+      "id": "259",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\259-app-review-1440x900"
+    },
+    {
+      "id": "260",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\260-app-review-1024x768"
+    },
+    {
+      "id": "261",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-dirty-field-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\261-app-review-390x844"
+    },
+    {
+      "id": "262",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\262-app-review-1440x900"
+    },
+    {
+      "id": "263",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 17,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\263-app-review-1024x768"
+    },
+    {
+      "id": "264",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-30-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\264-app-review-390x844"
+    },
+    {
+      "id": "265",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\265-app-review-1440x900"
+    },
+    {
+      "id": "266",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\266-app-review-1024x768"
+    },
+    {
+      "id": "267",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-range-90-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\267-app-review-390x844"
+    },
+    {
+      "id": "268",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\268-app-review-1440x900"
+    },
+    {
+      "id": "269",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\269-app-review-1024x768"
+    },
+    {
+      "id": "270",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\270-app-review-390x844"
+    },
+    {
+      "id": "271",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\271-app-review-1440x900"
+    },
+    {
+      "id": "272",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\272-app-review-1024x768"
+    },
+    {
+      "id": "273",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-save-success-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\273-app-review-390x844"
+    },
+    {
+      "id": "274",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-zoom200-paired\\manifest-app_review-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\274-app-review-1440x900-scale2"
+    },
+    {
+      "id": "275",
+      "route": "/scene",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\275-scene-1440x900"
+    },
+    {
+      "id": "276",
+      "route": "/scene",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\276-scene-1024x768"
+    },
+    {
+      "id": "277",
+      "route": "/scene",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\277-scene-390x844"
+    },
+    {
+      "id": "278",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-desktop\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\278-app-today-1440x900"
+    },
+    {
+      "id": "279",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-mobile\\manifest-app_today-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\279-app-today-390x844"
+    },
+    {
+      "id": "280",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-desktop\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\280-app-today-1440x900"
+    },
+    {
+      "id": "281",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-query-mobile\\manifest-app_today-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:58\r\n      if(!ok)throw new Error(`fill-selector-missing ${step.selector} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                   ^\r\n\r\nError: fill-selector-missing .global-search body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-26\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:58:20\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\281-app-today-390x844"
+    },
+    {
+      "id": "282",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\shell-320-drawer-close-focus-paired\\manifest-app_today-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\282-app-today-320x844"
+    },
+    {
+      "id": "283",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\283-app-today-1440x900"
+    },
+    {
+      "id": "284",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\284-app-today-1024x768"
+    },
+    {
+      "id": "285",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\sidebar-collapsed\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\285-app-today-390x844"
+    },
+    {
+      "id": "286",
+      "route": "/app/task-board",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\286-app-task-board-1440x900"
+    },
+    {
+      "id": "287",
+      "route": "/app/task-board",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\287-app-task-board-1024x768"
+    },
+    {
+      "id": "288",
+      "route": "/app/task-board",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-default-current\\manifest-app_task-board-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\288-app-task-board-390x844"
+    },
+    {
+      "id": "289",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 125839,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\289-app-module-tasks-1440x900"
+    },
+    {
+      "id": "290",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 120573,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\290-app-module-tasks-1024x768"
+    },
+    {
+      "id": "291",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-drag-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 82743,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\291-app-module-tasks-390x844"
+    },
+    {
+      "id": "292",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3265,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\292-app-module-tasks-1440x900"
+    },
+    {
+      "id": "293",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3265,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\293-app-module-tasks-1024x768"
+    },
+    {
+      "id": "294",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 3265,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\294-app-module-tasks-390x844"
+    },
+    {
+      "id": "295",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:89\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:89:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\295-app-module-tasks-1440x900"
+    },
+    {
+      "id": "296",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:89\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:89:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\296-app-module-tasks-1024x768"
+    },
+    {
+      "id": "297",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:89\r\n      if(!target)throw new Error(`press-selector-missing ${step.selector}`)\r\n                       ^\r\n\r\nError: press-selector-missing button[aria-label=\"临时键盘状态行动状态\"]\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:89:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\297-app-module-tasks-390x844"
+    },
+    {
+      "id": "298",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 30,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\298-app-module-tasks-1440x900"
+    },
+    {
+      "id": "299",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\299-app-module-tasks-1024x768"
+    },
+    {
+      "id": "300",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-status-select-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 14,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\300-app-module-tasks-390x844"
+    },
+    {
+      "id": "301",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-touch-status-paired\\manifest-app_module_tasks-390x844.json",
+      "status": "nonzero",
+      "differentPixels": 14,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\301-app-module-tasks-390x844"
+    },
+    {
+      "id": "302",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选已取消验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\302-app-module-tasks-1440x900"
+    },
+    {
+      "id": "303",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选已取消验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\303-app-module-tasks-1024x768"
+    },
+    {
+      "id": "304",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-cancelled-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选已取消验收行动; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\304-app-module-tasks-390x844"
+    },
+    {
+      "id": "305",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\305-app-module-tasks-1440x900"
+    },
+    {
+      "id": "306",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\306-app-module-tasks-1024x768"
+    },
+    {
+      "id": "307",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-complete-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\307-app-module-tasks-390x844"
+    },
+    {
+      "id": "308",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\308-app-module-tasks-1440x900"
+    },
+    {
+      "id": "309",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\309-app-module-tasks-1024x768"
+    },
+    {
+      "id": "310",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-create-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\310-app-module-tasks-390x844"
+    },
+    {
+      "id": "311",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 临时迁移验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\311-app-module-tasks-1440x900"
+    },
+    {
+      "id": "312",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 临时迁移验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\312-app-module-tasks-1024x768"
+    },
+    {
+      "id": "313",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-done-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 临时迁移验收行动; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\313-app-module-tasks-390x844"
+    },
+    {
+      "id": "314",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 10,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\314-app-module-tasks-1440x900"
+    },
+    {
+      "id": "315",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\315-app-module-tasks-1024x768"
+    },
+    {
+      "id": "316",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-filter-empty-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\316-app-module-tasks-390x844"
+    },
+    {
+      "id": "317",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-check\\manifest-app_module_tasks-390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选进行中验收行动; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\317-app-module-tasks-390x844"
+    },
+    {
+      "id": "318",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选进行中验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\318-app-module-tasks-1440x900"
+    },
+    {
+      "id": "319",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选进行中验收行动; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n已保存到本地\r\n今天\r\n任务\r\n看板\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\319-app-module-tasks-1024x768"
+    },
+    {
+      "id": "320",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-in-progress-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:187\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移筛选进行中验收行动; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n0 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n当前筛选下没有任务，把一个现实事项拆成下一步吧。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:187:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\320-app-module-tasks-390x844"
+    },
+    {
+      "id": "321",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\321-app-module-tasks-1440x900"
+    },
+    {
+      "id": "322",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\322-app-module-tasks-1024x768"
+    },
+    {
+      "id": "323",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-persisted-refresh-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\323-app-module-tasks-390x844"
+    },
+    {
+      "id": "324",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\324-app-module-tasks-1440x900"
+    },
+    {
+      "id": "325",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\325-app-module-tasks-1024x768"
+    },
+    {
+      "id": "326",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-planned-filter-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\326-app-module-tasks-390x844"
+    },
+    {
+      "id": "327",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\327-app-module-tasks-1440x900"
+    },
+    {
+      "id": "328",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\328-app-module-tasks-1024x768"
+    },
+    {
+      "id": "329",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-error-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\329-app-module-tasks-390x844"
+    },
+    {
+      "id": "330",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\330-app-module-tasks-1440x900"
+    },
+    {
+      "id": "331",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\331-app-module-tasks-1024x768"
+    },
+    {
+      "id": "332",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-read-retry-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\332-app-module-tasks-390x844"
+    },
+    {
+      "id": "333",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:81\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"重开任务\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n搜索记录、处境或想法…\r\nCtrl K\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n临时迁移验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:81:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\333-app-module-tasks-1440x900"
+    },
+    {
+      "id": "334",
+      "route": "/app/module/tasks",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:81\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"重开任务\"]; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n任务\r\n已保存到本地\r\n今天\r\n任务\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n临时迁移验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:81:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\334-app-module-tasks-1024x768"
+    },
+    {
+      "id": "335",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\tasks-reopen-success-paired\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:81\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing button[aria-label=\"重开任务\"]; body=Calmy\r\n功能\r\n任务\r\n\r\n把任务落到具体行动；完成、重开和课题关联都会保留在统一领域数据里。\r\n\r\n打开看板\r\n1 个待处理 · 0 个已完成\r\n\r\nQUICK ACTION\r\n\r\n添加一个下一步\r\n会同步加入所选日期的今天计划\r\n不关联课题\r\n添加任务\r\n任务列表\r\n1 条\r\n全部\r\n待开始\r\n进行中\r\n已完成\r\n已跳过\r\n已取消\r\n临时迁移验收行动\r\n9月26日 · 未关联课题 · 今日焦点\r\n待开始\r\n完成\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:81:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\official-335-deterministic-recapture\\335-app-module-tasks-390x844"
+    }
+  ]
+}

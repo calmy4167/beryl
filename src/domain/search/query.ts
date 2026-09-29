@@ -44,7 +44,9 @@ const TYPE_META: Record<SearchResultType, { label: string; icon: string }> = {
   outcome: { label: '结果', icon: '✓' },
   practice: { label: '练习', icon: '♨' },
   daily_state: { label: '状态', icon: '☼' },
-  asset: { label: '附件', icon: '▧' }
+  asset: { label: '附件', icon: '▧' },
+  scene: { label: '情境', icon: '◉' }, scene_participant: { label: '参与者', icon: '♙' },
+  space: { label: '空间', icon: '⌂' }, domain: { label: '领域', icon: '◈' }, scope: { label: '范围', icon: '◎' }, permission: { label: '权限', icon: '▣' }
 }
 
 function normalize(value: string): string {
@@ -84,7 +86,7 @@ export function searchAll(query: string, limit = 20): SearchResult[] {
   return searchDocuments(listRealityDocuments(), query, limit)
 }
 
-/** React 生产入口使用异步 Reality 查询，搜索不能重新绕回同步存储。 */
+/** Production search uses async Reality queries and must not fall back to synchronous storage. */
 export async function searchAllAsync(query: string, limit = 20): Promise<SearchResult[]> {
   return searchDocuments(await listRealityDocumentsAsync(), query, limit)
 }

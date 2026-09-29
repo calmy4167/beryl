@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { Matter } from '@/domain/matter/model'
-import { exportOpenWorkspace } from '@/core/content/open-format'
+import { exportOpenWorkspace, OPEN_MANIFEST_PATH } from '@/core/content/open-format'
 import { createFileSystemVaultAdapter, readVaultSnapshot, syncWorkspaceToVault, type FileSystemDirectoryHandleLike, type FileSystemFileHandleLike, type VaultAdapter, watchVault } from '@/core/content/obsidian-adapter'
 
 class MemoryVault implements VaultAdapter {
   files = new Map<string, string | Uint8Array>()
   writes: string[] = []
   listeners = new Set<(path: string) => void>()
+  failWritePath: string | undefined
 
   async listPaths(): Promise<string[]> { return [...this.files.keys()] }
   async readText(path: string): Promise<string> {
@@ -20,10 +21,12 @@ class MemoryVault implements VaultAdapter {
     return value
   }
   async writeText(path: string, content: string): Promise<void> {
+    if (path === this.failWritePath) throw new Error('simulated-write-failure')
     this.files.set(path, content)
     this.writes.push(path)
   }
   async writeBinary(path: string, content: Uint8Array): Promise<void> {
+    if (path === this.failWritePath) throw new Error('simulated-write-failure')
     this.files.set(path, content)
     this.writes.push(path)
   }
@@ -110,6 +113,36 @@ describe('Obsidian Vault Adapter', () => {
     expect(firstWrites[firstWrites.length - 1]).toBe('_calmy/manifest.json')
     expect(second.writtenPaths).toEqual([])
     expect(second.unchangedPaths).toHaveLength(firstWrites.length)
+  })
+
+  it('does not advance the manifest after an entity write fails', async () => {
+    const vault = new MemoryVault()
+    const original = exportOpenWorkspace({ matters: [matter] })
+    await syncWorkspaceToVault(vault, original)
+    const previousManifest = vault.files.get(OPEN_MANIFEST_PATH)
+    const updated = exportOpenWorkspace({ matters: [{ ...matter, title: '更新后的标题', revision: matter.revision + 1 }] })
+    const entityPath = Object.keys(updated.files).find(path => path.endsWith('.md')) as string
+    vault.failWritePath = entityPath
+
+    const result = await syncWorkspaceToVault(vault, updated)
+
+    expect(result.errors).toEqual([expect.stringContaining('simulated-write-failure')])
+    expect(vault.files.get(OPEN_MANIFEST_PATH)).toBe(previousManifest)
+  })
+
+  it('does not advance the manifest after an attachment write fails', async () => {
+    const path = 'assets/evidence.bin'
+    const vault = new MemoryVault()
+    const original = exportOpenWorkspace({ matters: [matter], assets: [{ path, data: new Uint8Array([1]), mimeType: 'application/octet-stream' }] })
+    await syncWorkspaceToVault(vault, original)
+    const previousManifest = vault.files.get(OPEN_MANIFEST_PATH)
+    const updated = exportOpenWorkspace({ matters: [matter], assets: [{ path, data: new Uint8Array([2]), mimeType: 'application/octet-stream' }] })
+    vault.failWritePath = path
+
+    const result = await syncWorkspaceToVault(vault, updated)
+
+    expect(result.errors).toEqual([expect.stringContaining('simulated-write-failure')])
+    expect(vault.files.get(OPEN_MANIFEST_PATH)).toBe(previousManifest)
   })
 
   it('debounces Vault change events and returns an unsubscribe function', async () => {

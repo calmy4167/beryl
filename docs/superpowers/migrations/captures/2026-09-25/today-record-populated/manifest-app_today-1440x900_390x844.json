@@ -1,0 +1,102 @@
+{
+  "route": "/app/today",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T05:07:11.666Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"记录原文\"]",
+        "value": "现实记录 parity 2026-09-25"
+      },
+      {
+        "type": "click",
+        "selector": ".record-composer .capture-submit"
+      },
+      {
+        "type": "waitText",
+        "text": "现实记录 parity 2026-09-25"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\react-app_today-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\react-app_today-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实记录 parity 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 520,
+            "y": 591.4,
+            "width": 167.4,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\react-app_today-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\react-app_today-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实记录 parity 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 64,
+            "y": 549.5,
+            "width": 167.4,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\vue-app_today-1440x900.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\vue-app_today-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实记录 parity 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 520,
+            "y": 591.4,
+            "width": 167.4,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\vue-app_today-390x844.png",
+      "geometry": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-25\\today-record-populated\\vue-app_today-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "现实记录 parity 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 64,
+            "y": 549.5,
+            "width": 167.4,
+            "height": 17
+          }
+        }
+      ]
+    }
+  ]
+}

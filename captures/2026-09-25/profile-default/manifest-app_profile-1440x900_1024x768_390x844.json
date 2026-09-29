@@ -1,0 +1,60 @@
+{
+  "route": "/app/profile",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-25T13:01:36.373Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": []
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-1024x768.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-1024x768.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\react-app_profile-390x844.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-1440x900.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-1024x768.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-1024x768.geometry.json",
+      "visibleText": []
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\profile-default\\vue-app_profile-390x844.geometry.json",
+      "visibleText": []
+    }
+  ]
+}

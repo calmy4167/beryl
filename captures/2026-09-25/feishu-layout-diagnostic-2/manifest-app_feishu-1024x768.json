@@ -1,0 +1,55 @@
+{
+  "route": "/app/feishu",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:35:57.761Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "waitText",
+        "text": "整理缓存状态"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\feishu-layout-diagnostic-2\\react-app_feishu-1024x768.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\feishu-layout-diagnostic-2\\react-app_feishu-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "整理缓存状态",
+          "visible": true,
+          "rect": {
+            "x": 533,
+            "y": 428.9,
+            "width": 78,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1024,
+      "height": 768,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\feishu-layout-diagnostic-2\\vue-app_feishu-1024x768.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\feishu-layout-diagnostic-2\\vue-app_feishu-1024x768.geometry.json",
+      "visibleText": [
+        {
+          "text": "整理缓存状态",
+          "visible": true,
+          "rect": {
+            "x": 533,
+            "y": 428.9,
+            "width": 78,
+            "height": 17
+          }
+        }
+      ]
+    }
+  ]
+}

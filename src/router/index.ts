@@ -1,65 +1,125 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import { ensureAuth, readSession } from '@/core/auth'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
+import { readSession } from '@/core/auth'
 import { legacyTargetFor } from '@/domain/legacy/migration'
+import { appRouteDefinitions } from '@/router/route-manifest'
+import { vuePageRegistry } from '@/vue/page-registry'
+
+const pendingPage = () => import('@/vue/pages/MigrationPendingPage.vue')
+
+const pageComponents: Record<string, () => Promise<unknown>> = {
+    today: () => import('@/vue/pages/TodayPage.vue'),
+  capture: () => import('@/vue/pages/CapturePage.vue'),
+  matters: () => import('@/vue/pages/MattersPage.vue'),
+  matterDetail: () => import('@/vue/pages/MatterDetailPage.vue'),
+  review: () => import('@/vue/pages/ReviewPage.vue'),
+  cycle: () => import('@/vue/pages/CyclePage.vue'),
+  flow: () => import('@/vue/pages/FlowPage.vue'),
+  profile: () => import('@/vue/pages/ProfilePage.vue'),
+  memory: () => import('@/vue/pages/MemoryPage.vue'),
+  future: () => import('@/vue/pages/FuturePage.vue'),
+  admin: () => import('@/vue/pages/AdminPage.vue'),
+  advancedAdmin: () => import('@/vue/pages/AdminPage.vue'),
+  calendar: () => import('@/vue/pages/CalendarPage.vue'),
+  people: () => import('@/vue/pages/PeoplePage.vue'),
+  masterData: () => import('@/vue/pages/MasterDataPage.vue'),
+  library: () => import('@/vue/pages/LibraryPage.vue'),
+  graph: () => import('@/vue/pages/GraphPage.vue'),
+  inbox: () => import('@/vue/pages/InboxPage.vue'),
+  tasks: () => import('@/vue/pages/TasksPage.vue'),
+  taskBoard: () => import('@/vue/pages/TaskBoardPage.vue'),
+  feishu: () => import('@/vue/pages/FeishuPage.vue'),
+  habits: () => import('@/vue/pages/HabitsPage.vue'),
+  finance: () => import('@/vue/pages/FinancePage.vue'),
+  goals: () => import('@/vue/pages/GoalsPage.vue'),
+  pomo: () => import('@/vue/pages/PomoPage.vue'),
+  diary: () => import('@/vue/pages/DiaryPage.vue'),
+  posts: () => import('@/vue/pages/PostsPage.vue'),
+  scene: () => import('@/vue/pages/ScenePage.vue'),
+  moduleFallback: () => import('@/vue/pages/CompatibilityPlaceholderPage.vue'),
+  fallback: () => import('@/vue/pages/CompatibilityPlaceholderPage.vue'),
+}
+
+const pageById = new Map(vuePageRegistry.map(page => [page.id, page]))
+
+function appChildRoute(route: (typeof appRouteDefinitions)[number]): RouteRecordRaw {
+  const path = route.path === '*'
+    ? ':pathMatch(.*)*'
+    : route.path.endsWith('/*')
+      ? `${route.path.slice(0, -2)}/:pathMatch(.*)*`
+      : route.path
+
+  if (route.kind === 'redirect') {
+    return {
+      path,
+      name: route.path ? `legacy-${route.path.replace(/\//g, '-')}` : 'app-index-redirect',
+      redirect: route.redirectTo,
+    }
+  }
+
+  if (route.viewKey === 'caseRedirect') {
+    return {
+      path,
+      name: 'case',
+      redirect: to => {
+        const target = legacyTargetFor('case', String(to.params.id))
+        return target ? `/app/matters/${target}` : '/app/matters'
+      },
+    }
+  }
+
+  const page = route.pageId ? pageById.get(route.pageId) : undefined
+  const props = route.viewKey === 'moduleFallback'
+    ? { title: '模块入口', description: '旧模块入口已经统一收敛到 Vue 工作台。' }
+    : undefined
+
+  return {
+    path,
+    name: route.pageId || route.viewKey,
+    component: pageComponents[route.viewKey] || pendingPage,
+    ...(props ? { props } : {}),
+    meta: {
+      pageId: page?.id,
+      title: page?.title || (route.pageId ? 'Calmy' : '模块入口'),
+      description: page?.description || '',
+      archetype: page?.archetype,
+      shell: page?.shell || 'app',
+    },
+  }
+}
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: '/', redirect: '/login' },
-    { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
-    { path: '/pass', name: 'pass', component: () => import('@/views/PassView.vue') },
-    { path: '/scene', name: 'scene', component: () => import('@/views/SceneView.vue') },
+    { path: '/', redirect: () => readSession() ? '/app/today' : '/login' },
+    { path: '/login', name: 'login', component: () => import('@/vue/pages/LoginPage.vue') },
+    { path: '/pass', name: 'pass', component: () => import('@/vue/pages/PassPage.vue') },
     {
       path: '/app',
       name: 'app',
-      component: () => import('@/views/AppShell.vue'),
-      children: [
-        { path: '', redirect: '/app/today' },
-        // Home is kept as a compatibility redirect so old bookmarks do not create a second product center.
-        { path: 'home', name: 'home', redirect: '/app/today' },
-        { path: 'capture', name: 'capture', component: () => import('@/views/CaptureView.vue') },
-        { path: 'today', name: 'today', component: () => import('@/views/TodayView.vue') },
-        { path: 'review', name: 'review', component: () => import('@/views/ReviewView.vue') },
-        { path: 'calendar', name: 'calendar', component: () => import('@/views/CalendarView.vue') },
-        { path: 'people', name: 'people', component: () => import('@/views/PeopleView.vue') },
-        { path: 'library', name: 'library', component: () => import('@/views/LibraryView.vue') },
-        { path: 'graph', name: 'graph', component: () => import('@/views/GraphView.vue') },
-        { path: 'module/inbox', name: 'legacy-inbox', redirect: '/app/capture' },
-        { path: 'module/tasks', name: 'legacy-tasks', redirect: '/app/today' },
-        { path: 'cases', name: 'cases', redirect: '/app/matters' },
-        { path: 'cases/:id', name: 'case', redirect: to => { const target = legacyTargetFor('case', String(to.params.id)); return target ? `/app/matters/${target}` : '/app/matters' } },
-        { path: 'matters', name: 'matters', component: () => import('@/views/MattersView.vue') },
-        { path: 'matters/:id', name: 'matter', component: () => import('@/views/MatterView.vue') },
-        { path: 'module/:id', name: 'module', component: () => import('@/views/ModuleView.vue') },
-        { path: 'admin', name: 'admin', component: () => import('@/views/AdminView.vue') }
-      ]
-    }
-  ]
+      component: () => import('@/vue/shell/AppShell.vue'),
+      children: appRouteDefinitions.map(appChildRoute),
+    },
+    ...vuePageRegistry
+      .filter(page => page.shell === 'standalone')
+      .map(page => ({
+        path: page.path,
+        name: page.id,
+        component: pageComponents[page.viewKey] || pendingPage,
+        meta: { pageId: page.id, title: page.title, description: page.description || '', archetype: page.archetype, shell: page.shell },
+      })),
+    { path: '/:pathMatch(.*)*', redirect: () => readSession() ? '/app/today' : '/login' },
+  ],
 })
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const session = readSession()
   const isAppRoute = to.path.startsWith('/app') || to.path === '/scene'
   if (isAppRoute && !session) return { path: '/login', replace: true }
 
-  if (to.path === '/pass') {
-    try {
-      const rec = await ensureAuth()
-      if (to.query.mode === 'first') {
-        if (!rec._d || sessionStorage.getItem('beryl_first_pass') !== '1') return { path: '/login', replace: true }
-      } else if (!session || rec.u !== session.u) {
-        return { path: '/login', replace: true }
-      }
-    } catch { return { path: '/login', replace: true } }
+  if (to.path === '/pass' && (from.path === '/app/admin' || from.path === '/app/admin/advanced')) {
+    return { path: '/app/today', replace: true }
   }
 
-  if (to.path === '/login' && session) {
-    try {
-      const rec = await ensureAuth()
-      if (rec._d) return { path: '/pass', query: { mode: 'first' }, replace: true }
-      return { path: '/app/today', replace: true }
-    } catch { /* allow login */ }
-  }
   return true
 })
 

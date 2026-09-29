@@ -1,0 +1,53 @@
+.master-data-page { max-width: 1080px; margin: 0 auto; padding: 8px 4px 36px; color: var(--c-text); }
+html.tactile-ui #app .page-container .master-data-page { width: 100%; max-width: none; margin-inline: 0; }
+.master-data-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 4px 0 22px; }
+.master-data-heading h1 { margin: 0; font-size: clamp(24px, 3vw, 31px); letter-spacing: -.035em; }
+.master-data-heading p, .master-data-composer-heading p, .master-data-library-heading p { margin: 5px 0 0; color: var(--c-text-2); font-size: 13px; }
+.master-data-tabs { display: flex; gap: 5px; width: fit-content; padding: 4px; margin-bottom: 18px; border-radius: 12px; background: var(--c-surface-2, #f1f4f5); }
+.master-data-tabs button { border: 0; border-radius: 9px; padding: 8px 15px; background: transparent; color: var(--c-text-2); font: inherit; cursor: pointer; transition: background-color .18s ease, color .18s ease, box-shadow .18s ease; }
+.master-data-tabs button.active { background: var(--c-surface, #fff); color: var(--c-accent, #315fe8); box-shadow: 0 1px 3px #182a3612; }
+.master-data-page button:focus-visible, .master-data-page input:focus-visible, .master-data-page textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--c-accent, #315fe8) 26%, transparent); outline-offset: 2px; }
+.master-data-composer, .master-data-library { padding: 18px 20px; border: 1px solid var(--c-border, #e5eaed); border-radius: 16px; background: var(--c-surface, #fff); box-shadow: 0 5px 18px #24394408; }
+.master-data-composer { margin-bottom: 16px; }
+.master-data-composer-heading, .master-data-library-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.master-data-composer h2, .master-data-library h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.015em; }
+.master-data-composer form { display: grid; grid-template-columns: minmax(180px, .7fr) minmax(0, 1.6fr) auto; align-items: end; gap: 12px; margin-top: 15px; }
+.master-data-composer label { display: grid; gap: 6px; color: var(--c-text-2); font-size: 12px; }
+.master-data-composer input, .master-data-composer textarea, .master-data-search { width: 100%; min-width: 0; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; background: var(--c-surface, #fff); color: var(--c-text); font: inherit; font-size: 13px; padding: 10px 11px; }
+.master-data-composer textarea { resize: vertical; min-height: 42px; max-height: 160px; }
+.master-data-form-actions { display: flex; gap: 8px; }
+.master-data-form-actions .app-button { min-height: 40px; white-space: nowrap; }
+.master-data-library-heading { align-items: center; margin-bottom: 13px; }
+.master-data-archived-toggle { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--c-text-2); font-size: 12px; cursor: pointer; }
+.master-data-archived-toggle input { accent-color: var(--c-accent, #315fe8); }
+.master-data-search { margin-bottom: 3px; }
+.master-data-list { list-style: none; margin: 4px 0 0; padding: 0; }
+.master-data-list li { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 3px; border-bottom: 1px solid var(--c-border, #edf0f2); }
+.master-data-list li:last-child { border-bottom: 0; }
+.master-data-list li.retired { opacity: .72; }
+.master-data-copy { min-width: 0; }
+.master-data-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.master-data-copy h3 { margin: 0; color: var(--c-text); font-size: 14px; font-weight: 620; }
+.master-data-copy p { margin: 5px 0 0; color: var(--c-text-2); font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.master-data-copy small, .master-data-status { color: var(--c-text-3, #89959c); font-size: 11px; }
+.master-data-status { padding: 2px 7px; border-radius: 10px; background: var(--c-surface-2, #f1f4f5); }
+.master-data-item-actions { display: flex; flex: 0 0 auto; gap: 5px; }
+html.tactile-ui #app .page-container .master-data-item-actions .app-button { all: revert; font: inherit; cursor: pointer; min-height: 32px; padding: 0 10px; }
+.master-data-state { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 24px 4px 7px; margin: 0; color: var(--c-text-3, #89959c); font-size: 13px; }
+.master-data-state.error { color: var(--c-danger, #bd4b50); }
+.master-data-dictionary-note { margin: 12px 4px 0; color: var(--c-text-3, #89959c); font-size: 11px; }
+.people-page-embedded { margin-top: 2px; }
+@media (max-width: 760px) {
+  .master-data-page { padding-inline: 0; }
+  .master-data-composer form { grid-template-columns: 1fr; }
+  .master-data-form-actions { justify-content: flex-end; }
+  .master-data-composer, .master-data-library { padding: 15px; border-radius: 13px; }
+}
+@media (max-width: 480px) {
+  .master-data-heading { align-items: flex-start; }
+  .master-data-list li { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .master-data-item-actions { align-self: flex-end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .master-data-tabs button { transition: none; }
+}

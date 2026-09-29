@@ -1,0 +1,29 @@
+{
+  "start": 0,
+  "limit": 2,
+  "concurrency": 1,
+  "recaptureTimeoutMs": 180000,
+  "summary": {
+    "recapture-error": 2
+  },
+  "results": [
+    {
+      "id": "188",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-resume-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/\",\"previousTimeOrigin\":1790577063650.8,\"currentTimeOrigin\":1790577063814.7,\"documentReadyState\":\"complete\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:45\r\n  if(!rootReady)throw new Error(`route-root-timeout ${routeRoot}; url=${await evalJS('location.href')} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                      ^\r\n\r\nError: route-root-timeout .app-shell; url=chrome-error://chromewebdata/ body=无法访问此网站\r\n\r\n127.0.0.1 拒绝了我们的连接请求。\r\n\r\n请试试以下办法：\r\n\r\n检查网络连接\r\n检查代理服务器和防火墙\r\nERR_CONNECTION_REFUSED\r\n重新加载\r\n详情\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:45:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\toast-synchronization-recheck\\188-app-matters-1440x900"
+    },
+    {
+      "id": "292",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\task-board-keyboard-status-after-fix\\manifest-app_module_tasks-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/\",\"previousTimeOrigin\":1790577097482.3,\"currentTimeOrigin\":1790577097643.8,\"documentReadyState\":\"complete\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:45\r\n  if(!rootReady)throw new Error(`route-root-timeout ${routeRoot}; url=${await evalJS('location.href')} body=${String(await evalJS('document.body.innerText')).slice(0,500)}`)\r\n                      ^\r\n\r\nError: route-root-timeout .app-shell; url=chrome-error://chromewebdata/ body=无法访问此网站\r\n\r\n127.0.0.1 拒绝了我们的连接请求。\r\n\r\n请试试以下办法：\r\n\r\n检查网络连接\r\n检查代理服务器和防火墙\r\nERR_CONNECTION_REFUSED\r\n重新加载\r\n详情\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:45:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\toast-synchronization-recheck\\292-app-module-tasks-1440x900"
+    }
+  ]
+}

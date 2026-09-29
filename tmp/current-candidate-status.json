@@ -1,0 +1,1371 @@
+{
+  "start": 0,
+  "limit": 341,
+  "concurrency": 3,
+  "results": [
+    {
+      "id": "001",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\calendar-date-selection\\manifest-app_calendar-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\001-app-calendar-date-2026-09-14-1440x900"
+    },
+    {
+      "id": "002",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\calendar-date-selection\\manifest-app_calendar-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\002-app-calendar-date-2026-09-14-390x844"
+    },
+    {
+      "id": "003",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-zoom200-paired\\manifest-app_capture-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\003-app-capture-1440x900"
+    },
+    {
+      "id": "004",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\004-app-capture-1024x768"
+    },
+    {
+      "id": "005",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-default-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\005-app-capture-390x844"
+    },
+    {
+      "id": "006",
+      "route": "/app/capture",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-320-paired\\manifest-app_capture-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\006-app-capture-320x844"
+    },
+    {
+      "id": "007",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\capture-saved-state\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 56,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\007-app-capture-1440x900"
+    },
+    {
+      "id": "008",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\capture-saved-state\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 97,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\008-app-capture-1024x768"
+    },
+    {
+      "id": "009",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\capture-saved-state\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 71,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\009-app-capture-390x844"
+    },
+    {
+      "id": "010",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\cycle-empty-state\\manifest-app_cycle-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\010-app-cycle-1440x900"
+    },
+    {
+      "id": "011",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\cycle-empty-state\\manifest-app_cycle-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\011-app-cycle-390x844"
+    },
+    {
+      "id": "012",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-default\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\012-app-module-diary-1440x900"
+    },
+    {
+      "id": "013",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-default\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\013-app-module-diary-1024x768"
+    },
+    {
+      "id": "014",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-default\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\014-app-module-diary-390x844"
+    },
+    {
+      "id": "015",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-next-day\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\015-app-module-diary-1440x900"
+    },
+    {
+      "id": "016",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-next-day\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\016-app-module-diary-1024x768"
+    },
+    {
+      "id": "017",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\diary-next-day\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 34,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\017-app-module-diary-390x844"
+    },
+    {
+      "id": "018",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-cached-tasks\\manifest-app_feishu-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 176,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\018-app-feishu-1440x900"
+    },
+    {
+      "id": "019",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-cached-tasks\\manifest-app_feishu-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 243,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\019-app-feishu-390x844"
+    },
+    {
+      "id": "020",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-cached-tasks-aligned-clean\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 218,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\020-app-feishu-1440x900"
+    },
+    {
+      "id": "021",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-cached-tasks-aligned-clean\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 108,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\021-app-feishu-1024x768"
+    },
+    {
+      "id": "022",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-cached-tasks-aligned-clean\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 192,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\022-app-feishu-390x844"
+    },
+    {
+      "id": "023",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 203,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\023-app-feishu-1440x900"
+    },
+    {
+      "id": "024",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 200,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\024-app-feishu-390x844"
+    },
+    {
+      "id": "025",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\feishu-cached-tasks-current\\manifest-app_feishu-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 167,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\025-app-feishu-1024x768"
+    },
+    {
+      "id": "026",
+      "route": "/app/feishu",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-layout-diagnostic-2\\manifest-app_feishu-1024x768.json",
+      "status": "nonzero",
+      "differentPixels": 117,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\026-app-feishu-1024x768"
+    },
+    {
+      "id": "027",
+      "route": "/app/feishu",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-project-tab\\manifest-app_feishu-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 101,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\027-app-feishu-1440x900"
+    },
+    {
+      "id": "028",
+      "route": "/app/feishu",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\feishu-project-tab\\manifest-app_feishu-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 158883,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\028-app-feishu-390x844"
+    },
+    {
+      "id": "029",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\finance-income-created\\manifest-app_module_finance-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 93,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\029-app-module-finance-1440x900"
+    },
+    {
+      "id": "030",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\finance-income-created\\manifest-app_module_finance-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\030-app-module-finance-390x844"
+    },
+    {
+      "id": "031",
+      "route": "/app/flow",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\flow-default\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\031-app-flow-1440x900"
+    },
+    {
+      "id": "032",
+      "route": "/app/flow",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\flow-default\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\032-app-flow-1024x768"
+    },
+    {
+      "id": "033",
+      "route": "/app/flow",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\flow-default\\manifest-app_flow-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\033-app-flow-390x844"
+    },
+    {
+      "id": "034",
+      "route": "/app/future",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\future-default\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\034-app-future-1440x900"
+    },
+    {
+      "id": "035",
+      "route": "/app/future",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\future-default\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\035-app-future-1024x768"
+    },
+    {
+      "id": "036",
+      "route": "/app/future",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\future-default\\manifest-app_future-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\036-app-future-390x844"
+    },
+    {
+      "id": "037",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-complete-selected\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\037-app-module-goals-1440x900"
+    },
+    {
+      "id": "038",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-complete-selected\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:80\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .goals-toolbar [role=\"tab\"]:last-child; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-27\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:80:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\038-app-module-goals-390x844"
+    },
+    {
+      "id": "039",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-complete-selected-after\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\039-app-module-goals-1440x900"
+    },
+    {
+      "id": "040",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-complete-selected-after\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:80\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .goals-toolbar [role=\"tab\"]:last-child; body=Calmy\r\n功能\r\n数据来源\r\n本地\r\n飞书\r\n今天\r\n2026-09-27\r\n心\r\n事实\r\n记录\r\n今天的记录\r\n回顾\r\n\r\n还没有记录。保存第一条现实记录后，会显示在这里。\r\n\r\n其他\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:80:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\040-app-module-goals-390x844"
+    },
+    {
+      "id": "041",
+      "route": "/app/module/goals",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-create-populated-after\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 32,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\041-app-module-goals-1440x900"
+    },
+    {
+      "id": "042",
+      "route": "/app/module/goals",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\goals-create-populated-after\\manifest-app_module_goals-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\042-app-module-goals-390x844"
+    },
+    {
+      "id": "043",
+      "route": "/app/graph",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\graph-default\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\043-app-graph-1440x900"
+    },
+    {
+      "id": "044",
+      "route": "/app/graph",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\graph-default\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\044-app-graph-1024x768"
+    },
+    {
+      "id": "045",
+      "route": "/app/graph",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\graph-default\\manifest-app_graph-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\045-app-graph-390x844"
+    },
+    {
+      "id": "046",
+      "route": "/app/module/habits",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\habits-default\\manifest-app_module_habits-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\046-app-module-habits-1440x900"
+    },
+    {
+      "id": "047",
+      "route": "/app/module/habits",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\habits-default\\manifest-app_module_habits-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\047-app-module-habits-390x844"
+    },
+    {
+      "id": "048",
+      "route": "/app/module/habits",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\manifest-app_module_habits-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 190,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\048-app-module-habits-1440x900"
+    },
+    {
+      "id": "049",
+      "route": "/app/module/habits",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\habits-recorded-today\\manifest-app_module_habits-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 56,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\049-app-module-habits-390x844"
+    },
+    {
+      "id": "050",
+      "route": "/app/module/inbox",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\inbox-default\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\050-app-module-inbox-1440x900"
+    },
+    {
+      "id": "051",
+      "route": "/app/module/inbox",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\inbox-default\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 5,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\051-app-module-inbox-1024x768"
+    },
+    {
+      "id": "052",
+      "route": "/app/module/inbox",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\inbox-default\\manifest-app_module_inbox-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\052-app-module-inbox-390x844"
+    },
+    {
+      "id": "053",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\library-default\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\053-app-library-1440x900"
+    },
+    {
+      "id": "054",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\library-default\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\054-app-library-1024x768"
+    },
+    {
+      "id": "055",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\library-default\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\055-app-library-390x844"
+    },
+    {
+      "id": "056",
+      "route": "/login",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\056-login-1440x900"
+    },
+    {
+      "id": "057",
+      "route": "/login",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\057-login-1024x768"
+    },
+    {
+      "id": "058",
+      "route": "/login",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\login-default-current\\manifest-login-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\058-login-390x844"
+    },
+    {
+      "id": "059",
+      "route": "/app/master-data",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\master-data-default\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\059-app-master-data-1440x900"
+    },
+    {
+      "id": "060",
+      "route": "/app/master-data",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\master-data-default\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 11,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\060-app-master-data-1024x768"
+    },
+    {
+      "id": "061",
+      "route": "/app/master-data",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\master-data-default\\manifest-app_master-data-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\061-app-master-data-390x844"
+    },
+    {
+      "id": "062",
+      "route": "/app/matters/parity-capture-missing",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\matter-detail-not-found\\manifest-app_matters_parity-capture-missing-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\062-app-matters-parity-capture-missing-1440x900"
+    },
+    {
+      "id": "063",
+      "route": "/app/matters/parity-capture-missing",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\matter-detail-not-found\\manifest-app_matters_parity-capture-missing-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\063-app-matters-parity-capture-missing-1024x768"
+    },
+    {
+      "id": "064",
+      "route": "/app/matters/parity-capture-missing",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\matter-detail-not-found\\manifest-app_matters_parity-capture-missing-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\064-app-matters-parity-capture-missing-390x844"
+    },
+    {
+      "id": "065",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-zoom200-final-paired\\manifest-app_matters-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\065-app-matters-1440x900"
+    },
+    {
+      "id": "066",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:24\r\n  if(!page)throw new Error('chrome-target-timeout')\r\n                 ^\r\n\r\nError: chrome-target-timeout\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:24:18\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\066-app-matters-1024x768"
+    },
+    {
+      "id": "067",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-default-fixed-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\067-app-matters-390x844"
+    },
+    {
+      "id": "068",
+      "route": "/app/matters",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\matters-320-final-paired\\manifest-app_matters-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\068-app-matters-320x844"
+    },
+    {
+      "id": "069",
+      "route": "/app/memory",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\memory-default\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\069-app-memory-1440x900"
+    },
+    {
+      "id": "070",
+      "route": "/app/memory",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\memory-default\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\070-app-memory-1024x768"
+    },
+    {
+      "id": "071",
+      "route": "/app/memory",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\memory-default\\manifest-app_memory-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\071-app-memory-390x844"
+    },
+    {
+      "id": "072",
+      "route": "/pass",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\072-pass-1440x900"
+    },
+    {
+      "id": "073",
+      "route": "/pass",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\073-pass-1024x768"
+    },
+    {
+      "id": "074",
+      "route": "/pass",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\pass-default-current\\manifest-pass-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\074-pass-390x844"
+    },
+    {
+      "id": "075",
+      "route": "/app/people",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\people-default\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\075-app-people-1440x900"
+    },
+    {
+      "id": "076",
+      "route": "/app/people",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\people-default\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\076-app-people-1024x768"
+    },
+    {
+      "id": "077",
+      "route": "/app/people",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\people-default\\manifest-app_people-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\077-app-people-390x844"
+    },
+    {
+      "id": "078",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-default\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\078-app-module-pomo-1440x900"
+    },
+    {
+      "id": "079",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-default\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\079-app-module-pomo-390x844"
+    },
+    {
+      "id": "080",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-paused\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\080-app-module-pomo-1440x900"
+    },
+    {
+      "id": "081",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-paused\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\081-app-module-pomo-390x844"
+    },
+    {
+      "id": "082",
+      "route": "/app/module/pomo",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-paused-toast-check\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\082-app-module-pomo-1440x900"
+    },
+    {
+      "id": "083",
+      "route": "/app/module/pomo",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\pomo-paused-toast-check\\manifest-app_module_pomo-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\083-app-module-pomo-390x844"
+    },
+    {
+      "id": "084",
+      "route": "/app/module/posts",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\posts-default\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\084-app-module-posts-1440x900"
+    },
+    {
+      "id": "085",
+      "route": "/app/module/posts",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\posts-default\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\085-app-module-posts-1024x768"
+    },
+    {
+      "id": "086",
+      "route": "/app/module/posts",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\posts-default\\manifest-app_module_posts-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\086-app-module-posts-390x844"
+    },
+    {
+      "id": "087",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\087-app-profile-1440x900"
+    },
+    {
+      "id": "088",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\088-app-profile-1024x768"
+    },
+    {
+      "id": "089",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-default-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\089-app-profile-390x844"
+    },
+    {
+      "id": "090",
+      "route": "/app/review",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-zoom200-paired\\manifest-app_review-1440x900-zoom2x.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\090-app-review-1440x900"
+    },
+    {
+      "id": "091",
+      "route": "/app/review",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\091-app-review-1024x768"
+    },
+    {
+      "id": "092",
+      "route": "/app/review",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-default-paired\\manifest-app_review-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\092-app-review-390x844"
+    },
+    {
+      "id": "093",
+      "route": "/app/review",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\review-320-paired\\manifest-app_review-320x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\093-app-review-320x844"
+    },
+    {
+      "id": "094",
+      "route": "/scene",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\094-scene-1440x900"
+    },
+    {
+      "id": "095",
+      "route": "/scene",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\095-scene-1024x768"
+    },
+    {
+      "id": "096",
+      "route": "/scene",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\scene-default-current\\manifest-scene-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\096-scene-390x844"
+    },
+    {
+      "id": "097",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 67,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\097-app-module-tasks-1440x900"
+    },
+    {
+      "id": "098",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\098-app-module-tasks-390x844"
+    },
+    {
+      "id": "099",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\099-app-module-tasks-1440x900"
+    },
+    {
+      "id": "100",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\100-app-module-tasks-390x844"
+    },
+    {
+      "id": "101",
+      "route": "/app/admin",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\101-app-admin-1440x900"
+    },
+    {
+      "id": "102",
+      "route": "/app/admin",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\102-app-admin-390x844"
+    },
+    {
+      "id": "103",
+      "route": "/app/admin",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-default-current\\manifest-app_admin-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\103-app-admin-1024x768"
+    },
+    {
+      "id": "104",
+      "route": "/app/module/tasks",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\tasks-main-flow\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 6,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\104-app-module-tasks-1440x900"
+    },
+    {
+      "id": "105",
+      "route": "/app/module/tasks",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\captures\\2026-09-25\\tasks-main-flow\\manifest-app_module_tasks-1440x900_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 2,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\105-app-module-tasks-390x844"
+    },
+    {
+      "id": "106",
+      "route": "/app/admin/advanced",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\106-app-admin-advanced-1440x900"
+    },
+    {
+      "id": "107",
+      "route": "/app/admin/advanced",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\107-app-admin-advanced-1024x768"
+    },
+    {
+      "id": "108",
+      "route": "/app/admin/advanced",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\admin-advanced-default-current\\manifest-app_admin_advanced-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\108-app-admin-advanced-390x844"
+    },
+    {
+      "id": "109",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\109-app-calendar-date-2026-09-14-1440x900"
+    },
+    {
+      "id": "110",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\110-app-calendar-date-2026-09-14-1024x768"
+    },
+    {
+      "id": "111",
+      "route": "/app/calendar?date=2026-09-14",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\calendar-default-current\\manifest-app_calendar-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\111-app-calendar-date-2026-09-14-390x844"
+    },
+    {
+      "id": "112",
+      "route": "/app/capture",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 35,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\112-app-capture-1440x900"
+    },
+    {
+      "id": "113",
+      "route": "/app/capture",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 27,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\113-app-capture-1024x768"
+    },
+    {
+      "id": "114",
+      "route": "/app/capture",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\capture-populated-paired\\manifest-app_capture-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 37,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\114-app-capture-390x844"
+    },
+    {
+      "id": "115",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\115-app-module-custom-legacy-entry-1440x900"
+    },
+    {
+      "id": "116",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\116-app-module-custom-legacy-entry-1024x768"
+    },
+    {
+      "id": "117",
+      "route": "/app/module/custom/legacy-entry",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-deep-module-current\\manifest-app_module_custom_legacy-entry-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\117-app-module-custom-legacy-entry-390x844"
+    },
+    {
+      "id": "118",
+      "route": "/",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\118--1440x900"
+    },
+    {
+      "id": "119",
+      "route": "/",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\119--1024x768"
+    },
+    {
+      "id": "120",
+      "route": "/",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-root-current\\manifest-route-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\120--390x844"
+    },
+    {
+      "id": "121",
+      "route": "/app/unknown-current-page",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\121-app-unknown-current-page-1440x900"
+    },
+    {
+      "id": "122",
+      "route": "/app/unknown-current-page",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\122-app-unknown-current-page-1024x768"
+    },
+    {
+      "id": "123",
+      "route": "/app/unknown-current-page",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\compat-unknown-current\\manifest-app_unknown-current-page-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\123-app-unknown-current-page-390x844"
+    },
+    {
+      "id": "124",
+      "route": "/app/cycle",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\124-app-cycle-1440x900"
+    },
+    {
+      "id": "125",
+      "route": "/app/cycle",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\125-app-cycle-1024x768"
+    },
+    {
+      "id": "126",
+      "route": "/app/cycle",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\cycle-default-current\\manifest-app_cycle-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:24\r\n  if(!page)throw new Error('chrome-target-timeout')\r\n                 ^\r\n\r\nError: chrome-target-timeout\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:24:18\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\126-app-cycle-390x844"
+    },
+    {
+      "id": "127",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\127-app-module-diary-1440x900"
+    },
+    {
+      "id": "128",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\128-app-module-diary-1024x768"
+    },
+    {
+      "id": "129",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\129-app-module-diary-390x844"
+    },
+    {
+      "id": "130",
+      "route": "/app/module/diary",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 33,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\130-app-module-diary-1440x900"
+    },
+    {
+      "id": "131",
+      "route": "/app/module/diary",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\131-app-module-diary-1024x768"
+    },
+    {
+      "id": "132",
+      "route": "/app/module/diary",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\diary-save-settled-paired\\manifest-app_module_diary-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\132-app-module-diary-390x844"
+    },
+    {
+      "id": "133",
+      "route": "/app/today",
+      "viewport": "320x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-focus\\manifest-app_today-320x844_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\133-app-today-320x844"
+    },
+    {
+      "id": "134",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-mobile-after\\manifest-app_today-390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\134-app-today-390x844"
+    },
+    {
+      "id": "135",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\search-open-desktop\\manifest-app_today-1440x900.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\135-app-today-1440x900"
+    },
+    {
+      "id": "136",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\136-app-today-1440x900"
+    },
+    {
+      "id": "137",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 19764,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\137-app-today-1024x768"
+    },
+    {
+      "id": "138",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\directory-open\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\138-app-today-390x844"
+    },
+    {
+      "id": "139",
+      "route": "/app/module/finance",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\139-app-module-finance-1440x900"
+    },
+    {
+      "id": "140",
+      "route": "/app/module/finance",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 20,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\140-app-module-finance-1024x768"
+    },
+    {
+      "id": "141",
+      "route": "/app/module/finance",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\finance-expense-create-paired\\manifest-app_module_finance-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\141-app-module-finance-390x844"
+    },
+    {
+      "id": "142",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\142-app-library-1440x900"
+    },
+    {
+      "id": "143",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:186\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 这一批已结束; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“我可以如何验证这条资料？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 现实出口验收资源\r\n\r\n用于验证从回响模式创建现实行动并结束探索。\r\n\r\n2026/9/27 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:186:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\143-app-library-1024x768"
+    },
+    {
+      "id": "144",
+      "route": "/app/library",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-create-action-ended-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:186\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 这一批已结束; body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n重新开始本批\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“我可以如何验证这条资料？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 现实出口验收资源\r\n\r\n用于验证从回响模式创建现实行动并结束探索。\r\n\r\n2026/9/27 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n最近 5 条\r\n还没有可回响的 现实记录。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:186:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\144-app-library-390x844"
+    },
+    {
+      "id": "145",
+      "route": "/app/matters",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 13280,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\145-app-matters-1440x900"
+    },
+    {
+      "id": "146",
+      "route": "/app/matters",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:186\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 已关联当前问题，可以继续验证; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n探索\r\n/\r\n重新看看已有资料\r\n已保存到本地\r\n今天\r\n处境\r\n资料\r\n探索\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n迁移 Flow 关联验收处境\r\n重新开始本批\r\n当前问题上下文：迁移 Flow 关联验收处境\r\n\r\n如何验证这条资料是否有用？\r\n\r\n回响 · 本批 · 1 项\r\n\r\n围绕“这条资料能帮助我解决什么？”\r\n已足够，结束探索\r\n资料 · 可复用\r\n展开来源\r\n迁移 Flow 关联验收资源\r\n\r\n与关联处境配对的临时资料。\r\n\r\n2026/9/27 · knowledge\r\n收下\r\n用于当前问题\r\n试一下\r\n再见\r\n过去的现实证据\r\n当前处境 · 最近 5 条\r\n还没有可回响的 现实记录。\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:186:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\146-app-matters-1024x768"
+    },
+    {
+      "id": "147",
+      "route": "/app/matters",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-linked-matter-paired\\manifest-app_matters-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\nfile:///D:/dsharness/tmp/recapture-one.mjs:80\r\n      if(!target)throw new Error(`click-selector-missing ${selector}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                       ^\r\n\r\nError: click-selector-missing .calmy-select__option:nth-child(2); body=Calmy\r\n功能\r\n带着问题找资料\r\n\r\n先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。\r\n\r\n当前意图\r\n\r\n这次为什么打开探索？\r\n\r\n可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。\r\n\r\n选择这次的方式\r\n专注\r\n只看一条\r\n漫游\r\n有限探索\r\n解题\r\n优先看线索\r\n回响\r\n回看资料\r\n专题\r\n混合上下文\r\n关联处境（可选）\r\n先不关联\r\n开始这一批\r\n写下问题并选择方式后，探索才会开始显示有限内容。\r\n今天\r\n记录\r\n处境\r\n回顾\r\n资料已加入\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:80:24\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\147-app-matters-390x844"
+    },
+    {
+      "id": "148",
+      "route": "/app/today",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 105,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\148-app-today-1440x900"
+    },
+    {
+      "id": "149",
+      "route": "/app/today",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "nonzero",
+      "differentPixels": 72,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\149-app-today-1024x768"
+    },
+    {
+      "id": "150",
+      "route": "/app/today",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-record-feedback-paired\\manifest-app_today-1440x900_1024x768_390x844.json",
+      "status": "running"
+    },
+    {
+      "id": "151",
+      "route": "/app/library",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-27\\rebuilt-current-candidate-pairs-gear-exact\\151-app-library-1440x900"
+    },
+    {
+      "id": "152",
+      "route": "/app/library",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\flow-echo-resource-feedback-paired\\manifest-app_library-1440x900_1024x768_390x844.json",
+      "status": "running"
+    }
+  ]
+}

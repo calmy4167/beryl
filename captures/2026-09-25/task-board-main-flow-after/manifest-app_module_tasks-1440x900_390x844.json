@@ -1,0 +1,118 @@
+{
+  "route": "/app/module/tasks",
+  "browser": "chrome.exe",
+  "capturedAt": "2026-09-26T11:39:29.964Z",
+  "interaction": {
+    "clickSelector": null,
+    "focusSelector": null,
+    "steps": [
+      {
+        "type": "fill",
+        "selector": "[aria-label=\"任务名称\"]",
+        "value": "Parity board 2026-09-25"
+      },
+      {
+        "type": "click",
+        "selector": "form button.primary"
+      },
+      {
+        "type": "waitText",
+        "text": "Parity board 2026-09-25"
+      },
+      {
+        "type": "click",
+        "selector": ".task-board-head-actions button:first-child"
+      },
+      {
+        "type": "click",
+        "selector": "[aria-label=\"Parity board 2026-09-25状态\"]"
+      },
+      {
+        "type": "click",
+        "selector": "[role=\"option\"][data-value=\"in_progress\"]"
+      },
+      {
+        "type": "waitText",
+        "text": "Parity board 2026-09-25"
+      }
+    ]
+  },
+  "viewports": [
+    {
+      "framework": "react",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\react-app_module_tasks-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\react-app_module_tasks-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "Parity board 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 521,
+            "y": 483.6,
+            "width": 159.8,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "react",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\react-app_module_tasks-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\react-app_module_tasks-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "Parity board 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 206,
+            "y": 458.6,
+            "width": 159.8,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 1440,
+      "height": 900,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\vue-app_module_tasks-1440x900.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\vue-app_module_tasks-1440x900.geometry.json",
+      "visibleText": [
+        {
+          "text": "Parity board 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 521,
+            "y": 483.6,
+            "width": 159.8,
+            "height": 17
+          }
+        }
+      ]
+    },
+    {
+      "framework": "vue",
+      "width": 390,
+      "height": 844,
+      "image": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\vue-app_module_tasks-390x844.png",
+      "geometry": "D:\\dsharness\\captures\\2026-09-25\\task-board-main-flow-after\\vue-app_module_tasks-390x844.geometry.json",
+      "visibleText": [
+        {
+          "text": "Parity board 2026-09-25",
+          "visible": true,
+          "rect": {
+            "x": 206,
+            "y": 458.6,
+            "width": 159.8,
+            "height": 17
+          }
+        }
+      ]
+    }
+  ]
+}

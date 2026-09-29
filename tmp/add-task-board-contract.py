@@ -1,0 +1,9 @@
+from pathlib import Path
+p=Path('src/__tests__/vue-task-board-parity.test.ts')
+s=p.read_text(encoding='utf-8')
+s=s.replace("  it('loads columns, filters active/today and searches by title or matter', async () => {", "  it('uses native selects for the matter filter and each card status, matching the React route', async () => {\n    const matter = await matterAsyncRepository.create({ title: '选择器事项' })\n    const item = await actionAsyncRepository.create({ title: '选择器任务', date: '2026-10-01', matterId: matter.calmyId })\n    const { page } = await openBoard()\n    expect(page.get('[aria-label=\"按事项筛选\"]').element.tagName).toBe('SELECT')\n    expect(page.get(`[aria-label=\"${item.title}状态\"]`).element.tagName).toBe('SELECT')\n  })\n  it('loads columns, filters active/today and searches by title or matter', async () => {")
+s=s.replace("    expect(page.get('[aria-label=\"按事项筛选\"]').attributes('role')).toBe('combobox')\n    await page.get('[aria-label=\"按事项筛选\"]').trigger('click')\n    expect(page.find('[role=\"listbox\"][aria-labelledby=\"board-matter-filter\"]').exists()).toBe(true)\n    await page.get(`[role=\"option\"][data-value=\"${matter.calmyId}\"]`).trigger('click')", "    await page.get('[aria-label=\"按事项筛选\"]').setValue(matter.calmyId)")
+s=s.replace("      expect(select.attributes('role')).toBe('combobox')\n", "      expect(select.element.tagName).toBe('SELECT')\n")
+s=s.replace("      await select.trigger('click')\n      await page.get('[role=\"option\"][data-value=\"in_progress\"]').trigger('click')", "      await select.setValue('in_progress')")
+s=s.replace("    expect(page.get(`[aria-label=\"${item.title}状态\"]`).element.parentElement?.classList.contains('is-compact')).toBe(false)", "    expect(page.get(`[aria-label=\"${item.title}状态\"]`).element.tagName).toBe('SELECT')")
+p.write_text(s, encoding='utf-8')

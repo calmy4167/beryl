@@ -1,0 +1,178 @@
+[
+  {
+    "tag": "BUTTON",
+    "cls": "app-button topbar-search",
+    "rect": {
+      "x": 882,
+      "y": 14.5,
+      "width": 360,
+      "height": 40,
+      "top": 14.5,
+      "right": 1242,
+      "bottom": 54.5,
+      "left": 882
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "DIV",
+    "cls": "topbar-actions",
+    "rect": {
+      "x": 882,
+      "y": 14.5,
+      "width": 466,
+      "height": 40,
+      "top": 14.5,
+      "right": 1348,
+      "bottom": 54.5,
+      "left": 882
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "HEADER",
+    "cls": "desktop-topbar",
+    "rect": {
+      "x": 240,
+      "y": 0,
+      "width": 1134,
+      "height": 70,
+      "top": 0,
+      "right": 1374,
+      "bottom": 70,
+      "left": 240
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "relative",
+    "zIndex": "15"
+  },
+  {
+    "tag": "DIV",
+    "cls": "workspace-shell",
+    "rect": {
+      "x": 240,
+      "y": 0,
+      "width": 1200,
+      "height": 900,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "left": 240
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "DIV",
+    "cls": "app-shell right-sidebar-collapsed",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "left": 0
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "DIV",
+    "cls": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "left": 0
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "isolate",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "BODY",
+    "cls": "",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "left": 0
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  },
+  {
+    "tag": "HTML",
+    "cls": "tactile-ui",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "top": 0,
+      "right": 1440,
+      "bottom": 900,
+      "left": 0
+    },
+    "transform": "none",
+    "filter": "none",
+    "opacity": "1",
+    "willChange": "auto",
+    "isolation": "auto",
+    "contain": "none",
+    "position": "static",
+    "zIndex": "auto"
+  }
+]

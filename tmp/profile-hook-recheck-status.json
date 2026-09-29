@@ -1,0 +1,48 @@
+{
+  "start": 0,
+  "limit": 4,
+  "concurrency": 3,
+  "recaptureTimeoutMs": 90000,
+  "summary": {
+    "recapture-error": 2,
+    "exact": 2
+  },
+  "results": [
+    {
+      "id": "243",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-final-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539362864.7,\"currentTimeOrigin\":1790539363139.6,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 概览数据暂时无法读取; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\profile-hook-recheck\\243-app-profile-1440x900"
+    },
+    {
+      "id": "249",
+      "route": "/app/profile",
+      "viewport": "1440x900",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "recapture-error",
+      "error": "recapture-exit-1\n{\"navigationRequested\":\"react\",\"expectedPath\":\"/react-preview.html\",\"observedPath\":\"/react-preview.html\",\"previousTimeOrigin\":1790539362840.4,\"currentTimeOrigin\":1790539363136.5,\"documentReadyState\":\"interactive\",\"vueRootMounted\":false}\nfile:///D:/dsharness/tmp/recapture-one.mjs:181\r\n      if(!found)throw new Error(`wait-text-timeout ${step.text}; body=${String(await evalJS('document.body.innerText')).slice(0,1200)}`)\r\n                      ^\r\n\r\nError: wait-text-timeout 迁移验收概览读取失败; body=CALMY\r\n日常\r\n工作\r\n内容\r\n关系\r\n工具\r\n试验\r\n个人\r\n主数据\r\n我的\r\n/\r\n个人会话、场景和数据概览\r\n搜索记录、处境或想法…\r\nCtrl K\r\n本地优先 · 离线可用\r\n今天\r\n我的\r\n我的\r\n\r\n聚合当前设备上的会话、场景和已有模块数据，不创建额外账户资料。\r\n\r\n切换场景\r\n设置\r\nC\r\n\r\nLOCAL USER\r\n\r\ncalmy\r\n\r\n本地会话 · 数据保存在当前设备并沿用现有同步设置\r\n\r\n会话更新\r\n2026/09/26 20:00\r\n最近数据\r\n暂无记录\r\n修改访问密码\r\n🧑\r\n\r\nCURRENT SCENE\r\n\r\n个人\r\n\r\n专注自我提升 · 写下你的想法\r\n\r\n10\r\n个原有模块\r\n管理场景 →\r\n\r\nOVERVIEW\r\n\r\n现有数据概览\r\n统计来自 Reality 文档视图\r\n事项\r\n0\r\n个课题\r\n专注时间\r\n0\r\n分钟\r\n习惯记录\r\n0\r\n天\r\n本地事实\r\n1\r\n条数据\r\n    at file:///D:/dsharness/tmp/recapture-one.mjs:181:23\r\n\r\nNode.js v24.21.0\r\n",
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\profile-hook-recheck\\249-app-profile-1440x900"
+    },
+    {
+      "id": "250",
+      "route": "/app/profile",
+      "viewport": "1024x768",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\profile-hook-recheck\\250-app-profile-1024x768"
+    },
+    {
+      "id": "251",
+      "route": "/app/profile",
+      "viewport": "390x844",
+      "manifest": "D:\\dsharness\\docs\\superpowers\\migrations\\captures\\2026-09-26\\profile-error-retry-paired\\manifest-app_profile-1440x900_1024x768_390x844.json",
+      "status": "exact",
+      "differentPixels": 0,
+      "outputDir": "D:\\dsharness\\captures\\2026-09-28\\profile-hook-recheck\\251-app-profile-390x844"
+    }
+  ]
+}

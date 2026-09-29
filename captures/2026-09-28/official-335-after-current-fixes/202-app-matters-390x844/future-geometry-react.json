@@ -1,0 +1,57 @@
+[
+  {
+    "i": 0,
+    "tag": "MAIN",
+    "cls": "page-container",
+    "text": "数据来源\n本地\n飞书\n处境\n\n记录持续影响你的现实问题，并写下想看到的变化。\n\n全部\n进行中\n已暂停\n已结束\n如果这是一个学习问题，补充解决闭环（可选）\n创建处境\n已暂停\n恢复\n结",
+    "rect": {
+      "x": 0,
+      "y": 62,
+      "width": 390,
+      "height": 734.265625,
+      "top": 62,
+      "right": 390,
+      "bottom": 796.265625,
+      "left": 0
+    },
+    "font": "16px \"PingFang SC\", \"Microsoft YaHei\", \"Segoe UI\", sans-serif",
+    "lineHeight": "normal",
+    "display": "block",
+    "margin": "0px",
+    "padding": "14px 12px 92px",
+    "transform": "none",
+    "opacity": "1",
+    "letterSpacing": "normal",
+    "textRendering": "optimizelegibility",
+    "fontKerning": "auto",
+    "fontFeatureSettings": "normal",
+    "fontSynthesis": "weight style small-caps",
+    "fontVariationSettings": "normal",
+    "webkitTextStrokeWidth": "0px",
+    "textShadow": "none",
+    "webkitFontSmoothing": "antialiased",
+    "webkitTextFillColor": "rgb(32, 38, 36)",
+    "fontVariantLigatures": "normal",
+    "fontOpticalSizing": "auto",
+    "fontStretch": "100%",
+    "wordSpacing": "0px",
+    "whiteSpace": "normal",
+    "wordBreak": "normal",
+    "hyphens": "manual",
+    "outline": "rgb(32, 38, 36) none 3px",
+    "outlineColor": "rgb(32, 38, 36)",
+    "outlineWidth": "3px",
+    "outlineStyle": "none",
+    "active": false,
+    "nodes": [
+      {
+        "type": 1,
+        "value": null
+      },
+      {
+        "type": 1,
+        "value": null
+      }
+    ]
+  }
+]

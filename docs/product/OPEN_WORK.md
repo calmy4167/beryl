@@ -6,8 +6,9 @@
 
 > 2026-09-19 产品本体调整：D-018 与 `CALMY_PRODUCT_DESIGN_2026-09-19.md` 已将 Calmy 定义为人与世界之间的反思层。当前四入口与 Matter 等对象仍是实现兼容层，不表示新产品迁移已经完成。
 
-> 更新时间：2026-09-19
+> 更新时间：2026-09-26
 > 用途：唯一活跃的产品/工程待办入口。已完成或已废弃的任务不再重复列入；新增任务必须先写清用户价值、依赖、验收条件和停止线。
+> 历史边界：下方带日期的实现记录保留当时事实；Vue 迁移仍在进行，严格验收状态以 OW-06 和迁移台账最新更正为准。
 
 ## 使用规则
 
@@ -57,17 +58,18 @@
 
 2026-09-20 本机静态流程复核：未来回望页面代码包含处境输入、可选事实/解释、行动与暂缓路径、条件和来源说明、用户确认后保存、手动打开外部链接及另存现实反馈。静态代码不能证明页面是否自然易懂、两边影响是否对用户足够平衡或外部工具往返是否顺畅；浏览器交互和真实参与者验证尚未完成，OW-21 保持未完成。
 
-### OW-06 Vue 兼容层退出评估
+### OW-06 React 到 Vue 生产前端迁移
 
-`src/main.ts`、`src/App.vue`、`src/router`、`src/views`、Vue Router 和 Element Plus 当前属于迁移兼容层；只有在依赖扫描、真实路由回归和回滚方案完成后，才分批删除。`index.html → src/react/main.tsx → src/react/App.tsx` 是唯一生产启动链；Vue 仅通过 `/app/admin` 的 `LegacyAdminHost` 完整设置界面及同步基础设施保留，旧 `/app/admin/advanced` 复用同一界面。未被生产路由引用的 `src/react/LegacyVueHost.tsx` 已作为第一批清理项移除，并有静态回归保护。静态回归现扫描整个 `src/react`，确认 Vue/Vue Router/Element Plus 直接依赖只存在于 `LegacyAdminHost.tsx`；React 已补齐旧 `/app/cases`、`/app/cases/:id`、`/app/module/chars`、`/app/module/moments` 和未知 `/app/module/:id` 的兼容重定向。Vue 运行时依赖和其余旧路由真实回归仍未完成。
+- **状态：已完成（按 2026-09-28 用户确认的验收范围）。** Vue 已作为生产入口；React 预览、源码和开发依赖已清理。
+- 路由、页面交互、响应式、键盘/焦点、持久化、IndexedDB/Vault、构建和浏览器门禁通过。最终复验：`npm test` 98 文件 / 555 项；`npm run build`；`npm run test:idb`（含 22.37 MB 备份往返和浏览器重启）；`node test/ui-runtime.mjs`（全部功能检查通过）；`node test/ui-production-runtime.mjs`（Vue 生产页挂载成功）。
+- 335 组逐像素审计没有完成，不能声称像素一致。最近一次审计被用户叫停前完成 69 组（51 组逐像素一致、18 组有栅格差异，另有 2 组尚在运行）；抽查的差异表现为字形、圆角和滚动条边缘，未发现功能影响。按用户确认，纯外观差异接受并继续迁移。证据与范围记录见[Vue 迁移台账](../superpowers/migrations/2026-09-24-vue-parity-ledger.md)。
+- [Vue 迁移计划](../superpowers/plans/2026-09-24-vue-exact-parity-migration.md)中的旧逐像素门槛由本次用户确认覆盖；本次验收不代表完整 335 组视觉复核。未提交或推送。
 
-2026-09-20 启动同步复核：生产 React 登录保护路由已接入已保存配置的自动恢复、前台轮询和切回页面检查。此前恢复逻辑只在未被生产入口使用的 Vue `App.vue` 中，因此新版页面每次启动都会留在本地模式。`npm run build` 通过；线上连接恢复仍需在用户配置的同步服务上实测。
-
-验收：所有生产路由、登录、设置、导入导出、同步和边缘模块均无 Vue 运行时依赖；删除每批兼容代码后全量测试与构建通过。
+验收：生产入口为 Vue，React runtime 清理完成；功能、响应式、键盘/焦点、持久化及全测试/构建/IDB/浏览器门禁通过；已知纯外观差异经用户确认接受。
 
 ### OW-07 页面与领域编排拆分
 
-继续拆分大型 `src/react/App.tsx` 和页面文件，将路由、壳层、页面状态、展示组件和 Application Use Case 分离；同时评估扩展模块的按需样式/资源拆分，不改变领域模型和现有 URL。
+继续拆分 `src/App.vue`、`src/vue/shell/AppShell.vue` 与大型页面组件，将路由、壳层、页面状态、展示组件和 Application Use Case 分离；同时评估扩展模块的按需样式/资源拆分，不改变领域模型和现有 URL。
 
 2026-08-29 已完成九刀：将所有 React 懒加载页面注册集中到 `src/react/lazy-pages.ts`，将工作台壳层、搜索弹层、共享 `Button`、页面头部和焦点陷阱分别收口到 `src/react/AppShell.tsx` 与 `src/react/ui.tsx`，将路由树、兼容重定向和 Suspense 边界收口到 `src/react/routes.tsx`，将登录、保护路由、旧 Case 重定向和占位页收口到 `src/react/route-views.tsx`，并将旧 Today、Capture、Matters、Review、MatterDetail 页面状态分别移到 `src/react/pages/LegacyTodayPage.tsx`、`src/react/pages/LegacyCapturePage.tsx`、`src/react/pages/MattersPage.tsx`、`src/react/pages/ReviewPage.tsx` 与 `src/react/pages/MatterDetailPage.tsx`；`App.tsx` 保留启动、守卫、页面节点装配和兼容导出，URL、兼容重定向、Suspense 边界和按需加载行为不变。下一刀继续拆出剩余页面状态，仍需避免循环依赖和重复监听。
 
@@ -98,6 +100,8 @@
 ### OW-09 品牌与存储键长期迁移
 
 制定 `beryl-*` 存储键、事件名、包名和用户可见文案的兼容读取与渐进迁移方案。禁止直接改名导致旧用户数据丢失；迁移完成前保留兼容读取和可验证回滚。
+
+范围澄清：OW-09 负责既有键名/品牌兼容和旧业务集合迁移；它不定义 Portable Vault 格式，也不授权直接让 localStorage 退役。localStorage → IndexedDB 的逐集合对账须按 OW-23 的数据所有权与 durable 迁移约束执行。
 
 ### OW-10 真实试点与指标验证
 
@@ -143,9 +147,47 @@
 
 ## P2：受控扩展能力
 
+### OW-22 主数据中心与实体引用系统
+
+根据 D-019 建立主数据一级入口，集中管理句子、人物等可复用内容素材，并逐步提供按模块隔离的系统字典与可配置状态。产品规则见[主数据与实体引用设计](MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md)。
+
+- **状态**：`in_progress`
+- **日期**：2026-09-24
+- **范围**：首批先打通主数据管理页、句子素材和现有人物集合；引用交互采用 Combobox 快选 → 右侧 Drawer 浏览 → 快速新建并自动关联，已选实体显示类型化 Chip/预览。然后在收集、日记、回顾等高频入口验证；后续逐模块接入关系字段和字典。
+- **数据边界**：人物优先保留 `b_chars` 和既有 ID；实体关系保存稳定 ID，不复制名称作为关系。正文插入保留当时内容快照，并可用来源 ID 溯源。字典项停用而非硬删除；允许模块状态自定义前，必须兼容领域状态机和历史数据。
+- **当前进度（2026-09-24）**：已新增一级路由和管理页；句子素材复用统一 Resource Repository，人物页嵌入现有 Person 数据；Combobox、Drawer 和实体 Chip 已实现，并已接入 Capture 原文与 Diary 文本框，可在光标/选区插入当前句子快照。已针对 Drawer 快速新建查询丢失增加回归覆盖。尚未实现跨业务关系字段、插入来源 ID 溯源、系统字典及可配置状态；这些仍是 OW-22 后续阶段。
+- **2026-09-24 验收补充**：增加现有人物稳定 ID/单一 Repository 回归、句子素材创建与空值校验/归档测试、Picker Escape 关闭测试，以及 Diary 实际光标插入并在素材更新后保持原文快照的测试。定向主数据测试通过；首批 Capture、Diary 的端到端移动端与真实浏览器验收仍未完成。
+- **阶段**：1) 主数据入口、素材管理和兼容 Repository（本地实现完成，需持续验收）；2) 轻量 Picker/Drawer/Quick Create 与少数写作入口（首批 Capture、Diary 已接入，需端到端/移动端验收）；3) 通用类别/标签/来源字典；4) 逐模块状态字典、扩展实体展示、最近/收藏和更广覆盖。
+- **验收**：新一级入口不挤占日常主线；句子和人物可新增、搜索、编辑、停用且本地持久化；现有人物 ID 与旧路由仍有效；引用可键盘操作、可预览、可快速创建；历史文本和已引用记录不被素材修改或停用破坏；状态选项按模块隔离，并在不改变既有领域转换规则的前提下逐步开放；备份恢复、离线和同步无静默丢失。
+- **停止线**：如果为引用而要求用户先建立完整分类、强制经过弹窗或在所有表单同时增加字段，则缩减接入面；若可配置状态无法在现有领域命令和历史数据中安全表达，则先支持可改文案/排序/停用的原状态集合，不开放破坏转换约束的新状态。
+
+### OW-23 开放数据与 Portable Vault
+
+根据 D-020 评估并分阶段交付用户可持有的开放文件表达；完整产品目标、当前能力矩阵、拟议格式与停止线见[开放数据与 Portable Vault 架构设计](CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md)。这是规划任务，文档落地不表示目录同步或全域迁移已开始/完成。
+
+- **状态**：`in_progress`
+- **日期**：2026-09-24
+- **边界**：保持 IndexedDB/Repository 当前本地 durable 权威、D1 同步节点和 JSON 完整备份职责；保留 Open Format v1 读取兼容与 v2 新格式、`_calmy/manifest.json`、稳定 ID、Vault 差异预览与兼容路由。基础 Web 模式不强制授予文件夹权限；localStorage 目前仍有兼容业务数据。对象存储连接不等于已完成独立附件对象系统。
+- **阶段**：1) 审计长期资产、运行数据、Repository、键、格式和附件当前覆盖；2) 冻结现有 Open Format v1 的实体范围、关系/Schema 表达、路径/Manifest/tombstone/附件边界和不兼容变化规则；3) 以代表性真实样本验证导出、外部编辑、回导和错误恢复；4) 验证增量写入、权限恢复、冲突审阅、外部变化扫描和中断恢复；5) 在证据支持后逐集合迁移旧存储，并重新评估 D1 与附件对象存储分工；6) 状态真实可测后再建设所有权/健康界面。
+- **2026-09-24 阶段 1 代码盘点**：已把现有 Repository/实体覆盖、旧业务键、IndexedDB 与 localStorage 边界、Open Format/Vault、D1/S3 和 JSON Backup 证据汇总到设计文档 §1.2。发现 Core Asset 元数据与实际附件二进制存储不同，S3 `beryl-data.json` 不是独立附件对象系统。此前 `b_openAssets` 未纳入 JSON Backup 与键级云同步；现已加入 JSON Backup 白名单，并覆盖备份序列化/解析与隔离 Chrome profile 中 IndexedDB durable restore，键级云同步仍不包含它。真实用户目录和大型备份性能仍待验收；后续必须验证开放文件与云端附件职责，不得把当前 Vault 文件夹功能描述为全资产完整可移植。
+- **2026-09-24 阶段 2 基线冻结**：保持 `format_version: 1` / `b_version: 1` 不变，设计文档 §6.1 明确现有 17 种 OpenEntity 类型、稳定 ID、可读字段与旧 `payload_json` 的兼容关系、Manifest、tombstone、二进制附件与 Core Asset 元数据的区别，以及未知字段和不兼容升级的停止线。`unified-open-format.test.ts` 已将统一 Core `Asset` 纳入全部 13 种类型的 Markdown 可读字段往返回归。未进行真实目录/用户数据验证，也没有声称所有长期资产已被 Vault 覆盖。
+- **2026-09-29 兼容模型格式扩展**：现实社交数据模型需要新增的实体类型无法由旧 v1 读取器识别，因此 Open Format 升为 v2，读取器双读 v1/v2；v1 字段契约仍保留，Matter/Thing 仍经稳定 ID 和单一 Matter 仓储往返。详见数据设计文档 §6.2。v2 尚未在真实用户 Vault 目录执行迁移或外部编辑恢复演练。
+- **2026-09-24 阶段 3 合成 Vault 流程验证**：以隔离的文件系统适配器测试目录模拟 Markdown 和二进制文件被外部编辑，覆盖旧 manifest hash 漂移、实体/附件显式冲突决策和写回后重新扫描；修正了有效编辑被 hash 校验一律阻断、Vault 读回附件丢失 manifest MIME 导致未变附件误报冲突的问题。另补写入故障回归：实体/附件文件写入失败时保留旧 manifest、不推进为部分结果。管理页现将 hash 漂移列入扫描提示，并展示附件冲突/Vault 独有附件的决策控件。它们是合成回归，不代表在用户目录、真实浏览器 File System Access API 或 Obsidian 上已验收。
+- **2026-09-24 附件备份恢复验证**：`npm run test:idb` 使用临时 Chrome profile 和真实浏览器 IndexedDB，验证 `b_openAssets` 经 JSON-safe backup → `parseBackup` → `lsSet` → pending write flush 后，字节与 MIME 可从 durable KV snapshot 读回；测试结束会清理临时 profile。它不覆盖管理页文件选择导入 UI、用户真实备份的大体积/配额，也不代表用户目录数据已恢复。
+- **2026-09-24 浏览器 OPFS Vault 往返与句柄重启验证**：`npm run test:idb` 在隔离临时 Chrome profile 中，通过真实 Chromium OPFS `FileSystemDirectoryHandle` 运行生产 `createFileSystemVaultAdapter`，完成 Matter 与二进制附件导出、直接文件句柄外部编辑、Manifest/hash 漂移提示、实体与附件冲突显式 `keep-vault`、重新扫描及 Markdown/字节/MIME 读回；随后将 OPFS 句柄结构化克隆到 IndexedDB，关闭并重新启动 Chrome 进程，再取回句柄、检查 OPFS 权限并读回 Vault。临时 OPFS 目录和 profile 在验证后清理。此证据验证浏览器句柄持久化机制，但 OPFS 并非用户选取的普通磁盘目录，不能证明 File System Access Picker 授权恢复、真实用户目录权限或 Obsidian 联调。
+- **2026-09-24 合成多附件备份往返**：隔离 Chrome/IndexedDB 中将 4 个共 16 MiB 二进制附件转成 JSON-safe Base64，经 durable backup → JSON 序列化/解析 → `parseBackup`，逐个核对 MIME、路径、解码长度和首尾字节，再清理测试键。本机单次导出 JSON 字符串为 22,370,102 字符，当前 smoke 检查约 156 ms；此数值只作当前环境的测试基线，不推断设备性能或浏览器配额上限，也未覆盖更大/更多附件、用户备份下载或文件导入 UI。
+- **2026-09-24 Vault 句柄恢复实现**：用户在管理页主动选择 Vault 后，目录句柄保存至独立 IndexedDB；启动只查询读写权限，不主动请求权限；权限为 prompt/denied 时显示用户触发的“恢复 Vault 授权”；拒绝恢复时 Vault 仍不可扫描/写入；断开和完整本地重置清除保存句柄。`admin-vault-review.test.ts` 验证保存、显式断开、启动不请求权限、手动恢复和用户拒绝后的禁用状态；隔离 Chrome 实际 IndexedDB/OPFS 测试跨浏览器进程重启读取句柄、确认权限并回读文件，且清除测试句柄。由于 OPFS 授权特性不同，这仍未证明用户选取的普通磁盘目录权限恢复。
+- **2026-09-24 OPFS 写入失败恢复验证**：在真实 Chromium OPFS 目录上先写入已提交版本，再注入附件文件写入失败；确认实体 Markdown 部分更新时 manifest 保持旧版本并暴露 hash 漂移提示，修复写入后重试可恢复到无 issue 的新快照。此为适配器级故障注入，不等同于断电/浏览器崩溃或普通磁盘设备故障演练。
+- **下一步**：以专用、可丢弃目录实测 File System Access Picker 授权、页面/浏览器重启后真实目录权限及撤销/拒绝路径；另需用多附件/更大数据集做受控容量测试，并验证管理页备份文件导入交互。键级云同步仍不包含二进制资产；对象存储分工留待独立验证。
+- **依赖关系**：与 OW-09（品牌/旧键兼容）、OW-13（Obsidian Companion Bridge 联调）、OW-19（飞书外部数据源）保持边界清晰；格式决策需兼容现有 Open Format/Vault Adapter，不可把飞书、Obsidian、S3 或 D1 任一者升格为唯一用户数据容器。
+- **验收**：核心承诺范围的实体、稳定 ID、关系、附件、删除墓碑和 Schema 可解释地往返；单实体修改只更新必要文件；hash/Manifest 与写入中断可检测恢复；外部编辑冲突不静默覆盖；目录权限、插件不可用、离线和云端失败不影响本地基础流程；导入/迁移失败保留原始数据并可回滚。
+- **停止线**：如果需强迫 Web 用户选目录、扫描无关私人文件、破坏既有 ID/路径、静默覆盖外部编辑、对全部 Markdown 全盘重扫作为常态、或只增加抽象层却未降低数据风险，则暂停并保留 Repository + 手动开放格式导入导出。
+
 ### OW-19 飞书多维表格数据源适配
 
 将飞书多维表格接入作为可配置的外部数据源，让 Calmy 提供飞书式表格/看板与更人性化的 Today、事项和复盘界面。第一阶段只覆盖用户现有 Base 的 `项目`、`任务`、`周报` 和 `成员` 边界，不改变当前本地 Repository 的事实源裁决。
+
+该任务是外部业务数据源试点，与 OW-23 的用户自持 Portable Vault 不同；飞书 Base 不自动成为用户开放文件、附件或完整恢复备份。
 
 当前代码已完成 Worker 侧适配层和 React `FeishuPage`：租户 Token 获取、配置状态、字段 schema、四张表的记录读取，以及任务新增和状态更新接口。真实 Base 已验证可读取 `项目`、`任务`、`周报`、`成员` 四张表；页面已按真实字段校准任务标题为 `任务`，并补齐自动分页。前端生产构建、Worker dry-run 与 6 项本地接口测试已通过，原 FlowPage 的类型收窄问题已修复。用户负责后续 Worker 与 Pages 部署；下一步是线上授权读取和受控真实写回验收，以及字段 ID 映射、字段变化检测与错误反馈。
 
@@ -219,9 +261,13 @@ Flow 目前已完成产品、UX、路线图和验收设计，但尚未作为完�
 
 协议、Local REST 适配和浏览器 Vault 相关切片已存在，但真实 Companion Bridge/MessagePort 外部联调仍受外部插件和环境限制。继续标记为实验/阻塞，不进入核心路径，不把协议测试写成真实服务已接通。
 
+边界：Vault Adapter/Open Format 是 OW-23 的开放文件接口；Companion Bridge 负责可选客户端间消息与用户确认，不另建实体格式、同步事实源或绕过 Repository 的写入通道。
+
 ### OW-14 共享空间与关系能力试点
 
 Shared Space、多人权限、协作撤回、审计和删除传播需要独立隐私评审与真实试点；在权限和撤回边界完整前，只保留兼容能力，不升级为默认产品入口。
+
+2026-09-29 数据模型实现切片：新增 Person 的可选 User 绑定、Matter 单事实源上的 Thing 投影与仓库门面、独立 Scene/SceneParticipant、SharedSpace 到 Space 的兼容投影、Domain/RelationDefinition 校验、Ownership/Scope/Permission 纯策略评估和跨来源只读历史投影。Open Format 改为 v2 表达 Thing 与新增 Core 类型，并继续读取 v1；Backup 与实体同步登记 Core 类型，并将单一 Matter/Thing 事实存储纳入同步。只读迁移审计覆盖 Matter/Thing 差异、ID 冲突、无效引用、账号关联/归属、Scope/Permission 和静态场景 ID 冲突。20 个聚焦与兼容回归文件 / 100 项通过，`npm run build` 通过。该切片没有运行真实数据迁移或远端授权，也没有交付邀请、成员管理、共享选择、撤回/删除传播 UI；账号绑定、权限模型与真实用户试点仍需单独验收，因此 OW-14 继续未完成。
 
 ## 已从活跃待办移除的内容
 
@@ -260,5 +306,9 @@ OW-04 → OW-21 纵向切片与语言验证
             ↓
       OW-08/OW-09 与旧对象兼容迁移
             ↓
-      根据 OW-21 结果重排 OW-10 至 OW-19
+      OW-23 Portable Vault 格式与往返阶段
+            ↓
+      OW-13 Bridge 联调按格式成熟度推进
+
+OW-19 飞书数据源试点独立推进，不替代 OW-23 的用户文件所有权目标。
 ```
