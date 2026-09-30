@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { desktopNavigationGroups, type DesktopNavigationGroupId } from '@/router/navigation'
+import { desktopNavigationGroupsForAdmin, type DesktopNavigationGroupId } from '@/router/navigation'
+import { readServerSession } from '@/core/auth'
 import NavigationPageIcon from './NavigationPageIcon.vue'
 
 const props = defineProps<{ activePath: string; collapsed: boolean; directoryOpen?: boolean }>()
+const desktopNavigationGroups = desktopNavigationGroupsForAdmin(readServerSession()?.user.role === 'admin')
 const emit = defineEmits<{
   navigate: [path: string]
   toggle: []
@@ -100,7 +102,7 @@ function openSearch(): void {
           aria-controls="secondary-navigation"
           @click="toggleGroup(group.id, $event)"
         >
-          <i aria-hidden="true"><svg viewBox="0 0 24 24"><template v-if="group.id === 'daily'"><path d="m4 10 8-6 8 6v9H5v-9"/><path d="M9 19v-6h6v6"/></template><template v-else-if="group.id === 'work'"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M9 6V4h6v2M4 11h16"/></template><template v-else-if="group.id === 'records'"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></template><template v-else-if="group.id === 'understanding'"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3.5 19c.6-3.6 2.1-5.4 4.5-5.4s3.9 1.8 4.5 5.4M14 14c2.8-.7 4.7.7 5.6 4"/></template><template v-else-if="group.id === 'daily-tools'"><path d="m14.5 5.5 4 4M4 20l5.5-1.5L19 9l-4-4-9.5 9.5z"/><path d="m12 8 4 4"/></template><template v-else-if="group.id === 'experiments'"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M8 15h8"/></template><template v-else><circle cx="12" cy="8" r="4"/><path d="M5 21c.8-4.4 3.1-6.6 7-6.6s6.2 2.2 7 6.6"/></template></svg></i>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><template v-if="group.id === 'daily'"><path d="m4 10 8-6 8 6v9H5v-9"/><path d="M9 19v-6h6v6"/></template><template v-else-if="group.id === 'work'"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M9 6V4h6v2M4 11h16"/></template><template v-else-if="group.id === 'records'"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></template><template v-else-if="group.id === 'understanding'"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="7" r="2"/><path d="M3.5 19c.6-3.6 2.1-5.4 4.5-5.4s3.9 1.8 4.5 5.4M14 14c2.8-.7 4.7.7 5.6 4"/></template><template v-else-if="group.id === 'daily-tools'"><path d="m14.5 5.5 4 4M4 20l5.5-1.5L19 9l-4-4-9.5 9.5z"/><path d="m12 8 4 4"/></template><template v-else-if="group.id === 'experiments'"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M8 15h8"/></template><template v-else-if="group.id === 'system'"><path d="m12 3 8 3v5c0 5-3.4 8.3-8 10-4.6-1.7-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/></template><template v-else><circle cx="12" cy="8" r="4"/><path d="M5 21c.8-4.4 3.1-6.6 7-6.6s6.2 2.2 7 6.6"/></template></svg></i>
           <span>{{ group.label }}</span><svg class="group-disclosure" :class="{ 'is-open': openGroupId === group.id }" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
         </button>
       </nav>

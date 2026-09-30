@@ -35,20 +35,25 @@ export interface FeatureNavigationGroup {
   items: readonly FeatureNavigationItem[]
 }
 
-export const featureNavigationGroups: readonly FeatureNavigationGroup[] = featureNavigationGroupMeta.map(group => ({
-  id: group.id,
-  label: group.label,
-  items: appPageRegistry
-    .filter(page => page.navigation?.kind === 'feature' && page.navigation.groupId === group.id)
-    .sort((left, right) => {
-      const leftOrder = left.navigation?.kind === 'feature' ? left.navigation.order : 0
-      const rightOrder = right.navigation?.kind === 'feature' ? right.navigation.order : 0
-      return leftOrder - rightOrder
-    })
-    .flatMap(page => page.navigation?.kind === 'feature'
-      ? [{ icon: page.navigation.icon, label: page.navigation.label, path: page.path }]
-      : []),
-}))
+export function featureNavigationGroupsForAdmin(isAdmin: boolean): readonly FeatureNavigationGroup[] {
+  return featureNavigationGroupMeta.map(group => ({
+    id: group.id,
+    label: group.label,
+    items: appPageRegistry
+      .filter(page => page.navigation?.kind === 'feature' && page.navigation.groupId === group.id && (!page.adminOnly || isAdmin))
+      .sort((left, right) => {
+        const leftOrder = left.navigation?.kind === 'feature' ? left.navigation.order : 0
+        const rightOrder = right.navigation?.kind === 'feature' ? right.navigation.order : 0
+        return leftOrder - rightOrder
+      })
+      .flatMap(page => page.navigation?.kind === 'feature'
+        ? [{ icon: page.navigation.icon, label: page.navigation.label, path: page.path }]
+        : []),
+  })).filter(group => group.items.length > 0)
+}
+
+/** Admin-inclusive navigation inventory retained for static navigation consumers. */
+export const featureNavigationGroups = featureNavigationGroupsForAdmin(true)
 
 export type DesktopNavigationGroupId = 'daily' | FeatureNavigationGroupId
 
@@ -58,11 +63,14 @@ export interface DesktopNavigationGroup {
   items: readonly FeatureNavigationItem[]
 }
 
-export const desktopNavigationGroups: readonly DesktopNavigationGroup[] = [
-  {
-    id: 'daily',
-    label: '日常',
-    items: primaryNavigation.map(({ icon, label, path }) => ({ icon, label, path })),
-  },
-  ...featureNavigationGroups,
-]
+export function desktopNavigationGroupsForAdmin(isAdmin: boolean): readonly DesktopNavigationGroup[] {
+  const featureGroups = featureNavigationGroupsForAdmin(isAdmin)
+  return [
+    {
+      id: 'daily',
+      label: '日常',
+      items: primaryNavigation.map(({ icon, label, path }) => ({ icon, label, path })),
+    },
+    ...featureGroups,
+  ]
+}

@@ -22,6 +22,7 @@ const pageComponents: Record<string, () => Promise<unknown>> = {
   calendar: () => import('@/vue/pages/CalendarPage.vue'),
   people: () => import('@/vue/pages/PeoplePage.vue'),
   masterData: () => import('@/vue/pages/MasterDataPage.vue'),
+  userManagement: () => import('@/vue/pages/UserAdminPage.vue'),
   library: () => import('@/vue/pages/LibraryPage.vue'),
   graph: () => import('@/vue/pages/GraphPage.vue'),
   inbox: () => import('@/vue/pages/InboxPage.vue'),
@@ -83,6 +84,7 @@ function appChildRoute(route: (typeof appRouteDefinitions)[number]): RouteRecord
       description: page?.description || '',
       archetype: page?.archetype,
       shell: page?.shell || 'app',
+      adminOnly: page?.adminOnly || false,
     },
   }
 }
@@ -93,6 +95,7 @@ const router = createRouter({
     { path: '/', redirect: () => readSession() ? '/app/today' : '/login' },
     { path: '/login', name: 'login', component: () => import('@/vue/pages/LoginPage.vue') },
     { path: '/pass', name: 'pass', component: () => import('@/vue/pages/PassPage.vue') },
+    { path: '/vault', name: 'vault', component: () => import('@/vue/pages/VaultPage.vue') },
     {
       path: '/app',
       name: 'app',
@@ -105,7 +108,7 @@ const router = createRouter({
         path: page.path,
         name: page.id,
         component: pageComponents[page.viewKey] || pendingPage,
-        meta: { pageId: page.id, title: page.title, description: page.description || '', archetype: page.archetype, shell: page.shell },
+        meta: { pageId: page.id, title: page.title, description: page.description || '', archetype: page.archetype, shell: page.shell, adminOnly: page.adminOnly || false },
       })),
     { path: '/:pathMatch(.*)*', redirect: () => readSession() ? '/app/today' : '/login' },
   ],
@@ -115,6 +118,9 @@ router.beforeEach(async (to, from) => {
   const session = readSession()
   const isAppRoute = to.path.startsWith('/app') || to.path === '/scene'
   if (isAppRoute && !session) return { path: '/login', replace: true }
+  if ((isAppRoute || to.path === '/vault' || to.path === '/pass') && !session) return { path: '/login', replace: true }
+  if (isAppRoute && session?.mustChangePassword) return { path: '/pass', query: { mode: 'first' }, replace: true }
+  if (to.meta.adminOnly && session?.user?.role !== 'admin') return { path: '/app/today', replace: true }
 
   if (to.path === '/pass' && (from.path === '/app/admin' || from.path === '/app/admin/advanced')) {
     return { path: '/app/today', replace: true }

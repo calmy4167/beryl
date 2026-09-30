@@ -14,7 +14,7 @@ import './styles/shared/tactile-ui.css'
 import './styles/controls.css'
 import App from './App.vue'
 import router from './router'
-import { initDb, readKvSnapshot } from './core/db'
+import { initDb, readKvSnapshot, selectDbAccount } from './core/db'
 import { hydrateStoreCache } from './core/storage'
 import { migrateData } from './core/migrate'
 import { purgeCorruptedEncryptedKeys } from './core/sync'
@@ -22,6 +22,9 @@ import { setModuleRealityReader } from './core/modules'
 import { listRealityDocuments, type RealityEntityType } from './domain/reality'
 import { ensureLegacyMigration } from './domain/legacy/migration'
 import { applyBackgroundPreferences } from './ui/theme-preferences'
+import { restoreSession } from './core/api/auth'
+import { apiBaseUrl } from './core/api/base-url'
+import { hasUnlockedVault } from './core/vault-keys'
 
 setModuleRealityReader(type => listRealityDocuments({ types: [type as RealityEntityType] }))
 
@@ -42,15 +45,23 @@ document.documentElement.classList.add('tactile-ui')
 applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
 
 async function bootstrap() {
-  await initDb()
-  // 让挂载后的同步 Repository 优先读 IndexedDB 持久快照；不可用时由 storage 自己回退到 localStorage。
-  hydrateStoreCache(await readKvSnapshot())
-  // 数据迁移必须在持久快照 hydrate 后执行，避免用过期 localStorage 覆盖 IndexedDB 主读取路径。
-  migrateData()
-  // 清除本地密文残留（历史同步 bug 写入的密文字符串，幂等安全）
-  purgeCorruptedEncryptedKeys()
-  // 旧 Case/Task/inbox 只做增量复制，原集合保持不变以支持回滚；新入口从此不再写旧模型。
-  await ensureLegacyMigration()
+  let session = null
+  if (apiBaseUrl()) session = await restoreSession(apiBaseUrl())
+  if (session && !session.mustChangePassword && await hasUnlockedVault(session.user.id)) {
+    selectDbAccount(session.user.id)
+    await initDb()
+    hydrateStoreCache(await readKvSnapshot())
+    migrateData()
+    purgeCorruptedEncryptedKeys()
+    await ensureLegacyMigration()
+  } else {
+    // Never hydrate the old shared local database before a server identity is validated.
+    selectDbAccount(null)
+    hydrateStoreCache({})
+    if (session?.mustChangePassword) window.location.hash = '#/pass?mode=first'
+    else if (session) window.location.hash = '#/vault'
+    else window.location.hash = '#/login'
+  }
   app.mount('#app')
 }
 

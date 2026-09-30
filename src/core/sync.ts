@@ -13,6 +13,7 @@ import { SCENES, currentSceneId } from './scenes.ts'
 import { readChanges, DEVICE_ID, dbMirrorDelete, dbMirrorPut, getDbStatus, readDbMeta, writeDbMeta } from './db.ts'
 import { encryptValue, decryptValue } from './crypto.ts'
 import { apiFetch } from './api/client.ts'
+import { readServerSession } from './auth.ts'
 import { syncEntityData } from './entity-sync'
 
 export interface S3Cfg { endpoint: string; bucket: string; region: string; ak: string; sk: string; key: string; updatedAt: number }
@@ -656,6 +657,7 @@ export async function pollCheck() {
 
 /* ---------- 立即同步（双向：先拉后推；两端都有改动弹窗选择） ---------- */
 export async function syncNow() {
+  if (readServerSession()) throw new Error('legacy-global-sync-disabled')
   try {
     if (sync.mode === 'cloud' && sync.cloud) {
       const r = await cloudPullAll({ ts: 0, device: '', key: '' })
@@ -776,6 +778,7 @@ export async function syncNow() {
 
 /* ---------- 连接 ---------- */
 export async function cloudConnect(url: string, key: string): Promise<boolean> {
+  if (readServerSession()) { sync.lastError = '旧版全局同步协议已停用，请使用当前账号的 Vault 同步'; return false }
   if (sync.mode === 'file' || sync.mode === 's3') disconnect()
   sync.cloud = { url: url.replace(/\/+$/, ''), key, updatedAt: 0 }
   sync.phase = 'syncing'
@@ -843,6 +846,7 @@ export async function cloudConnect(url: string, key: string): Promise<boolean> {
   }
 }
 export async function s3Connect(cfg: S3Input): Promise<boolean> {
+  if (readServerSession()) { sync.lastError = '账号 Vault 不支持旧版 S3 明文同步'; return false }
   if (sync.mode === 'file' || sync.mode === 'cloud') disconnect()
   sync.s3 = { ...cfg, key: 'beryl-data.json', updatedAt: 0 }
   try {
@@ -865,6 +869,7 @@ export async function s3Connect(cfg: S3Input): Promise<boolean> {
   }
 }
 export async function fileConnect(h: FileSystemFileHandle): Promise<boolean> {
+  if (readServerSession()) { sync.lastError = '账号 Vault 不支持旧版明文文件同步'; return false }
   if (sync.mode === 'cloud' || sync.mode === 's3') disconnect()
   fileHandle = h
   try {
@@ -907,6 +912,7 @@ export function disconnect() {
 
 /* ---------- 启动恢复（自动重连已保存配置；刷新即同步） ---------- */
 export async function restoreSync() {
+  if (readServerSession()) return
   const cfg = safeParse<{ url: string; key: string }>(lsGet('b_cloud'))
   if (cfg && typeof cfg.url === 'string' && typeof cfg.key === 'string') {
     const apiUrl = preferredCloudUrl(cfg.url)

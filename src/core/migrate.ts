@@ -16,8 +16,8 @@ interface Migration {
 const MIGRATIONS: Record<number, Migration> = {
   1: { desc: 'v1→v2：引入版本号，数据结构无变化', run: () => { /* noop */ } },
   2: {
-    desc: 'v2→v3：b_auth 改为 PBKDF2 哈希格式（旧明文由 ensureAuth 惰性升级）',
-    run: () => { /* ensureAuth 惰性处理 */ }
+    desc: 'v2→v3：旧本地登录凭据已退出身份系统；账号由服务端管理',
+    run: () => { /* local auth is intentionally not migrated as an identity */ }
   },
   3: {
     desc: 'v3→v4：标量键统一 JSON 字符串存储（safeParse 兼容新旧格式）',

@@ -1,10 +1,13 @@
-const DB_NAME = 'calmy-feishu-cache'
+import { getActiveAccount } from '../account-context'
+
 const DB_VERSION = 1
 const SNAPSHOTS = 'snapshots'
 
 let dbPromise: Promise<IDBDatabase> | null = null
 
 function openCacheDb(): Promise<IDBDatabase> {
+  const userId = getActiveAccount()
+  if (!userId) return Promise.reject(new Error('user-account-required'))
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') {
@@ -12,7 +15,7 @@ function openCacheDb(): Promise<IDBDatabase> {
       reject(new Error('IndexedDB 不可用'))
       return
     }
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
+    const request = indexedDB.open(`calmy-feishu-cache-${encodeURIComponent(userId)}`, DB_VERSION)
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(SNAPSHOTS)) request.result.createObjectStore(SNAPSHOTS)
     }

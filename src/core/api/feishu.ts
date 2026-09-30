@@ -4,16 +4,12 @@ export type FeishuTableKey = 'projects' | 'tasks' | 'reviews' | 'members'
 
 export interface FeishuClientConfig {
   baseUrl: string
-  syncKey: string
 }
 
 async function request<T>(config: FeishuClientConfig, path: string, init: RequestInit = {}): Promise<T> {
   const response = await apiFetch(config.baseUrl, path, {
     ...init,
-    headers: {
-      Authorization: `Bearer ${config.syncKey}`,
-      ...(init.headers || {}),
-    },
+    headers: { ...(init.headers || {}) },
   })
   const payload = await response.json().catch(() => null) as T & { ok?: boolean; error?: string; message?: string } | null
   if (!response.ok || !payload || payload.ok === false || payload.error) throw new ApiError(payload?.message || payload?.error || `飞书请求失败（${response.status}）`, response.ok ? 502 : response.status)

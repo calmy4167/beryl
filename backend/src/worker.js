@@ -1,7 +1,11 @@
 import { authorized, hashPassword } from './lib/auth.js';
 import { corsHeaders, json } from './lib/http.js';
-import { ensureSchema, getAuthHash, maxTs } from './lib/d1.js';
+import { ensureSchema, getAuthHash, legacySyncEnabled, maxTs } from './lib/d1.js';
 import { handleEntityPull, handleEntityPush, handleSyncPull, handleSyncPush } from './routes/sync.js';
+import { handleBootstrap, handleCurrentSession, handleLogin, handleLogout, handlePasswordChange, handleRefresh } from './routes/auth.js';
+import { handleCreateUser, handleListUsers, handleResetUserPassword, handleSetUserStatus } from './routes/users.js';
+import { handleLegacyExport, handleLegacyMigrationComplete, handleLegacyStatus } from './routes/legacy-migration.js';
+import { handleGetUserKey, handlePutUserKey, handleVaultPull, handleVaultPush } from './routes/vault.js';
 import { handleFeishuRecordCreate, handleFeishuRecordUpdate, handleFeishuRecords, handleFeishuSchema, handleFeishuStatus } from './routes/feishu.js';
 
 /**
@@ -16,8 +20,8 @@ import { handleFeishuRecordCreate, handleFeishuRecordUpdate, handleFeishuRecords
  *   1. Cloudflare → Workers & Pages → D1 → 创建数据库（如 beryl-d1）
  *   2. Worker → Settings → Bindings → D1：变量名 BERYL_D1 → 选择 beryl-d1
  *   3. 部署 Worker → 完成
- *   4. 首次设置同步密码（仅一次）：
- *        Invoke-RestMethod -Method Post -Uri "https://<Worker 地址>/api/setup" -ContentType "application/json" -Body '{"password":"你的同步密码"}'
+ *   4. 首个管理员通过 CALMY_BOOTSTRAP_SECRET 调用 /api/auth/bootstrap 创建；
+ *      不要把该环境密钥写入 wrangler.toml 或提交到 Git。
  *   5. 当前版本已完成 KV 退役：D1 是唯一云端数据和认证来源。
  *
  * 协议（v2 阶段 3/4）：
@@ -51,10 +55,68 @@ export default {
       }
     }
 
+    if (p === '/api/auth/bootstrap' && request.method === 'POST') {
+      const r = await handleBootstrap(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/login' && request.method === 'POST') {
+      const r = await handleLogin(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/session' && request.method === 'GET') {
+      const r = await handleCurrentSession(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/refresh' && request.method === 'POST') {
+      const r = await handleRefresh(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/logout' && request.method === 'POST') {
+      const r = await handleLogout(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/password' && request.method === 'POST') {
+      const r = await handlePasswordChange(request, env); return respond(r.body, r.status || 200);
+    }
+
+    if (p === '/api/admin/users' && request.method === 'GET') {
+      const r = await handleListUsers(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/users' && request.method === 'POST') {
+      const r = await handleCreateUser(request, env); return respond(r.body, r.status || 200);
+    }
+    const userStatusMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/status$/);
+    if (userStatusMatch && request.method === 'PATCH') {
+      const r = await handleSetUserStatus(request, env, decodeURIComponent(userStatusMatch[1])); return respond(r.body, r.status || 200);
+    }
+    const userPasswordMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/reset-password$/);
+    if (userPasswordMatch && request.method === 'POST') {
+      const r = await handleResetUserPassword(request, env, decodeURIComponent(userPasswordMatch[1])); return respond(r.body, r.status || 200);
+    }
+
+    if (p === '/api/admin/legacy/export' && request.method === 'GET') {
+      const r = await handleLegacyExport(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/legacy/status' && request.method === 'GET') {
+      const r = await handleLegacyStatus(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/legacy/complete' && request.method === 'POST') {
+      const r = await handleLegacyMigrationComplete(request, env); return respond(r.body, r.status || 200);
+    }
+
+    if (p === '/api/vault/key' && request.method === 'GET') {
+      const r = await handleGetUserKey(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/vault/key' && request.method === 'PUT') {
+      const r = await handlePutUserKey(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/vault/sync/pull' && request.method === 'POST') {
+      const r = await handleVaultPull(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/vault/sync/push' && request.method === 'POST') {
+      const r = await handleVaultPush(request, env); return respond(r.body, r.status || 200);
+    }
+
     /* KV 退役前检查：只返回元数据，不返回 KV/D1 业务内容。 */
     if (p === '/api/kv-status' && request.method === 'GET') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
+      if (!(await legacySyncEnabled(env))) return respond({ error: 'identity-system-enabled' }, 410);
       if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
       const count = await env.BERYL_D1.prepare('SELECT COUNT(*) AS n FROM records').first();
       const auth = await env.BERYL_D1.prepare('SELECT COUNT(*) AS n FROM auth').first();
@@ -65,6 +127,7 @@ export default {
     if (p === '/api/setup' && request.method === 'POST') {
       if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
       await ensureSchema(env);
+      if (await env.BERYL_D1.prepare('SELECT user_id FROM users LIMIT 1').first()) return respond({ error: 'identity-system-enabled' }, 410);
       if (await getAuthHash(env)) return respond({ error: 'already-setup' }, 400);
       let body;
       try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }
@@ -91,6 +154,7 @@ export default {
       if (request.method === 'GET') {
         if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
+        if (!(await legacySyncEnabled(env))) return respond({ error: 'identity-system-enabled' }, 410);
         if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
         const { results } = await env.BERYL_D1.prepare(
           'SELECT key, value FROM records WHERE deleted = 0'
@@ -102,6 +166,7 @@ export default {
       if (request.method === 'PUT') {
         if (!env.BERYL_D1) return respond({ error: 'no-d1-binding' }, 500);
         await ensureSchema(env);
+        if (!(await legacySyncEnabled(env))) return respond({ error: 'identity-system-enabled' }, 410);
         if (!(await authorized(request, env, getAuthHash))) return respond({ error: 'unauthorized' }, 401);
         let body;
         try { body = await request.json(); } catch (e) { return respond({ error: 'bad-json' }, 400); }

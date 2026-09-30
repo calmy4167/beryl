@@ -6,6 +6,8 @@ export class ApiError extends Error {
   }
 }
 
+import { readServerSession } from '../auth'
+
 function endpoint(baseUrl: string, path: string): string {
   return baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
 }
@@ -13,8 +15,14 @@ function endpoint(baseUrl: string, path: string): string {
 export async function apiFetch(baseUrl: string, path: string, init: RequestInit = {}, timeoutMs = 12_000): Promise<Response> {
   const controller = new AbortController()
   const timer = window.setTimeout(() => controller.abort(), timeoutMs)
+  const headers = new Headers(init.headers)
+  const isPublicAuth = path === '/api/auth/login' || path === '/api/auth/bootstrap'
+  const session = !isPublicAuth ? readServerSession() : null
+  let targetOrigin = ''
+  try { targetOrigin = new URL(baseUrl).origin } catch { /* endpoint construction will fail as a network request */ }
+  if (session?.token && session.apiOrigin === targetOrigin && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${session.token}`)
   try {
-    return await fetch(endpoint(baseUrl, path), { ...init, signal: controller.signal })
+    return await fetch(endpoint(baseUrl, path), { ...init, headers, signal: controller.signal })
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw new ApiError('请求超时')
     throw new ApiError('无法连接云端，请检查网络、地址或跨域配置')

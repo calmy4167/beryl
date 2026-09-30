@@ -1,6 +1,6 @@
 import type { FileSystemDirectoryHandleLike } from './obsidian-adapter'
+import { getActiveAccount } from '../account-context'
 
-const DB_NAME = 'calmy-vault-handles'
 const DB_VERSION = 1
 const STORE_NAME = 'handles'
 const VAULT_KEY = 'primary'
@@ -14,9 +14,11 @@ export interface PersistableVaultDirectoryHandle extends FileSystemDirectoryHand
 }
 
 function openHandleDatabase(): Promise<IDBDatabase> {
+  const userId = getActiveAccount()
+  if (!userId) return Promise.reject(new Error('user-account-required'))
   if (typeof indexedDB === 'undefined') return Promise.reject(new Error('vault-handle-storage-unavailable'))
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
+    const request = indexedDB.open(`calmy-vault-handles-${encodeURIComponent(userId)}`, DB_VERSION)
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE_NAME)) request.result.createObjectStore(STORE_NAME)
     }

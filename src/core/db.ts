@@ -8,7 +8,8 @@
  * 启动时先恢复再镜像；写入先进入可恢复 outbox，再串行提交到 IndexedDB。
  * IndexedDB 暂不可用时不阻断页面，但会保留 outbox 并在下次启动重试。
  */
-const DB_NAME = 'beryl-db'
+import { accountDatabaseName, accountStorageKey, accountStoragePrefix, setActiveAccount } from './account-context.ts'
+
 const DB_VERSION = 3
 const KV = 'kv'
 const CHANGES = 'changes'
@@ -34,6 +35,11 @@ function getDeviceId(): string {
 }
 
 export const DEVICE_ID = getDeviceId()
+
+export function selectDbAccount(userId: string | null): void {
+  if (dbPromise) throw new Error('cannot-switch-account-after-db-open')
+  setActiveAccount(userId)
+}
 
 export type DbRuntimeState = 'cold' | 'recovering' | 'ready' | 'degraded'
 
@@ -68,9 +74,9 @@ let dbStatus: DbRuntimeStatus = {
 /** 为实体同步提供跨刷新、同设备单调递增的版本号。 */
 export function nextEntityVersion(now = Date.now()): number {
   let previous = 0
-  try { previous = Number(localStorage.getItem(ENTITY_VERSION_STORAGE_KEY)) || 0 } catch { /* memory-only fallback */ }
+  try { previous = Number(localStorage.getItem(accountStorageKey(ENTITY_VERSION_STORAGE_KEY))) || 0 } catch { /* memory-only fallback */ }
   const next = Math.max(now, previous + 1)
-  try { localStorage.setItem(ENTITY_VERSION_STORAGE_KEY, String(next)) } catch { /* memory-only fallback */ }
+  try { localStorage.setItem(accountStorageKey(ENTITY_VERSION_STORAGE_KEY), String(next)) } catch { /* memory-only fallback */ }
   return next
 }
 
@@ -78,7 +84,7 @@ interface PendingDbWrite { key: string; value?: string; deleted?: boolean; entit
 
 function readPendingWrites(): PendingDbWrite[] {
   try {
-    const raw = localStorage.getItem(OUTBOX)
+    const raw = localStorage.getItem(accountStorageKey(OUTBOX))
     const parsed = raw ? JSON.parse(raw) : []
     if (!Array.isArray(parsed)) return []
     return parsed.filter((item): item is PendingDbWrite => Boolean(item) && typeof item === 'object' && typeof item.key === 'string' && (item.deleted === true || typeof item.value === 'string'))
@@ -88,8 +94,8 @@ function readPendingWrites(): PendingDbWrite[] {
 function writePendingWrites(items: PendingDbWrite[]): void {
   dbStatus.pendingWrites = items.length
   try {
-    if (items.length) localStorage.setItem(OUTBOX, JSON.stringify(items))
-    else localStorage.removeItem(OUTBOX)
+    if (items.length) localStorage.setItem(accountStorageKey(OUTBOX), JSON.stringify(items))
+    else localStorage.removeItem(accountStorageKey(OUTBOX))
   } catch {
     dbStatus.lastError = 'outbox-write-failed'
   }
@@ -134,7 +140,7 @@ function openDb(): Promise<IDBDatabase> {
       reject(new Error('indexedDB unavailable'))
       return
     }
-    const req = indexedDB.open(DB_NAME, DB_VERSION)
+    const req = indexedDB.open(accountDatabaseName(), DB_VERSION)
     req.onupgradeneeded = () => {
       const db = req.result
       if (!db.objectStoreNames.contains(KV)) db.createObjectStore(KV)
@@ -230,8 +236,10 @@ export async function fullMirror(): Promise<void> {
   }
   try {
     const keys: string[] = []
+    const prefix = accountStoragePrefix()
     for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i)
+      const physical = localStorage.key(i)
+      const k = prefix ? (physical?.startsWith(prefix) ? physical.slice(prefix.length) : null) : physical
       if (k && k.startsWith('b_') && k !== OUTBOX) keys.push(k)
     }
     const existing = await new Promise<IDBValidKey[]>((resolve, reject) => {
@@ -244,7 +252,7 @@ export async function fullMirror(): Promise<void> {
     const kv = tx.objectStore(KV)
     const changes = tx.objectStore(CHANGES)
     keys.forEach(k => {
-      const v = localStorage.getItem(k)
+      const v = localStorage.getItem(accountStorageKey(k))
       if (v != null) kv.put(v, k)
     })
     existing.forEach(k => { if (!current.has(String(k))) kv.delete(k) })
@@ -374,10 +382,11 @@ function restorePendingWritesToLocalStorage(): number {
   let restored = 0
   for (const item of readPendingWrites()) {
     try {
+      const key = accountStorageKey(item.key)
       if (item.deleted) {
-        if (localStorage.getItem(item.key) != null) { localStorage.removeItem(item.key); restored++ }
-      } else if (localStorage.getItem(item.key) !== item.value) {
-        localStorage.setItem(item.key, item.value || '')
+        if (localStorage.getItem(key) != null) { localStorage.removeItem(key); restored++ }
+      } else if (localStorage.getItem(key) !== item.value) {
+        localStorage.setItem(key, item.value || '')
         restored++
       }
     } catch { /* ignore */ }
@@ -517,11 +526,12 @@ export async function restoreFromDb(): Promise<void> {
       if (typeof key !== 'string' || !key.startsWith('b_') || key === OUTBOX) return
       if (pending.has(key)) return
       try {
-        if (initialized && localStorage.getItem(key) !== value && value != null) {
-          localStorage.setItem(key, value)
+        const physical = accountStorageKey(key)
+        if (initialized && localStorage.getItem(physical) !== value && value != null) {
+          localStorage.setItem(physical, value)
           restored++
-        } else if (!initialized && localStorage.getItem(key) == null && value != null) {
-          localStorage.setItem(key, value)
+        } else if (!initialized && localStorage.getItem(physical) == null && value != null) {
+          localStorage.setItem(physical, value)
           restored++
         }
       } catch { /* ignore */ }
@@ -529,9 +539,10 @@ export async function restoreFromDb(): Promise<void> {
     if (initialized) {
       const durableKeys = new Set(all.map(item => item.key))
       for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i)
-        if (key?.startsWith('b_') && key !== OUTBOX && !durableKeys.has(key) && !pending.has(key)) {
-          localStorage.removeItem(key)
+        const physical = localStorage.key(i)
+        const key = physical ? (accountStoragePrefix() ? (physical.startsWith(accountStoragePrefix()!) ? physical.slice(accountStoragePrefix()!.length) : null) : physical) : null
+        if (physical && key?.startsWith('b_') && key !== OUTBOX && !durableKeys.has(key) && !pending.has(key)) {
+          localStorage.removeItem(physical)
           restored++
         }
       }
@@ -550,7 +561,7 @@ export async function clearDb(): Promise<void> {
     const tx = db.transaction([KV, CHANGES, META, ENTITY_CHANGES, PENDING_WRITES], 'readwrite')
     ;[KV, CHANGES, META, ENTITY_CHANGES, PENDING_WRITES].forEach(name => tx.objectStore(name).clear())
     await waitForTransaction(tx)
-    try { localStorage.removeItem(OUTBOX) } catch { /* ignore */ }
+    try { localStorage.removeItem(accountStorageKey(OUTBOX)) } catch { /* ignore */ }
     indexedPendingKeys.clear()
     dbStatus = { state: 'cold', available: false, pendingWrites: 0, restoredKeys: 0, lastMirrorAt: null, lastError: null }
   } catch { /* ignore */ }
@@ -569,6 +580,24 @@ export interface EntityChange {
   updatedAt: number
   device: string
   value?: unknown
+}
+
+export interface EntityChangeCursor { updatedAt: number; device: string; id: string }
+const EMPTY_ENTITY_CHANGE_CURSOR: EntityChangeCursor = { updatedAt: 0, device: '', id: '' }
+
+function compareEntityChangeCursor(change: EntityChange, cursor: EntityChangeCursor): number {
+  return change.updatedAt - cursor.updatedAt || change.device.localeCompare(cursor.device) || change.id.localeCompare(cursor.id)
+}
+
+export async function latestEntityChangeCursor(): Promise<EntityChangeCursor> {
+  const changes = await readEntityChanges(Number.MAX_SAFE_INTEGER)
+  const latest = changes.at(-1)
+  return latest ? { updatedAt: latest.updatedAt, device: latest.device, id: latest.id } : EMPTY_ENTITY_CHANGE_CURSOR
+}
+
+export async function readEntityChangesAfter(cursor: EntityChangeCursor, limit = 500): Promise<EntityChange[]> {
+  const changes = await readEntityChanges(Number.MAX_SAFE_INTEGER)
+  return changes.filter(change => compareEntityChangeCursor(change, cursor) > 0).slice(0, limit)
 }
 
 function buildEntityChanges(key: string, before: unknown, after: unknown): EntityChange[] {
@@ -694,7 +723,8 @@ export async function maxChangeSeq(): Promise<number> {
  */
 export async function recoverIfCleared(key: string): Promise<boolean> {
   try {
-    const cur = localStorage.getItem(key)
+    const physical = accountStorageKey(key)
+    const cur = localStorage.getItem(physical)
     if (cur !== '[]') return false // 当前不是空数组，无需恢复
     const changes = await readChanges(0, 2000)
     const hits = changes.filter(c => c.key === key)
@@ -703,7 +733,7 @@ export async function recoverIfCleared(key: string): Promise<boolean> {
     if (last.value !== '[]') return false // 最后写入的是非空数据，正常
     const prev = [...hits].reverse().find(c => c.value !== '[]')
     if (!prev || prev.value == null) return false
-    localStorage.setItem(key, prev.value)
+    localStorage.setItem(physical, prev.value)
     await fullMirror() // 恢复后同步镜像
     return true
   } catch {

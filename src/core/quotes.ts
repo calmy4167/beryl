@@ -1,3 +1,5 @@
+import { lsGet, lsSet } from './storage.ts'
+
 /* ============ 卡片墙数据层 ============
  * 层级：大卡片（QuoteGroup，容器）→ 小卡片（QuoteCard，内容项）。
  * 小卡类型注册表见 QuoteCard.vue；大卡只负责分组与布局，不感知小卡内部结构。
@@ -86,7 +88,7 @@ const PERSON_COLORS = ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#
 
 function localPersonCards(): QuoteCard[] {
   try {
-    const raw = localStorage.getItem('b_chars')
+    const raw = lsGet('b_chars')
     if (!raw) return []
     const list = JSON.parse(raw) as unknown
     if (!Array.isArray(list)) return []
@@ -153,7 +155,7 @@ export interface WallLayout {
 
 export function loadWallLayout(): WallLayout | null {
   try {
-    const raw = localStorage.getItem('b_wall_layout')
+    const raw = lsGet('b_wall_layout')
     if (!raw) return null
     const d = JSON.parse(raw) as WallLayout
     if (!d || !Array.isArray(d.orderKinds) || typeof d.spanByKind !== 'object') return null
@@ -164,7 +166,7 @@ export function loadWallLayout(): WallLayout | null {
 }
 
 export function saveWallLayout(l: WallLayout): void {
-  try { localStorage.setItem('b_wall_layout', JSON.stringify(l)) } catch { /* ignore */ }
+  try { lsSet('b_wall_layout', JSON.stringify(l)) } catch { /* ignore */ }
 }
 
 /* ---------- 温柔的随机：呈现层语料池 ---------- */

@@ -1,11 +1,19 @@
 import { authorized } from '../lib/auth.js'
 import { FeishuApiError, createFeishuRecord, feishuStatus, feishuWorkspaceId, listFeishuFields, listFeishuRecords, updateFeishuRecord } from '../lib/feishu.js'
-import { ensureSchema, getAuthHash } from '../lib/d1.js'
+import { ensureSchema, getAuthHash, legacySyncEnabled } from '../lib/d1.js'
+import { requireSession } from '../lib/session.js'
 
 async function guard(request, env) {
   if (!env.BERYL_D1) return { body: { error: 'no-d1-binding' }, status: 500 }
   await ensureSchema(env)
-  if (!(await authorized(request, env, getAuthHash))) return { body: { error: 'unauthorized' }, status: 401 }
+  if (await legacySyncEnabled(env)) {
+    if (!(await authorized(request, env, getAuthHash))) return { body: { error: 'unauthorized' }, status: 401 }
+  } else {
+    const actor = await requireSession(request, env)
+    if (actor.error) return { body: { error: actor.error }, status: actor.status }
+    if (actor.mustChangePassword) return { body: { error: 'password-change-required' }, status: 403 }
+    if (actor.role !== 'admin') return { body: { error: 'forbidden' }, status: 403 }
+  }
   return null
 }
 

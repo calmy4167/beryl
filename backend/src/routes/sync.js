@@ -1,9 +1,10 @@
 import { authorized } from '../lib/auth.js'
-import { ensureSchema, getAuthHash, maxTs } from '../lib/d1.js'
+import { ensureSchema, getAuthHash, legacySyncEnabled, maxTs } from '../lib/d1.js'
 
 async function guard(request, env) {
   if (!env.BERYL_D1) return { body: { error: 'no-d1-binding' }, status: 500 }
   await ensureSchema(env)
+  if (!(await legacySyncEnabled(env))) return { body: { error: 'identity-system-enabled' }, status: 410 }
   if (!(await authorized(request, env, getAuthHash))) return { body: { error: 'unauthorized' }, status: 401 }
   return null
 }

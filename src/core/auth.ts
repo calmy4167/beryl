@@ -1,69 +1,83 @@
 /* ---------- 认证与安全（平移 v1：PBKDF2 哈希 + 失败锁定 + 会话） ---------- */
-import { lsGet, lsSet, safeParse } from './storage.ts'
+import { lsSet, safeParse } from './storage.ts'
 
+/** Retained only to read/migrate old local records; never used to authenticate users. */
 export interface AuthRecord {
   u: string
   salt: string
   hash: string
   iter: number
-  _d?: boolean // 默认凭据标记（首次登录强制改密）
+  _d?: boolean
 }
 
-const enc = new TextEncoder()
-function toHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
-}
-function fromHex(s: string): Uint8Array {
-  const a = new Uint8Array(s.length / 2)
-  for (let i = 0; i < a.length; i++) a[i] = parseInt(s.substr(i * 2, 2), 16)
-  return a
+export interface ServerUser {
+  id: string
+  username: string
+  displayName: string
+  role: 'admin' | 'user'
 }
 
-async function pbkdf2(password: string, saltHex: string, iter: number): Promise<string> {
-  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'])
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: fromHex(saltHex), iterations: iter, hash: 'SHA-256' },
-    key, 256
-  )
-  return toHex(new Uint8Array(bits))
+export interface ServerSession {
+  token: string
+  apiOrigin: string
+  expiresAt: number
+  user: ServerUser
+  mustChangePassword: boolean
+  validatedAt: number
 }
 
-export async function createAuthRecord(u: string, p: string, isDefault: boolean): Promise<AuthRecord> {
-  const salt = crypto.getRandomValues(new Uint8Array(16))
-  const rec: AuthRecord = { u, salt: toHex(salt), hash: await pbkdf2(p, toHex(salt), 100000), iter: 100000 }
-  if (isDefault) rec._d = true
-  return rec
+const legacyEncoder = new TextEncoder()
+function legacyHex(bytes: Uint8Array): string { return Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('') }
+function legacyBytes(hex: string): Uint8Array { return Uint8Array.from(hex.match(/.{2}/g) || [], value => Number.parseInt(value, 16)) }
+async function legacyPasswordHash(password: string, salt: string, iterations: number): Promise<string> {
+  const input = await crypto.subtle.importKey('raw', legacyEncoder.encode(password), 'PBKDF2', false, ['deriveBits'])
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: legacyBytes(salt), iterations, hash: 'SHA-256' }, input, 256)
+  return legacyHex(new Uint8Array(bits))
 }
 
-/** 确保存在认证记录；旧版明文格式自动升级为默认凭据 */
+export async function createAuthRecord(u: string, password: string, isDefault = false): Promise<AuthRecord> {
+  const salt = legacyHex(crypto.getRandomValues(new Uint8Array(16)))
+  const result: AuthRecord = { u, salt, hash: await legacyPasswordHash(password, salt, 100_000), iter: 100_000 }
+  if (isDefault) result._d = true
+  return result
+}
+
+export async function verifyPassword(record: AuthRecord, password: string): Promise<boolean> {
+  try { return Boolean(record?.salt && record.iter && await legacyPasswordHash(password, record.salt, record.iter) === record.hash) }
+  catch { return false }
+}
+
+/** Local-only identity is retired; authentication must come from the Worker. */
 export async function ensureAuth(): Promise<AuthRecord> {
-  let rec = safeParse<AuthRecord>(lsGet('b_auth'))
-  if (!rec || typeof rec.hash !== 'string') {
-    rec = await createAuthRecord('calmy', 'cy2024', true)
-    lsSet('b_auth', JSON.stringify(rec))
-  }
-  return rec
-}
-
-export async function verifyPassword(rec: AuthRecord, p: string): Promise<boolean> {
-  if (!rec || !rec.salt || !rec.iter) return false
-  try { return (await pbkdf2(p, rec.salt, rec.iter)) === rec.hash } catch { return false }
+  throw new Error('server-auth-required')
 }
 
 /* ---------- 会话（记住登录 30 天） ---------- */
 export const SESSION_DAYS = 30
 
-export function writeSession(u: string): void {
-  lsSet('b_session', JSON.stringify({ u, ts: Date.now() }))
+export function writeSession(_u: string): void { clearSession() }
+
+export function writeServerSession(session: Omit<ServerSession, 'validatedAt'> & { validatedAt?: number }): void {
+  const value: ServerSession = { ...session, validatedAt: session.validatedAt || Date.now() }
+  try { localStorage.setItem('b_session', JSON.stringify(value)) } catch { /* session persistence failure is reported by login UI */ }
 }
 export function clearSession(): void {
-  lsSet('b_session', '')
+  try { localStorage.removeItem('b_session') } catch { lsSet('b_session', '') }
 }
-export function readSession(): { u: string; ts: number } | null {
-  const s = safeParse<{ u: string; ts: number }>(lsGet('b_session'))
-  if (!s || !s.u) return null
-  if (Date.now() - (s.ts || 0) > SESSION_DAYS * 86400000) { clearSession(); return null }
+export function readServerSession(): ServerSession | null {
+  const s = safeParse<ServerSession>(localStorageValue('b_session'))
+  if (!s || typeof s.token !== 'string' || !s.token || typeof s.apiOrigin !== 'string' || !s.apiOrigin || typeof s.user?.id !== 'string' || !s.user.id || !Number.isFinite(s.expiresAt)) return null
   return s
+}
+function localStorageValue(key: string): string | null {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+export function readSession(): ({ u: string; ts: number } & Partial<ServerSession>) | null {
+  const server = readServerSession()
+  if (server) return { u: server.user.username, ts: server.validatedAt, ...server }
+  // Local-only credentials belonged to the retired single-user prototype.
+  // They must never authorize access to a server-managed account.
+  return null
 }
 
 /* ---------- 失败锁定（5 次 30 秒） ---------- */

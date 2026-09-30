@@ -3,7 +3,8 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchAllAsync, type SearchResult } from '@/domain/search'
 import { setThemeMode } from '@/ui/theme-preferences'
-import { featureNavigationGroups, primaryNavigation } from '@/router/navigation'
+import { featureNavigationGroupsForAdmin, primaryNavigation } from '@/router/navigation'
+import { readServerSession } from '@/core/auth'
 import { closeWorkspaceTab, moveWorkspaceTab, readWorkspaceTabs, visitWorkspaceTab, writeWorkspaceTabs } from '@/router/workspace-tabs'
 import { vuePageRegistry } from '@/vue/page-registry'
 import PrimaryNav from './PrimaryNav.vue'
@@ -14,6 +15,8 @@ const route = useRoute()
 const router = useRouter()
 const currentPage = computed(() => vuePageRegistry.find(page => page.id === route.meta.pageId) ?? vuePageRegistry.find(page => route.path === page.path) ?? null)
 const currentTitle = computed(() => currentPage.value?.title ?? String(route.meta.title ?? '模块入口'))
+const isAdmin = readServerSession()?.user.role === 'admin'
+const featureNavigationGroups = computed(() => featureNavigationGroupsForAdmin(isAdmin))
 const activePath = computed(() => route.path)
 const activeNav = computed(() => currentPage.value?.navigation?.kind === 'primary' ? currentPage.value.navigation.key : currentPage.value?.id ?? 'today')
 const compact = ref(window.innerWidth <= 900)

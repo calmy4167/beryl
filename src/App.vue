@@ -1,50 +1,47 @@
 <script setup lang="ts">
 import { onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { readSession, ensureAuth } from '@/core/auth'
-import { restoreSync, startPolling, stopPolling, pollCheck } from '@/core/sync'
+import { apiBaseUrl } from '@/core/api/base-url'
+import { readServerSession } from '@/core/auth'
+import { syncVaultEntityData } from '@/core/entity-sync'
 
 const route = useRoute()
-let activeUser: string | null = null
+let timer: number | undefined
+let inFlight: Promise<void> | null = null
 let generation = 0
 
-function onVis() {
-  if (document.hidden) stopPolling()
-  else { startPolling(); void pollCheck() }
-}
-function onFocus() { startPolling(); void pollCheck() }
-function stopActive() {
-  document.removeEventListener('visibilitychange', onVis)
+function stopSync() {
+  generation++
+  if (timer) window.clearInterval(timer)
+  timer = undefined
+  inFlight = null
   window.removeEventListener('focus', onFocus)
-  if (activeUser) stopPolling()
-  activeUser = null
 }
+function runSync() {
+  if (inFlight) return inFlight
+  const current = generation
+  const baseUrl = apiBaseUrl()
+  if (!baseUrl) return Promise.resolve()
+  inFlight = syncVaultEntityData(baseUrl).then(() => undefined).catch(() => undefined).finally(() => {
+    if (generation === current) inFlight = null
+  })
+  return inFlight
+}
+function onFocus() { if (!document.hidden) void runSync() }
 
 watch(() => route.path, path => {
-  const session = readSession()
-  const protectedPage = path.startsWith('/app') || path === '/scene'
-  if (protectedPage && session && activeUser === session.u) return
-
-  const currentGeneration = ++generation
-  stopActive()
-  if (!protectedPage || !session) return
-
-  void ensureAuth().then(record => {
-    if (currentGeneration !== generation || record._d || record.u !== session.u) return
-    activeUser = session.u
-    void restoreSync()
-    startPolling()
-    document.addEventListener('visibilitychange', onVis)
-    window.addEventListener('focus', onFocus)
-  }).catch(() => { /* 同步仅在有效登录会话恢复后启动 */ })
+  stopSync()
+  const session = readServerSession()
+  if (!path.startsWith('/app/') || !session || session.mustChangePassword) return
+  void runSync()
+  timer = window.setInterval(() => { if (!document.hidden) void runSync() }, 10_000)
+  window.addEventListener('focus', onFocus)
 }, { immediate: true })
 
 onUnmounted(() => {
-  generation++
-  stopActive()
+  stopSync()
+  window.removeEventListener('focus', onFocus)
 })
 </script>
 
-<template>
-  <RouterView />
-</template>
+<template><RouterView /></template>

@@ -3,10 +3,10 @@ export type AppRouteViewKey =
   | 'caseRedirect' | 'matterDetail' | 'review' | 'future' | 'admin' | 'advancedAdmin'
   | 'calendar' | 'people' | 'library' | 'graph' | 'inbox' | 'tasks' | 'taskBoard'
   | 'feishu' | 'habits' | 'finance' | 'goals' | 'pomo' | 'diary' | 'posts'
-  | 'scene' | 'masterData' | 'moduleFallback' | 'fallback'
+  | 'scene' | 'masterData' | 'userManagement' | 'moduleFallback' | 'fallback'
 
 export type PrimaryNavigationKey = 'today' | 'capture' | 'matters' | 'review'
-export type FeatureNavigationGroupId = 'work' | 'records' | 'understanding' | 'daily-tools' | 'experiments' | 'personal' | 'data'
+export type FeatureNavigationGroupId = 'work' | 'records' | 'understanding' | 'daily-tools' | 'experiments' | 'personal' | 'data' | 'system'
 export type PageArchetype =
   | 'today' | 'capture' | 'list-detail' | 'timeline' | 'content' | 'board'
   | 'calendar' | 'personal-tool' | 'insight' | 'integration' | 'settings' | 'experiment'
@@ -36,6 +36,7 @@ export type AppPageDescriptor = {
   archetype: PageArchetype
   shell: 'app' | 'standalone'
   lazyLabel?: string
+  adminOnly?: boolean
   navigation?: PrimaryNavMeta | FeatureNavMeta
 }
 
@@ -51,6 +52,7 @@ export const featureNavigationGroupMeta: readonly { id: FeatureNavigationGroupId
   { id: 'experiments', label: '试验' },
   { id: 'personal', label: '个人' },
   { id: 'data', label: '主数据' },
+  { id: 'system', label: '系统管理' },
 ]
 
 export const appPageRegistry: readonly AppPageDescriptor[] = [
@@ -113,6 +115,10 @@ export const appPageRegistry: readonly AppPageDescriptor[] = [
   {
     id: 'master-data', path: '/app/master-data', viewKey: 'masterData', title: '主数据管理', description: '管理可复用内容素材和系统字典',
     archetype: 'content', shell: 'app', lazyLabel: '主数据管理', navigation: { kind: 'feature', groupId: 'data', label: '主数据管理', icon: '▦', order: 0 },
+  },
+  {
+    id: 'user-management', path: '/app/users', viewKey: 'userManagement', title: '用户管理', description: '创建账号、管理状态与重置登录密码',
+    archetype: 'settings', shell: 'app', lazyLabel: '用户管理', adminOnly: true, navigation: { kind: 'feature', groupId: 'system', label: '用户管理', icon: '♙', order: 0 },
   },
   {
     id: 'library', path: '/app/library', viewKey: 'library', title: '资料', description: '保存可复用的内容',

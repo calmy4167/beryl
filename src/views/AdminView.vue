@@ -4,23 +4,26 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { SCENES, currentSceneId, applySceneTheme } from '@/core/scenes'
 import { MODS } from '@/core/modules'
-import { store, lsSet, lsRemove } from '@/core/storage'
-import { clearSession } from '@/core/auth'
+import { store, lsGet, lsSet, lsRemove, listLocalStorageKeys } from '@/core/storage'
+import { logout as serverLogout } from '@/core/api/auth'
+import { apiBaseUrl } from '@/core/api/base-url'
+import { readServerSession } from '@/core/auth'
 import { clearDb, flushPendingDbWrites, getDbStatus, type DbRuntimeStatus } from '@/core/db'
 import { BACKUP_SENSITIVE_KEYS, createDurableBackup, parseBackup } from '@/core/backup'
-import { createDurableEntityMigrationPlan, createEntityMigrationPlan, migrationBackupExists, rollbackMigrationDurable, saveMigrationBackup, summarizeEntityConflicts, type EntityMigrationPlan } from '@/core/entity-migration'
-import { pullEntityChanges, pushEntityChanges } from '@/core/entity-sync'
-import { apiFetch } from '@/core/api/client'
+import { decryptEntityContent, encryptEntityContent, loadUserKey } from '@/core/vault-keys'
+import { syncVaultEntityData } from '@/core/entity-sync'
 import { clearFeishuCache } from '@/core/feishu/cache'
-import { DEFAULT_API_BASE_URL, preferredCloudUrl, sync, cloudConnect, s3Connect, fileConnect, disconnect, syncNow, diagSync, type SyncDiag } from '@/core/sync'
 import { listRealityDocuments } from '@/domain/reality'
 import { exportCurrentOpenWorkspace } from '@/core/content/open-workspace'
 import { createFileSystemVaultAdapter, type VaultAdapter } from '@/core/content/obsidian-adapter'
 import { clearVaultHandle, loadVaultHandle, queryVaultHandlePermission, requestVaultHandlePermission, saveVaultHandle, type PersistableVaultDirectoryHandle } from '@/core/content/vault-handle-store'
 import { applyVaultSyncPlan, buildVaultSyncPlan, formatVaultSyncSummary, type VaultAssetDecision, type VaultEntityDecision, type VaultFieldDecision, type VaultSyncPlan } from '@/core/content/vault-sync'
+import LegacyLocalMigrationPanel from '@/vue/components/LegacyLocalMigrationPanel.vue'
+import LegacyServerMigrationPanel from '@/vue/components/LegacyServerMigrationPanel.vue'
 import { BACKGROUND_COLOR_PRESETS, applyBackgroundPreferences, getCanvasTextPalette, getDefaultBackgroundColor, getThemeMode, previewBackgroundColor, readBackgroundPreferences, resetBackgroundColor, saveBackgroundColor, setThemeMode, type ThemeMode } from '@/ui/theme-preferences'
 
 const router = useRouter()
+const currentSession = readServerSession()
 const scene = ref(currentSceneId())
 const appearanceMode = ref<ThemeMode>(getThemeMode())
 const appearanceColor = ref(readBackgroundPreferences()[appearanceMode.value] || getDefaultBackgroundColor(appearanceMode.value))
@@ -121,11 +124,15 @@ function selectAppearancePreset(color: string) {
 }
 
 async function exportData() {
+  const session = readServerSession()
+  if (!session) { ElMessage.error('请先登录后再导出数据'); return }
   const out = await createDurableBackup()
-  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' })
+  const userKey = await loadUserKey(session.user.id)
+  const payload = await encryptEntityContent(userKey, out)
+  const blob = new Blob([JSON.stringify({ format: 'calmy-encrypted-backup-v1', exportedAt: new Date().toISOString(), encryption: 'AES-GCM with the current Calmy User Key', payload }, null, 2)], { type: 'application/json' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
-  a.download = `beryl_${new Date().toISOString().slice(0, 10)}.json`
+  a.download = `calmy-encrypted-backup-${new Date().toISOString().slice(0, 10)}.json`
   a.click()
   URL.revokeObjectURL(a.href)
   ElMessage.success('数据已导出')
@@ -135,12 +142,17 @@ function importData(file: File) {
   const reader = new FileReader()
   reader.onload = async () => {
     try {
-      const incoming = parseBackup(JSON.parse(String(reader.result)))
+      const fileData: unknown = JSON.parse(String(reader.result))
+      if (!fileData || typeof fileData !== 'object' || (fileData as { format?: unknown }).format !== 'calmy-encrypted-backup-v1') throw new Error('backup-format-invalid')
+      const session = readServerSession()
+      if (!session) throw new Error('server-auth-required')
+      const userKey = await loadUserKey(session.user.id)
+      const backupData = fileData as { payload?: { v?: number; iv?: string; ciphertext?: string } }
+      if (!backupData.payload || backupData.payload.v !== 1 || typeof backupData.payload.iv !== 'string' || typeof backupData.payload.ciphertext !== 'string') throw new Error('backup-payload-invalid')
+      const decrypted = await decryptEntityContent(userKey, backupData.payload as { v: 1; iv: string; ciphertext: string })
+      const incoming = parseBackup(decrypted)
       const previous: Record<string, string | null> = {}
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i)
-        if (k && k.startsWith('b_') && !BACKUP_SENSITIVE_KEYS.has(k)) previous[k] = localStorage.getItem(k)
-      }
+      for (const k of listLocalStorageKeys()) if (!BACKUP_SENSITIVE_KEYS.has(k)) previous[k] = lsGet(k)
       try {
         Object.keys(previous).filter(k => !(k in incoming)).forEach(k => lsRemove(k))
         for (const [k, v] of Object.entries(incoming)) if (!lsSet(k, v)) throw new Error('write')
@@ -172,17 +184,13 @@ function resetData() {
     return
   }
   clearTimeout(resetTimer)
-  const keys: string[] = []
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i)
-    if (k && k.startsWith('b_')) keys.push(k)
-  }
+  const keys = listLocalStorageKeys()
   void (async () => {
     try {
       await clearFeishuCache()
       await clearVaultHandle()
       await clearDb()
-      keys.forEach(k => localStorage.removeItem(k))
+      keys.forEach(k => lsRemove(k))
       location.reload()
     } catch {
       resetArmed = false
@@ -191,10 +199,11 @@ function resetData() {
   })()
 }
 
-function logout() {
-  clearSession()
-  router.replace('/login')
-  ElMessage.success('已退出登录')
+async function logout() {
+  try { await serverLogout(apiBaseUrl()) } finally {
+    window.location.hash = '#/login'
+    window.location.reload()
+  }
 }
 
 function goPass() {
@@ -213,70 +222,18 @@ function onImportChange(e: Event) {
   input.value = ''
 }
 
-/* ---------- 同步配置 ---------- */
-const cloudDlg = ref(false)
-const cloudUrl = ref(DEFAULT_API_BASE_URL)
-const cloudKey = ref('')
-const s3Dlg = ref(false)
-const s3Cfg = ref({ endpoint: '', bucket: '', region: '', ak: '', sk: '' })
-const connecting = ref(false)
-
-/* 打开对话框时回填已保存的配置（不再每次重新填写） */
-function openCloudDlg() {
-  if (sync.saved.cloud) {
-    cloudUrl.value = preferredCloudUrl(sync.saved.cloud.url)
-    cloudKey.value = sync.saved.cloud.key || ''
-  } else {
-    cloudUrl.value = DEFAULT_API_BASE_URL
-  }
-  cloudDlg.value = true
-}
-function openS3Dlg() {
-  if (sync.saved.s3) {
-    s3Cfg.value = { ...sync.saved.s3 }
-  }
-  s3Dlg.value = true
-}
-
-const syncStatus = computed(() => {
-  if (sync.phase === 'syncing') return { color: 'var(--scene)', text: '正在同步…', actions: true }
-  if (sync.phase === 'dirty') return { color: 'var(--c-warn)', text: '⚠️ 本地有待同步变更', actions: true }
-  if (sync.phase === 'offline') return { color: 'var(--c-warn)', text: '⌁ 当前离线，待恢复网络后同步', actions: true }
-  if (sync.phase === 'error') return { color: 'var(--c-danger)', text: `⚠️ 同步失败：${sync.lastError || '网络或配置错误'}`, actions: true }
-  if (sync.mode === 'cloud' && sync.cloud) return { color: 'var(--c-success)', text: `已连接云端（增量同步 + AES-GCM 加密）：${sync.cloud.url}`, actions: true }
-  if (sync.mode === 's3' && sync.s3) return { color: 'var(--c-success)', text: `已连接对象存储：${sync.s3.endpoint}/${sync.s3.bucket}`, actions: true }
-  if (sync.mode === 'file') return { color: 'var(--c-success)', text: `已连接本地文件：${sync.fileName || '数据文件'}`, actions: true }
-  if (sync.saved.cloud) return { color: 'var(--c-warn)', text: '🟡 已保存 Cloudflare 配置（未连接）', actions: false }
-  if (sync.saved.s3) return { color: 'var(--c-warn)', text: '🟡 已保存 S3 配置（未连接）', actions: false }
-  return { color: 'var(--c-text-3)', text: '未连接 · 数据仅存于本浏览器', actions: false }
-})
-
-async function doCloudConnect() {
-  connecting.value = true
-  const ok = await cloudConnect(cloudUrl.value.trim(), cloudKey.value)
-  connecting.value = false
-  if (ok) { cloudDlg.value = false; ElMessage.success('已连接云端') }
-  else ElMessage.error(`连接失败：${sync.lastError || '请检查地址、同步密码或 Worker 配置'}`)
-}
-async function doS3Connect() {
-  connecting.value = true
-  const ok = await s3Connect({ ...s3Cfg.value })
-  connecting.value = false
-  if (ok) { s3Dlg.value = false; ElMessage.success('已连接对象存储') }
-  else ElMessage.error('连接失败：请检查配置与 CORS')
-}
-const fsOk = 'showOpenFilePicker' in window
-async function doFileConnect() {
+/* ---------- 用户密文同步 ---------- */
+const vaultSyncBusy = ref(false)
+const vaultSyncStatus = ref('登录后自动同步加密实体；服务端只接收随机 ID 和密文。')
+async function syncVaultNow() {
+  vaultSyncBusy.value = true
   try {
-    const picker = (window as unknown as { showOpenFilePicker?: (o?: object) => Promise<FileSystemFileHandle[]> }).showOpenFilePicker
-    if (!picker) return
-    const [h] = await picker({ types: [{ description: 'Beryl 数据文件', accept: { 'application/json': ['.json'] } }] })
-    const ok = await fileConnect(h)
-    if (ok) ElMessage.success('已连接本地文件')
-    else ElMessage.error('连接失败：文件格式不正确')
-  } catch { /* 用户取消 */ }
+    const result = await syncVaultEntityData(apiBaseUrl())
+    vaultSyncStatus.value = `同步完成 · 收到 ${result.pulled} 项 · 发送 ${result.pushed} 项 · ${new Date().toLocaleTimeString()}`
+  } catch (error) {
+    vaultSyncStatus.value = `同步暂不可用：${error instanceof Error ? error.message : '网络错误'}；本机待同步数据会保留。`
+  } finally { vaultSyncBusy.value = false }
 }
-function doDisconnect() { disconnect(); ElMessage.success('已断开同步（数据仍在本机）') }
 
 /* ---------- Obsidian Vault 同步 ---------- */
 const vaultAdapter = shallowRef<VaultAdapter | null>(null)
@@ -438,71 +395,6 @@ async function applyVault() {
   finally { vaultBusy.value = false }
 }
 
-/* 同步诊断 */
-const diag = ref<SyncDiag | null>(null)
-const diagLoading = ref(false)
-const migrationPlan = ref<EntityMigrationPlan | null>(null)
-const migrationBusy = ref(false)
-const migrationReport = ref('')
-const kvStatus = ref<{ kvCompatEnabled: boolean; kvBound: boolean; legacyKvPresent: boolean; d1Records: number; d1Auth: number } | null>(null)
-async function runDiag() {
-  diagLoading.value = true
-  try { diag.value = await diagSync() }
-  catch { diag.value = null }
-  diagLoading.value = false
-}
-async function prepareEntityMigration() {
-  migrationBusy.value = true
-  try {
-    migrationPlan.value = await createDurableEntityMigrationPlan()
-    migrationReport.value = `可迁移 ${migrationPlan.value.records.length} 个实体${migrationPlan.value.skipped.length ? `，跳过 ${migrationPlan.value.skipped.length} 项异常数据` : ''}`
-  } finally { migrationBusy.value = false }
-}
-async function scanEntityConflicts() {
-  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
-  migrationBusy.value = true
-  try {
-    const plan = migrationPlan.value || await createDurableEntityMigrationPlan()
-    const remote = []
-    let cursor = { ts: 0, device: '', entity: '', entityId: '' }
-    do {
-      const page = await pullEntityChanges(sync.cloud.url, sync.cloud.key, cursor)
-      remote.push(...page.records); cursor = page.cursor
-      if (!page.hasMore) break
-    } while (true)
-    const result = summarizeEntityConflicts(plan.records, remote)
-    migrationReport.value = `远端 ${remote.length} 个实体，冲突 ${result.conflicts} 个（远端较新 ${result.newerRemote}，本地较新 ${result.newerLocal}）`
-  } catch (error) { migrationReport.value = `冲突扫描失败：${error instanceof Error ? error.message : '请求失败'}` }
-  finally { migrationBusy.value = false }
-}
-async function pushEntityMigration() {
-  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
-  const plan = migrationPlan.value || createEntityMigrationPlan()
-  if (!saveMigrationBackup(plan)) { ElMessage.error('迁移前备份写入失败，已取消'); return }
-  migrationBusy.value = true
-  try {
-    const ok = await pushEntityChanges(sync.cloud.url, sync.cloud.key, plan.records.map(record => ({ id: `${record.device}:${record.updatedAt}:${record.entityId}`, entity: record.entity, entityId: record.entityId, operation: 'create', updatedAt: record.updatedAt, device: record.device, value: record.value })))
-    migrationReport.value = ok ? `已加密推送 ${plan.records.length} 个实体；键级同步仍保持不变` : '实体迁移推送失败'
-  } catch (error) { migrationReport.value = `实体迁移失败：${error instanceof Error ? error.message : '请求失败'}` }
-  finally { migrationBusy.value = false }
-}
-async function rollbackEntityMigration() {
-  if (!migrationBackupExists()) { ElMessage.warning('没有可用的迁移前备份'); return }
-  if (await rollbackMigrationDurable()) { migrationReport.value = '已恢复迁移前本地快照，并写入持久化回滚队列；云端实体记录未删除，默认键级同步未切换'; ElMessage.success('本地迁移已回滚') }
-  else ElMessage.error('回滚失败，本地快照未能完整恢复')
-}
-async function runKvStatus() {
-  if (!sync.cloud) { ElMessage.warning('请先连接 Cloudflare'); return }
-  migrationBusy.value = true
-  try {
-    const response = await apiFetch(sync.cloud.url, '/api/kv-status', { headers: { Authorization: 'Bearer ' + sync.cloud.key } })
-    if (!response.ok) throw new Error(`kv-status:${response.status}`)
-    kvStatus.value = await response.json()
-    migrationReport.value = kvStatus.value?.legacyKvPresent ? 'KV 仍有遗留数据，暂不能解绑' : 'KV 未发现遗留数据，可进入解绑评估'
-  } catch (error) { migrationReport.value = `KV 状态检查失败：${error instanceof Error ? error.message : '请求失败'}` }
-  finally { migrationBusy.value = false }
-}
-
 const now = new Date()
 function onDataSynced() { refreshCounts() }
 onMounted(() => {
@@ -587,8 +479,8 @@ onUnmounted(() => {
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">数据管理</h3>
       <div class="btns">
-        <el-button @click="exportData">导出</el-button>
-        <el-button @click="openImport">导入</el-button>
+        <el-button @click="exportData">导出加密备份</el-button>
+        <el-button @click="openImport">导入加密备份</el-button>
         <input id="file-import" type="file" accept="application/json,.json" aria-label="选择要导入的 JSON 数据文件" style="display:none" @change="onImportChange" />
         <el-button type="danger" plain @click="resetData">重置</el-button>
       </div>
@@ -602,7 +494,7 @@ onUnmounted(() => {
     <!-- 系统信息 -->
     <div class="beryl-card hoverable block">
       <h3 class="font-title sec">系统信息</h3>
-      <p class="info">版本：<span>v2.1.0（阶段 2–5：IndexedDB / 增量同步 / 加密 / PWA）</span></p>
+      <p class="info">版本：<span>v2.2.0（用户身份 / Vault 密钥隔离 / 私有密文同步）</span></p>
       <p class="info">数据版本：<span>4</span></p>
       <p class="info">当前场景：<span :style="{ color: SCENES[scene].color }">{{ SCENES[scene].name }}</span></p>
       <p class="info">日期：<span>{{ now.getFullYear() }} 年 {{ now.getMonth() + 1 }} 月 {{ now.getDate() }} 日</span></p>
@@ -612,32 +504,14 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 数据同步 -->
+    <!-- 用户密文同步 -->
     <div class="beryl-card hoverable block">
-      <h3 class="font-title sec">数据同步</h3>
-      <p class="info" role="status" aria-live="polite" :style="{ color: syncStatus.color }">{{ syncStatus.text }}</p>
+      <h3 class="font-title sec">Vault 同步</h3>
+      <p class="info" role="status" aria-live="polite">{{ vaultSyncStatus }}</p>
       <div class="btns">
-        <template v-if="syncStatus.actions">
-          <el-button @click="syncNow()">立即同步</el-button>
-          <el-button type="danger" plain @click="doDisconnect">断开连接</el-button>
-        </template>
-        <template v-else>
-          <el-button @click="openCloudDlg">Cloudflare</el-button>
-          <el-button @click="openS3Dlg">国内云(S3)</el-button>
-          <el-button v-if="fsOk" @click="doFileConnect">本地文件</el-button>
-        </template>
+        <el-button type="primary" :loading="vaultSyncBusy" @click="syncVaultNow">立即同步</el-button>
       </div>
-      <p class="mods-line">本地变更 0.8s 自动上传 · 前台每 5 秒自动拉取 · 切回页面立即拉取 · 云端增量 LWW 合并 + 加密</p>
-      <div class="btns" style="margin-top: 8px">
-        <el-button size="small" :loading="diagLoading" @click="runDiag">同步诊断</el-button>
-      </div>
-      <div v-if="diag" class="diag" role="region" aria-label="同步诊断结果">
-        <p class="diag-line">云端地址：{{ diag.url }}</p>
-        <p class="diag-line">游标：pull={{ diag.pullCursor }} · localTs={{ diag.localTs }} · push={{ diag.pushCursor }} · dirty={{ diag.dirty }}</p>
-        <p class="diag-line">云端记录数：{{ diag.cloudRecords }}（-1=未连接 / -2=旧Worker / -3=请求失败）· 云端maxTs={{ diag.cloudMaxTs }}</p>
-        <p class="diag-line">上次推送：{{ diag.lastSync }}</p>
-        <p class="diag-line diag-raw">本地 b_inbox 值：{{ diag.localInboxSample }}</p>
-      </div>
+      <p class="mods-line">内容使用随机实体密钥加密；服务器只保存密文、随机 ID、版本和同步游标。登录凭据不参与内容加密。</p>
     </div>
 
     <!-- Obsidian Vault：显式差异预览与决策后写回 -->
@@ -717,46 +591,16 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 实体同步迁移：默认键级同步不变，必须显式预览/备份后执行 -->
+    <LegacyLocalMigrationPanel v-if="currentSession?.user.role === 'admin'" />
+    <LegacyServerMigrationPanel v-if="currentSession?.user.role === 'admin'" />
+
+    <!-- 历史数据迁移 -->
     <div class="beryl-card hoverable block">
-      <h3 class="font-title sec">实体同步迁移（P0）</h3>
-      <p class="info">先生成迁移计划和本地回滚快照，再扫描冲突；确认后才会加密推送实体记录。</p>
-      <div class="btns">
-        <el-button @click="prepareEntityMigration">生成计划</el-button>
-        <el-button :loading="migrationBusy" @click="scanEntityConflicts">扫描冲突</el-button>
-        <el-button type="primary" :loading="migrationBusy" @click="pushEntityMigration">加密推送</el-button>
-        <el-button type="warning" plain @click="rollbackEntityMigration">回滚本地快照</el-button>
-        <el-button :loading="migrationBusy" @click="runKvStatus">检查 KV 退役条件</el-button>
-      </div>
-      <p v-if="migrationPlan" class="mods-line">计划：{{ migrationPlan.records.length }} 个实体 · 创建于 {{ new Date(migrationPlan.createdAt).toLocaleString() }} · 备份{{ migrationBackupExists() ? '已存在' : '未生成' }}</p>
-      <p v-if="migrationReport" class="info diag-raw" role="status" aria-live="polite" aria-atomic="true">{{ migrationReport }}</p>
-      <p v-if="kvStatus" class="mods-line">D1 records={{ kvStatus.d1Records }} · D1 auth={{ kvStatus.d1Auth }} · KV bound={{ kvStatus.kvBound }} · KV legacy={{ kvStatus.legacyKvPresent }}</p>
+      <h3 class="font-title sec">旧数据迁移</h3>
+      <p class="info">旧浏览器数据与旧版 D1 数据会保留，不会自动归入当前用户。浏览器本地迁移和旧版 D1 迁移均需管理员在专用向导中确认归属、备份和解密方式。</p>
+      <p class="mods-line">用户数据备份使用当前 Vault 密钥加密；恢复时需先在当前账号解锁 Vault。不要手动清理旧数据。</p>
     </div>
 
-    <!-- Cloudflare 连接对话框 -->
-    <el-dialog v-model="cloudDlg" title="连接 Cloudflare 云端" width="92%" style="max-width: 420px">
-      <el-input v-model="cloudUrl" aria-label="Cloudflare Worker 地址" placeholder="https://beryl-api.你的子域.workers.dev" class="mb-2" />
-      <el-input v-model="cloudKey" aria-label="云端同步密码" type="password" placeholder="同步密码" show-password />
-      <template #footer>
-        <el-button @click="cloudDlg = false">取消</el-button>
-        <el-button type="primary" :loading="connecting" @click="doCloudConnect">连接</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- S3 连接对话框 -->
-    <el-dialog v-model="s3Dlg" title="连接对象存储（S3 兼容）" width="92%" style="max-width: 420px">
-      <el-form label-position="top">
-        <el-form-item label="Endpoint"><el-input v-model="s3Cfg.endpoint" placeholder="https://oss-cn-hangzhou.aliyuncs.com" /></el-form-item>
-        <el-form-item label="Bucket"><el-input v-model="s3Cfg.bucket" /></el-form-item>
-        <el-form-item label="Region"><el-input v-model="s3Cfg.region" placeholder="cn-hangzhou / ap-guangzhou" /></el-form-item>
-        <el-form-item label="AccessKey ID"><el-input v-model="s3Cfg.ak" /></el-form-item>
-        <el-form-item label="Secret Access Key"><el-input v-model="s3Cfg.sk" type="password" show-password /></el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="s3Dlg = false">取消</el-button>
-        <el-button type="primary" :loading="connecting" @click="doS3Connect">连接</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 

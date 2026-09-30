@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { store, nextId, todayKey, dateKey } from '@/core/storage'
+import { store, lsGet, nextId, todayKey, dateKey } from '@/core/storage'
 import { maxStreak } from '@/core/modules'
 import { listRealityDocuments } from '@/domain/reality'
 
@@ -14,7 +14,7 @@ const PRESETS = [
 ]
 
 function seed(): void {
-  const existing = localStorage.getItem('b_habits')
+  const existing = lsGet('b_habits')
   if (existing != null) return
   const list = PRESETS.map(h => ({ id: nextId(), name: h.name, color: h.color, days: 0, dates: [] as string[] }))
   store.set('habits', list)

@@ -1,5 +1,6 @@
 /* ---------- 存储层（同步快照 API；启动后优先读取 IndexedDB hydrate 快照） ---------- */
 import { dbPut, dbDelete, DEVICE_ID, type EntityWriteContext } from './db.ts'
+import { accountStorageKey, accountStoragePrefix, unaccountStorageKey } from './account-context.ts'
 
 const PREFIX = 'b_'
 let persistedCache = new Map<string, string>()
@@ -7,13 +8,13 @@ let persistedCacheReady = false
 
 export function lsGet(key: string): string | null {
   if (persistedCacheReady && key.startsWith(PREFIX)) return persistedCache.get(key) ?? null
-  try { return localStorage.getItem(key); } catch { return null; }
+  try { return localStorage.getItem(accountStorageKey(key)); } catch { return null; }
 }
 export function lsSet(key: string, val: string, persist = true, entityContext?: EntityWriteContext): boolean {
   const isSyncKey = key.startsWith(PREFIX)
   let localWriteSucceeded = false
   try {
-    localStorage.setItem(key, val)
+    localStorage.setItem(accountStorageKey(key), val)
     localWriteSucceeded = true
   } catch { /* hydrated durable cache may still accept the write */ }
   if (persistedCacheReady && isSyncKey) persistedCache.set(key, val)
@@ -23,7 +24,7 @@ export function lsSet(key: string, val: string, persist = true, entityContext?: 
   return localWriteSucceeded || (persistedCacheReady && isSyncKey)
 }
 export function lsRemove(key: string, persist = true): void {
-  try { localStorage.removeItem(key) } catch { /* ignore */ }
+  try { localStorage.removeItem(accountStorageKey(key)) } catch { /* ignore */ }
   if (persistedCacheReady && key.startsWith(PREFIX)) persistedCache.delete(key)
   if (persist && key.startsWith(PREFIX)) void dbDelete(key)
 }
@@ -35,9 +36,12 @@ export function hydrateStoreCache(snapshot?: Record<string, string>): void {
   if (snapshot === undefined) {
     try {
       for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
+        const physicalKey = localStorage.key(i)
+        const prefix = accountStoragePrefix()
+        if (prefix && !physicalKey?.startsWith(prefix)) continue
+        const key = physicalKey ? unaccountStorageKey(physicalKey) || physicalKey : null
         if (key?.startsWith(PREFIX) && key !== 'b_db_outbox') {
-          const value = localStorage.getItem(key)
+          const value = physicalKey ? localStorage.getItem(physicalKey) : null
           if (value != null) persistedCache.set(key, value)
         }
       }
@@ -54,6 +58,22 @@ export function resetStoreCache(): void {
 
 /** 页面挂载后，所有同步读取都来自已恢复的内存快照。 */
 export function isStoreCacheReady(): boolean { return persistedCacheReady }
+
+export function listLocalStorageKeys(prefix = PREFIX): string[] {
+  if (persistedCacheReady) return [...persistedCache.keys()].filter(key => key.startsWith(prefix))
+  const keys: string[] = []
+  const scopedPrefix = accountStoragePrefix()
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const physical = localStorage.key(i)
+      if (!physical) continue
+      if (scopedPrefix && !physical.startsWith(scopedPrefix)) continue
+      const key = unaccountStorageKey(physical) || physical
+      if (key.startsWith(prefix)) keys.push(key)
+    }
+  } catch { /* return whatever could be read */ }
+  return keys
+}
 
 export function safeParse<T>(v: string | null): T | undefined {
   if (v == null) return undefined;
