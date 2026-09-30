@@ -6,6 +6,8 @@
 
 > 2026-09-19 产品方向说明：D-018 与 [`CALMY_PRODUCT_DESIGN_2026-09-19.md`](CALMY_PRODUCT_DESIGN_2026-09-19.md) 已重新定义产品本体。本评审继续描述现有 Attention OS 代码风险和迁移事实；新产品的纵向切片、用户语言与领域迁移由 OW-21 管理。
 
+> 2026-09-30 状态边界：本文第 1–19 节是按日期记录的工程评审与实现快照，其中 React 生产入口等描述已经过时。当前生产入口、已接受的身份/加密决策和剩余工程门槛以第 20 节及 [`OPEN_WORK.md`](OPEN_WORK.md) 为准。
+
 ## 1. 结论
 
 代码已经具备相当多的领域对象、导入导出、同步防护和自动化测试。产品壳已收敛到 Calmy 的核心闭环，Today、Capture、Matters、Review 作为默认主路径，旧入口仍以兼容方式保留。当前最大风险不再是默认导航，而是旧模型迁移、二级/高级页面的异步边界和真实设备验收尚未闭合。
@@ -156,3 +158,12 @@ IndexedDB authoritative store
 - 设置与同步不再同时维护 React 普通页和 Vue 高级页：`/app/admin` 直接通过 `LegacyAdminHost` 复用完整管理界面，`/app/admin/advanced` 仅保留兼容地址并显示同一内容。此举不改变 Vault、同步、导入导出或实体迁移的业务边界。
 - `src/react/product-ui.css` 是所有 React 页面与完整管理页共用的视觉覆盖层，统一表面、卡片、表单焦点、主按钮、标签页、空状态、动效和窄屏间距；它不改变领域对象、写入路径或数据事实源。
 - 全库文档范围、修订原则和历史材料处理记录见 `DOCUMENT_AUDIT_2026-09-19.md`。历史描述保留为快照，当前规则以 D-017、统一产品设计和 `OPEN_WORK.md` 为准。
+
+## 20. 2026-09-30 当前工程边界校准
+
+- **生产前端：** Vue 3 是唯一生产入口；React 运行时代码、预览入口和生产依赖已清理。OW-06 按用户 2026-09-28 确认的验收范围完成，已知纯视觉差异可接受，不宣称 335 组截图全部逐像素相同。验证和差异记录见 [`OPEN_WORK.md`](OPEN_WORK.md) 与[Vue 迁移台账](../superpowers/migrations/2026-09-24-vue-parity-ledger.md)。
+- **身份与访问：** User 身份和产品访问设计已接受。管理员可创建、停用和管理账号，但不会因此取得私人业务内容读取权；Person、Scene、Space 的关联不自动授予数据权限。全产品归属和授权约束见[User 身份与产品访问设计](../superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md)。
+- **加密架构：** ADR-001 已接受，私人业务内容默认在客户端加密，服务器负责身份、授权及密文同步所需控制面；必要的账号、实体标识、授权关系、同步状态和数据大小等元数据仍可能可见。详见 [ADR-001](../adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md)。
+- **Phase A 实施边界：** 身份、每 User 私有数据、设备/恢复密钥和加密 Entity 同步已在本地代码实现；这不等同于生产 Worker 密钥配置、D1 迁移和线上 endpoint cutover 已完成，部署事项须按独立运维窗口执行。当前证据与门槛见 Phase A [实现计划](../superpowers/plans/2026-09-30-calmy-phase-a-identity-and-private-data.md)及[部署切换手册](../operations/calmy-user-identity-cutover.md)。
+- **Phase B：** ADR-002 仍为 Proposed。作者自审不能代替独立密码学审查；单 Entity 跨用户只读分享、密钥封套和撤权轮换实现继续停止在审查门槛前。当前审查状态见 [ADR-002](../adr/ADR-002-recipient-key-envelope-protocol.md)、[作者自审](../security/ADR-002_SELF_REVIEW_2026-09-30.md)和 [`OPEN_WORK.md`](OPEN_WORK.md)。
+- **剩余验收：** 真实设备、读屏、大字号与缩放结果仍需人工验收（OW-04）；真实用户纵向试点、账号线上切换和分享隐私试点按各自待办门槛推进。文档更新、构建或代码存在本身都不构成上述验收。

@@ -5,25 +5,31 @@ const PAGE_SIZE = 250;
 
 async function legacySourceDigest(env) {
   const [records, entities] = await Promise.all([
-    env.BERYL_D1.prepare('SELECT key FROM records ORDER BY key').all(),
-    env.BERYL_D1.prepare('SELECT entity, entity_id FROM entity_records ORDER BY entity, entity_id').all()
+    env.BERYL_D1.prepare('SELECT key, ts, device, deleted FROM records ORDER BY key').all(),
+    env.BERYL_D1.prepare('SELECT entity, entity_id, updated_at, device, deleted FROM entity_records ORDER BY entity, entity_id').all()
   ]);
   const identifiers = [
-    ...records.results.map(row => JSON.stringify(['record', row.key])),
-    ...entities.results.map(row => JSON.stringify(['entity', row.entity, row.entity_id]))
+    ...records.results.map(row => JSON.stringify(['record', row.key, Number(row.ts), row.device, Boolean(row.deleted)])),
+    ...entities.results.map(row => JSON.stringify(['entity', row.entity, row.entity_id, Number(row.updated_at), row.device, Boolean(row.deleted)]))
   ].sort();
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(identifiers)));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function adminOwner(request, env) {
+async function userDestinationIdDigest(env, userId) {
+  const result = await env.BERYL_D1.prepare('SELECT opaque_id FROM cipher_records WHERE user_id = ? ORDER BY opaque_id').bind(userId).all();
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(result.results.map(row => row.opaque_id))));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function adminOwner(request, env, allowComplete = false) {
   const actor = await requireSession(request, env);
   if (actor.error) return actor;
   if (actor.mustChangePassword) return { error: 'password-change-required', status: 403 };
   if (actor.role !== 'admin') return { error: 'forbidden', status: 403 };
   await ensureSchema(env);
   const state = await env.BERYL_D1.prepare('SELECT owner_user_id, status FROM legacy_migration_state WHERE singleton = 1').first();
-  if (!state || state.owner_user_id !== actor.userId || state.status !== 'running') return { error: 'migration-unavailable', status: 409 };
+  if (!state || state.owner_user_id !== actor.userId || (state.status !== 'running' && !(allowComplete && state.status === 'complete'))) return { error: 'migration-unavailable', status: 409 };
   return actor;
 }
 
@@ -61,13 +67,15 @@ export async function handleLegacyExport(request, env) {
 }
 
 export async function handleLegacyStatus(request, env) {
-  const actor = await adminOwner(request, env);
+  const actor = await adminOwner(request, env, true);
   if (actor.error) return { body: { error: actor.error }, status: actor.status };
-  const [records, entities] = await Promise.all([
+  const [records, entities, sourceDigest, state] = await Promise.all([
     env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM records').first(),
-    env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM entity_records').first()
+    env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM entity_records').first(),
+    legacySourceDigest(env),
+    env.BERYL_D1.prepare('SELECT status FROM legacy_migration_state WHERE singleton = 1').first()
   ]);
-  return { body: { ok: true, status: 'running', recordCount: Number(records?.count || 0), entityCount: Number(entities?.count || 0) } };
+  return { body: { ok: true, status: state?.status || 'running', recordCount: Number(records?.count || 0), entityCount: Number(entities?.count || 0), sourceDigest } };
 }
 
 export async function handleLegacyMigrationComplete(request, env) {
@@ -76,26 +84,42 @@ export async function handleLegacyMigrationComplete(request, env) {
   let body;
   try { body = await request.json(); } catch { return { body: { error: 'bad-json' }, status: 400 }; }
   if (body?.verified !== true || body?.backupConfirmed !== true) return { body: { error: 'migration-confirmation-required' }, status: 400 };
-  const [legacyRecords, legacyEntities, newRecords] = await Promise.all([
+  const [legacyRecords, legacyEntities, newRecords, serverDestinationIdDigest] = await Promise.all([
     env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM records').first(),
     env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM entity_records').first(),
-    env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM cipher_records WHERE user_id = ? AND deleted = 0').bind(actor.userId).first()
+    env.BERYL_D1.prepare('SELECT COUNT(*) AS count FROM cipher_records WHERE user_id = ? AND deleted = 0').bind(actor.userId).first(),
+    userDestinationIdDigest(env, actor.userId)
   ]);
   const legacyCount = Number(legacyRecords?.count || 0) + Number(legacyEntities?.count || 0);
   const copiedCount = Number(body.copiedServerRecords);
   const storedCount = Number(newRecords?.count || 0);
+  const verifiedDestinationCount = Number(body.verifiedDestinationCount);
+  const verifiedSourceIdCount = Number(body.verifiedSourceIdCount);
+  const verifiedCursor = Number(body.verifiedCursor);
+  const decryptedSampleCount = Number(body.decryptedSampleCount);
   const expectedSourceDigest = await legacySourceDigest(env);
   const suppliedSourceDigest = typeof body.sourceDigest === 'string' ? body.sourceDigest : '';
-  if (!Number.isSafeInteger(copiedCount) || copiedCount !== legacyCount || suppliedSourceDigest !== expectedSourceDigest || (legacyCount > 0 && storedCount === 0)) {
-    return { body: { error: 'migration-verification-mismatch', legacyCount, copiedCount: Number.isFinite(copiedCount) ? copiedCount : null, storedCount, sourceMatches: suppliedSourceDigest === expectedSourceDigest }, status: 409 };
+  const destinationIdDigest = typeof body.destinationIdDigest === 'string' ? body.destinationIdDigest : '';
+  const sampleCountValid = Number.isSafeInteger(decryptedSampleCount) && decryptedSampleCount === Math.min(5, verifiedDestinationCount);
+  const currentCursorRow = await env.BERYL_D1.prepare('SELECT COALESCE(MAX(sequence), 0) AS cursor FROM cipher_changes WHERE user_id = ?').bind(actor.userId).first();
+  const currentCursor = Number(currentCursorRow?.cursor || 0);
+  if (!Number.isSafeInteger(copiedCount) || copiedCount !== legacyCount || suppliedSourceDigest !== expectedSourceDigest ||
+      !Number.isSafeInteger(verifiedDestinationCount) || verifiedDestinationCount !== storedCount ||
+      !Number.isSafeInteger(verifiedSourceIdCount) || verifiedSourceIdCount < 0 ||
+      !Number.isSafeInteger(verifiedCursor) || verifiedCursor !== currentCursor ||
+      !/^[a-f0-9]{64}$/.test(destinationIdDigest) || destinationIdDigest !== serverDestinationIdDigest || !sampleCountValid) {
+    return { body: { error: 'migration-verification-mismatch', legacyCount, copiedCount: Number.isFinite(copiedCount) ? copiedCount : null, storedCount, verifiedDestinationCount: Number.isFinite(verifiedDestinationCount) ? verifiedDestinationCount : null, sourceMatches: suppliedSourceDigest === expectedSourceDigest }, status: 409 };
   }
   const now = Date.now();
-  await env.BERYL_D1.batch([
-    env.BERYL_D1.prepare('DELETE FROM records'),
-    env.BERYL_D1.prepare('DELETE FROM entity_records'),
-    env.BERYL_D1.prepare('DELETE FROM auth'),
-    env.BERYL_D1.prepare('UPDATE legacy_migration_state SET status = ?, cursor = ?, completed_at = ? WHERE singleton = 1 AND owner_user_id = ? AND status = ?')
-      .bind('complete', JSON.stringify({ legacyCount, copiedCount, sourceDigest: expectedSourceDigest }), now, actor.userId, 'running')
+  const migrationAudit = JSON.stringify({ legacyCount, copiedCount, sourceDigest: expectedSourceDigest, verifiedDestinationCount, verifiedSourceIdCount, destinationIdDigest, decryptedSampleCount, verifiedCursor });
+  const cursorStillMatches = '(SELECT COALESCE(MAX(sequence), 0) FROM cipher_changes WHERE user_id = ?) = ?';
+  const results = await env.BERYL_D1.batch([
+    env.BERYL_D1.prepare(`DELETE FROM records WHERE ${cursorStillMatches}`).bind(actor.userId, verifiedCursor),
+    env.BERYL_D1.prepare(`DELETE FROM entity_records WHERE ${cursorStillMatches}`).bind(actor.userId, verifiedCursor),
+    env.BERYL_D1.prepare(`DELETE FROM auth WHERE ${cursorStillMatches}`).bind(actor.userId, verifiedCursor),
+    env.BERYL_D1.prepare(`UPDATE legacy_migration_state SET status = ?, cursor = ?, completed_at = ? WHERE singleton = 1 AND owner_user_id = ? AND status = ? AND ${cursorStillMatches}`)
+      .bind('complete', migrationAudit, now, actor.userId, 'running', actor.userId, verifiedCursor)
   ]);
-  return { body: { ok: true, legacyCount, copiedServerRecords: copiedCount, completedAt: now } };
+  if (!Number(results.at(-1)?.meta?.changes || 0)) return { body: { error: 'vault-changed-during-verification' }, status: 409 };
+  return { body: { ok: true, legacyCount, copiedServerRecords: copiedCount, verifiedDestinationCount, completedAt: now } };
 }

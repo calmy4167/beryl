@@ -1,5 +1,5 @@
 import { todayAsyncRepository } from '@/domain/today/repository'
-import type { TodayPlan, TodayReview } from '@/domain/today/model'
+import { TODAY_REVIEW_FIELDS, type TodayPlan, type TodayReview } from '@/domain/today/model'
 
 export interface CompleteReviewInput {
   date: string
@@ -13,11 +13,17 @@ export interface CompleteReviewResult {
 }
 
 function cleanReview(review: TodayReview): TodayReview {
+  const sourceMaterialIds = Object.fromEntries(TODAY_REVIEW_FIELDS.flatMap(field => {
+    const ids = review.sourceMaterialIds?.[field]
+    const cleanIds = Array.isArray(ids) ? [...new Set(ids.filter(id => typeof id === 'string' && id.trim()).map(id => id.trim()))] : []
+    return cleanIds.length ? [[field, cleanIds]] : []
+  })) as TodayReview['sourceMaterialIds']
   return {
     observation: review.observation.trim(),
     analysis: review.analysis.trim(),
     adjustment: review.adjustment.trim(),
-    seed: review.seed.trim()
+    seed: review.seed.trim(),
+    ...(sourceMaterialIds && Object.keys(sourceMaterialIds).length ? { sourceMaterialIds } : {})
   }
 }
 

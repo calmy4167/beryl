@@ -42,6 +42,43 @@ export async function ensureSchema(env) {
         'identity_hash TEXT PRIMARY KEY, window_started_at INTEGER NOT NULL, failures INTEGER NOT NULL, locked_until INTEGER)'
       ).run()
       await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS roles (' +
+        'role_id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT \'\', ' +
+        'built_in INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT \'active\', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS user_roles (' +
+        'user_id TEXT NOT NULL REFERENCES users(user_id), role_id TEXT NOT NULL REFERENCES roles(role_id), created_at INTEGER NOT NULL, ' +
+        'PRIMARY KEY (user_id, role_id))'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS role_permissions (' +
+        'role_id TEXT NOT NULL REFERENCES roles(role_id), permission_code TEXT NOT NULL, created_at INTEGER NOT NULL, ' +
+        'PRIMARY KEY (role_id, permission_code))'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS system_settings (' +
+        'setting_key TEXT PRIMARY KEY, setting_value TEXT NOT NULL, updated_at INTEGER NOT NULL, updated_by TEXT REFERENCES users(user_id))'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS login_logs (' +
+        'log_id TEXT PRIMARY KEY, user_id TEXT, username TEXT NOT NULL, outcome TEXT NOT NULL, failure_code TEXT, ' +
+        'ip_address TEXT, device_id TEXT, user_agent TEXT, created_at INTEGER NOT NULL)'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS operation_logs (' +
+        'log_id TEXT PRIMARY KEY, actor_user_id TEXT NOT NULL, action TEXT NOT NULL, target_type TEXT NOT NULL, target_id TEXT, ' +
+        'outcome TEXT NOT NULL, changes_json TEXT, created_at INTEGER NOT NULL)'
+      ).run()
+      await env.BERYL_D1.prepare(
+        'CREATE TABLE IF NOT EXISTS login_challenges (' +
+        'challenge_id TEXT PRIMARY KEY, answer_hash TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, consumed_at INTEGER)'
+      ).run()
+      await env.BERYL_D1.prepare('CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role_id, user_id)').run()
+      await env.BERYL_D1.prepare('CREATE INDEX IF NOT EXISTS idx_login_logs_created ON login_logs(created_at DESC)').run()
+      await env.BERYL_D1.prepare('CREATE INDEX IF NOT EXISTS idx_operation_logs_created ON operation_logs(created_at DESC)').run()
+      await env.BERYL_D1.prepare('CREATE INDEX IF NOT EXISTS idx_login_challenges_expiry ON login_challenges(expires_at)').run()
+      await env.BERYL_D1.prepare(
         'CREATE TABLE IF NOT EXISTS cipher_records (' +
         'user_id TEXT NOT NULL REFERENCES users(user_id), opaque_id TEXT NOT NULL, ciphertext TEXT NOT NULL, ' +
         'key_envelope TEXT NOT NULL, version INTEGER NOT NULL, sequence INTEGER NOT NULL, device_id TEXT NOT NULL, ' +

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { apiBaseUrl, saveApiBaseUrl } from '@/core/api/base-url'
-import { login } from '@/core/api/auth'
+import { getLoginChallenge, login } from '@/core/api/auth'
 import { writeServerSession } from '@/core/auth'
 
 const apiUrl = ref(apiBaseUrl())
@@ -9,6 +9,13 @@ const username = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const challenge = ref<{ enabled: boolean; challengeId?: string; question?: string }>({ enabled: false })
+const challengeAnswer = ref('')
+async function refreshChallenge(baseUrl = apiUrl.value) {
+  try { challenge.value = await getLoginChallenge(baseUrl); challengeAnswer.value = '' }
+  catch { challenge.value = { enabled: false } }
+}
+onMounted(() => { void refreshChallenge() })
 
 async function submit() {
   error.value = ''
@@ -16,7 +23,7 @@ async function submit() {
   loading.value = true
   try {
     const baseUrl = saveApiBaseUrl(apiUrl.value)
-    const session = await login(baseUrl, username.value.trim(), password.value)
+    const session = await login(baseUrl, username.value.trim(), password.value, challenge.value.enabled && challenge.value.challengeId ? { challengeId: challenge.value.challengeId, challengeAnswer: challengeAnswer.value } : undefined)
     writeServerSession(session)
     if (session.mustChangePassword) {
       window.location.hash = '#/pass?mode=first'
@@ -30,6 +37,7 @@ async function submit() {
     error.value = message.includes('invalid-credentials') || message.includes('rate-limited')
       ? '用户名或密码错误，请稍后再试。'
       : message || '登录失败，请检查服务地址和网络后重试。'
+    if (challenge.value.enabled) await refreshChallenge(saveApiBaseUrl(apiUrl.value))
   } finally { loading.value = false }
 }
 </script>
@@ -45,6 +53,7 @@ async function submit() {
       <label>服务地址<input v-model="apiUrl" aria-label="服务地址" autocomplete="url" placeholder="https://你的-calmy-worker.workers.dev" required /></label>
       <label>用户名<input v-model="username" aria-label="用户名" autocomplete="username" placeholder="请输入管理员创建的用户名" /></label>
       <label>密码<input v-model="password" aria-label="密码" type="password" autocomplete="current-password" placeholder="请输入密码" /></label>
+      <label v-if="challenge.enabled">验证：{{ challenge.question }}<input v-model="challengeAnswer" inputmode="numeric" autocomplete="off" aria-label="登录验证答案" required /></label>
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
       <button class="app-button primary full" type="submit" :disabled="loading">{{ loading ? '登录中…' : '登 录' }}</button>
       <p class="form-hint">账号由 Calmy 管理员创建。登录后，业务数据按账号隔离保存在本设备。</p>

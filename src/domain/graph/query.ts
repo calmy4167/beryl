@@ -4,7 +4,8 @@ import { recordRepository } from '@/domain/record/repository'
 import { todayRepository } from '@/domain/today/repository'
 import { CORE_ENTITY_TYPES, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle, type DailyState, type Insight, type Outcome, type Practice, type Relation, type Relationship, type Resource, type Seed, type SharedSpace, type Stage } from '@/domain/unified'
 
-export type GraphNodeType = CoreEntityType | 'thing' | 'matter' | 'action' | 'record' | 'today'
+export type GraphNodeType = Exclude<CoreEntityType, 'dictionary_option'> | 'thing' | 'matter' | 'action' | 'record' | 'today'
+const GRAPH_CORE_ENTITY_TYPES = CORE_ENTITY_TYPES.filter((type): type is Exclude<CoreEntityType, 'dictionary_option'> => type !== 'dictionary_option')
 
 export interface GraphNode {
   id: string
@@ -100,6 +101,7 @@ function coreLabel(entity: CoreEntity): string {
     case 'daily_state': return `Today ${entity.date}`
     case 'asset': return entity.path
     case 'relation': return `${entity.from.entityType} ${entity.relationType} ${entity.to.entityType}`
+    case 'dictionary_option': return entity.value
   }
 }
 
@@ -124,6 +126,7 @@ function coreSummary(entity: CoreEntity): string {
     case 'daily_state': return [entity.bodyState, entity.mentalState, entity.trajectory].join(' · ')
     case 'asset': return [entity.mimeType, entity.lifecycle].join(' · ')
     case 'relation': return entity.relationType
+    case 'dictionary_option': return `${entity.module} · ${entity.field} · ${entity.status}`
   }
 }
 
@@ -137,7 +140,7 @@ function legacyNodes(): GraphNode[] {
 }
 
 function unifiedNodes(): GraphNode[] {
-  return CORE_ENTITY_TYPES.flatMap(type => (unifiedRepository.list(type) as CoreEntity[]).map(entity => ({
+  return GRAPH_CORE_ENTITY_TYPES.flatMap(type => (unifiedRepository.list(type) as Exclude<CoreEntity, { entityType: 'dictionary_option' }> []).map(entity => ({
     id: entity.calmyId,
     type: entity.entityType,
     label: coreLabel(entity),
@@ -170,7 +173,9 @@ export function buildGraphSnapshot(query = ''): GraphSnapshot {
   }
 
   for (const relation of unifiedRepository.list<Relation>('relation')) {
-    addEdge(relation.from.calmyId, relation.to.calmyId, relation.relationType, 'relation', relation.directed, relation.confidence, relation.from.entityType, relation.to.entityType)
+    const fromType = relation.from.entityType === 'dictionary_option' ? 'relation' : relation.from.entityType
+    const toType = relation.to.entityType === 'dictionary_option' ? 'relation' : relation.to.entityType
+    addEdge(relation.from.calmyId, relation.to.calmyId, relation.relationType, 'relation', relation.directed, relation.confidence, fromType, toType)
   }
   for (const cycle of unifiedRepository.list<Cycle>('cycle')) addRef(cycle.calmyId, cycle.matterId, 'belongs_to', 'cycle')
   for (const action of actionRepository.list()) { addRef(action.calmyId, action.matterId, 'belongs_to', 'action'); addRef(action.calmyId, action.cycleId, 'part_of', 'action', 'cycle') }

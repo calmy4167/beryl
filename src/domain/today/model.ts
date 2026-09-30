@@ -6,7 +6,11 @@ export interface TodayReview {
   analysis: string
   adjustment: string
   seed: string
+  sourceMaterialIds?: Partial<Record<TodayReviewField, string[]>>
 }
+
+export const TODAY_REVIEW_FIELDS = ['observation', 'analysis', 'adjustment', 'seed'] as const
+export type TodayReviewField = typeof TODAY_REVIEW_FIELDS[number]
 
 export interface TodayPlan {
   date: string

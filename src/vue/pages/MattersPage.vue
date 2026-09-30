@@ -8,10 +8,11 @@ import { watchFeishuWorkspace, type WorkspaceSnapshot } from '@/core/feishu/work
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
 import { feishuWorkspace } from '@/domain/feishu/workspace-instance'
+import { useMatterStatusDictionary } from '@/vue/composables/useMatterStatusDictionary'
 import CalmySelect from '@/vue/components/CalmySelect.vue'
 
-const matterStatusLabels: Record<Matter['status'], string> = { draft: '草稿', active: '进行中', paused: '已暂停', archived: '已结束' }
 const trajectoryLabels: Record<Matter['trajectory'], string> = { advancing: '推进', stable: '稳定', stalled: '停滞', retreating: '回退', diverging: '绕路', lost: '失去连接', recovering: '恢复', restarting: '重启', unknown: '未知' }
+const { statuses: orderedMatterStatuses, labelFor: matterStatusLabel } = useMatterStatusDictionary()
 const sourceKey = 'calmy:workspace:source'
 const sourceEvent = 'calmy-workspace-source'
 const readSource = (): 'local' | 'feishu' => {
@@ -35,12 +36,10 @@ let stopFeishuWatch: (() => void) | undefined
 let unsubscribeFeishu: (() => void) | undefined
 
 const visibleMatters = computed(() => list.value.filter(item => filter.value === 'all' || item.status === filter.value))
-const filterOptions = [
+const filterOptions = computed(() => [
   { value: 'all', label: '全部' },
-  { value: 'active', label: '进行中' },
-  { value: 'paused', label: '已暂停' },
-  { value: 'archived', label: '已结束' },
-]
+  ...orderedMatterStatuses.value.map(status => ({ value: status, label: matterStatusLabel(status) })),
+])
 const trajectoryOptions = Object.entries(trajectoryLabels).map(([value, label]) => ({ value, label }))
 const projectRecords = computed(() => {
   const query = projectQuery.value.trim().toLowerCase()
@@ -280,7 +279,7 @@ onUnmounted(() => {
       <div class="matter-grid">
         <div v-if="loading" class="empty-state" role="status">正在读取处境…</div>
         <article v-for="item in visibleMatters" :key="item.calmyId" class="matter-card beryl-card">
-          <div class="matter-card-head"><span :class="['matter-status', item.status]">{{ matterStatusLabels[item.status] }}</span><div class="matter-card-actions"><button class="app-button" type="button" :aria-label="`${item.title}状态切换`" @click="toggle(item)">{{ item.status === 'active' ? '暂停' : '恢复' }}</button><button v-if="item.status !== 'archived'" class="app-button" type="button" @click="archive(item)">结束</button></div></div>
+          <div class="matter-card-head"><span :class="['matter-status', item.status]">{{ matterStatusLabel(item.status) }}</span><div class="matter-card-actions"><button class="app-button" type="button" :aria-label="`${item.title}状态切换`" @click="toggle(item)">{{ item.status === 'active' ? '暂停' : '恢复' }}</button><button v-if="item.status !== 'archived'" class="app-button" type="button" @click="archive(item)">结束</button></div></div>
           <h2 class="font-title">{{ item.title }}</h2><p>{{ item.why || '还没有写下为什么重要。' }}</p>
           <section v-if="item.problem" class="problem-driven-summary"><b>当前要解决的问题</b><p>{{ item.problem }}</p><template v-if="item.desiredChange"><b>期望变化</b><p>{{ item.desiredChange }}</p></template><template v-if="item.currentGap"><b>当前缺口</b><p>{{ item.currentGap }}</p></template><template v-if="item.nextTest"><b>下一次验证</b><p>{{ item.nextTest }}</p></template><template v-if="item.stopCondition"><b>停止条件</b><p>{{ item.stopCondition }}</p></template></section>
           <div class="matter-card-trend"><span>阶段：{{ item.currentStage }}</span><label><span class="matter-trajectory-label">趋势</span><select :aria-label="`${item.title}趋势`" :value="item.trajectory" class="matter-trajectory-select" @change="changeTrajectory(item, ($event.target as HTMLSelectElement).value as Matter['trajectory'])"><option v-for="option in trajectoryOptions" :key="option.value" :value="option.value">{{ option.label }}</option></select></label></div>

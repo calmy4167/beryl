@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { withSaveState } from '@/core/save-state'
 import { unifiedAsyncRepository, unifiedFactories } from '@/domain/unified'
 import type { Person } from '@/domain/unified'
+import { usePersonStatusDictionary } from '@/vue/composables/usePersonStatusDictionary'
 
 withDefaults(defineProps<{ embedded?: boolean }>(), { embedded: false })
 
@@ -16,6 +17,7 @@ const filter = ref<PersonFilter>('active')
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const { statuses: orderedStatuses, labelFor: personStatusLabel } = usePersonStatusDictionary()
 
 function toast(message: string, kind: 'success' | 'warning' | 'error' = 'success'): void {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message, kind } }))
@@ -76,7 +78,7 @@ async function updateStatus(person: Person, status: Person['status']): Promise<v
       archivedAt: status === 'archived' ? Date.now() : undefined,
     }, { expectedRevision: person.revision }))
     await refresh()
-    toast(status === 'archived' ? '人物已归档' : '人物已恢复')
+    toast(`人物状态已设为「${personStatusLabel(status)}」`)
   } catch (cause) {
     toast(cause instanceof Error ? cause.message : '人物状态更新失败', 'error')
     await refresh()
@@ -92,7 +94,7 @@ async function updateStatus(person: Person, status: Person['status']): Promise<v
         <h1 class="font-title">人物</h1>
         <p>把重要的人、关系背景和相处边界放在同一个可回看的地方。</p>
       </div>
-      <span class="load-pill">{{ loading ? '正在读取…' : `${activeCount} 位活跃人物` }}</span>
+      <span class="load-pill">{{ loading ? '正在读取…' : `${personStatusLabel('active')}：${activeCount}` }}</span>
     </header>
 
     <section class="beryl-card admin-block">
@@ -118,12 +120,13 @@ async function updateStatus(person: Person, status: Person['status']): Promise<v
     <section class="beryl-card admin-block">
       <div class="panel-head">
         <div><p class="eyebrow">PEOPLE INDEX</p><h2 class="font-title">人物列表</h2></div>
-        <span>{{ archivedCount }} 位已归档</span>
+        <span>{{ archivedCount }} 位{{ personStatusLabel('archived') }}</span>
       </div>
       <div class="people-toolbar" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0">
         <input v-model="query" class="global-search" aria-label="搜索人物" placeholder="搜索姓名、角色、领域或备注">
         <div class="range-tabs" role="tablist" aria-label="人物筛选">
-          <button v-for="[value,label] in [['active','活跃'],['archived','已归档'],['all','全部']] as const" :key="value" type="button" :class="{ on: filter === value }" role="tab" :aria-selected="filter === value" @click="filter = value">{{ label }}</button>
+          <button v-for="status in orderedStatuses" :key="status" type="button" :class="{ on: filter === status }" role="tab" :aria-selected="filter === status" @click="filter = status">{{ personStatusLabel(status) }}</button>
+          <button type="button" :class="{ on: filter === 'all' }" role="tab" :aria-selected="filter === 'all'" @click="filter = 'all'">全部</button>
         </div>
       </div>
 
@@ -131,7 +134,7 @@ async function updateStatus(person: Person, status: Person['status']): Promise<v
       <div v-if="loading" class="empty-state" role="status">正在加载人物…</div>
       <div v-else-if="visiblePeople.length" class="matter-grid">
         <article v-for="person in visiblePeople" :key="person.calmyId" class="matter-card beryl-card">
-          <div class="matter-card-head"><span class="matter-status">{{ person.status === 'active' ? '活跃' : '已归档' }}</span><small>更新于 {{ formatUpdatedAt(person.updatedAt) }}</small></div>
+          <div class="matter-card-head"><span class="matter-status">{{ personStatusLabel(person.status) }}</span><small>更新于 {{ formatUpdatedAt(person.updatedAt) }}</small></div>
           <h2>{{ person.displayName }}</h2>
           <p>{{ person.notes || '还没有上下文备注。' }}</p>
           <small v-if="person.roles.length || person.domain">{{ [person.domain, ...person.roles].filter(Boolean).join(' · ') }}</small>
@@ -142,7 +145,7 @@ async function updateStatus(person: Person, status: Person['status']): Promise<v
           </div>
         </article>
       </div>
-      <div v-else class="empty-state">{{ query ? '没有匹配的人物。' : filter === 'archived' ? '还没有已归档人物。' : '还没有人物，先添加一个重要的人吧。' }}</div>
+      <div v-else class="empty-state">{{ query ? '没有匹配的人物。' : filter === 'archived' ? `还没有${personStatusLabel('archived')}人物。` : '还没有人物，先添加一个重要的人吧。' }}</div>
     </section>
   </div>
 </template>

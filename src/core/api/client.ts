@@ -7,6 +7,7 @@ export class ApiError extends Error {
 }
 
 import { readServerSession } from '../auth'
+import { getActiveAccount } from '../account-context'
 
 function endpoint(baseUrl: string, path: string): string {
   return baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
@@ -18,6 +19,10 @@ export async function apiFetch(baseUrl: string, path: string, init: RequestInit 
   const headers = new Headers(init.headers)
   const isPublicAuth = path === '/api/auth/login' || path === '/api/auth/bootstrap'
   const session = !isPublicAuth ? readServerSession() : null
+  const activeUserId = getActiveAccount()
+  if (!isPublicAuth && activeUserId && session?.user.id !== activeUserId) {
+    throw new ApiError('session-account-mismatch')
+  }
   let targetOrigin = ''
   try { targetOrigin = new URL(baseUrl).origin } catch { /* endpoint construction will fail as a network request */ }
   if (session?.token && session.apiOrigin === targetOrigin && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${session.token}`)

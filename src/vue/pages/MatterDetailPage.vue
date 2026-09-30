@@ -3,13 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
-
-const matterStatusLabels: Record<Matter['status'], string> = {
-  draft: '草稿',
-  active: '进行中',
-  paused: '已暂停',
-  archived: '已结束',
-}
+import { useMatterStatusDictionary } from '@/vue/composables/useMatterStatusDictionary'
 
 const trajectoryLabels: Record<Matter['trajectory'], string> = {
   advancing: '推进',
@@ -25,6 +19,7 @@ const trajectoryLabels: Record<Matter['trajectory'], string> = {
 
 const route = useRoute()
 const router = useRouter()
+const { labelFor: matterStatusLabel } = useMatterStatusDictionary()
 const routeMatterId = computed(() => {
   const id = route.params.id
   return Array.isArray(id) ? id[id.length - 1] || '' : id || ''
@@ -35,7 +30,7 @@ const error = ref('')
 const statusSegments = computed(() => {
   const current = matter.value
   return current
-    ? ['状态：', matterStatusLabels[current.status], ' · 阶段：', current.currentStage, ' · 趋势：', trajectoryLabels[current.trajectory]]
+    ? ['状态：', matterStatusLabel(current.status), ' · 阶段：', current.currentStage, ' · 趋势：', trajectoryLabels[current.trajectory]]
     : []
 })
 const contradictionSegments = computed(() => {

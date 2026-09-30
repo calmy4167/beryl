@@ -14,16 +14,22 @@ import {
   type CycleStatus,
   type DailyState,
   type Domain,
+  type DictionaryOption,
   type Asset,
+  ASSET_LIFECYCLES,
   type Insight,
+  INSIGHT_STATUSES,
   type Outcome,
   type Person,
+  PERSON_STATUSES,
   type Permission,
   type Practice,
   type Relation,
   type Relationship,
   type Resource,
+  RESOURCE_STATUSES,
   type Seed,
+  SEED_STATUSES,
   type SharedSpace,
   type Scene,
   type SceneParticipant,
@@ -35,6 +41,10 @@ import {
   validateRelation
 } from './model'
 import { matterRepository } from '@/domain/matter/repository'
+import { ACTION_STATUSES } from '@/domain/action/model'
+import { CAPTURE_STATUSES } from '@/domain/capture/model'
+import { GOAL_STATUSES } from '@/domain/goal/status-labels'
+import { MATTER_STATUSES } from '@/domain/matter/model'
 
 type RepositoryItem = CoreEntity
 
@@ -73,7 +83,7 @@ function requireText(value: string | undefined, label: string): string {
   return normalized
 }
 
-function assertEntity(entity: RepositoryItem): void {
+function assertEntity(entity: RepositoryItem, validateSyncDictionaryUniqueness = true): void {
   if (!entity.calmyId || !entity.entityType) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity id and type are required')
   if (!Number.isFinite(entity.revision) || entity.revision < 1) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity revision must be positive')
   if (entity.entityType === 'scene') {
@@ -111,6 +121,27 @@ function assertEntity(entity: RepositoryItem): void {
   if (entity.entityType === 'domain' && (!entity.key.trim() || !entity.displayName.trim())) {
     throw new CoreDomainError('VALIDATION_FAILED', 'Domain key and displayName are required')
   }
+  if (entity.entityType === 'dictionary_option') {
+    requireText(entity.value, 'Dictionary option value')
+    const validResourceField = entity.module === 'resource' && ['category', 'tag', 'source'].includes(entity.field) && !entity.systemKey
+    const validResourceStatus = entity.module === 'resource' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (RESOURCE_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validAssetStatus = entity.module === 'asset' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (ASSET_LIFECYCLES as readonly string[]).includes(entity.systemKey)
+    const validSeedStatus = entity.module === 'seed' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (SEED_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validInsightStatus = entity.module === 'insight' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (INSIGHT_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validFinanceField = entity.module === 'finance' && entity.field === 'category' && !entity.systemKey
+    const validActionStatus = entity.module === 'action' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (ACTION_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validCaptureStatus = entity.module === 'capture' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (CAPTURE_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validGoalStatus = entity.module === 'goal' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (GOAL_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validMatterStatus = entity.module === 'matter' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (MATTER_STATUSES as readonly string[]).includes(entity.systemKey)
+    const validPersonStatus = entity.module === 'person' && entity.field === 'status' && entity.status === 'active' && !!entity.systemKey && (PERSON_STATUSES as readonly string[]).includes(entity.systemKey)
+    if ((!validResourceField && !validResourceStatus && !validAssetStatus && !validSeedStatus && !validInsightStatus && !validFinanceField && !validActionStatus && !validCaptureStatus && !validGoalStatus && !validMatterStatus && !validPersonStatus) || !['active', 'retired'].includes(entity.status) || !Number.isFinite(entity.sortOrder)) {
+      throw new CoreDomainError('VALIDATION_FAILED', 'Dictionary option module, field, status, and sort order are invalid')
+    }
+    if (validateSyncDictionaryUniqueness) {
+      const duplicate = storeFor('dictionary_option').list().find(item => item.entityType === 'dictionary_option' && item.calmyId !== entity.calmyId && item.module === entity.module && item.field === entity.field && (item.value.trim().toLocaleLowerCase() === entity.value.trim().toLocaleLowerCase() || (!!entity.systemKey && item.systemKey === entity.systemKey)))
+      if (duplicate) throw new CoreDomainError('VALIDATION_FAILED', `Dictionary option “${entity.value.trim()}” already exists in ${entity.field}`)
+    }
+  }
   if (entity.entityType === 'scope' && Object.values(entity).some(value => value === '')) {
     throw new CoreDomainError('VALIDATION_FAILED', 'Scope filters cannot be blank')
   }
@@ -120,6 +151,21 @@ function assertEntity(entity: RepositoryItem): void {
   )) {
     throw new CoreDomainError('VALIDATION_FAILED', 'Permission requires a principal, actions, and exactly one Scope or entity reference')
   }
+}
+
+async function assertAsyncEntity(entity: RepositoryItem): Promise<void> {
+  // Async repositories are backed by IndexedDB/outbox and may not be mirrored
+  // in the synchronous compatibility cache. Validate uniqueness against the
+  // same durable collection that the async write will update.
+  assertEntity(entity, false)
+  if (entity.entityType !== 'dictionary_option') return
+  const normalized = entity.value.trim().toLocaleLowerCase()
+  const duplicate = (await asyncStoreFor('dictionary_option').list()).find(item => item.entityType === 'dictionary_option'
+    && item.calmyId !== entity.calmyId
+    && item.module === entity.module
+    && item.field === entity.field
+    && (item.value.trim().toLocaleLowerCase() === normalized || (!!entity.systemKey && item.systemKey === entity.systemKey)))
+  if (duplicate) throw new CoreDomainError('VALIDATION_FAILED', `Dictionary option “${entity.value.trim()}” already exists in ${entity.field}`)
 }
 
 function canTransitionScene(from: SceneStatus, to: SceneStatus): boolean {
@@ -354,7 +400,7 @@ export const unifiedAsyncRepository = {
     return item?.entityType === entityType ? item as T : undefined
   },
   async create<T extends RepositoryItem>(entity: T, meta: CoreCommandMeta = {}): Promise<T> {
-    assertEntity(entity)
+    await assertAsyncEntity(entity)
     const command = metaOf(meta)
     const duplicate = await duplicateResultAsync(command.commandId)
     if (duplicate) return duplicate as T
@@ -372,7 +418,7 @@ export const unifiedAsyncRepository = {
     if (!current) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
     assertRevision(current, meta.expectedRevision)
     const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 } as T
-    assertEntity(next)
+    await assertAsyncEntity(next)
     const updated = await asyncStoreFor(entityType).update(calmyId, () => next)
     if (!updated) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
     await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
@@ -531,5 +577,8 @@ export const unifiedFactories = {
   dailyState(input: Omit<DailyState, keyof CoreEntityMetaSeed>): DailyState {
     if (input.load < 0 || input.load > 100) throw new CoreDomainError('VALIDATION_FAILED', 'DailyState load must be between 0 and 100')
     return { ...createMeta('daily_state'), ...input }
+  },
+  dictionaryOption(input: Pick<DictionaryOption, 'module' | 'field' | 'value' | 'sortOrder'> & Partial<Pick<DictionaryOption, 'status' | 'systemKey'>>): DictionaryOption {
+    return { ...createMeta('dictionary_option'), ...input, value: requireText(input.value, 'Dictionary option value'), status: input.status || 'active' }
   }
 }

@@ -1,10 +1,10 @@
 # Calmy 文档登记册
 
-> 更新日期：2026-09-26 · 目的：明确每份文档的用途、状态和冲突处理方式。
+> 更新日期：2026-09-30 · 目的：明确每份文档的用途、状态和冲突处理方式。
 
-> 2026-09-26 前端迁移状态更正：OW-06 未完成。最近记录的 335 组截图仅 272 组逐像素相同，63 组仍有差异；先前按容差标记完成无效。当前 Vue 生产入口及 React 清理早于严格验收，须在精确视觉门禁通过后重新核验迁移顺序与完整门禁。
+> 2026-09-30 前端迁移状态校准：OW-06 按用户 2026-09-28 确认的验收范围已完成。纯外观差异可接受，不再要求 335 组截图逐像素一致；完整迁移验证和已知差异见 `OPEN_WORK.md` 与 Vue 迁移台账末尾记录。不得沿用更早记录中的 React 生产入口状态。
 
-> 历史边界：本登记册中带日期的实现校准段落记录的是当时状态；严格视觉验收以迁移计划和台账的最新更正为准。
+> 历史边界：登记册中带日期的实现校准段落记录的是当时状态；当前迁移状态以 `OPEN_WORK.md` 和迁移台账最新更正为准。
 
 > 2026-09-19 产品本体调整：`CALMY_PRODUCT_DESIGN_2026-09-19.md` 与 D-018 成为当前方向；原 Attention OS 统一总稿降为迁移期执行参考，不代表当前代码已经完成新方向。
 
@@ -38,14 +38,19 @@
 | `docs/product/README.md` | 当前权威 | 产品文档包导航和当前裁决入口 |
 | `docs/product/DOCUMENT_REGISTER.md` | 当前权威 | 全部文档/资产的状态登记和冲突处理 |
 | `docs/product/DOCUMENT_AUDIT_2026-09-19.md` | 实现快照 | 2026-09-19 全量文档与界面收敛审计、修订范围和验证记录 |
+| `docs/adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md` | 当前权威（Accepted） | Calmy 零知识优先数据架构、密文同步与可见控制元数据边界 |
+| `docs/adr/ADR-002-recipient-key-envelope-protocol.md` | 草案（Proposed） | 跨用户分享密钥封套；受独立密码学审查门槛约束，未接受前不得实施 |
+| `docs/superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md` | 当前权威（已接受） | User 账号生命周期、归属、权限、数据隔离和全产品访问模型 |
+| `docs/superpowers/specs/2026-09-30-calmy-phase-b-single-entity-readonly-sharing-design.md` | 执行设计（有前置门槛） | 单 Entity 只读分享范围；须待 ADR-002 独立审查与接受后实施 |
+| `docs/security/ADR-002_SELF_REVIEW_2026-09-30.md` | 安全实现快照（非独立审查） | 作者自审发现及待解决项；不得替代独立密码学审查 |
 | `docs/product/PRODUCT_DECISIONS_2026-08-19.md` | 当前权威 | 已接受决策、废弃方向和变更纪律 |
-| `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md` | 当前权威 | 人与世界之间的反思层、未来回望、双循环、外部工具边界与迁移原则 |
+| `docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md` | 当前权威 | 人与世界之间的反思层、未来回望、User 身份/归属/访问边界、外部工具与迁移原则；加密协议细节服从 ADR |
 | `docs/product/MASTER_DATA_AND_ENTITY_REFERENCES_2026-09-24.md` | 当前权威 | 主数据中心、素材/字典、渐进式实体引用交互、兼容与分期验收；服从当前产品总设计 |
 | `docs/product/CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md` | 规划提案 | 用户数据所有权、Runtime Store / Portable Vault / Cloud / Backup 职责、开放格式、附件和冲突处理目标；不得将规划能力写成已实现，服从 D-018 与现有稳定存储契约 |
 | `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` | 执行参考 | Attention OS、四入口和 Matter 兼容实现；用于迁移，不再定义新增功能的产品本体 |
 | `docs/product/PRODUCT_REDESIGN_2026-08-22.md` | 执行参考 | 旧产品重设计细节；已合并到统一总稿 |
 | `docs/product/UX_UI_REDESIGN_2026-08-22.md` | 执行参考 | 旧信息架构、页面和 Flow UI 细节；已合并到统一总稿 |
-| `docs/product/ENGINEERING_REVIEW_2026-08-22.md` | 当前权威 | 当前代码差距和目标架构 |
+| `docs/product/ENGINEERING_REVIEW_2026-08-22.md` | 当前权威（含日期快照） | 工程风险与目标架构；当前生产入口、身份/加密边界和未完成门槛以第 20 节及 `OPEN_WORK.md` 为准 |
 | `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md` | 执行参考 | 旧实施顺序与 Flow 验收细节；当前阶段顺序以统一总稿和 OPEN_WORK 为准 |
 | `docs/product/OPEN_WORK.md` | 当前权威 | 唯一活跃的未完成工作；已完成任务不再重复列入 |
 | `docs/product/FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md` | 规划提案 | D-014：飞书生活工作台、三个默认入口、字段映射、数据归属及分阶段验收；不等同于已实现 |
@@ -101,6 +106,7 @@
 
 - `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`：新的产品与体验总设计；
 - `docs/product/PRODUCT_DECISIONS_2026-08-19.md`：新增可执行的稳定决策；
+- `docs/adr/` 与已接受的 User Identity 设计：记录零知识数据边界、用户访问模型及尚未通过审查的分享协议草案；
 - `docs/product/OPEN_WORK.md`：新增仍需实现和验证的 Attention Surface、记忆治理与 Trajectory/结束能力。
 
 合并保留现有四入口、双侧栏、Reality 闭环、Matter 聚合根、Record 事实层、Cycle/Stage、Flow 二级定位和 IndexedDB/Repository 事实源。Self、Experience、Memory、Body 和 Attention Gate 被映射到现有领域能力，不自动建立第二套数据模型。

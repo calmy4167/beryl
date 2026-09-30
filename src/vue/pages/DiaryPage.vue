@@ -8,17 +8,19 @@ import { unifiedAsyncRepository, type Resource } from '@/domain/unified'
 import { insertTextAtRange } from '@/domain/master-data-text'
 import '@/styles/shared/master-data-picker.css'
 
-interface DiaryEntry { date: string; content: string }
+interface DiaryEntry { date: string; content: string; sourceMaterialIds?: string[] }
 interface SentenceItem { id: string; label: string; detail?: string }
 const diaryRepository = createAsyncCollectionRepository<DiaryEntry>('diary', item => item.date)
 const selectedDate = ref(todayKey())
 const content = ref('')
+const sourceMaterialIds = ref<string[]>([])
 const entries = ref<DiaryEntry[]>([])
 const entryCountSegments = computed(() => [String(entries.value.length), ' 篇记录'])
 const query = ref('')
 const saving = ref(false)
 const loading = ref(true)
 const contentLoading = ref(true)
+const contentLoadError = ref('')
 const error = ref('')
 const sentenceItems = ref<SentenceItem[]>([])
 const sentenceError = ref('')
@@ -47,19 +49,20 @@ function isDiaryEntry(value: unknown): value is DiaryEntry {
 async function readEntries(): Promise<DiaryEntry[]> {
   const documents = await listRealityDocumentsAsync({ types: ['diary'] })
   const stored = (await diaryRepository.list()).filter(isDiaryEntry)
-  const storedByDate = new Map(stored.map(item => [item.date, item.content]))
+  const storedByDate = new Map(stored.map(item => [item.date, item]))
   return documents.map(document => {
     const date = document.date || document.id
-    const text = storedByDate.get(date) || document.body || document.summary
-    return { date, content: text.trim() }
+    const entry = storedByDate.get(date)
+    const text = entry?.content || document.body || document.summary
+    return { date, content: text.trim(), ...(entry?.sourceMaterialIds?.length ? { sourceMaterialIds: entry.sourceMaterialIds } : {}) }
   }).filter(item => item.date && item.content).sort((left, right) => right.date.localeCompare(left.date))
 }
-async function readContent(date: string): Promise<string> {
+async function readContent(date: string): Promise<DiaryEntry> {
   const stored = (await diaryRepository.list()).filter(isDiaryEntry)
   const exact = stored.find(item => item.date === date)
-  if (exact) return exact.content
+  if (exact) return exact
   const document = (await listRealityDocumentsAsync({ types: ['diary'] })).find(item => (item.date || item.id) === date)
-  return document?.body || document?.summary || ''
+  return { date, content: document?.body || document?.summary || '' }
 }
 function shiftDate(value: string, amount: number): string {
   const date = new Date(`${value}T12:00:00`)
@@ -81,21 +84,29 @@ async function refresh(): Promise<void> {
   catch (cause) { error.value = cause instanceof Error ? cause.message : '日记读取失败' }
   finally { loading.value = false }
 }
-watch(selectedDate, async date => {
+async function loadSelectedDate(date: string): Promise<void> {
   const currentRead = ++contentRead
   contentLoading.value = true
+  contentLoadError.value = ''
+  content.value = ''
+  sourceMaterialIds.value = []
   try {
-    const nextContent = await readContent(date)
-    if (mounted && currentRead === contentRead) content.value = nextContent
+    const nextEntry = await readContent(date)
+    if (mounted && currentRead === contentRead) {
+      content.value = nextEntry.content
+      sourceMaterialIds.value = Array.isArray(nextEntry.sourceMaterialIds) ? [...new Set(nextEntry.sourceMaterialIds.filter(id => typeof id === 'string' && id.trim()))] : []
+    }
   } catch (cause) {
-    if (mounted && currentRead === contentRead) error.value = cause instanceof Error ? cause.message : '日记读取失败'
+    if (mounted && currentRead === contentRead) contentLoadError.value = cause instanceof Error ? cause.message : '日记读取失败'
   } finally {
     if (mounted && currentRead === contentRead) contentLoading.value = false
   }
-}, { immediate: true })
+}
+watch(selectedDate, date => { void loadSelectedDate(date) }, { immediate: true })
 function selectDate(date: string): void { if (date) selectedDate.value = date }
 async function save(event: Event): Promise<void> {
   event.preventDefault()
+  if (contentLoading.value || contentLoadError.value) return
   const value = content.value.trim()
   if (!value) { toast('写点什么再保存吧', 'warning'); return }
   const date = selectedDate.value
@@ -105,8 +116,8 @@ async function save(event: Event): Promise<void> {
       const current = (await diaryRepository.list()).filter(isDiaryEntry)
       const existing = current.find(item => item.date === date)
       if (existing) {
-        if (!await diaryRepository.update(date, () => ({ ...existing, content: value }))) throw new Error('日记保存失败，请检查本地存储状态')
-      } else await diaryRepository.create({ date, content: value })
+        if (!await diaryRepository.update(date, () => ({ ...existing, content: value, sourceMaterialIds: sourceMaterialIds.value.length ? sourceMaterialIds.value : undefined }))) throw new Error('日记保存失败，请检查本地存储状态')
+      } else await diaryRepository.create({ date, content: value, ...(sourceMaterialIds.value.length ? { sourceMaterialIds: sourceMaterialIds.value } : {}) })
     })
     content.value = value
     await refresh()
@@ -121,6 +132,7 @@ function syncSelection(event?: Event): void {
 function insertSentence(item: SentenceItem): void {
   const next = insertTextAtRange(content.value, selection.start, selection.end, item.detail || item.label)
   content.value = next.value
+  sourceMaterialIds.value = [...new Set([...sourceMaterialIds.value, item.id])]
   pickerOpen.value = false
   drawerOpen.value = false
   pickerQuery.value = ''
@@ -208,13 +220,15 @@ onUnmounted(() => {
           </div>
         </div>
         <p v-if="sentenceError" class="master-sentence-error" role="alert">常用句暂不可用：{{ sentenceError }} <button type="button" @click="loadSentences">重试</button></p>
-        <textarea ref="editor" :value="contentLoading ? '' : content" :aria-label="`${selectedDate} 日记内容`" :disabled="saving || contentLoading" placeholder="写下今天的心情、想法与收获…" rows="10" style="width: 100%; resize: vertical; min-height: 180px; box-sizing: border-box" @input="content = ($event.target as HTMLTextAreaElement).value" @select="syncSelection" @blur="syncSelection" />
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px"><span class="muted">{{ contentLoading ? '正在读取当前日期…' : `${content.length} 字 · 选择任意日期即可补写历史记录` }}</span><button class="app-button primary" type="submit" :disabled="saving || contentLoading">{{ saving ? '保存中…' : '保存日记' }}</button></div>
+        <p v-if="contentLoadError" class="master-sentence-error" role="alert">当前日期读取失败：{{ contentLoadError }} <button type="button" @click="loadSelectedDate(selectedDate)">重试</button></p>
+        <textarea ref="editor" :value="contentLoading || contentLoadError ? '' : content" :aria-label="`${selectedDate} 日记内容`" :disabled="saving || contentLoading || !!contentLoadError" placeholder="写下今天的心情、想法与收获…" rows="10" style="width: 100%; resize: vertical; min-height: 180px; box-sizing: border-box" @input="content = ($event.target as HTMLTextAreaElement).value" @select="syncSelection" @blur="syncSelection" />
+        <small v-if="sourceMaterialIds.length" role="status">曾插入 {{ sourceMaterialIds.length }} 条句子素材作为来源记录，正文可能已编辑。 <button type="button" @click="sourceMaterialIds = []">清除来源记录</button></small>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px"><span class="muted">{{ contentLoading ? '正在读取当前日期…' : contentLoadError ? '读取成功后才能编辑和保存' : `${content.length} 字 · 选择任意日期即可补写历史记录` }}</span><button class="app-button primary" type="submit" :disabled="saving || contentLoading || !!contentLoadError">{{ saving ? '保存中…' : '保存日记' }}</button></div>
       </form>
     </section>
     <section class="beryl-card" style="padding: 16px"><div class="panel-head" style="gap: 12px; flex-wrap: wrap"><div><p class="eyebrow">DIARY INDEX</p><h2 class="font-title">历史记录</h2></div><input v-model="query" aria-label="搜索日记" placeholder="搜索日期或内容" style="flex: 1 1 220px; min-width: 0"></div>
       <div v-if="loading" class="empty-state" role="status">正在读取日记…</div>
-      <div v-else-if="visibleEntries.length" class="list" aria-live="polite" style="margin-top: 16px; display: grid; gap: 8px"><button v-for="entry in visibleEntries" :key="entry.date" type="button" class="beryl-card hoverable" :aria-pressed="entry.date === selectedDate" :style="{ padding: '12px', textAlign: 'left', cursor: 'pointer', borderColor: entry.date === selectedDate ? 'var(--scene-border-strong)' : undefined }" @click="selectDate(entry.date)"><span style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap"><strong>{{ entry.date }}{{ entry.date === todayKey() ? ' · 今天' : '' }}</strong><span class="muted">打开编辑</span></span><span style="display: block; margin-top: 6px; color: var(--c-text-2); overflow-wrap: anywhere">{{ shortContent(entry.content) }}</span></button></div>
+      <div v-else-if="visibleEntries.length" class="list" aria-live="polite" style="margin-top: 16px; display: grid; gap: 8px"><button v-for="entry in visibleEntries" :key="entry.date" type="button" class="beryl-card hoverable" :aria-pressed="entry.date === selectedDate" :style="{ padding: '12px', textAlign: 'left', cursor: 'pointer', borderColor: entry.date === selectedDate ? 'var(--scene-border-strong)' : undefined }" @click="selectDate(entry.date)"><span style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap"><strong>{{ entry.date }}{{ entry.date === todayKey() ? ' · 今天' : '' }}</strong><span class="muted">{{ entry.sourceMaterialIds?.length ? `曾插入 ${entry.sourceMaterialIds.length} 条素材` : '打开编辑' }}</span></span><span style="display: block; margin-top: 6px; color: var(--c-text-2); overflow-wrap: anywhere">{{ shortContent(entry.content) }}</span></button></div>
       <div v-else class="empty-state">{{ query ? '没有匹配的日记。' : '还没有日记，写下第一篇吧。' }}</div>
     </section>
   </div>

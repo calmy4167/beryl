@@ -3,11 +3,12 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { todayKey } from '@/core/storage'
 import { actionAsyncRepository } from '@/domain/action/repository'
-import type { ActionItem, ActionStatus } from '@/domain/action/model'
+import type { ActionItem } from '@/domain/action/model'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter, MatterStage } from '@/domain/matter/model'
 import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayPlan } from '@/domain/today/model'
+import { useActionStatusDictionary } from '@/vue/composables/useActionStatusDictionary'
 
 interface CycleStageDefinition {
   key: MatterStage
@@ -25,13 +26,7 @@ const cycleStages: CycleStageDefinition[] = [
   { key: 'water', symbol: '水', label: '回看', hint: '蓄力', color: '#73acd8' },
 ]
 
-const actionStatusLabels: Record<ActionStatus, string> = {
-  planned: '待开始',
-  in_progress: '进行中',
-  done: '已完成',
-  skipped: '已跳过',
-  cancelled: '已取消',
-}
+const { labelFor: actionStatusLabel } = useActionStatusDictionary()
 
 const loadLabels: Record<NonNullable<TodayPlan['load']>, string> = {
   good: '状态很好',
@@ -211,7 +206,7 @@ onUnmounted(() => {
           </div>
           <ul v-if="actions.length">
             <li v-for="item in actions.slice(0, 5)" :key="item.calmyId">
-              {{ focusIds.has(item.calmyId) ? '★ ' : '' }}{{ item.title }} · {{ actionStatusLabels[item.status] }}
+              {{ focusIds.has(item.calmyId) ? '★ ' : '' }}{{ item.title }} · {{ actionStatusLabel(item.status) }}
             </li>
           </ul>
           <p v-else class="empty-state">今天还没有行动。回到今天写下下一步，进度会自动出现在这里。</p>

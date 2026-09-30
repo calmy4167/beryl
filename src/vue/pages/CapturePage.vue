@@ -5,6 +5,7 @@ import { captureText, decideCapture, type CaptureDecision } from '@/application'
 import { withSaveState } from '@/core/save-state'
 import { captureAsyncRepository, type AiSuggestion, type CaptureItem } from '@/domain/capture'
 import { unifiedAsyncRepository, type Resource } from '@/domain/unified'
+import { useCaptureStatusDictionary } from '@/vue/composables/useCaptureStatusDictionary'
 import { boundField, fieldValue } from '@/core/feishu/model'
 import type { FeishuRecord, FeishuTableKey } from '@/core/api/feishu'
 import { watchFeishuWorkspace, type WorkspaceSnapshot } from '@/core/feishu/workspace'
@@ -24,7 +25,9 @@ const decisions: Array<{ value: CaptureDecision; label: string; hint: string }> 
 const sourceStorageKey = 'calmy:workspace:source'
 const sourceEvent = 'calmy-workspace-source'
 const source = ref<'local' | 'feishu'>(readSource())
+const { labelFor: captureStatusLabel, error: captureStatusError, hasLoadedOptions: captureStatusHasLoaded, refresh: refreshCaptureStatusDictionary } = useCaptureStatusDictionary()
 const body = ref('')
+const sourceMaterialIds = ref<string[]>([])
 const captures = ref<CaptureItem[]>([])
 const suggestions = ref<AiSuggestion[]>([])
 const drafts = reactive<Record<string, string>>({})
@@ -77,6 +80,7 @@ function insertSentence(item: SentenceItem): void {
   const next = `${body.value.slice(0, from)}${insertion}${body.value.slice(to)}`
   const caret = from + insertion.length
   body.value = next
+  sourceMaterialIds.value = [...new Set([...sourceMaterialIds.value, item.id])]
   pickerQuery.value = ''
   pickerOpen.value = false
   requestAnimationFrame(() => {
@@ -135,8 +139,9 @@ function retrySentences(): void { sentenceAttempt.value++; void loadSentences() 
 async function capture(): Promise<void> {
   if (!body.value.trim()) { toast('先写下一段原文', 'warning'); return }
   try {
-    const result = await withSaveState(() => captureText(body.value))
+    const result = await withSaveState(() => captureText(body.value, sourceMaterialIds.value))
     body.value = ''
+    sourceMaterialIds.value = []
     await refresh()
     toast(result.suggestionError ? '原文已保存，建议生成失败但不影响使用' : '原文已安全保存')
   } catch (cause) { toast(cause instanceof Error ? cause.message : '记录保存失败', 'error') }
@@ -225,6 +230,8 @@ const selectedProjectLabel = computed(() => projectOptions.value.find(option => 
 const projectPickerDisabled = computed(() => feishuSnapshot.value.saving || !!feishuSnapshot.value.tableErrors.projects || !projectField.value || ![18, 21].includes(projectField.value.type))
 const projectListboxId = 'capture-feishu-project-listbox'
 
+watch(body, value => { if (!value.trim()) sourceMaterialIds.value = [] })
+
 function openProjectPicker(initialValue?: string): void {
   const selected = projectOptions.value.find(option => option.value === feishuProjectId.value && !option.disabled)
   projectActiveValue.value = initialValue ?? selected?.value ?? projectOptions.value.find(option => !option.disabled)?.value ?? ''
@@ -307,6 +314,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <p v-if="captureStatusError" class="info" role="alert">收集状态字典读取失败，{{ captureStatusHasLoaded ? '仍使用上次成功读取的名称。' : '当前使用内置名称。' }}<button type="button" class="app-button" @click="refreshCaptureStatusDictionary">重试</button></p>
     <section class="beryl-card workspace-source" aria-label="数据来源">
       <div><b>数据来源</b><div class="range-tabs" role="group" aria-label="选择数据来源">
         <button type="button" :aria-pressed="source === 'local'" :class="{ on: source === 'local' }" :disabled="feishuSnapshot.saving" @click="setSource('local')">本地</button>
@@ -333,20 +341,21 @@ onUnmounted(() => {
         </div>
         <p v-if="sentenceError" class="master-sentence-error" role="alert">常用句暂不可用：{{ sentenceError }} <button type="button" @click="retrySentences">重试</button></p>
         <textarea ref="textArea" v-model="body" aria-label="记录原文" placeholder="脑中闪过什么？先放在这里…" @select="syncSelection" @blur="syncSelection" @keydown.ctrl.enter.prevent="capture" @keydown.meta.enter.prevent="capture" />
+        <small v-if="sourceMaterialIds.length" role="status">曾插入 {{ sourceMaterialIds.length }} 条句子素材作为来源记录，正文可能已编辑。 <button type="button" @click="sourceMaterialIds = []">清除来源记录</button></small>
         <div class="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button class="app-button primary" type="button" @click="capture">保存原文</button></div>
       </section>
 
       <section v-if="error" class="beryl-card empty-state" role="alert"><b>记录数据暂时无法读取</b><p>{{ error }}</p><button class="app-button" type="button" @click="refresh">重试</button></section>
       <section class="capture-gate-list" aria-label="待处理记录">
         <article v-for="item in localCaptures" :key="item.calmyId" class="capture-gate-card beryl-card">
-          <div class="capture-original"><div class="panel-head"><div><p class="eyebrow">原文 · 已安全保存</p><h2 class="font-title">{{ item.body.split(/\r?\n/, 1)[0].slice(0, 120) || '未命名原文' }}</h2></div><small>{{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></div><p>{{ item.body }}</p></div>
+          <div class="capture-original"><div class="panel-head"><div><p class="eyebrow">原文 · 已安全保存</p><h2 class="font-title">{{ item.body.split(/\r?\n/, 1)[0].slice(0, 120) || '未命名原文' }}</h2></div><small>{{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></div><p>{{ item.body }}</p><small v-if="item.sourceMaterialIds?.length">曾插入 {{ item.sourceMaterialIds.length }} 条句子素材 · 正文可能已编辑</small></div>
           <div class="attention-gate"><div class="attention-gate-question"><span class="gate-mark">?</span><div><h3>它值得我现在注意吗？</h3><small>选择一个处理方式，不需要当场解释全部。</small></div></div><div class="gate-actions"><button v-for="option in decisions" :key="option.value" type="button" :class="{ 'let-go-choice': option.value === 'let_go' }" :disabled="busyId === item.calmyId || busyId === suggestionByCapture.get(item.calmyId)?.calmyId" @click="decide(item, option.value)"><b>{{ option.label }}</b><small>{{ option.hint }}</small></button></div></div>
           <div v-if="suggestionByCapture.get(item.calmyId)?.status === 'suggested'" class="capture-ai-suggestion"><div class="panel-head"><div><span class="ai-chip">AI 建议</span><h3>{{ suggestionText(suggestionByCapture.get(item.calmyId)!) }}</h3></div><small>仅供参考 · {{ Math.round(suggestionByCapture.get(item.calmyId)!.confidence * 100) }}%</small></div><p>{{ suggestionByCapture.get(item.calmyId)!.rationale }}</p><details><summary>查看依据</summary><p>{{ suggestionByCapture.get(item.calmyId)!.candidates[0]?.evidence?.join('；') || '暂无额外依据' }} · 本地规则</p></details><input aria-label="AI 建议内容" :value="drafts[suggestionByCapture.get(item.calmyId)!.calmyId] ?? suggestionText(suggestionByCapture.get(item.calmyId)!)" @input="drafts[suggestionByCapture.get(item.calmyId)!.calmyId] = ($event.target as HTMLInputElement).value" /><div class="suggestion-actions"><button class="app-button" type="button" :disabled="busyId === suggestionByCapture.get(item.calmyId)!.calmyId" @click="acceptSuggestion(suggestionByCapture.get(item.calmyId)!)">采纳建议</button><button class="app-button" type="button" :disabled="busyId === suggestionByCapture.get(item.calmyId)!.calmyId" @click="rejectSuggestion(suggestionByCapture.get(item.calmyId)!)">忽略建议</button></div></div>
         </article>
         <div v-if="!loading && !localCaptures.length" class="capture-empty beryl-card"><span class="gate-mark">✓</span><h2 class="font-title">这里现在是空的</h2><p>新的念头先放进上面的原文框；没有需要处理的内容时，也可以直接离开。</p></div>
       </section>
 
-      <section class="capture-history"><div class="section-title"><h2 class="font-title">已经处理的原文</h2><span>{{ history.length ? '最近 8 条' : '还没有' }}</span></div><article v-for="item in history" :key="item.calmyId" class="capture-history-row beryl-card"><div><b>{{ item.body.split(/\r?\n/, 1)[0].slice(0, 100) }}</b><small>{{ item.status === 'accepted' ? '已进入系统' : '已放下' }} · {{ new Date(item.updatedAt).toLocaleString('zh-CN') }}</small></div><span>{{ item.status === 'accepted' ? '✓' : '—' }}</span></article></section>
+      <section class="capture-history"><div class="section-title"><h2 class="font-title">已经处理的原文</h2><span>{{ history.length ? '最近 8 条' : '还没有' }}</span></div><article v-for="item in history" :key="item.calmyId" class="capture-history-row beryl-card"><div><b>{{ item.body.split(/\r?\n/, 1)[0].slice(0, 100) }}</b><small>{{ captureStatusLabel(item.status) }} · {{ new Date(item.updatedAt).toLocaleString('zh-CN') }}<template v-if="item.sourceMaterialIds?.length"> · 曾插入 {{ item.sourceMaterialIds.length }} 条素材</template></small></div><span>{{ item.status === 'accepted' ? '✓' : '—' }}</span></article></section>
     </div>
 
     <div v-else class="feishu-page">

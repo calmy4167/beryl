@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { claimLegacyLocalData, previewLegacyLocalData, type LegacyLocalPreview } from '@/core/legacy-local-migration'
 import { readServerSession } from '@/core/auth'
 import { encryptEntityContent, loadUserKey } from '@/core/vault-keys'
+import { apiBaseUrl } from '@/core/api/base-url'
 
 const preview = ref<LegacyLocalPreview | null>(null)
 const loading = ref(true)
@@ -14,7 +15,7 @@ const error = ref('')
 async function refresh() {
   loading.value = true
   error.value = ''
-  try { preview.value = await previewLegacyLocalData() }
+  try { preview.value = await previewLegacyLocalData(apiBaseUrl()) }
   catch (cause) { error.value = cause instanceof Error ? cause.message : '旧数据扫描失败' }
   finally { loading.value = false }
 }
@@ -43,9 +44,9 @@ async function importLegacy() {
   loading.value = true
   error.value = ''
   try {
-    const count = await claimLegacyLocalData(preview.value)
+    const count = await claimLegacyLocalData(preview.value, apiBaseUrl())
     report.value = `已将旧数据合并到当前管理员账号，共更新 ${count} 个数据集合。旧数据副本仍保留在原浏览器存储中。`
-    preview.value = await previewLegacyLocalData()
+    preview.value = await previewLegacyLocalData(apiBaseUrl())
   } catch (cause) { error.value = cause instanceof Error ? cause.message : '迁移失败，原数据仍保留' }
   finally { loading.value = false }
 }
@@ -60,8 +61,10 @@ onMounted(() => { void refresh() })
     <template v-else-if="preview">
       <p v-if="preview.count">找到 {{ preview.count }} 个旧数据集合，约 {{ (preview.bytes / 1024).toFixed(1) }} KB。数据内容不会显示在此页面。</p>
       <p v-else>没有发现可迁移的旧版浏览器数据。</p>
+      <p v-if="preview.tombstonedKeys.length || preview.tombstonedEntities.length" class="mods-line">云端旧数据记录了 {{ preview.tombstonedKeys.length }} 个已删除的数据键和 {{ preview.tombstonedEntities.length }} 条已删除实体；认领本地数据时会跳过它们，避免已删除内容重新出现。加密备份仍会保留完整本地副本。</p>
       <p v-if="preview.alreadyClaimed" class="mods-line">此浏览器的旧数据已经认领，或当前账号不是管理员。</p>
       <template v-else-if="preview.count">
+        <p v-if="preview.claimPending" class="mods-line">检测到当前管理员尚未完成的认领断点。系统会按旧数据快照安全重试，其他账号不能继续认领。</p>
         <p>导入前会先下载一份使用当前 Calmy Vault 密钥加密的备份。请同时保管恢复包；没有对应恢复密钥的备份无法读取。只有你确认这些数据属于当前管理员账号后，才会与当前账号数据合并；同 ID 冲突时保留当前账号版本。</p>
         <div class="migration-actions">
           <button class="app-button" type="button" @click="downloadBackup">下载迁移前备份</button>

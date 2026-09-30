@@ -7,6 +7,7 @@ compatibility_date = "2025-01-01"
 binding = "BERYL_D1"
 database_name = "beryl-d1"
 database_id = "bcc40cef-b196-4203-8d9a-cb46e2d64a93"
+migrations_dir = "migrations"
 
 [vars]
 # 填入实际 Pages/自定义域名（多个来源用英文逗号分隔）。空值仅为本地开发兼容，生产必须设置。

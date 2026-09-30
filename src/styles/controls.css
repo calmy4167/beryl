@@ -42,12 +42,12 @@ html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)) {
   appearance: none;
   box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
   cursor: default;
-  transition: all 0s ease;
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
 }
 
 html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):hover:not(:disabled) {
   border-color: var(--calmy-control-border-hover);
-  background-color: var(--calmy-control-surface);
+  background-color: var(--calmy-control-surface-hover);
 }
 
 html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select)):focus-visible {
@@ -83,6 +83,7 @@ html .el-select__wrapper {
 html .el-select__wrapper:hover:not(.is-disabled) {
   box-shadow: 0 1px 2px rgba(28, 41, 34, .035);
   border-color: var(--calmy-control-border-hover);
+  background: var(--calmy-control-surface-hover);
 }
 
 html .el-select__wrapper.is-focused,
@@ -206,6 +207,7 @@ html .el-select-dropdown__empty {
 
 .calmy-select__trigger:hover:not(:disabled) {
   border-color: var(--calmy-control-border-hover);
+  background: var(--calmy-control-surface-hover);
 }
 
 .calmy-select__trigger:focus-visible {
@@ -493,6 +495,7 @@ html.tactile-ui #app .page-container .calmy-select__trigger {
 
 html.tactile-ui #app .page-container .calmy-select__trigger:hover:not(:disabled) {
   border-color: var(--calmy-control-border-hover);
+  background: var(--calmy-control-surface-hover);
 }
 
 html.tactile-ui #app .page-container .calmy-select__trigger:focus-visible {

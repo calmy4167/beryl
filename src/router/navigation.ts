@@ -27,6 +27,7 @@ export interface FeatureNavigationItem {
   icon: string
   label: string
   path: string
+  capability?: string
 }
 
 export interface FeatureNavigationGroup {
@@ -35,19 +36,19 @@ export interface FeatureNavigationGroup {
   items: readonly FeatureNavigationItem[]
 }
 
-export function featureNavigationGroupsForAdmin(isAdmin: boolean): readonly FeatureNavigationGroup[] {
+export function featureNavigationGroupsForAdmin(isAdmin: boolean, capabilities?: readonly string[]): readonly FeatureNavigationGroup[] {
   return featureNavigationGroupMeta.map(group => ({
     id: group.id,
     label: group.label,
     items: appPageRegistry
-      .filter(page => page.navigation?.kind === 'feature' && page.navigation.groupId === group.id && (!page.adminOnly || isAdmin))
+      .filter(page => page.navigation?.kind === 'feature' && page.navigation.groupId === group.id && (!page.adminOnly || isAdmin) && (!page.capability || !capabilities || capabilities.includes(page.capability)))
       .sort((left, right) => {
         const leftOrder = left.navigation?.kind === 'feature' ? left.navigation.order : 0
         const rightOrder = right.navigation?.kind === 'feature' ? right.navigation.order : 0
         return leftOrder - rightOrder
       })
       .flatMap(page => page.navigation?.kind === 'feature'
-        ? [{ icon: page.navigation.icon, label: page.navigation.label, path: page.path }]
+        ? [{ icon: page.navigation.icon, label: page.navigation.label, path: page.path, capability: page.capability }]
         : []),
   })).filter(group => group.items.length > 0)
 }

@@ -2,10 +2,11 @@ import { authorized, hashPassword } from './lib/auth.js';
 import { corsHeaders, json } from './lib/http.js';
 import { ensureSchema, getAuthHash, legacySyncEnabled, maxTs } from './lib/d1.js';
 import { handleEntityPull, handleEntityPush, handleSyncPull, handleSyncPush } from './routes/sync.js';
-import { handleBootstrap, handleCurrentSession, handleLogin, handleLogout, handlePasswordChange, handleRefresh } from './routes/auth.js';
-import { handleCreateUser, handleListUsers, handleResetUserPassword, handleSetUserStatus } from './routes/users.js';
+import { handleBootstrap, handleCurrentSession, handleLogin, handleLogout, handlePasswordChange, handleRefresh, handlePublicSecurityPolicy, handleCreateLoginChallenge } from './routes/auth.js';
+import { handleCreateUser, handleDeleteUser, handleListUsers, handleResetUserPassword, handleSetUserStatus, handleUpdateUser, handleSetUserRoles, handleUnlockUser } from './routes/users.js';
+import { handleAuditLogs, handleCapabilities, handleDeleteRole, handleRevokeSession, handleRevokeUserSessions, handleRoles, handleSaveRole, handleSecuritySettings, handleSessions } from './routes/system-admin.js';
 import { handleLegacyExport, handleLegacyMigrationComplete, handleLegacyStatus } from './routes/legacy-migration.js';
-import { handleGetUserKey, handlePutUserKey, handleVaultPull, handleVaultPush } from './routes/vault.js';
+import { handleGetUserKey, handlePutUserKey, handleVaultPull, handleVaultPush, handleVaultSnapshot } from './routes/vault.js';
 import { handleFeishuRecordCreate, handleFeishuRecordUpdate, handleFeishuRecords, handleFeishuSchema, handleFeishuStatus } from './routes/feishu.js';
 
 /**
@@ -58,6 +59,12 @@ export default {
     if (p === '/api/auth/bootstrap' && request.method === 'POST') {
       const r = await handleBootstrap(request, env); return respond(r.body, r.status || 200);
     }
+    if (p === '/api/auth/security-policy' && request.method === 'GET') {
+      const r = await handlePublicSecurityPolicy(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/auth/challenge' && request.method === 'POST') {
+      const r = await handleCreateLoginChallenge(request, env); return respond(r.body, r.status || 200);
+    }
     if (p === '/api/auth/login' && request.method === 'POST') {
       const r = await handleLogin(request, env); return respond(r.body, r.status || 200);
     }
@@ -80,9 +87,63 @@ export default {
     if (p === '/api/admin/users' && request.method === 'POST') {
       const r = await handleCreateUser(request, env); return respond(r.body, r.status || 200);
     }
+    if (p === '/api/admin/capabilities' && request.method === 'GET') {
+      const r = await handleCapabilities(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/roles' && request.method === 'GET') {
+      const r = await handleRoles(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/roles' && request.method === 'POST') {
+      const r = await handleSaveRole(request, env); return respond(r.body, r.status || 200);
+    }
+    const roleMatch = p.match(/^\/api\/admin\/roles\/([^/]+)$/);
+    if (roleMatch && request.method === 'PUT') {
+      const r = await handleSaveRole(request, env, decodeURIComponent(roleMatch[1])); return respond(r.body, r.status || 200);
+    }
+    if (roleMatch && request.method === 'DELETE') {
+      const r = await handleDeleteRole(request, env, decodeURIComponent(roleMatch[1])); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/security' && request.method === 'GET') {
+      const r = await handleSecuritySettings(request, env, 'GET'); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/security' && request.method === 'PUT') {
+      const r = await handleSecuritySettings(request, env, 'PUT'); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/login-logs' && request.method === 'GET') {
+      const r = await handleAuditLogs(request, env, 'login'); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/operation-logs' && request.method === 'GET') {
+      const r = await handleAuditLogs(request, env, 'operation'); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/admin/sessions' && request.method === 'GET') {
+      const r = await handleSessions(request, env); return respond(r.body, r.status || 200);
+    }
+    const sessionMatch = p.match(/^\/api\/admin\/sessions\/([^/]+)$/);
+    if (sessionMatch && request.method === 'DELETE') {
+      const r = await handleRevokeSession(request, env, decodeURIComponent(sessionMatch[1])); return respond(r.body, r.status || 200);
+    }
+    const userSessionsMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/sessions$/);
+    if (userSessionsMatch && request.method === 'DELETE') {
+      const r = await handleRevokeUserSessions(request, env, decodeURIComponent(userSessionsMatch[1])); return respond(r.body, r.status || 200);
+    }
     const userStatusMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/status$/);
     if (userStatusMatch && request.method === 'PATCH') {
       const r = await handleSetUserStatus(request, env, decodeURIComponent(userStatusMatch[1])); return respond(r.body, r.status || 200);
+    }
+    const userRolesMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/roles$/);
+    if (userRolesMatch && request.method === 'PUT') {
+      const r = await handleSetUserRoles(request, env, decodeURIComponent(userRolesMatch[1])); return respond(r.body, r.status || 200);
+    }
+    const userUnlockMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/unlock$/);
+    if (userUnlockMatch && request.method === 'POST') {
+      const r = await handleUnlockUser(request, env, decodeURIComponent(userUnlockMatch[1])); return respond(r.body, r.status || 200);
+    }
+    const userDeleteMatch = p.match(/^\/api\/admin\/users\/([^/]+)$/);
+    if (userDeleteMatch && request.method === 'PATCH') {
+      const r = await handleUpdateUser(request, env, decodeURIComponent(userDeleteMatch[1])); return respond(r.body, r.status || 200);
+    }
+    if (userDeleteMatch && request.method === 'DELETE') {
+      const r = await handleDeleteUser(request, env, decodeURIComponent(userDeleteMatch[1])); return respond(r.body, r.status || 200);
     }
     const userPasswordMatch = p.match(/^\/api\/admin\/users\/([^/]+)\/reset-password$/);
     if (userPasswordMatch && request.method === 'POST') {
@@ -107,6 +168,9 @@ export default {
     }
     if (p === '/api/vault/sync/pull' && request.method === 'POST') {
       const r = await handleVaultPull(request, env); return respond(r.body, r.status || 200);
+    }
+    if (p === '/api/vault/sync/snapshot' && request.method === 'GET') {
+      const r = await handleVaultSnapshot(request, env); return respond(r.body, r.status || 200);
     }
     if (p === '/api/vault/sync/push' && request.method === 'POST') {
       const r = await handleVaultPush(request, env); return respond(r.body, r.status || 200);

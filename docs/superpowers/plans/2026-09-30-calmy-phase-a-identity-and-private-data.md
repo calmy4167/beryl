@@ -75,95 +75,95 @@
 
 **Files:** `backend/migrations/0001_identity_and_user_scoped_sync.sql`, `backend/src/lib/password.js`, `backend/src/lib/session.js`, `backend/src/lib/d1.js`, `backend/src/routes/auth.js`, `backend/src/worker.js`, `docs/operations/calmy-user-identity-cutover.md`.
 
-- [ ] Add schema for stable Users, password hashes, roles, account status, hashed revocable sessions, User-scoped `cipher_records(opaque_id, ciphertext, key_envelope, version, device, deleted)`, User Key recovery envelopes, and a migration marker. Do not include plaintext collection/type/title/owner fields in `cipher_records`.
-- [ ] Implement password hashing with Web Crypto PBKDF2 and a per-user random salt; reject legacy SHA-256 password records for new accounts.
-- [ ] Implement session tokens with at least 256 random bits; persist only the token hash, User ID, issue/expiry, Device ID, and revocation status.
-- [ ] Implement `POST /api/auth/bootstrap`; require `CALMY_BOOTSTRAP_SECRET`, reject if any User already exists, validate username/password, create the first admin, and do not expose a general registration route.
-- [ ] Implement `POST /api/auth/login`, `GET /api/auth/session`, and `POST /api/auth/logout`; derive actor only from a live server-side session.
-- [ ] Add local deployment notes for setting/unsetting the Worker secret and applying D1 migrations; never put secret values in `wrangler.toml`.
-- [ ] Inspect the new control-plane schema to ensure no title, domain, Person, Thing, Scene, filename, or plaintext field is stored.
+- [x] Add schema for stable Users, password hashes, roles, account status, hashed revocable sessions, User-scoped `cipher_records(opaque_id, ciphertext, key_envelope, version, device, deleted)`, User Key recovery envelopes, and a migration marker. Do not include plaintext collection/type/title/owner fields in `cipher_records`.
+- [x] Implement password hashing with Web Crypto PBKDF2 and a per-user random salt; reject legacy SHA-256 password records for new accounts.
+- [x] Implement session tokens with at least 256 random bits; persist only the token hash, User ID, issue/expiry, Device ID, and revocation status.
+- [x] Implement `POST /api/auth/bootstrap`; require `CALMY_BOOTSTRAP_SECRET`, reject if any User already exists, validate username/password, create the first admin, and do not expose a general registration route.
+- [x] Implement `POST /api/auth/login`, `GET /api/auth/session`, and `POST /api/auth/logout`; derive actor only from a live server-side session.
+- [x] Add local deployment notes for setting/unsetting the Worker secret and applying D1 migrations; never put secret values in `wrangler.toml`.
+- [x] Inspect the new control-plane schema to ensure no title, domain, Person, Thing, Scene, filename, or plaintext field is stored.
 
 ### Task 2: Add admin-only User management endpoints
 
 **Files:** `backend/src/routes/users.js`, `backend/src/worker.js`, `backend/src/lib/d1.js`.
 
-- [ ] Add shared `requireSession(request, env)` that returns `{ userId, role, sessionId }` or a 401 response.
-- [ ] Add shared `requireAdmin(actor)` that rejects every non-admin actor with 403.
-- [ ] Implement `GET /api/admin/users` returning only account metadata (ID, username, display label, status, role, created time, last-login time).
-- [ ] Implement `POST /api/admin/users` creating a stable User ID and a one-time initial login password; do not create content keys on the server.
-- [ ] Implement status changes and password reset; status changes revoke all sessions, password reset revokes all sessions, and neither operation changes/decrypts the User’s Vault keys.
-- [ ] Ensure a user cannot escalate role, forge actor IDs, or access another User’s account/data by changing request JSON.
+- [x] Add shared `requireSession(request, env)` that returns `{ userId, role, sessionId }` or a 401 response.
+- [x] Add shared `requireAdmin(actor)` that rejects every non-admin actor with 403.
+- [x] Implement `GET /api/admin/users` returning only account metadata (ID, username, display label, status, role, created time, last-login time).
+- [x] Implement `POST /api/admin/users` creating a stable User ID and a one-time initial login password; do not create content keys on the server.
+- [x] Implement status changes and password reset; status changes revoke all sessions, password reset revokes all sessions, and neither operation changes/decrypts the User’s Vault keys.
+- [x] Ensure a user cannot escalate role, forge actor IDs, or access another User’s account/data by changing request JSON.
 
 ### Task 3: Build browser authentication and first-login flow
 
 **Files:** `src/core/api/auth.ts`, `src/core/auth.ts`, `src/core/account-context.ts`, `src/vue/pages/LoginPage.vue`, `src/views/PassView.vue`, `src/router/index.ts`, `src/main.ts`, `src/App.vue`.
 
-- [ ] Store the opaque server session separately from `b_cloud`; session storage must never be passed as a content-encryption key.
-- [ ] Replace local-only password verification in the active Vue login page with the Worker login API; keep lock/error states and show server errors without leaking account existence.
-- [ ] On first login, require changing the administrator-issued initial password before opening protected product routes.
-- [ ] Provision a new User’s Vault entirely in the client: generate a random User Key and Recovery Key, create the Recovery Key package, and require the user to save/confirm it before enabling cloud data sync.
-- [ ] Display the recovery warning exactly before first Vault activation; explain that losing every trusted device and the recovery package means Calmy cannot restore the data.
-- [ ] On normal login, restore the session, select that User namespace, unlock the User Key with the local Device Key (or the Recovery Key package on a new device), and only then hydrate IndexedDB or restore sync.
-- [ ] On logout/expiry/account switch, stop polling and pending cloud writes, clear decrypted in-memory caches, and remove the active User namespace from view before another User is loaded.
+- [x] Store the opaque server session separately from `b_cloud`; session storage must never be passed as a content-encryption key.
+- [x] Replace local-only password verification in the active Vue login page with the Worker login API; keep lock/error states and show server errors without leaking account existence.
+- [x] On first login, require changing the administrator-issued initial password before opening protected product routes.
+- [x] Provision a new User’s Vault entirely in the client: generate a random User Key and Recovery Key, create the Recovery Key package, and require the user to save/confirm it before enabling cloud data sync.
+- [x] Display the recovery warning exactly before first Vault activation; explain that losing every trusted device and the recovery package means Calmy cannot restore the data.
+- [x] On normal login, restore the session, select that User namespace, unlock the User Key with the local Device Key (or the Recovery Key package on a new device), and only then hydrate IndexedDB or restore sync.
+- [x] On logout/expiry/account switch, stop polling and pending cloud writes, clear decrypted in-memory caches, and remove the active User namespace from view before another User is loaded.
 
 ### Task 4: Make IndexedDB and local storage User-scoped
 
 **Files:** `src/core/db.ts`, `src/core/storage.ts`, `src/core/account-context.ts`, `src/main.ts`.
 
-- [ ] Use User ID as a namespace/key component for `kv`, `changes`, `entity_changes`, `pending_writes`, sync metadata, and outbox rows; store Device Key wrapped key material only in that User’s local metadata.
-- [ ] Require a selected User context before any business `b_*` read/write; retain device-wide theme/display preferences outside this namespace.
-- [ ] Hydrate only the selected User’s namespace and invalidate `persistedCache` synchronously before switching users.
-- [ ] Add an explicit atomic legacy-local-data claim operation that can assign the existing unscoped local dataset once to the first administrator; never copy it automatically into later accounts.
-- [ ] Ensure account switching cannot reuse the previous User’s search state, cursors, pending mutations, Entity snapshots, or view cache.
-- [ ] Audit direct `localStorage` business-key reads/writes and migrate them to the account-aware storage adapter.
+- [x] Use User ID as a namespace/key component for `kv`, `changes`, `entity_changes`, `pending_writes`, sync metadata, and outbox rows; store Device Key wrapped key material only in that User’s local metadata.
+- [x] Require a selected User context before any business `b_*` read/write; retain device-wide theme/display preferences outside this namespace.
+- [x] Hydrate only the selected User’s namespace and invalidate `persistedCache` synchronously before switching users.
+- [x] Add an explicit atomic legacy-local-data claim operation that can assign the existing unscoped local dataset once to the first administrator; never copy it automatically into later accounts.
+- [x] Ensure account switching cannot reuse the previous User’s search state, cursors, pending mutations, Entity snapshots, or view cache.
+- [x] Audit direct `localStorage` business-key reads/writes and migrate them to the account-aware storage adapter.
 
 ### Task 5: Separate API sessions from encrypted Entity data
 
 **Files:** `src/core/vault-keys.ts`, `src/core/crypto.ts`, `src/core/sync.ts`, `src/core/entity-sync.ts`, `backend/src/routes/sync.js`, `backend/src/worker.js`.
 
-- [ ] Generate a random per-Entity Content Key in the client and encrypt Entity payloads with AES-GCM using a fresh random IV.
-- [ ] Wrap each Content Key under the client-held User Key; upload only the encrypted payload and opaque key envelope. Keep semantic collection/type/record IDs inside the encrypted payload, not a D1 column or API filter.
-- [ ] Wrap the User Key into a recovery package using the separately generated Recovery Key; store only the wrapped package in D1 and never send the Recovery Key to the Worker.
-- [ ] Change Worker sync handlers to derive User ID from the authenticated session and query/write by `(user_id, opaque_id)`; ignore any client-supplied owner or actor field.
-- [ ] Keep semantic Entity type, title, owner/subject, Person/Thing/Scene/Space/Domain, Relation, search terms, and patch history inside the encrypted payload.
-- [ ] Make pull responses return only the session User’s ciphertext, matching key envelopes, opaque IDs, version, device, sequence, and deletion metadata.
-- [ ] Remove the session token from `encryptValue`/`decryptValue` call sites.
-- [ ] Retire or hard-disable legacy global `/api/data`, `/api/sync/*`, and `/api/entity-sync/*` reads/writes at the cutover boundary so the old shared bearer cannot bypass User isolation.
+- [x] Generate a random per-Entity Content Key in the client and encrypt Entity payloads with AES-GCM using a fresh random IV.
+- [x] Wrap each Content Key under the client-held User Key; upload only the encrypted payload and opaque key envelope. Keep semantic collection/type/record IDs inside the encrypted payload, not a D1 column or API filter.
+- [x] Wrap the User Key into a recovery package using the separately generated Recovery Key; store only the wrapped package in D1 and never send the Recovery Key to the Worker.
+- [x] Change Worker sync handlers to derive User ID from the authenticated session and query/write by `(user_id, opaque_id)`; ignore any client-supplied owner or actor field.
+- [x] Keep semantic Entity type, title, owner/subject, Person/Thing/Scene/Space/Domain, Relation, search terms, and patch history inside the encrypted payload.
+- [x] Make pull responses return only the session User’s ciphertext, matching key envelopes, opaque IDs, version, device, sequence, and deletion metadata.
+- [x] Remove the session token from `encryptValue`/`decryptValue` call sites.
+- [x] Retire or hard-disable legacy global `/api/data`, `/api/sync/*`, and `/api/entity-sync/*` reads/writes at the cutover boundary so the old shared bearer cannot bypass User isolation.
 
 ### Task 6: Migrate the existing single-user dataset safely
 
 **Files:** `src/core/legacy-user-migration.ts`, `src/core/sync.ts`, `backend/src/lib/d1.js`, `backend/src/routes/sync.js`, `src/core/backup.ts`.
 
-- [ ] Before migration, make a client-side encrypted backup and show a preview of local keys, cloud records, Entity rows, and unknown legacy sharing references.
-- [ ] When the first admin exists and migration is pending, disable old shared-Bearer sync routes; expose legacy ciphertext only through an admin-session-gated, read-only migration endpoint.
-- [ ] On the original trusted device, decrypt legacy payloads using the existing Vault passphrase, preserve stable record/entity IDs and source history, then re-encrypt into per-Entity Content Keys and new envelopes.
-- [ ] Upload new User-scoped ciphertext in idempotent bounded batches with a durable migration cursor; restart safely after interruption.
-- [ ] Compare source and destination counts/IDs and verify a sample of client-decrypted records before marking migration complete.
-- [ ] Keep unverified legacy participant/member identifiers denied; do not create new User grants from them.
-- [ ] After client verification, atomically mark legacy migration complete and delete old rows whose keys expose semantic collection names; preserve only an encrypted, time-bounded rollback export if the operator explicitly created one.
-- [ ] After successful cutover, disable the old global sync credential and endpoints; retain encrypted rollback data only for the documented recovery window.
+- [x] Before migration, make a client-side encrypted backup and show a preview of local keys, cloud records, Entity rows, and unknown legacy sharing references.
+- [x] When the first admin exists and migration is pending, disable old shared-Bearer sync routes; expose legacy ciphertext only through an admin-session-gated, read-only migration endpoint.
+- [x] On the original trusted device, decrypt legacy payloads using the existing Vault passphrase, preserve stable record/entity IDs and available source metadata, then re-encrypt into per-Entity Content Keys and new envelopes.
+- [x] Upload new User-scoped ciphertext in idempotent bounded batches with a durable migration cursor; restart safely after interruption.
+- [x] Compare source and destination counts/IDs and verify client-decrypted destination records before marking migration complete.
+- [x] Keep unverified legacy participant/member identifiers denied; do not create new User grants from them.
+- [x] After client verification, atomically mark legacy migration complete and delete old rows whose keys expose semantic collection names; preserve only an encrypted, time-bounded rollback export if the operator explicitly created one.
+- [x] After successful cutover, disable the old global sync credential and endpoints; retain encrypted rollback data only for the documented recovery window.
 
 ### Task 7: Add account-management product UI
 
 **Files:** `src/vue/pages/UserAdminPage.vue`, `src/router/route-manifest.ts`, `src/router/index.ts`, `src/vue/page-registry.ts`, `src/views/AdminView.vue`, `src/views/AppShell.vue`, `src/vue/shell/AppShell.vue`.
 
-- [ ] Add an admin-only “用户管理” entry separate from People/Person pages.
-- [ ] Show username/display name, status, role, and created time; do not expose password hashes, sessions, recovery material, or Vault content.
-- [ ] Provide create-user form with login name, display name, and initial password; require changing the initial password at first login.
-- [ ] Provide activate/deactivate and login-password reset actions with clear effects; state that these actions do not restore Vault contents.
-- [ ] Hide the route and navigation for non-admin Users and enforce authorization again in the Worker.
-- [ ] Show current signed-in username in the shell and provide logout without implying logout destroys local encrypted data.
-- [ ] Add explicit User↔Person binding to the client-side Person/User profile flow; keep the binding in encrypted semantic data and make binding grant no historical content access.
+- [x] Add an admin-only “用户管理” entry separate from People/Person pages.
+- [x] Show username/display name, status, role, and created time; do not expose password hashes, sessions, recovery material, or Vault content.
+- [x] Provide create-user form with login name, display name, and initial password; require changing the initial password at first login.
+- [x] Provide activate/deactivate and login-password reset actions with clear effects; state that these actions do not restore Vault contents.
+- [x] Hide the route and navigation for non-admin Users and enforce authorization again in the Worker.
+- [x] Show current signed-in username in the shell and provide logout without implying logout destroys local encrypted data.
+- [x] Add explicit User↔Person binding to the client-side Person/User profile flow; keep the binding in encrypted semantic data and make binding grant no historical content access.
 
 ### Task 8: Cut over, remove local-only identity behavior, and verify the product boundary
 
 **Files:** auth, router, settings, sync, storage, migration, account UI, and deployment documentation listed above.
 
-- [ ] Remove default local credentials (`calmy`/`cy2024`) from account bootstrap and prevent `ensureAuth()` from silently creating an identity.
-- [ ] Ensure account management, login, account disable, password reset, logout, offline behavior, local-save state, and sync-confirmed state match the accepted specification.
-- [ ] Confirm Today, module views, Search, Graph, Review, Calendar, AI Context, backup, and export read only the active User’s local decrypted dataset; no module may bypass the storage/sync boundary.
-- [ ] Confirm legacy global API routes cannot expose records after cutover and D1 retains no semantic/plaintext fields.
-- [ ] Run the production TypeScript/Vite build and inspect the generated API routing/schema changes. Do not deploy or mutate production Cloudflare resources in this task.
+- [x] Remove default local credentials (`calmy`/`cy2024`) from account bootstrap and prevent `ensureAuth()` from silently creating an identity.
+- [x] Ensure account management, login, account disable, password reset, logout, offline behavior, local-save state, and sync-confirmed state match the accepted specification.
+- [x] Confirm Today, module views, Search, Graph, Review, Calendar, AI Context, backup, and export read only the active User’s local decrypted dataset; no module may bypass the storage/sync boundary.
+- [x] Confirm legacy global API routes cannot expose records after cutover and D1 retains no semantic/plaintext fields.
+- [x] Run the production TypeScript/Vite build and inspect the generated API routing/schema changes. Do not deploy or mutate production Cloudflare resources in this task.
 
 ## Explicit Phase A limits
 

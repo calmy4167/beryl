@@ -185,9 +185,9 @@ function pathFor(entity: OpenEntity): string {
       person: '10 People', relationship: '10 People', shared_space: '10 People', cycle: '30 Cycles',
       stage: '30 Cycles', resource: '60 Resources', relation: '60 Resources', seed: '70 Insights',
       insight: '70 Insights', outcome: '50 Records', practice: '70 Insights', daily_state: '80 Daily', asset: '60 Resources',
-      scene: '20 Scenes', scene_participant: '20 Scenes', space: '10 People', domain: '10 Domains', scope: '10 Sharing', permission: '10 Sharing'
+      scene: '20 Scenes', scene_participant: '20 Scenes', space: '10 People', domain: '10 Domains', scope: '10 Sharing', permission: '10 Sharing', dictionary_option: '90 System Dictionary'
     }
-    const title = 'title' in entity && typeof entity.title === 'string' ? entity.title : entity.entityType
+    const title = 'title' in entity && typeof entity.title === 'string' ? entity.title : entity.entityType === 'dictionary_option' ? `${entity.field}-${entity.value}` : entity.entityType
     const date = entity.entityType === 'daily_state' ? entity.date + '__' : ''
     return `${folders[entity.entityType]}/${date}${safeName(title, entity.entityType)}__${id}.md`
   }
@@ -214,10 +214,11 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
       case 'shared_space': return { ...readable, title: entity.title, status: entity.status, purpose: entity.purpose || null, member_ids: entity.memberIds, relationship_ids: entity.relationshipIds, matter_ids: entity.matterIds, owner_id: entity.ownerId || null }
       case 'cycle': return { ...readable, matter_id: entity.matterId, title: entity.title, theme: entity.theme, current_stage: entity.currentStage, status: entity.status, trajectory: entity.trajectory, stage_ids: entity.stageIds, parent_cycle_id: entity.parentCycleId || null, parent_stage: entity.parentStage || null, owner_id: entity.ownerId || null }
       case 'stage': return { ...readable, cycle_id: entity.cycleId, title: entity.title, element: entity.element, status: entity.status, action_ids: entity.actionIds, record_ids: entity.recordIds, order: entity.order ?? null }
-      case 'resource': return { ...readable, title: entity.title, kind: entity.kind, status: entity.status, uri: entity.uri || null, asset_ids: entity.assetIds, matter_ids: entity.matterIds, source_ids: entity.sourceIds, tags: entity.tags, expires_at: entity.expiresAt ?? null }
+      case 'resource': return { ...readable, title: entity.title, kind: entity.kind, status: entity.status, uri: entity.uri || null, asset_ids: entity.assetIds, matter_ids: entity.matterIds, source_ids: entity.sourceIds, tags: entity.tags, category_option_id: entity.categoryOptionId || null, tag_option_ids: entity.tagOptionIds || [], source_option_id: entity.sourceOptionId || null, expires_at: entity.expiresAt ?? null }
+      case 'dictionary_option': return { ...readable, module: entity.module, field: entity.field, system_key: entity.systemKey || null, value: entity.value, status: entity.status, sort_order: entity.sortOrder }
       case 'relation': return { ...readable, from_entity_type: entity.from.entityType, from_id: entity.from.calmyId, to_entity_type: entity.to.entityType, to_id: entity.to.calmyId, relation_type: entity.relationType, directed: entity.directed, confidence: entity.confidence ?? null, source_ids: entity.sourceIds }
       case 'seed': return { ...readable, title: entity.title, status: entity.status, source_record_ids: entity.sourceRecordIds, target_matter_ids: entity.targetMatterIds, tags: entity.tags }
-      case 'insight': return { ...readable, title: entity.title, status: entity.status, confidence: entity.confidence ?? null, memory_layer: entity.memoryLayer || null, confirmed_at: entity.confirmedAt ?? null, denied_at: entity.deniedAt ?? null, source_record_ids: entity.sourceRecordIds, matter_ids: entity.matterIds, resource_ids: entity.resourceIds }
+      case 'insight': return { ...readable, title: entity.title, status: entity.status, confidence: entity.confidence ?? null, memory_layer: entity.memoryLayer || null, confirmed_at: entity.confirmedAt ?? null, denied_at: entity.deniedAt ?? null, retirement_reason: entity.retirementReason || null, source_record_ids: entity.sourceRecordIds, matter_ids: entity.matterIds, resource_ids: entity.resourceIds }
       case 'outcome': return { ...readable, action_id: entity.actionId, matter_id: entity.matterId || null, summary: entity.summary, result: entity.result || null, status: entity.status, evidence_record_ids: entity.evidenceRecordIds }
       case 'practice': return { ...readable, title: entity.title, status: entity.status, cadence: entity.cadence || null, matter_ids: entity.matterIds, outcome_ids: entity.outcomeIds, evidence_ids: entity.evidenceIds }
       case 'daily_state': return { ...readable, date: entity.date, body_state: entity.bodyState, mental_state: entity.mentalState, load: entity.load, actual_time_minutes: entity.actualTimeMinutes ?? null, trajectory: entity.trajectory, today_plan_id: entity.todayPlanId || null, protected_items: entity.protectedItems }
@@ -249,7 +250,7 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
   if (isAction(entity)) {
     return {
       ...common, title: entity.title, date: entity.date, status: entity.status,
-      matter_id: entity.matterId || null, cycle_id: entity.cycleId || null,
+      matter_id: entity.matterId || null, person_id: entity.personId || null, cycle_id: entity.cycleId || null,
       result_note: entity.resultNote || null, created_at: entity.createdAt, updated_at: entity.updatedAt
     }
   }
@@ -265,13 +266,18 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
     ...common, date: entity.date, load: entity.load, focus_action_ids: entity.focusActionIds,
     why: entity.why, must_protect: entity.mustProtect, let_go: entity.letGo,
     review_observation: entity.review.observation, review_analysis: entity.review.analysis,
-    review_adjustment: entity.review.adjustment, review_seed: entity.review.seed, updated_at: entity.updatedAt
+    review_adjustment: entity.review.adjustment, review_seed: entity.review.seed,
+    review_observation_source_material_ids: entity.review.sourceMaterialIds?.observation || [],
+    review_analysis_source_material_ids: entity.review.sourceMaterialIds?.analysis || [],
+    review_adjustment_source_material_ids: entity.review.sourceMaterialIds?.adjustment || [],
+    review_seed_source_material_ids: entity.review.sourceMaterialIds?.seed || [], updated_at: entity.updatedAt
   }
 }
 
 function bodyFor(entity: OpenEntity): string {
   if (isUnifiedOpenEntity(entity)) {
     if (entity.entityType === 'resource' || entity.entityType === 'seed' || entity.entityType === 'insight') return `# ${entity.title}\n\n${entity.body || '尚未填写正文。'}`
+    if (entity.entityType === 'dictionary_option') return `# ${entity.value}\n\n模块：${entity.module}\n\n字段：${entity.field}\n\n状态：${entity.status}`
     if (entity.entityType === 'practice') return `# ${entity.title}\n\n${entity.description}`
     if (entity.entityType === 'outcome') return `# ${entity.summary}\n\n${entity.result || '尚未填写结果补充。'}`
     const title = 'title' in entity && typeof entity.title === 'string' ? entity.title : entity.entityType
@@ -394,7 +400,7 @@ function hasReadableUnifiedFields(frontmatter: OpenFrontmatter, type: CoreEntity
   const markers: Record<CoreEntityType, string> = {
     person: 'display_name', scene: 'thing_id', scene_participant: 'scene_id', space: 'member_person_ids', domain: 'key', scope: 'person_id', permission: 'principal_user_id', relationship: 'person_a_id', shared_space: 'member_ids', cycle: 'matter_id', stage: 'cycle_id',
     resource: 'kind', relation: 'from_entity_type', seed: 'status', insight: 'status', outcome: 'action_id', practice: 'title',
-    daily_state: 'body_state', asset: 'path'
+    daily_state: 'body_state', asset: 'path', dictionary_option: 'field'
   }
   return frontmatter[markers[type]] !== undefined
 }
@@ -414,14 +420,15 @@ function parseUnifiedEntity(frontmatter: OpenFrontmatter, body: string, id: stri
     case 'shared_space': return { ...meta, entityType: 'shared_space', title: requiredString(frontmatter, 'title'), status: requiredString(frontmatter, 'status') as 'active' | 'archived', purpose: optionalString(frontmatter, 'purpose'), memberIds: stringArray(frontmatter, 'member_ids'), relationshipIds: stringArray(frontmatter, 'relationship_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), ownerId: optionalString(frontmatter, 'owner_id') }
     case 'cycle': return { ...meta, entityType: 'cycle', matterId: requiredString(frontmatter, 'matter_id'), title: requiredString(frontmatter, 'title'), theme: requiredString(frontmatter, 'theme'), currentStage: requiredString(frontmatter, 'current_stage') as 'wood' | 'fire' | 'earth' | 'metal' | 'water', status: requiredString(frontmatter, 'status') as 'planned' | 'active' | 'paused' | 'completed' | 'archived', trajectory: requiredString(frontmatter, 'trajectory') as 'advancing' | 'stable' | 'stalled' | 'retreating' | 'diverging' | 'lost' | 'recovering' | 'restarting' | 'unknown', stageIds: stringArray(frontmatter, 'stage_ids'), parentCycleId: optionalString(frontmatter, 'parent_cycle_id'), parentStage: optionalString(frontmatter, 'parent_stage') as 'wood' | 'fire' | 'earth' | 'metal' | 'water' | undefined, ownerId: optionalString(frontmatter, 'owner_id') }
     case 'stage': return { ...meta, entityType: 'stage', cycleId: requiredString(frontmatter, 'cycle_id'), title: requiredString(frontmatter, 'title'), element: requiredString(frontmatter, 'element') as 'wood' | 'fire' | 'earth' | 'metal' | 'water', status: requiredString(frontmatter, 'status') as 'planned' | 'active' | 'paused' | 'completed' | 'skipped', actionIds: stringArray(frontmatter, 'action_ids'), recordIds: stringArray(frontmatter, 'record_ids'), order: optionalNumber(frontmatter, 'order') }
-    case 'resource': return { ...meta, entityType: 'resource', title: requiredString(frontmatter, 'title'), kind: requiredString(frontmatter, 'kind') as 'reference' | 'tool' | 'template' | 'knowledge' | 'person_asset' | 'other', status: requiredString(frontmatter, 'status') as 'active' | 'expired' | 'retired', body: readableBody(body, requiredString(frontmatter, 'title')), uri: optionalString(frontmatter, 'uri'), assetIds: stringArray(frontmatter, 'asset_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), sourceIds: stringArray(frontmatter, 'source_ids'), tags: stringArray(frontmatter, 'tags'), expiresAt: optionalNumber(frontmatter, 'expires_at') }
+    case 'resource': return { ...meta, entityType: 'resource', title: requiredString(frontmatter, 'title'), kind: requiredString(frontmatter, 'kind') as 'reference' | 'tool' | 'template' | 'knowledge' | 'person_asset' | 'other', status: requiredString(frontmatter, 'status') as 'active' | 'expired' | 'retired', body: readableBody(body, requiredString(frontmatter, 'title')), uri: optionalString(frontmatter, 'uri'), assetIds: stringArray(frontmatter, 'asset_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), sourceIds: stringArray(frontmatter, 'source_ids'), tags: stringArray(frontmatter, 'tags'), categoryOptionId: optionalString(frontmatter, 'category_option_id'), tagOptionIds: stringArray(frontmatter, 'tag_option_ids'), sourceOptionId: optionalString(frontmatter, 'source_option_id'), expiresAt: optionalNumber(frontmatter, 'expires_at') }
     case 'relation': return { ...meta, entityType: 'relation', from: { entityType: requiredString(frontmatter, 'from_entity_type') as EntityRef['entityType'], calmyId: requiredString(frontmatter, 'from_id') }, to: { entityType: requiredString(frontmatter, 'to_entity_type') as EntityRef['entityType'], calmyId: requiredString(frontmatter, 'to_id') }, relationType: requiredString(frontmatter, 'relation_type') as RelationType, directed: requiredBoolean(frontmatter, 'directed'), confidence: optionalNumber(frontmatter, 'confidence'), sourceIds: stringArray(frontmatter, 'source_ids') }
     case 'seed': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'seed', title, body: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'open' | 'cultivating' | 'promoted' | 'retired', sourceRecordIds: stringArray(frontmatter, 'source_record_ids'), targetMatterIds: stringArray(frontmatter, 'target_matter_ids'), tags: stringArray(frontmatter, 'tags') } }
-    case 'insight': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'insight', title, body: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'draft' | 'confirmed' | 'retired', confidence: optionalNumber(frontmatter, 'confidence'), memoryLayer: optionalString(frontmatter, 'memory_layer') as 'ai_inference' | 'preference' | 'principle' | undefined, confirmedAt: optionalNumber(frontmatter, 'confirmed_at'), deniedAt: optionalNumber(frontmatter, 'denied_at'), sourceRecordIds: stringArray(frontmatter, 'source_record_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), resourceIds: stringArray(frontmatter, 'resource_ids') } }
+    case 'insight': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'insight', title, body: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'draft' | 'confirmed' | 'retired', confidence: optionalNumber(frontmatter, 'confidence'), memoryLayer: optionalString(frontmatter, 'memory_layer') as 'ai_inference' | 'preference' | 'principle' | undefined, confirmedAt: optionalNumber(frontmatter, 'confirmed_at'), deniedAt: optionalNumber(frontmatter, 'denied_at'), retirementReason: optionalString(frontmatter, 'retirement_reason') as 'denied' | 'removed' | undefined, sourceRecordIds: stringArray(frontmatter, 'source_record_ids'), matterIds: stringArray(frontmatter, 'matter_ids'), resourceIds: stringArray(frontmatter, 'resource_ids') } }
     case 'outcome': return { ...meta, entityType: 'outcome', actionId: requiredString(frontmatter, 'action_id'), matterId: optionalString(frontmatter, 'matter_id'), summary: requiredString(frontmatter, 'summary'), result: optionalString(frontmatter, 'result'), status: requiredString(frontmatter, 'status') as 'observed' | 'accepted' | 'revised', evidenceRecordIds: stringArray(frontmatter, 'evidence_record_ids') }
     case 'practice': { const title = requiredString(frontmatter, 'title'); return { ...meta, entityType: 'practice', title, description: readableBody(body, title), status: requiredString(frontmatter, 'status') as 'candidate' | 'active' | 'paused' | 'retired', matterIds: stringArray(frontmatter, 'matter_ids'), outcomeIds: stringArray(frontmatter, 'outcome_ids'), evidenceIds: stringArray(frontmatter, 'evidence_ids'), cadence: optionalString(frontmatter, 'cadence') } }
     case 'daily_state': return { ...meta, entityType: 'daily_state', date: requiredString(frontmatter, 'date'), bodyState: requiredString(frontmatter, 'body_state') as 'good' | 'normal' | 'tired' | 'bad', mentalState: requiredString(frontmatter, 'mental_state') as 'clear' | 'normal' | 'heavy' | 'overloaded', load: requiredNumber(frontmatter, 'load'), actualTimeMinutes: optionalNumber(frontmatter, 'actual_time_minutes'), trajectory: requiredString(frontmatter, 'trajectory') as 'advancing' | 'stable' | 'stalled' | 'retreating' | 'diverging' | 'lost' | 'recovering' | 'restarting' | 'unknown', todayPlanId: optionalString(frontmatter, 'today_plan_id'), protectedItems: stringArray(frontmatter, 'protected_items') }
     case 'asset': return { ...meta, entityType: 'asset', path: requiredString(frontmatter, 'path'), mimeType: requiredString(frontmatter, 'mime_type'), sizeBytes: requiredNumber(frontmatter, 'size_bytes'), hash: requiredString(frontmatter, 'hash'), lifecycle: requiredString(frontmatter, 'lifecycle') as 'active' | 'expired' | 'retired' | 'missing', version: requiredNumber(frontmatter, 'version'), externalUri: optionalString(frontmatter, 'external_uri') }
+    case 'dictionary_option': return { ...meta, entityType: 'dictionary_option', module: requiredString(frontmatter, 'module') as 'resource' | 'asset' | 'seed' | 'insight' | 'action' | 'capture' | 'finance' | 'goal' | 'matter' | 'person', field: requiredString(frontmatter, 'field') as 'category' | 'tag' | 'source' | 'status', systemKey: optionalString(frontmatter, 'system_key'), value: requiredString(frontmatter, 'value'), status: requiredString(frontmatter, 'status') as 'active' | 'retired', sortOrder: requiredNumber(frontmatter, 'sort_order') }
   }
 }
 
@@ -462,7 +469,7 @@ function parseEntity(input: string): OpenEntity {
     return {
       calmyId: id, title: requiredString(frontmatter, 'title'), date: requiredString(frontmatter, 'date'),
       status: requiredString(frontmatter, 'status') as ActionItem['status'], matterId: optionalString(frontmatter, 'matter_id'),
-      cycleId: optionalString(frontmatter, 'cycle_id'), resultNote: optionalString(frontmatter, 'result_note'),
+      personId: optionalString(frontmatter, 'person_id'), cycleId: optionalString(frontmatter, 'cycle_id'), resultNote: optionalString(frontmatter, 'result_note'),
       createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision
     }
   }
@@ -478,13 +485,19 @@ function parseEntity(input: string): OpenEntity {
   }
   if (type === 'daily') {
     const date = requiredString(frontmatter, 'date')
+    const sourceMaterialIds: Partial<Record<'observation' | 'analysis' | 'adjustment' | 'seed', string[]>> = {}
+    for (const field of ['observation', 'analysis', 'adjustment', 'seed'] as const) {
+      const ids = stringArray(frontmatter, `review_${field}_source_material_ids`)
+      if (ids.length) sourceMaterialIds[field] = ids
+    }
     return {
       date, load: frontmatter.load === null ? null : requiredString(frontmatter, 'load') as TodayPlan['load'],
       focusActionIds: stringArray(frontmatter, 'focus_action_ids'), why: requiredString(frontmatter, 'why'),
       mustProtect: stringArray(frontmatter, 'must_protect'), letGo: stringArray(frontmatter, 'let_go'),
       review: {
         observation: requiredString(frontmatter, 'review_observation'), analysis: requiredString(frontmatter, 'review_analysis'),
-        adjustment: requiredString(frontmatter, 'review_adjustment'), seed: requiredString(frontmatter, 'review_seed')
+        adjustment: requiredString(frontmatter, 'review_adjustment'), seed: requiredString(frontmatter, 'review_seed'),
+        ...(Object.keys(sourceMaterialIds).length ? { sourceMaterialIds } : {})
       }, revision, updatedAt: requiredNumber(frontmatter, 'updated_at')
     }
   }

@@ -9,6 +9,8 @@
    npx wrangler d1 migrations apply beryl-d1 --remote
    ```
 
+   `0002_system_administration.sql` 增加系统角色、安全策略和审计所需的身份元数据列。先备份数据库，再迁移；迁移必须先于新 Worker 部署。详细本地和回滚说明见[系统管理模块运行说明](calmy-system-administration.md)。
+
 3. 设置一次性管理员初始化密钥。命令会交互式读取密钥；不要把真实值写进仓库、终端日志或文档：
 
    ```powershell
@@ -27,7 +29,7 @@ $bootstrapSecret = Read-Host '输入 CALMY_BOOTSTRAP_SECRET' -AsSecureString
 $secretPtr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($bootstrapSecret)
 try { $secret = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($secretPtr) }
 finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($secretPtr) }
-$adminPassword = Read-Host '设置管理员登录密码（至少 12 位）' -AsSecureString
+$adminPassword = Read-Host '设置管理员登录密码（至少 6 位；遵循当前后台密码策略）' -AsSecureString
 $adminPtr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($adminPassword)
 try { $password = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($adminPtr) }
 finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($adminPtr) }
@@ -42,7 +44,7 @@ Remove-Variable secret, password, body, bootstrapSecret, adminPassword
 npx wrangler secret delete CALMY_BOOTSTRAP_SECRET
 ```
 
-登录 Calmy 后，在“设置 → 用户管理”创建其他用户。系统生成的临时密码仅显示一次；通过安全渠道交给用户，用户首次登录后必须修改。
+登录 Calmy 后，在“系统管理 → 用户管理”创建其他用户。系统生成的临时密码仅显示一次；通过安全渠道交给用户，用户首次登录后必须修改。系统角色用于管理后台功能，不影响用户对其他账号 Vault 的访问。
 
 ## Vault 首次启用与新设备
 
@@ -54,6 +56,8 @@ npx wrangler secret delete CALMY_BOOTSTRAP_SECRET
 
 升级前的 D1 全局 `records`、`entity_records`、`auth` 表会保留。创建首位管理员后旧的全局同步接口会拒绝请求。浏览器旧数据可在“设置 → 旧设备本地数据”中查看集合数量，下载由当前 Vault User Key 加密的备份并确认归属后合并到当前管理员账号。恢复备份需要该账号的 Vault 恢复包；迁移流程不会清除浏览器旧数据。
 
-旧版 D1 全局数据迁移入口位于“设置 → 旧版云端数据迁移”。向导会先下载旧密文备份，再在浏览器本地使用旧同步密码解密、使用新 Vault 密钥重新加密并上传，校验后才清理旧表记录。只有首位管理员可以执行；忘记旧同步密码时不要确认清理，旧数据会继续保留。不要手动调用 `/api/admin/legacy/complete`。
+旧版 D1 全局数据迁移入口位于“设置 → 旧版云端数据迁移”。向导会先把每条记录（包括键名和实体 ID）用当前 User Key 加密后下载，并在本机解密预览旧 SharedSpace 成员、Space 人物成员、SceneParticipant、Person 账号关联、Permission 主体及 Ownership User 引用。旧 ID 只作为业务数据迁移，不会自动绑定新账号或创建访问授权。迁移时旧同步密码只在浏览器本地解密；新 Vault 密文经过目标端逐条解密核对后，Worker 才会原子清理旧表记录。只有首位管理员可以执行；忘记旧同步密码或预览发现暂不支持的数据键时，旧 D1 数据会继续保留。不要手动调用 `/api/admin/legacy/complete`。
+
+迁移备份使用当前 Vault User Key 加密，文件不包含明文键名或实体 ID，恢复需要该账号的恢复包。备份元数据标注 30 天回滚期限；完成迁移确认后，应在期限结束时删除本机备份。服务器不保留这份备份副本。
 
 实施数据迁移前先创建 D1 备份，并确认本机旧数据仍可单独导出。不要把旧同步密码当作登录密码或 Vault 恢复密钥。

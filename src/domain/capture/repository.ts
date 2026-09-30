@@ -153,9 +153,10 @@ export const captureAsyncRepository = {
     if (expectedRevision !== undefined && expectedRevision !== current.revision) throw new CaptureDomainError('REVISION_CONFLICT', `Capture ${calmyId} has changed; refresh before deciding`)
     return updateCaptureAsync(current, { status })
   },
-  async create(body: string): Promise<CaptureItem> {
+  async create(body: string, sourceMaterialIds: string[] = []): Promise<CaptureItem> {
     const now = Date.now()
-    const capture: CaptureItem = { calmyId: createEntityId(), body: requiredBody(body), status: 'inbox', suggestionIds: [], createdAt: now, updatedAt: now, revision: 1 }
+    const materialIds = [...new Set(sourceMaterialIds.filter(id => typeof id === 'string' && id.trim()))]
+    const capture: CaptureItem = { calmyId: createEntityId(), body: requiredBody(body), ...(materialIds.length ? { sourceMaterialIds: materialIds } : {}), status: 'inbox', suggestionIds: [], createdAt: now, updatedAt: now, revision: 1 }
     return asyncCaptures.create(capture)
   },
   async suggest(captureId: string): Promise<AiSuggestion> {
@@ -223,9 +224,10 @@ export const captureRepository = {
   listSuggestions(): AiSuggestion[] { return suggestions.list().slice().sort((a, b) => b.updatedAt - a.updatedAt) },
   find(calmyId: string): CaptureItem | undefined { return captures.find(calmyId) },
   findSuggestion(calmyId: string): AiSuggestion | undefined { return suggestions.find(calmyId) },
-  create(body: string): CaptureItem {
+  create(body: string, sourceMaterialIds: string[] = []): CaptureItem {
     const now = Date.now()
-    return captures.create({ calmyId: createEntityId(), body: requiredBody(body), status: 'inbox', suggestionIds: [], createdAt: now, updatedAt: now, revision: 1 })
+    const materialIds = [...new Set(sourceMaterialIds.filter(id => typeof id === 'string' && id.trim()))]
+    return captures.create({ calmyId: createEntityId(), body: requiredBody(body), ...(materialIds.length ? { sourceMaterialIds: materialIds } : {}), status: 'inbox', suggestionIds: [], createdAt: now, updatedAt: now, revision: 1 })
   },
   suggest(captureId: string): AiSuggestion {
     const capture = captures.find(captureId)

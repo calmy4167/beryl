@@ -22,7 +22,7 @@ const pageComponents: Record<string, () => Promise<unknown>> = {
   calendar: () => import('@/vue/pages/CalendarPage.vue'),
   people: () => import('@/vue/pages/PeoplePage.vue'),
   masterData: () => import('@/vue/pages/MasterDataPage.vue'),
-  userManagement: () => import('@/vue/pages/UserAdminPage.vue'),
+  systemAdmin: () => import('@/vue/pages/SystemAdminPage.vue'),
   library: () => import('@/vue/pages/LibraryPage.vue'),
   graph: () => import('@/vue/pages/GraphPage.vue'),
   inbox: () => import('@/vue/pages/InboxPage.vue'),

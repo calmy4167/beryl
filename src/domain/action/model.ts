@@ -7,6 +7,8 @@ export interface ActionItem {
   date: string
   status: ActionStatus
   matterId?: string
+  /** Stable reference to the Person related to this action. */
+  personId?: string
   cycleId?: string
   resultNote?: string
   createdAt: number
@@ -18,6 +20,7 @@ export interface ActionCreateInput {
   title: string
   date: string
   matterId?: string
+  personId?: string
   cycleId?: string
 }
 

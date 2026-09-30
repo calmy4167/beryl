@@ -1,17 +1,19 @@
 /* ---------- 存储层（同步快照 API；启动后优先读取 IndexedDB hydrate 快照） ---------- */
 import { dbPut, dbDelete, DEVICE_ID, type EntityWriteContext } from './db.ts'
-import { accountStorageKey, accountStoragePrefix, unaccountStorageKey } from './account-context.ts'
+import { accountStorageKey, accountStoragePrefix, getActiveAccount, unaccountStorageKey } from './account-context.ts'
 
 const PREFIX = 'b_'
 let persistedCache = new Map<string, string>()
 let persistedCacheReady = false
 
 export function lsGet(key: string): string | null {
+  if (key.startsWith(PREFIX) && key !== 'b_theme' && !getActiveAccount()) return null
   if (persistedCacheReady && key.startsWith(PREFIX)) return persistedCache.get(key) ?? null
   try { return localStorage.getItem(accountStorageKey(key)); } catch { return null; }
 }
 export function lsSet(key: string, val: string, persist = true, entityContext?: EntityWriteContext): boolean {
   const isSyncKey = key.startsWith(PREFIX)
+  if (isSyncKey && key !== 'b_theme' && !getActiveAccount()) return false
   let localWriteSucceeded = false
   try {
     localStorage.setItem(accountStorageKey(key), val)
@@ -24,6 +26,7 @@ export function lsSet(key: string, val: string, persist = true, entityContext?: 
   return localWriteSucceeded || (persistedCacheReady && isSyncKey)
 }
 export function lsRemove(key: string, persist = true): void {
+  if (key.startsWith(PREFIX) && key !== 'b_theme' && !getActiveAccount()) return
   try { localStorage.removeItem(accountStorageKey(key)) } catch { /* ignore */ }
   if (persistedCacheReady && key.startsWith(PREFIX)) persistedCache.delete(key)
   if (persist && key.startsWith(PREFIX)) void dbDelete(key)
@@ -31,6 +34,11 @@ export function lsRemove(key: string, persist = true): void {
 
 /** 在 app mount 前用 IndexedDB 的 KV 快照初始化同步读缓存。空快照也是有效的持久结果。 */
 export function hydrateStoreCache(snapshot?: Record<string, string>): void {
+  if (!getActiveAccount()) {
+    persistedCache = new Map()
+    persistedCacheReady = true
+    return
+  }
   persistedCache = new Map(Object.entries(snapshot || {}).filter(([key]) => key.startsWith(PREFIX)))
   // 只有读取 IndexedDB 失败（undefined）时才回退 localStorage；空对象表示持久层明确没有业务键。
   if (snapshot === undefined) {
@@ -60,6 +68,7 @@ export function resetStoreCache(): void {
 export function isStoreCacheReady(): boolean { return persistedCacheReady }
 
 export function listLocalStorageKeys(prefix = PREFIX): string[] {
+  if (prefix.startsWith(PREFIX) && !getActiveAccount()) return []
   if (persistedCacheReady) return [...persistedCache.keys()].filter(key => key.startsWith(prefix))
   const keys: string[] = []
   const scopedPrefix = accountStoragePrefix()

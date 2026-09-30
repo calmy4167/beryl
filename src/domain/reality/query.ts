@@ -22,7 +22,8 @@ import { CORE_ENTITY_TYPES, unifiedAsyncRepository, unifiedRepository, type Core
 import { legacyMapping } from '@/domain/legacy/migration'
 
 export type RealitySource = 'legacy' | 'unified'
-export type RealityEntityType = 'case' | 'matter' | 'action' | 'record' | 'today' | 'capture' | 'task' | 'inbox' | 'diary' | 'post' | 'transaction' | 'habit' | 'char' | 'goal' | 'pomo' | 'moment' | CoreEntityType
+export type RealityEntityType = 'case' | 'matter' | 'action' | 'record' | 'today' | 'capture' | 'task' | 'inbox' | 'diary' | 'post' | 'transaction' | 'habit' | 'char' | 'goal' | 'pomo' | 'moment' | Exclude<CoreEntityType, 'dictionary_option'>
+const REALITY_CORE_ENTITY_TYPES = CORE_ENTITY_TYPES.filter((type): type is Exclude<CoreEntityType, 'dictionary_option'> => type !== 'dictionary_option')
 
 export interface RealityDocument {
   id: string
@@ -255,7 +256,7 @@ function legacyDocuments(): RealityDocument[] {
 }
 
 function unifiedDocuments(): RealityDocument[] {
-  return CORE_ENTITY_TYPES.flatMap(entityType => unifiedRepository.list<CoreEntity & { entityType: typeof entityType }>(entityType).map(entity => document({
+  return REALITY_CORE_ENTITY_TYPES.flatMap(entityType => unifiedRepository.list<CoreEntity & { entityType: typeof entityType }>(entityType).map(entity => document({
     id: entity.calmyId, source: 'unified', entityType: entity.entityType, title: coreTitle(entity), summary: coreSummary(entity),
     route: routeForCore(entity), updatedAt: entity.updatedAt,
     occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : undefined,
@@ -450,7 +451,7 @@ async function routeForCoreAsync(entity: CoreEntity): Promise<string> {
 }
 
 async function unifiedDocumentsAsync(): Promise<RealityDocument[]> {
-  const groups = await Promise.all(CORE_ENTITY_TYPES.map(async entityType => {
+  const groups = await Promise.all(REALITY_CORE_ENTITY_TYPES.map(async entityType => {
     const entities = await unifiedAsyncRepository.list<CoreEntity & { entityType: typeof entityType }>(entityType)
     return Promise.all(entities.map(async entity => document({
       id: entity.calmyId, source: 'unified', entityType: entity.entityType, title: coreTitle(entity), summary: coreSummary(entity),

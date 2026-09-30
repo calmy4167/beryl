@@ -7,6 +7,7 @@ export interface AddActionToTodayInput {
   title: string
   date: string
   matterId?: string
+  personId?: string
   plan: TodayPlan
   focusLimit?: number
 }
@@ -20,7 +21,7 @@ export interface AddActionToTodayResult {
 
 /** 创建行动并尝试把它放入当天计划；跨仓储部分成功会被明确返回。 */
 export async function addActionToToday(input: AddActionToTodayInput): Promise<AddActionToTodayResult> {
-  const action = await actionAsyncRepository.create({ title: input.title, date: input.date, matterId: input.matterId })
+  const action = await actionAsyncRepository.create({ title: input.title, date: input.date, matterId: input.matterId, personId: input.personId })
   const focusLimit = input.focusLimit ?? 3
   const placedInFocus = input.plan.focusActionIds.length < focusLimit
   const focusActionIds = placedInFocus ? [...input.plan.focusActionIds, action.calmyId] : input.plan.focusActionIds

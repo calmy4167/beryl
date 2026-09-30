@@ -9,6 +9,7 @@ export type UserAccount = ServerUser & {
   lastLoginAt: number | null
   mustChangePassword: boolean
 }
+export type PasswordPolicy = { minLength: number; maxLength: number; requireUppercase: boolean; requireLowercase: boolean; requireNumber: boolean; requireSymbol: boolean }
 
 async function jsonBody<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => ({})) as T & { error?: string }
@@ -22,10 +23,10 @@ function saveLogin(baseUrl: string, body: { token: string; expiresAt: number; mu
   return session
 }
 
-export async function login(baseUrl: string, username: string, password: string): Promise<ServerSession> {
+export async function login(baseUrl: string, username: string, password: string, challenge?: { challengeId: string; challengeAnswer: string }): Promise<ServerSession> {
   const response = await apiFetch(baseUrl, '/api/auth/login', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, deviceId: DEVICE_ID })
+    body: JSON.stringify({ username, password, deviceId: DEVICE_ID, ...challenge })
   })
   return saveLogin(baseUrl, await jsonBody<Parameters<typeof saveLogin>[1]>(response))
 }
@@ -76,6 +77,16 @@ export async function changeLoginPassword(baseUrl: string, currentPassword: stri
   await jsonBody<{ ok: true }>(response)
   const session = readServerSession()
   if (session) writeServerSession({ ...session, mustChangePassword: false, validatedAt: Date.now() })
+}
+
+export async function getPasswordPolicy(baseUrl: string): Promise<PasswordPolicy> {
+  const response = await apiFetch(baseUrl, '/api/auth/security-policy')
+  return (await jsonBody<{ ok: true; passwordPolicy: PasswordPolicy }>(response)).passwordPolicy
+}
+
+export async function getLoginChallenge(baseUrl: string): Promise<{ enabled: boolean; challengeId?: string; question?: string }> {
+  const response = await apiFetch(baseUrl, '/api/auth/challenge', { method: 'POST' })
+  return jsonBody(response)
 }
 
 export async function listUsers(baseUrl: string): Promise<UserAccount[]> {

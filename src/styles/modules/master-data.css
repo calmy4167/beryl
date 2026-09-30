@@ -13,7 +13,13 @@ html.tactile-ui #app .page-container .master-data-page { width: 100%; max-width:
 .master-data-composer h2, .master-data-library h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.015em; }
 .master-data-composer form { display: grid; grid-template-columns: minmax(180px, .7fr) minmax(0, 1.6fr) auto; align-items: end; gap: 12px; margin-top: 15px; }
 .master-data-composer label { display: grid; gap: 6px; color: var(--c-text-2); font-size: 12px; }
-.master-data-composer input, .master-data-composer textarea, .master-data-search { width: 100%; min-width: 0; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; background: var(--c-surface, #fff); color: var(--c-text); font: inherit; font-size: 13px; padding: 10px 11px; }
+.master-data-composer input, .master-data-composer textarea, .master-data-composer select, .master-data-search { width: 100%; min-width: 0; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; background: var(--c-surface, #fff); color: var(--c-text); font: inherit; font-size: 13px; padding: 10px 11px; }
+.master-data-composer select { min-height: 42px; }
+.master-data-composer .master-data-tag-options { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-width: 0; margin: 0; padding: 10px 12px; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; }
+.master-data-composer .master-data-tag-options legend { padding: 0 5px; color: var(--c-text-2); font-size: 12px; }
+.master-data-composer .master-data-tag-options label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.master-data-composer .master-data-tag-options input { width: auto; min-height: auto; accent-color: var(--c-accent, #315fe8); }
+.master-data-composer .master-data-tag-options span, .master-data-composer .master-data-tag-options small { color: var(--c-text-2); font-size: 11px; }
 .master-data-composer textarea { resize: vertical; min-height: 42px; max-height: 160px; }
 .master-data-form-actions { display: flex; gap: 8px; }
 .master-data-form-actions .app-button { min-height: 40px; white-space: nowrap; }

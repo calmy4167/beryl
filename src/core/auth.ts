@@ -1,5 +1,5 @@
 /* ---------- 认证与安全（平移 v1：PBKDF2 哈希 + 失败锁定 + 会话） ---------- */
-import { lsSet, safeParse } from './storage.ts'
+import { safeParse } from './storage.ts'
 
 /** Retained only to read/migrate old local records; never used to authenticate users. */
 export interface AuthRecord {
@@ -59,13 +59,24 @@ export function writeSession(_u: string): void { clearSession() }
 
 export function writeServerSession(session: Omit<ServerSession, 'validatedAt'> & { validatedAt?: number }): void {
   const value: ServerSession = { ...session, validatedAt: session.validatedAt || Date.now() }
-  try { localStorage.setItem('b_session', JSON.stringify(value)) } catch { /* session persistence failure is reported by login UI */ }
+  try { sessionStorage.setItem('b_session', JSON.stringify(value)) } catch { /* The token must stay tab-local. */ }
 }
 export function clearSession(): void {
-  try { localStorage.removeItem('b_session') } catch { lsSet('b_session', '') }
+  try { sessionStorage.removeItem('b_session') } catch { /* ignore */ }
+  try { localStorage.removeItem('b_session') } catch { /* remove the retired shared-tab token when possible */ }
 }
 export function readServerSession(): ServerSession | null {
-  const s = safeParse<ServerSession>(localStorageValue('b_session'))
+  let raw: string | null = null
+  try { raw = sessionStorage.getItem('b_session') } catch { /* ignore */ }
+  if (!raw) {
+    // One-time compatibility bridge from the former shared localStorage token.
+    // New writes remain isolated to this tab so another account cannot replace it.
+    raw = localStorageValue('b_session')
+    if (raw) {
+      try { sessionStorage.setItem('b_session', raw); localStorage.removeItem('b_session') } catch { /* session remains readable for this call */ }
+    }
+  }
+  const s = safeParse<ServerSession>(raw)
   if (!s || typeof s.token !== 'string' || !s.token || typeof s.apiOrigin !== 'string' || !s.apiOrigin || typeof s.user?.id !== 'string' || !s.user.id || !Number.isFinite(s.expiresAt)) return null
   return s
 }

@@ -6,6 +6,8 @@ import { listRealityDocumentsAsync, type RealityDocument } from '@/domain/realit
 import { fmtDate, nextId } from '@/core/storage'
 import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
+import { CAPTURE_STATUSES, type CaptureStatus } from '@/domain/capture/model'
+import { useCaptureStatusDictionary } from '@/vue/composables/useCaptureStatusDictionary'
 
 type Filter = 'all' | 'open' | 'suggested' | 'accepted' | 'rejected' | 'archived'
 interface InboxEntry {
@@ -19,12 +21,13 @@ interface InboxEntry {
   capture?: CaptureItem
   legacy?: RealityDocument
 }
-const filters: Array<{ id: Filter; label: string }> = [
-  { id: 'all', label: '全部' }, { id: 'open', label: '待处理' }, { id: 'suggested', label: '有建议' },
-  { id: 'accepted', label: '已处理' }, { id: 'rejected', label: '已拒绝' }, { id: 'archived', label: '已归档' },
-]
+const { labelFor: captureStatusLabel, statuses: orderedCaptureStatuses, error: captureStatusError, hasLoadedOptions: captureStatusHasLoaded, refresh: refreshCaptureStatusDictionary } = useCaptureStatusDictionary()
+const filters = computed<Array<{ id: Filter; label: string }>>(() => [
+  { id: 'all', label: '全部' },
+  ...orderedCaptureStatuses.value.map(status => ({ id: (status === 'inbox' ? 'open' : status) as Filter, label: captureStatusLabel(status) })),
+])
 const statusLabels: Record<string, string> = {
-  open: '待处理', inbox: '待处理', suggested: '待确认建议', accepted: '已处理', rejected: '已拒绝', archived: '已归档',
+  open: '待处理',
 }
 
 const captures = ref<CaptureItem[]>([])
@@ -46,7 +49,7 @@ const entries = computed(() => [...legacy.value, ...captures.value.map(item => (
 }))].sort((a, b) => b.updatedAt - a.updatedAt))
 const visible = computed(() => {
   const term = query.value.trim().toLocaleLowerCase()
-  return entries.value.filter(item => (!term || `${item.text} ${item.status}`.toLocaleLowerCase().includes(term)) &&
+  return entries.value.filter(item => (!term || `${item.text} ${statusLabel(item.status)}`.toLocaleLowerCase().includes(term)) &&
     (filter.value === 'all' || item.status === filter.value || (filter.value === 'open' && item.status === 'inbox')))
 })
 const pendingCount = computed(() => suggestions.value.filter(item => item.status === 'suggested').length)
@@ -55,7 +58,7 @@ const captureCount = computed(() => captures.value.length + legacy.value.length)
 function toast(text: string, kind: 'success' | 'warning' | 'error' = 'success') {
   window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message: text, kind } }))
 }
-function statusLabel(status: string) { return statusLabels[status] || status }
+function statusLabel(status: string) { return (CAPTURE_STATUSES as readonly string[]).includes(status) ? captureStatusLabel(status as CaptureStatus) : statusLabels[status] || status }
 function displayTime(timestamp: number, fallback?: string) {
   return Number.isFinite(timestamp) && timestamp > 0 ? new Date(timestamp).toLocaleString('zh-CN') : fallback || '时间未知'
 }
@@ -181,6 +184,7 @@ function archiveUnavailable() {
       <div><p class="eyebrow">收集 · 原文优先</p><h1 class="font-title">收集</h1><p>先保留原文，再把它处理成行动或现实处境。</p></div>
       <span class="load-pill">{{ loading ? '正在读取…' : `${captureCount} 条 · ${pendingCount} 条待确认建议` }}</span>
     </header>
+    <p v-if="captureStatusError" class="info" role="alert">收集状态字典读取失败，{{ captureStatusHasLoaded ? '仍使用上次成功读取的名称。' : '当前使用内置名称。' }}<button type="button" class="app-button" @click="refreshCaptureStatusDictionary">重试</button></p>
     <section class="capture-box beryl-card">
       <textarea v-model="body" aria-label="新增收件内容" placeholder="脑中闪过什么？先放在这里…" @keydown="onEditorKeydown" />
       <div class="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button class="app-button primary" :disabled="loading" @click="addCapture">收入收件箱</button></div>

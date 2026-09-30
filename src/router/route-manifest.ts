@@ -3,7 +3,7 @@ export type AppRouteViewKey =
   | 'caseRedirect' | 'matterDetail' | 'review' | 'future' | 'admin' | 'advancedAdmin'
   | 'calendar' | 'people' | 'library' | 'graph' | 'inbox' | 'tasks' | 'taskBoard'
   | 'feishu' | 'habits' | 'finance' | 'goals' | 'pomo' | 'diary' | 'posts'
-  | 'scene' | 'masterData' | 'userManagement' | 'moduleFallback' | 'fallback'
+  | 'scene' | 'masterData' | 'systemAdmin' | 'moduleFallback' | 'fallback'
 
 export type PrimaryNavigationKey = 'today' | 'capture' | 'matters' | 'review'
 export type FeatureNavigationGroupId = 'work' | 'records' | 'understanding' | 'daily-tools' | 'experiments' | 'personal' | 'data' | 'system'
@@ -37,6 +37,7 @@ export type AppPageDescriptor = {
   shell: 'app' | 'standalone'
   lazyLabel?: string
   adminOnly?: boolean
+  capability?: string
   navigation?: PrimaryNavMeta | FeatureNavMeta
 }
 
@@ -117,8 +118,14 @@ export const appPageRegistry: readonly AppPageDescriptor[] = [
     archetype: 'content', shell: 'app', lazyLabel: '主数据管理', navigation: { kind: 'feature', groupId: 'data', label: '主数据管理', icon: '▦', order: 0 },
   },
   {
-    id: 'user-management', path: '/app/users', viewKey: 'userManagement', title: '用户管理', description: '创建账号、管理状态与重置登录密码',
-    archetype: 'settings', shell: 'app', lazyLabel: '用户管理', adminOnly: true, navigation: { kind: 'feature', groupId: 'system', label: '用户管理', icon: '♙', order: 0 },
+    id: 'system-users', path: '/app/system/users', viewKey: 'systemAdmin', title: '用户管理', description: '管理登录账号、资料、角色与状态',
+    archetype: 'settings', shell: 'app', lazyLabel: '用户管理', capability: 'system.users.read', navigation: { kind: 'feature', groupId: 'system', label: '用户管理', icon: '♙', order: 0 },
+  },
+  { id: 'system-roles', path: '/app/system/roles', viewKey: 'systemAdmin', title: '角色权限', description: '配置后台角色和功能权限', archetype: 'settings', shell: 'app', lazyLabel: '角色权限', capability: 'system.roles.read', navigation: { kind: 'feature', groupId: 'system', label: '角色权限', icon: '♧', order: 1 } },
+  { id: 'system-security', path: '/app/system/security', viewKey: 'systemAdmin', title: '安全设置', description: '管理密码、登录限制与验证码', archetype: 'settings', shell: 'app', lazyLabel: '安全设置', capability: 'system.security.read', navigation: { kind: 'feature', groupId: 'system', label: '安全设置', icon: '⚿', order: 2 } },
+  { id: 'system-login-logs', path: '/app/system/login-logs', viewKey: 'systemAdmin', title: '登录日志', description: '查看登录结果和安全事件', archetype: 'settings', shell: 'app', lazyLabel: '登录日志', capability: 'system.login_logs.read', navigation: { kind: 'feature', groupId: 'system', label: '登录日志', icon: '◷', order: 3 } },
+  { id: 'system-operation-logs', path: '/app/system/operation-logs', viewKey: 'systemAdmin', title: '操作日志', description: '查看系统管理操作审计', archetype: 'settings', shell: 'app', lazyLabel: '操作日志', capability: 'system.operation_logs.read', navigation: { kind: 'feature', groupId: 'system', label: '操作日志', icon: '≡', order: 4 } },
+  { id: 'system-sessions', path: '/app/system/sessions', viewKey: 'systemAdmin', title: '在线会话', description: '查看和撤销有效登录会话', archetype: 'settings', shell: 'app', lazyLabel: '在线会话', capability: 'system.sessions.read', navigation: { kind: 'feature', groupId: 'system', label: '在线会话', icon: '⌁', order: 5 },
   },
   {
     id: 'library', path: '/app/library', viewKey: 'library', title: '资料', description: '保存可复用的内容',
@@ -176,6 +183,7 @@ export const appPageRegistry: readonly AppPageDescriptor[] = [
 
 export const appRouteDefinitions: readonly AppRouteDefinition[] = [
   { kind: 'redirect', path: '', redirectTo: '/app/today' },
+  { kind: 'redirect', path: 'users', redirectTo: '/app/system/users' },
   ...appPageRegistry.filter(page => page.shell === 'app').map(page => ({
     kind: 'view' as const,
     path: page.path.replace(/^\/app\/?/, ''),

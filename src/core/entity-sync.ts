@@ -1,23 +1,26 @@
 import { apiFetch } from './api/client'
-import { DEVICE_ID, latestEntityChangeCursor, readDbMeta, readEntityChanges, readEntityChangesAfter, writeDbMeta, type EntityChange, type EntityChangeCursor } from './db'
+import { DEVICE_ID, latestEntityChangeCursor, readDbMeta, readEntityChanges, readEntityChangesAfter, recordEntityChanges, recordSyncedEntityChanges, writeDbMeta, type EntityChange, type EntityChangeCursor } from './db'
 import { lsGet, lsRemove, lsSet, listLocalStorageKeys, safeParse } from './storage'
 import { flushRepositoryWrites } from './repository'
 import { CORE_ENTITY_TYPES } from '@/domain/unified/model'
 import { createEntityContentKey, currentDeviceId, decryptEntityContent, encryptEntityContent, unwrapEntityContentKey } from './vault-keys'
 import { readServerSession } from './auth'
+import { getActiveAccount } from './account-context'
 
 export interface EntitySyncCursor { ts: number; device: string; entity: string; entityId: string }
 export interface EntitySyncRecord { entity: string; entityId: string; value?: unknown; updatedAt: number; device: string; deleted?: boolean }
 
 const ENTITY_COLLECTIONS = [
   'tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments', 'matters',
+  'mvpTodayPlans', 'calmyCaptures', 'calmySuggestions',
   ...CORE_ENTITY_TYPES.map(type => `core:${type}`)
 ]
+const LEGACY_COLLECTION_SETTING_KEYS = new Set(['mvpTodayPlans', 'calmyCaptures', 'calmySuggestions'])
 const LOCAL_ONLY_KEYS = new Set(['b_session', 'b_auth', 'b_cloud', 'b_s3', 'b_last_sync', 'b_sync_ts', 'b_sync_versions', 'b_sync_cursor', 'b_push_cursor', 'b_entity_pull_cursor', 'b_entity_sync_ready', 'b_entity_push_ts'])
 function idFor(entity: string, item: Record<string, unknown>): string | undefined {
   if (item.id != null) return String(item.id)
   if (item.calmyId != null) return String(item.calmyId)
-  if (entity === 'diary' && item.date != null) return String(item.date)
+  if ((entity === 'diary' || entity === 'mvpTodayPlans') && item.date != null) return String(item.date)
   return undefined
 }
 
@@ -139,7 +142,9 @@ function collapseEntityChanges(changes: EntityChange[]): EntityChange[] {
 }
 
 async function syncVaultEntityDataOnce(baseUrl: string): Promise<{ pulled: number; pushed: number }> {
-  if (!readServerSession()) throw new Error('unauthorized')
+  const session = readServerSession()
+  if (!session) throw new Error('unauthorized')
+  if (getActiveAccount() !== session.user.id) throw new Error('session-account-mismatch')
   let cursor = Number(await readDbMeta<number>(VAULT_PULL_CURSOR)) || 0
   const ready = await readDbMeta<boolean>('vault:initial-snapshot-sent')
   let pushed = 0
@@ -243,6 +248,45 @@ async function listEntityMappingsByOpaqueId(opaqueId: string): Promise<{ entity:
     : []
 }
 
+/** Read the latest server version of each opaque record and decrypt it for a migration audit. */
+export async function readVerifiedVaultSnapshot(baseUrl: string): Promise<{ records: EntitySyncRecord[]; cursor: number; opaqueIds: string[] }> {
+  const latest: VaultWireChange[] = []
+  const opaqueIds: string[] = []
+  let snapshotCursor: number | null = null
+  let after = ''
+  let hasMore = true
+  while (hasMore) {
+    const query = new URLSearchParams({ after })
+    const response = await apiFetch(baseUrl, `/api/vault/sync/snapshot?${query}`)
+    if (!response.ok) throw new Error(`vault-verification-pull:${response.status}`)
+    const body = await response.json() as { records?: VaultWireChange[]; nextAfter?: string; cursor?: number; hasMore?: boolean }
+    const records = body.records || []
+    if (snapshotCursor == null) snapshotCursor = Number(body.cursor || 0)
+    if (Number(body.cursor || 0) !== snapshotCursor) throw new Error('vault-changed-during-snapshot')
+    for (const record of records) {
+      latest.push(record)
+      opaqueIds.push(record.opaqueId)
+    }
+    const nextAfter = String(body.nextAfter || after)
+    if (body.hasMore && nextAfter <= after) throw new Error('vault-verification-cursor-stalled')
+    after = nextAfter
+    hasMore = !!body.hasMore
+  }
+
+  const verified: EntitySyncRecord[] = []
+  for (const change of latest) {
+    if (change.deleted) {
+      const mappings = await listEntityMappingsByOpaqueId(change.opaqueId)
+      mappings.forEach(mapping => verified.push({ ...mapping, updatedAt: change.version, device: change.deviceId, deleted: true }))
+    } else {
+      const record = await decodeVaultChange(change)
+      if (!record) throw new Error('vault-verification-decode-failed')
+      verified.push(record)
+    }
+  }
+  return { records: verified, cursor: snapshotCursor || 0, opaqueIds }
+}
+
 /**
  * 按实体同步协议的时间戳与设备 ID 进行 LWW 裁决。
  * 相同设备、相同时间戳视为同一版本，保留本地值，避免重复拉取造成抖动。
@@ -252,31 +296,81 @@ export function isRemoteEntityRecordNewer(record: EntitySyncRecord, local?: Pick
   return record.updatedAt > local.updatedAt || (record.updatedAt === local.updatedAt && record.device > local.device)
 }
 
-function latestLocalEntityVersions(changes: EntityChange[]): Map<string, Pick<EntityChange, 'updatedAt' | 'device'>> {
-  const versions = new Map<string, Pick<EntityChange, 'updatedAt' | 'device'>>()
+function latestLocalEntityVersions(changes: EntityChange[]): Map<string, Pick<EntityChange, 'updatedAt' | 'device'> & { deleted: boolean }> {
+  const versions = new Map<string, Pick<EntityChange, 'updatedAt' | 'device'> & { deleted: boolean }>()
   for (const change of changes) {
     const key = `${change.entity}:${change.entityId}`
     const current = versions.get(key)
     if (!current || change.updatedAt > current.updatedAt || (change.updatedAt === current.updatedAt && change.device > current.device)) {
-      versions.set(key, { updatedAt: change.updatedAt, device: change.device })
+      versions.set(key, { updatedAt: change.updatedAt, device: change.device, deleted: change.operation === 'delete' })
     }
   }
   return versions
 }
 
-/** 将实体级远端记录应用到本地集合；不写入本地实体变更日志，避免回环推送。 */
+/** 将实体级远端记录应用到本地集合，并保留收到的版本/墓碑以避免后续旧数据复活。 */
 export async function applyEntityRecords(records: EntitySyncRecord[], localChanges?: EntityChange[]): Promise<number> {
-  const localVersions = latestLocalEntityVersions(localChanges || await readEntityChanges(5000))
+  const changes = localChanges || await readEntityChanges(Number.MAX_SAFE_INTEGER)
+  const localVersions = latestLocalEntityVersions(changes)
+  const localTombstones = new Set([...localVersions].filter(([, version]) => version.deleted).map(([key]) => key))
   const grouped = new Map<string, EntitySyncRecord[]>()
+  const legacyBefore = new Map<string, Record<string, unknown>[]>()
+  const appliedRemoteRecords: EntityChange[] = []
   let applied = 0
   for (const record of records) {
     if (record.entity !== 'setting') continue
+    // Older clients synced these arrays as one opaque setting. Merge it first,
+    // preserving stable item IDs; after native records/tombstones are applied,
+    // persist only the resulting local migration diff as per-item changes.
+    if (LEGACY_COLLECTION_SETTING_KEYS.has(record.entityId)) {
+      if (record.deleted || !Array.isArray(record.value)) continue
+      const key = `b_${record.entityId}`
+      const current = safeParse<unknown>(lsGet(key) || '')
+      const before = Array.isArray(current) ? current.slice() as Record<string, unknown>[] : []
+      if (!legacyBefore.has(key)) legacyBefore.set(key, before)
+      const list = before.slice()
+      const entity = record.entityId
+      let changed = 0
+      for (const item of record.value) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) continue
+        const value = item as Record<string, unknown>
+        const entityId = idFor(entity, value)
+        if (!entityId) continue
+        const versionKey = `${entity}:${entityId}`
+        if (localTombstones.has(versionKey)) continue
+        const index = list.findIndex(existing => idFor(entity, existing) === entityId)
+        if (index < 0) {
+          list.push(value)
+          changed++
+          continue
+        }
+        const knownVersion = localVersions.get(versionKey)
+        const existingUpdatedAt = Number(list[index].updatedAt)
+        const itemVersion = knownVersion || (Number.isFinite(existingUpdatedAt)
+          ? { updatedAt: existingUpdatedAt, device: DEVICE_ID, deleted: false }
+          : undefined)
+        const incomingUpdatedAt = Number(value.updatedAt)
+        const incomingVersion = {
+          updatedAt: Number.isFinite(incomingUpdatedAt) ? incomingUpdatedAt : record.updatedAt,
+          device: record.device,
+        }
+        if (isRemoteEntityRecordNewer({ ...record, ...incomingVersion }, itemVersion)) {
+          list[index] = value
+          changed++
+        }
+      }
+      if (changed) {
+        if (!lsSet(key, JSON.stringify(list))) throw new Error(`entity-apply-failed:${record.entityId}`)
+        applied += changed
+      }
+      continue
+    }
     const versionKey = `${record.entity}:${record.entityId}`
     if (!isRemoteEntityRecordNewer(record, localVersions.get(versionKey))) continue
     const key = `b_${record.entityId}`
     if (record.deleted) lsRemove(key)
     else if (!lsSet(key, JSON.stringify(record.value))) throw new Error(`entity-apply-failed:${record.entityId}`)
-    localVersions.set(versionKey, { updatedAt: record.updatedAt, device: record.device })
+    localVersions.set(versionKey, { updatedAt: record.updatedAt, device: record.device, deleted: !!record.deleted })
     applied++
   }
   records.forEach(record => { if (ENTITY_COLLECTIONS.includes(record.entity)) grouped.set(record.entity, [...(grouped.get(record.entity) || []), record]) })
@@ -289,15 +383,31 @@ export async function applyEntityRecords(records: EntitySyncRecord[], localChang
       const localVersion = localVersions.get(versionKey)
       if (!isRemoteEntityRecordNewer(record, localVersion)) continue
       const index = list.findIndex(item => idFor(entity, item) === record.entityId)
-      if (record.deleted) { if (index >= 0) { list.splice(index, 1); entityApplied++ } }
-      else if (record.value && typeof record.value === 'object') { if (index >= 0) list[index] = record.value as Record<string, unknown>; else list.unshift(record.value as Record<string, unknown>); entityApplied++ }
-      localVersions.set(versionKey, { updatedAt: record.updatedAt, device: record.device })
+      if (record.deleted) {
+        if (index >= 0) { list.splice(index, 1); entityApplied++ }
+        localTombstones.add(versionKey)
+      }
+      else if (record.value && typeof record.value === 'object') {
+        if (index >= 0) list[index] = record.value as Record<string, unknown>
+        else list.unshift(record.value as Record<string, unknown>)
+        entityApplied++
+        localTombstones.delete(versionKey)
+      }
+      localVersions.set(versionKey, { updatedAt: record.updatedAt, device: record.device, deleted: !!record.deleted })
+      if (['mvpTodayPlans', 'calmyCaptures', 'calmySuggestions'].includes(entity)) {
+        appliedRemoteRecords.push({ id: `${record.device}:${record.updatedAt}:${entity}:${record.entityId}`, entity, entityId: record.entityId, operation: record.deleted ? 'delete' : 'update', updatedAt: record.updatedAt, device: record.device, ...(record.deleted ? {} : { value: record.value }) })
+      }
     }
     const value = JSON.stringify(list)
     if (entityApplied) {
       if (!lsSet(`b_${entity}`, value)) throw new Error(`entity-apply-failed:${entity}`)
       applied += entityApplied
     }
+  }
+  if (appliedRemoteRecords.length) await recordSyncedEntityChanges(appliedRemoteRecords)
+  for (const [key, before] of legacyBefore) {
+    const after = safeParse<unknown>(lsGet(key) || '')
+    if (Array.isArray(after) && JSON.stringify(before) !== JSON.stringify(after)) await recordEntityChanges(key, before, after)
   }
   if (applied) {
     await flushRepositoryWrites()

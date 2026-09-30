@@ -1,5 +1,7 @@
 import { createAsyncCollectionRepository, createCollectionRepository, createEntityId } from '@/core/repository'
 import { ActionDomainError, canTransitionAction, type ActionCommandMeta, type ActionCreateInput, type ActionItem, type ActionMutation, type ActionStatus } from './model'
+import { unifiedAsyncRepository, unifiedRepository } from '@/domain/unified/repository'
+import type { Person } from '@/domain/unified/model'
 
 const actions = createCollectionRepository<ActionItem>('mvpActions', item => item.calmyId)
 const asyncActions = createAsyncCollectionRepository<ActionItem>('mvpActions', item => item.calmyId)
@@ -12,6 +14,18 @@ function titleOf(title: string): string {
   const value = title.trim()
   if (!value) throw new ActionDomainError('VALIDATION_FAILED', 'Action title is required')
   return value
+}
+
+function validatePersonReference(personId: string | undefined): void {
+  if (personId && !unifiedRepository.find<Person>('person', personId)) {
+    throw new ActionDomainError('VALIDATION_FAILED', `Person ${personId} not found`)
+  }
+}
+
+async function validatePersonReferenceAsync(personId: string | undefined): Promise<void> {
+  if (personId && !await unifiedAsyncRepository.find<Person>('person', personId)) {
+    throw new ActionDomainError('VALIDATION_FAILED', `Person ${personId} not found`)
+  }
 }
 
 function metaOf(meta: ActionCommandMeta = {}): { commandId: string; actor: NonNullable<ActionCommandMeta['actor']>; actorId: string; sourceIds: string[] } {
@@ -69,8 +83,9 @@ export const actionRepository = {
     const duplicate = commands.find(command.commandId)?.result
     if (duplicate) return duplicate
     if (!input.date.trim()) throw new ActionDomainError('VALIDATION_FAILED', 'Action date is required')
+    validatePersonReference(input.personId)
     const now = Date.now()
-    const action: ActionItem = { calmyId: createEntityId(), title: titleOf(input.title), date: input.date, status: 'planned', matterId: input.matterId, cycleId: input.cycleId, createdAt: now, updatedAt: now, revision: 1 }
+    const action: ActionItem = { calmyId: createEntityId(), title: titleOf(input.title), date: input.date, status: 'planned', matterId: input.matterId, ...(input.personId ? { personId: input.personId } : {}), cycleId: input.cycleId, createdAt: now, updatedAt: now, revision: 1 }
     actions.create(action)
     appendMutation(action, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, action)
     return saveCommand(command.commandId, action)
@@ -81,6 +96,7 @@ export const actionRepository = {
     if (duplicate) return duplicate
     const current = actions.find(calmyId)
     if (!current) throw new ActionDomainError('NOT_FOUND', `Action ${calmyId} not found`)
+    if (patch.personId !== undefined) validatePersonReference(patch.personId)
     if (meta.expectedRevision !== undefined && meta.expectedRevision !== current.revision) throw new ActionDomainError('REVISION_CONFLICT', `Action ${calmyId} is at revision ${current.revision}`)
     const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
     actions.update(calmyId, () => next)
@@ -156,8 +172,9 @@ export const actionAsyncRepository = {
     const duplicate = await duplicateAsyncResult(command.commandId)
     if (duplicate) return duplicate
     if (!input.date.trim()) throw new ActionDomainError('VALIDATION_FAILED', 'Action date is required')
+    await validatePersonReferenceAsync(input.personId)
     const now = Date.now()
-    const action: ActionItem = { calmyId: createEntityId(), title: titleOf(input.title), date: input.date, status: 'planned', matterId: input.matterId, cycleId: input.cycleId, createdAt: now, updatedAt: now, revision: 1 }
+    const action: ActionItem = { calmyId: createEntityId(), title: titleOf(input.title), date: input.date, status: 'planned', matterId: input.matterId, ...(input.personId ? { personId: input.personId } : {}), cycleId: input.cycleId, createdAt: now, updatedAt: now, revision: 1 }
     await asyncActions.create(action)
     await appendMutationAsync(action, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, action)
     return saveCommandAsync(command.commandId, action)
@@ -168,6 +185,7 @@ export const actionAsyncRepository = {
     if (duplicate) return duplicate
     const current = await asyncActions.find(calmyId)
     if (!current) throw new ActionDomainError('NOT_FOUND', `Action ${calmyId} not found`)
+    if (patch.personId !== undefined) await validatePersonReferenceAsync(patch.personId)
     if (meta.expectedRevision !== undefined && meta.expectedRevision !== current.revision) throw new ActionDomainError('REVISION_CONFLICT', `Action ${calmyId} is at revision ${current.revision}`)
     const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!await asyncActions.update(calmyId, () => next)) throw new ActionDomainError('NOT_FOUND', `Action ${calmyId} disappeared`)

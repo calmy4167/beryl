@@ -315,3 +315,13 @@ Calmy 的价值不由页面数量、记录数量、完成数量、在线时间�
 Calmy 的长期方向是让有持续价值的用户数据可以被阅读、导出、迁移和回导；这不等于用 Markdown 取代运行数据库，也不要求用户为了使用 Web 基础模式授权本地目录。运行时存储、Portable Vault、云同步和灾难恢复备份应各自承担清晰职责，并分别报告状态。
 
 现阶段继续遵守 IndexedDB/Repository 的本地 durable 权威边界、D1 同步节点和现有 Open Format/Vault 冲突契约；localStorage 仍有兼容用途。Portable Vault 的长期目录、schema、附件对象存储和外部编辑工作流仍是规划提案，不代表全域迁移已完成。分层、现状矩阵、阶段顺序和停止线见[开放数据与 Portable Vault 架构设计](CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md)，由 D-020 / OW-23 跟踪。
+
+## 19. User 身份、归属与产品访问
+
+Calmy 的账号身份用于认证和确定当前操作人；Person 表示用户生活中的真实人物。两者可以显式关联，但 Person 关联本身不会改变数据归属或授予访问权。账号由 Calmy 管理员创建和停用，不开放公共自助注册；管理员管理账号不等于可以读取用户的私人内容。
+
+新建的私人业务数据默认归属于当前 User，并保持 Private。只有经过明确授权的 Entity / Scope 权限规则才能允许其他 User 访问；提及某人、加入 Scene 或 Space、建立现实关系，都不会自动扩大访问范围。各产品模块必须沿用同一身份、归属和授权边界，不得自行建立一套互不一致的模块权限。
+
+登录凭据与内容密钥彼此独立。账号密码重置或 Session 撤销不能代替 Vault 恢复，也不能解密用户内容。业务内容由客户端加密和解密，服务端只处理身份、授权和密文同步所需的控制面信息；必要的 User ID、Opaque Entity / Scope ID、授权关系、版本、同步时间和数据大小仍可能对服务端可见。用户必须能区分本地保存、云端确认和内容解密状态。
+
+本节的完整 User 生命周期、业务归属、跨模块授权、离线撤权限制和迁移要求见[User 身份与产品访问设计](../superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md)；加密数据面、语义查询、分享与元数据边界以已接受的 [ADR-001](../adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md) 为准。收件人密钥封套尚属 ADR-002 草案；独立审查和协议接受完成前，不能将跨 User 内容分享描述为已经可用。

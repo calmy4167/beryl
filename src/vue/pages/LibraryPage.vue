@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router'
 import { withSaveState } from '@/core/save-state'
 import { unifiedAsyncRepository, unifiedFactories } from '@/domain/unified'
 import type { Asset, Insight, Resource, Seed } from '@/domain/unified'
+import type { ResourceStatus, SeedStatus, InsightStatus } from '@/domain/unified'
+import { useResourceStatusDictionary } from '@/vue/composables/useResourceStatusDictionary'
+import { useAssetLifecycleDictionary } from '@/vue/composables/useAssetLifecycleDictionary'
+import { useSeedInsightStatusDictionary } from '@/vue/composables/useSeedInsightStatusDictionary'
 
 const router = useRouter()
 const resources = ref<Resource[]>([])
@@ -18,16 +22,35 @@ const assetPath = ref('')
 const assetMime = ref('')
 const assetSize = ref('0')
 const assetHash = ref('')
+const resourceStatusFilter = ref<'all' | ResourceStatus>('all')
+const contentStatusFilter = ref<'all' | `seed:${SeedStatus}` | `insight:${InsightStatus}`>('all')
 const loading = ref(true)
 const error = ref('')
 const total = computed(() => resources.value.length + seeds.value.length + insights.value.length)
+const { statuses: resourceStatuses, labelFor: resourceStatusLabel, error: resourceStatusError, refresh: refreshResourceStatuses } = useResourceStatusDictionary()
+const { lifecycles: assetLifecycles, labelFor: assetLifecycleLabel, error: assetLifecycleError, refresh: refreshAssetLifecycles } = useAssetLifecycleDictionary()
+const { seedStatuses, insightStatuses, seedLabelFor, insightLabelFor, error: contentStatusError, refresh: refreshContentStatuses } = useSeedInsightStatusDictionary()
+const visibleResources = computed(() => resourceStatusFilter.value === 'all'
+  ? resources.value
+  : resources.value.filter(item => item.status === resourceStatusFilter.value))
+const visibleInsights = computed(() => {
+  if (contentStatusFilter.value === 'all') return insights.value
+  if (!contentStatusFilter.value.startsWith('insight:')) return []
+  return insights.value.filter(item => item.status === contentStatusFilter.value.slice('insight:'.length))
+})
+const visibleSeeds = computed(() => {
+  if (contentStatusFilter.value === 'all') return seeds.value
+  if (!contentStatusFilter.value.startsWith('seed:')) return []
+  return seeds.value.filter(item => item.status === contentStatusFilter.value.slice('seed:'.length))
+})
+const visibleNotes = computed(() => [...visibleInsights.value, ...visibleSeeds.value])
 const ResourceMetadata = defineComponent({
-  props: { item: { type: Object as () => Resource | Insight | Seed, required: true } },
+  props: { item: { type: Object as () => Resource | Insight | Seed, required: true }, statusLabel: { type: String, required: true } },
   setup(props) {
     return () => h('small', [
       createTextVNode('kind' in props.item ? props.item.kind : props.item.entityType === 'insight' ? 'Insight' : 'Seed'),
       createTextVNode(' · '),
-      createTextVNode(props.item.status),
+      createTextVNode(props.statusLabel),
     ])
   },
 })
@@ -138,20 +161,38 @@ async function updateAsset(item: Asset, lifecycle: Asset['lifecycle']): Promise<
       </div>
       <div v-if="loading && !assets.length" class="empty-state" role="status">正在读取附件…</div>
       <div v-else-if="!assets.length" class="empty-state">还没有附件元数据。</div>
-      <div v-for="item in assets" :key="item.calmyId" class="evidence-row"><b>{{ item.path }}</b><span>{{ item.mimeType }} · {{ item.sizeBytes }} bytes</span><select :aria-label="`${item.path} 生命周期`" :value="item.lifecycle" @change="updateAsset(item, ($event.target as HTMLSelectElement).value as Asset['lifecycle'])"><option value="active">存在</option><option value="expired">过期</option><option value="retired">退休</option><option value="missing">缺失</option></select></div>
+      <p v-if="assetLifecycleError" class="form-error" role="alert">附件生命周期字典读取失败，当前使用内置名称。<button type="button" class="app-button" @click="refreshAssetLifecycles">重试</button></p>
+      <div v-for="item in assets" :key="item.calmyId" class="evidence-row"><b>{{ item.path }}</b><span>{{ item.mimeType }} · {{ item.sizeBytes }} bytes</span><select :aria-label="`${item.path} 生命周期`" :value="item.lifecycle" @change="updateAsset(item, ($event.target as HTMLSelectElement).value as Asset['lifecycle'])"><option v-for="lifecycle in assetLifecycles" :key="lifecycle" :value="lifecycle">{{ assetLifecycleLabel(lifecycle) }}</option></select></div>
     </section>
     <div class="library-grid">
       <section>
-        <div class="section-title"><h2 class="font-title">资源</h2><span>{{ resources.length }}</span></div>
+        <div class="section-title"><h2 class="font-title">资源</h2><span>{{ visibleResources.length }}</span></div>
+        <label class="library-status-filter">状态
+          <select v-model="resourceStatusFilter" aria-label="按资源状态筛选">
+            <option value="all">全部状态</option>
+            <option v-for="status in resourceStatuses" :key="status" :value="status">{{ resourceStatusLabel(status) }}</option>
+          </select>
+        </label>
+        <p v-if="resourceStatusError" class="form-error" role="alert">状态字典读取失败，当前使用内置名称。<button type="button" class="app-button" @click="refreshResourceStatuses">重试</button></p>
         <div v-if="loading && !resources.length" class="empty-state" role="status">正在读取资源…</div>
         <div v-else-if="!resources.length" class="empty-state">还没有资源。</div>
-        <article v-for="item in resources" :key="item.calmyId" class="library-card beryl-card"><b>{{ item.title }}</b><p>{{ item.body || '暂无描述' }}</p><ResourceMetadata :item="item" /><div class="btns"><button type="button" @click="updateResource(item, item.status === 'active' ? 'expired' : 'active')">{{ item.status === 'active' ? '标记过期' : '恢复有效' }}</button><button type="button" @click="updateResource(item, 'retired')">退休</button></div></article>
+        <div v-else-if="!visibleResources.length" class="empty-state">当前状态下没有资源。</div>
+        <article v-for="item in visibleResources" :key="item.calmyId" class="library-card beryl-card"><b>{{ item.title }}</b><p>{{ item.body || '暂无描述' }}</p><ResourceMetadata :item="item" :status-label="resourceStatusLabel(item.status)" /><div class="btns"><button type="button" @click="updateResource(item, item.status === 'active' ? 'expired' : 'active')">{{ item.status === 'active' ? '标记过期' : '恢复有效' }}</button><button type="button" @click="updateResource(item, 'retired')">退休</button></div></article>
       </section>
       <section>
-        <div class="section-title"><h2 class="font-title">洞察与种子</h2><span>{{ insights.length + seeds.length }}</span></div>
+        <div class="section-title"><h2 class="font-title">洞察与种子</h2><span>{{ visibleNotes.length }}</span></div>
+        <label class="library-status-filter">状态
+          <select v-model="contentStatusFilter" aria-label="按洞察或种子状态筛选">
+            <option value="all">全部状态</option>
+            <optgroup label="洞察"><option v-for="status in insightStatuses.filter(value => value !== 'retired')" :key="`insight:${status}`" :value="`insight:${status}`">{{ insightLabelFor(status) }}</option></optgroup>
+            <optgroup label="种子"><option v-for="status in seedStatuses.filter(value => value !== 'retired')" :key="`seed:${status}`" :value="`seed:${status}`">{{ seedLabelFor(status) }}</option></optgroup>
+          </select>
+        </label>
+        <p v-if="contentStatusError" class="form-error" role="alert">洞察与种子状态字典读取失败，当前使用内置名称。<button type="button" class="app-button" @click="refreshContentStatuses">重试</button></p>
         <div v-if="loading && !insights.length && !seeds.length" class="empty-state" role="status">正在读取洞察与种子…</div>
         <div v-else-if="!insights.length && !seeds.length" class="empty-state">复盘后留下的洞察和 Seed 会出现在这里。</div>
-        <article v-for="item in [...insights, ...seeds]" :key="item.calmyId" class="library-card beryl-card"><b>{{ item.title }}</b><p>{{ item.body }}</p><ResourceMetadata :item="item" /><button v-if="item.entityType === 'seed'" type="button" @click="retireSeed(item)">退休</button></article>
+        <div v-else-if="!visibleNotes.length" class="empty-state">当前状态下没有洞察或种子。</div>
+        <article v-for="item in visibleNotes" :key="item.calmyId" class="library-card beryl-card"><b>{{ item.title }}</b><p>{{ item.body }}</p><ResourceMetadata :item="item" :status-label="item.entityType === 'insight' ? insightLabelFor(item.status) : seedLabelFor(item.status)" /><button v-if="item.entityType === 'seed'" type="button" @click="retireSeed(item)">退休</button></article>
       </section>
     </div>
   </div>

@@ -6,7 +6,7 @@ const enc = new TextEncoder()
 const dec = new TextDecoder()
 
 type Envelope = { v: 1; iv: string; ciphertext: string }
-type Keyring = { deviceKey: CryptoKey; userKeyEnvelope: Envelope; pendingRecoveryEnvelope?: Envelope }
+type Keyring = { deviceKey: CryptoKey; userKeyEnvelope: Envelope; pendingRecoveryEnvelope?: Envelope; recoveryEnvelope?: Envelope }
 
 function base64(bytes: Uint8Array): string {
   let binary = ''
@@ -51,6 +51,26 @@ async function writeKeyring(userId: string, keyring: Keyring): Promise<void> {
     })
   } finally { db.close() }
 }
+async function createKeyringIfAbsent(userId: string, keyring: Keyring): Promise<boolean> {
+  const db = await openKeyring(userId)
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction('keys', 'readwrite')
+      const store = tx.objectStore('keys')
+      let created = false
+      const existing = store.get('keyring')
+      existing.onsuccess = () => {
+        if (existing.result) return
+        store.add(keyring, 'keyring')
+        created = true
+      }
+      existing.onerror = () => reject(existing.error || new Error('keyring-read-failed'))
+      tx.oncomplete = () => resolve(created)
+      tx.onerror = () => reject(tx.error || new Error('keyring-create-failed'))
+      tx.onabort = () => reject(tx.error || new Error('keyring-create-aborted'))
+    })
+  } finally { db.close() }
+}
 async function importAes(raw: Uint8Array, usages: KeyUsage[]): Promise<CryptoKey> {
   return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, usages)
 }
@@ -81,29 +101,61 @@ async function getRecoveryEnvelope(baseUrl: string): Promise<Envelope | null> {
   return body.initialized && body.recoveryEnvelope ? body.recoveryEnvelope : null
 }
 
-async function putRecoveryEnvelope(baseUrl: string, recoveryEnvelope: Envelope): Promise<void> {
+function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.length !== right.length) return false
+  let difference = 0
+  for (let index = 0; index < left.length; index++) difference |= left[index] ^ right[index]
+  return difference === 0
+}
+
+async function ensureRecoveryEnvelope(baseUrl: string, recoveryEnvelope: Envelope, recoveryKey: Uint8Array, expectedUserKey: Uint8Array): Promise<void> {
+  const recoveryCryptoKey = await importAes(recoveryKey, ['encrypt', 'decrypt'])
+  const verifyExisting = async (current: Envelope): Promise<void> => {
+    try {
+      const userKey = await unwrap(current, recoveryCryptoKey)
+      if (sameBytes(userKey, expectedUserKey)) return
+    } catch { /* treat an envelope this key cannot unwrap as another device's setup */ }
+    throw new Error('此账号已在另一台设备初始化 Vault，请使用服务器上的恢复密钥恢复本设备。')
+  }
   const current = await getRecoveryEnvelope(baseUrl)
-  if (current) return
+  if (current) return verifyExisting(current)
   const response = await apiFetch(baseUrl, '/api/vault/key', {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ version: 1, recoveryEnvelope })
   })
-  if (!response.ok) throw new Error('Vault 恢复包保存失败，请保持此设备登录并重试')
+  if (!response.ok) {
+    if (response.status === 409) {
+      const racedEnvelope = await getRecoveryEnvelope(baseUrl)
+      if (racedEnvelope) return verifyExisting(racedEnvelope)
+    }
+    throw new Error('Vault 恢复包保存失败，请保持此设备登录并重试')
+  }
 }
 
 /** Create a random account key and independently generated recovery secret, or report this device needs recovery. */
 export async function setupVault(baseUrl: string, userId: string): Promise<{ recoveryKey?: string; alreadyUnlocked: boolean; recoveryNeeded: boolean }> {
   const cached = await readKeyring(userId)
   if (cached) {
+    let userKey: Uint8Array
+    let pending: Uint8Array | undefined
     try {
-      await unwrap(cached.userKeyEnvelope, cached.deviceKey)
-      if (cached.pendingRecoveryEnvelope) {
-        const pending = await unwrap(cached.pendingRecoveryEnvelope, cached.deviceKey)
-        return { recoveryKey: base64(pending), alreadyUnlocked: false, recoveryNeeded: false }
-      }
-      return { alreadyUnlocked: true, recoveryNeeded: false }
+      userKey = await unwrap(cached.userKeyEnvelope, cached.deviceKey)
+      pending = cached.pendingRecoveryEnvelope ? await unwrap(cached.pendingRecoveryEnvelope, cached.deviceKey) : undefined
+    } catch {
+      const serverEnvelope = await getRecoveryEnvelope(baseUrl)
+      if (serverEnvelope) return { alreadyUnlocked: false, recoveryNeeded: true }
+      throw new Error('本机 Vault 密钥数据无法读取，服务器也没有恢复包；为保护现有数据，Calmy 不会覆盖这份密钥。')
     }
-    catch { /* recover below */ }
+    if (!pending) return { alreadyUnlocked: true, recoveryNeeded: false }
+    // A prior attempt may have persisted the local keyring before the server
+    // request was interrupted. Reuse the exact envelope so setup is retryable.
+    const recoveryEnvelope = cached.recoveryEnvelope || await wrap(userKey, await importAes(pending, ['encrypt', 'decrypt']))
+    if (!cached.recoveryEnvelope) {
+      cached.recoveryEnvelope = recoveryEnvelope
+      await writeKeyring(userId, cached)
+    }
+    await ensureRecoveryEnvelope(baseUrl, recoveryEnvelope, pending, userKey)
+    return { recoveryKey: base64(pending), alreadyUnlocked: false, recoveryNeeded: false }
   }
   const serverEnvelope = await getRecoveryEnvelope(baseUrl)
   if (serverEnvelope) return { alreadyUnlocked: false, recoveryNeeded: true }
@@ -115,8 +167,19 @@ export async function setupVault(baseUrl: string, userId: string): Promise<{ rec
   const recoveryEnvelope = await wrap(userKey, recoveryCryptoKey)
   const localEnvelope = await wrap(userKey, deviceKey)
   const pendingRecoveryEnvelope = await wrap(recoveryKey, deviceKey)
-  await putRecoveryEnvelope(baseUrl, recoveryEnvelope)
-  await writeKeyring(userId, { deviceKey, userKeyEnvelope: localEnvelope, pendingRecoveryEnvelope })
+  // Persist both the unlock material and the exact recovery envelope first. If
+  // the browser stops before or during the Worker request, the next attempt can
+  // safely retry without generating a different User Key or Recovery Key.
+  const created = await createKeyringIfAbsent(userId, { deviceKey, userKeyEnvelope: localEnvelope, pendingRecoveryEnvelope, recoveryEnvelope })
+  if (!created) return setupVault(baseUrl, userId)
+  try {
+    await ensureRecoveryEnvelope(baseUrl, recoveryEnvelope, recoveryKey, userKey)
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('此账号已在另一台设备')) {
+      return { alreadyUnlocked: false, recoveryNeeded: true }
+    }
+    throw error
+  }
   return { recoveryKey: base64(recoveryKey), alreadyUnlocked: false, recoveryNeeded: false }
 }
 

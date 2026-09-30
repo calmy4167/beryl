@@ -1,6 +1,6 @@
 # Calmy 文档中心
 
-> 状态：当前入口 · 更新日期：2026-09-24
+> 状态：当前入口 · 更新日期：2026-09-30
 
 本页是仓库文档的唯一入口。文档是否仍有约束力，以[文档登记册](product/DOCUMENT_REGISTER.md)为准；文件存在不代表其仍是当前产品规范。
 
@@ -13,6 +13,10 @@
 5. [当前未完成工作](product/OPEN_WORK.md)：唯一活跃的产品/工程待办和停止线。
 6. [工程评审](product/ENGINEERING_REVIEW_2026-08-22.md)：代码差距、风险和目标架构。
 7. [实现总档案](implementation/IMPLEMENTATION_BASELINE_2026-08-19.md)：当前实现事实与验证证据。
+8. [User 身份与产品访问设计](superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md)：已接受的账号管理、归属、授权和全产品访问边界。
+9. [ADR-001：零知识优先架构](adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md)：已接受的加密数据与可见控制元数据边界。
+10. [ADR-002：收件人密钥封套（草案）](adr/ADR-002-recipient-key-envelope-protocol.md)：仍待独立密码学审查；审查完成前不得进入跨用户密钥分享实现。
+11. [系统管理模块运行说明](operations/calmy-system-administration.md)：系统角色、密码规则、审计边界和 D1 迁移流程。
 
 旧 [Attention OS 统一设计](product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md)继续解释现有四入口、页面和兼容对象，但不再定义新增功能的产品本体。2026-09-19 的[文档与界面统一审计](product/DOCUMENT_AUDIT_2026-09-19.md)仍是当时实现快照。
 
@@ -40,17 +44,17 @@
 ## 权威层级
 
 ```text
-2026-09-19 当前产品总设计 + D-018
-  ↓
-已接受的其他产品决策
-  ↓
-2026-08-29 Attention OS 迁移参考
+当前产品总设计 + 已接受的产品决策
+  ├─ 身份、归属与产品访问：已接受的 User Identity 设计
+  └─ 内容加密与同步边界：已接受的 ADR-001
+       ↓
+  待接受的协议决策（如 ADR-002，须满足其审查门槛）
   ↓
 当前未完成工作（唯一活跃任务）
   ↓
 工程与实现档案（只描述当前代码事实）
   ↓
-旧参考与历史文档
+迁移参考、旧参考与历史文档
 ```
 
 发生冲突时，先遵循当前产品总设计和 D-018；现有数据安全、AI 判断权与迁移约束继续遵循未被替代的已接受决策。实现状态必须以代码和可复现验证为证据，不能用文档方向更新宣称新产品已经完成。

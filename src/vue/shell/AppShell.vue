@@ -5,6 +5,8 @@ import { searchAllAsync, type SearchResult } from '@/domain/search'
 import { setThemeMode } from '@/ui/theme-preferences'
 import { featureNavigationGroupsForAdmin, primaryNavigation } from '@/router/navigation'
 import { readServerSession } from '@/core/auth'
+import { apiBaseUrl } from '@/core/api/base-url'
+import { capabilities as fetchCapabilities } from '@/core/api/system-admin'
 import { closeWorkspaceTab, moveWorkspaceTab, readWorkspaceTabs, visitWorkspaceTab, writeWorkspaceTabs } from '@/router/workspace-tabs'
 import { vuePageRegistry } from '@/vue/page-registry'
 import PrimaryNav from './PrimaryNav.vue'
@@ -16,7 +18,8 @@ const router = useRouter()
 const currentPage = computed(() => vuePageRegistry.find(page => page.id === route.meta.pageId) ?? vuePageRegistry.find(page => route.path === page.path) ?? null)
 const currentTitle = computed(() => currentPage.value?.title ?? String(route.meta.title ?? '模块入口'))
 const isAdmin = readServerSession()?.user.role === 'admin'
-const featureNavigationGroups = computed(() => featureNavigationGroupsForAdmin(isAdmin))
+const systemCapabilities = ref<string[] | undefined>(undefined)
+const featureNavigationGroups = computed(() => featureNavigationGroupsForAdmin(isAdmin, systemCapabilities.value))
 const activePath = computed(() => route.path)
 const activeNav = computed(() => currentPage.value?.navigation?.kind === 'primary' ? currentPage.value.navigation.key : currentPage.value?.id ?? 'today')
 const compact = ref(window.innerWidth <= 900)
@@ -29,6 +32,8 @@ const contextWidth = ref(readContextWidth())
 const tabs = ref(readWorkspaceTabs())
 const saveLabel = ref('本地优先 · 离线可用')
 const saveState = ref('idle')
+const cloudSyncState = ref('idle')
+const cloudSyncLabel = ref('云端状态未确认')
 const toastText = ref('')
 const directoryOpen = ref(false)
 const directoryPresentation = computed(() => compact.value ? 'drawer' : 'popover')
@@ -224,6 +229,18 @@ function onSave(event: Event): void {
   saveState.value = state
   saveLabel.value = ({ saving: '正在保存…', saved: '已保存到本地', pending: '已保存，等待持久化', conflict: '保存冲突，需要确认', failed: '保存失败' } as Record<string, string>)[state] || '本地优先 · 离线可用'
 }
+function onCloudSync(event: Event): void {
+  const state = (event as CustomEvent<{ state?: string }>).detail?.state
+  if (!state) return
+  cloudSyncState.value = state
+  cloudSyncLabel.value = ({
+    idle: '云端状态未确认',
+    pending: '本地有更改，等待云端确认',
+    syncing: '正在同步到云端…',
+    synced: '云端已确认同步',
+    failed: '云端同步失败，将自动重试'
+  } as Record<string, string>)[state] || '云端状态未确认'
+}
 function onToast(event: Event): void {
   toastText.value = (event as CustomEvent<{ message?: string }>).detail?.message || ''
   window.setTimeout(() => { toastText.value = '' }, 2600)
@@ -257,9 +274,11 @@ watch(searchOpen, async isOpen => {
 })
 watch(searchQuery, query => { if (searchOpen.value) void refreshSearch(query) })
 onMounted(() => {
+  void fetchCapabilities(apiBaseUrl()).then(value => { systemCapabilities.value = value.capabilities }).catch(() => { systemCapabilities.value = [] })
   window.addEventListener('resize', onResize)
   window.addEventListener('keydown', onKey)
   window.addEventListener('beryl-save-state', onSave)
+  window.addEventListener('beryl-cloud-sync-state', onCloudSync)
   window.addEventListener('beryl-toast', onToast)
 })
 onUnmounted(() => {
@@ -268,6 +287,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', onResize)
   window.removeEventListener('keydown', onKey)
   window.removeEventListener('beryl-save-state', onSave)
+  window.removeEventListener('beryl-cloud-sync-state', onCloudSync)
   window.removeEventListener('beryl-toast', onToast)
 })
 </script>
@@ -279,7 +299,7 @@ onUnmounted(() => {
     <div class="workspace-shell">
       <header v-if="!compact" class="desktop-topbar" :class="{ 'is-compact-search': compactSearch }">
         <div class="breadcrumb"><b>{{ currentTitle }}</b><span v-if="currentPage?.description">/</span><span v-if="currentPage?.description">{{ currentPage.description }}</span></div>
-      <div class="topbar-actions"><button class="react-btn topbar-search" aria-label="搜索内容" @click="openSearch()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><span>搜索记录、处境或想法…</span><kbd>Ctrl K</kbd></button><span class="save-state" :class="`save-${saveState}`" role="status" aria-live="polite"><i />{{ saveLabel }}</span></div>
+      <div class="topbar-actions"><button class="react-btn topbar-search" aria-label="搜索内容" @click="openSearch()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><span>搜索记录、处境或想法…</span><kbd>Ctrl K</kbd></button><span class="save-state" :class="`save-${saveState}`" role="status" aria-live="polite"><i />本地：{{ saveLabel }}</span><span class="save-state" :class="`save-${cloudSyncState}`" role="status" aria-live="polite"><i />{{ cloudSyncLabel }}</span></div>
       </header>
       <header v-else class="mobile-header"><button class="brand compact" type="button" aria-label="返回今天" @click="go('/app/today')"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path d="M15.9 25.9c-5.8-1.4-9.1-5.6-9.1-11.3 5.8.1 9.4 2.6 10.4 7.4 1.2-6.3 5.1-10.1 11.4-11.3.5 8.7-3.8 14.1-11.1 15.4v2h-1.6z" fill="currentColor"/><path d="M8.3 7.4c4.7.2 7.8 2.8 8.7 7.2-5.3-.3-8.1-2.6-8.7-7.2z" fill="currentColor" opacity=".58"/></svg></span><b>Calmy</b></button><div><button class="immersive-toggle" type="button" aria-label="进入沉浸模式" title="进入沉浸模式" @click="enterImmersive"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H5a1 1 0 0 0-1 1v3m12-4h3a1 1 0 0 1 1 1v3M4 16v3a1 1 0 0 0 1 1h3m12-4v3a1 1 0 0 1-1 1h-3"/></svg></button><button class="search-btn" type="button" aria-label="搜索内容" @click="openSearch()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><button class="menu" type="button" aria-label="打开功能目录" aria-haspopup="dialog" aria-controls="more-drawer" :aria-expanded="directoryOpen" @click="openDirectory($event.currentTarget as HTMLButtonElement)">功能</button></div></header>
       <WorkspaceTabs v-if="!compact" :tabs="tabs" :active-path="activePath" :save-state="saveState" @activate="go" @close="closeTab" @reorder="reorderTab" />

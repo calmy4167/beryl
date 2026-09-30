@@ -4356,8 +4356,8 @@ html.tactile-ui .navigation-group-rail button {
 html.tactile-ui .navigation-group-rail button.on {
   color: #1f4eaa;
   font-weight: 760;
-  background: transparent;
-  box-shadow: none;
+  background: #e5eaee;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .8), 0 2px 5px rgba(44, 58, 49, .04);
 }
 
 html.tactile-ui .navigation-group-rail button.on > i svg > :first-child {
@@ -4377,8 +4377,8 @@ html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rai
 html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button.on {
   color: #1f4eaa;
   font-weight: 760;
-  background: transparent;
-  box-shadow: none;
+  background: #e5eaee;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .8), 0 2px 5px rgba(44, 58, 49, .04);
 }
 
 @media (max-width: 700px) {
@@ -4400,4 +4400,117 @@ html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rai
 html.tactile-ui .workspace-shell {
   grid-template-columns: minmax(0, 1fr) 8px var(--t-context-width, var(--t-context-open));
   grid-template-rows: 70px 42px minmax(0, 1fr);
+}
+
+/* Give pointer users a consistent response without replacing component colors. */
+@media (hover: hover) and (pointer: fine) {
+  html.tactile-ui :where(
+    button:not(:disabled),
+    a[href],
+    [role="button"]:not([aria-disabled="true"]),
+    summary,
+    .beryl-card.hoverable,
+    [data-hoverable]
+  ) {
+    transition:
+      color var(--t-motion-fast) var(--t-ease-standard),
+      background-color var(--t-motion-fast) var(--t-ease-standard),
+      border-color var(--t-motion-fast) var(--t-ease-standard),
+      box-shadow var(--t-motion-fast) var(--t-ease-standard),
+      transform var(--t-motion-fast) var(--t-ease-standard),
+      filter var(--t-motion-fast) var(--t-ease-standard);
+  }
+
+  html.tactile-ui :where(
+    button:not(:disabled),
+    a[href],
+    [role="button"]:not([aria-disabled="true"]),
+    summary,
+    .beryl-card.hoverable,
+    [data-hoverable]
+  ):hover {
+    filter: brightness(.94);
+  }
+
+  /* Resting nav items stay quiet so the pointer highlight reads as a state. */
+  html.tactile-ui .navigation-group-rail button:not(.on),
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button:not(.on) {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  html.tactile-ui .navigation-group-rail button:not(.on):hover,
+  html.tactile-ui .navigation-group-rail button:not(.on):focus-visible,
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button:not(.on):hover,
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button:not(.on):focus-visible {
+    color: #214f91;
+    background: #e5ebef;
+    box-shadow: inset 0 1px rgba(255, 255, 255, .92), 0 2px 6px rgba(44, 58, 49, .07);
+    filter: none;
+  }
+
+  html.tactile-ui .navigation-group-rail button:not(.on):focus-visible,
+  html.tactile-ui .navigation-group-rail button.on:focus-visible {
+    outline: 2px solid rgba(51, 108, 244, .52);
+    outline-offset: 1px;
+  }
+
+  html.tactile-ui .navigation-group-rail button.on:hover,
+  html.tactile-ui .navigation-group-rail button.on:focus-visible,
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button.on:hover,
+  html.tactile-ui .app-shell[data-sidebar-state="collapsed"] .navigation-group-rail button.on:focus-visible {
+    color: #1f4eaa;
+    background: #d7e2e9;
+    box-shadow: inset 0 0 0 1px rgba(31, 78, 170, .14), 0 3px 8px rgba(44, 58, 49, .09);
+    filter: none;
+  }
+
+  html.tactile-ui .secondary-nav button:hover,
+  html.tactile-ui .secondary-nav button:focus-visible,
+  html.tactile-ui .secondary-sidebar-foot button:hover,
+  html.tactile-ui .secondary-sidebar-foot button:focus-visible {
+    color: #273e57;
+    background: #e7edf3;
+    filter: none;
+  }
+
+  html.tactile-ui #app .page-container :where(
+    button:not(:disabled):not(.primary):not(.danger):not(.on):not(.selected):not([aria-pressed="true"]),
+    a[href],
+    [role="button"]:not([aria-disabled="true"]),
+    summary
+  ):hover,
+  html.tactile-ui #app .page-container :where(
+    button:not(:disabled):not(.primary):not(.danger):not(.on):not(.selected):not([aria-pressed="true"]),
+    a[href],
+    [role="button"]:not([aria-disabled="true"]),
+    summary
+  ):focus-visible {
+    background-color: color-mix(in srgb, var(--t-blue) 9%, var(--t-surface));
+  }
+
+  html.tactile-ui #app .page-container .beryl-card.hoverable:hover {
+    background-color: color-mix(in srgb, var(--t-blue) 5%, var(--t-surface));
+  }
+
+  html.tactile-ui #app .page-container .task-board-card:hover {
+    background-color: color-mix(in srgb, var(--t-blue) 7%, var(--t-surface));
+  }
+
+  html.tactile-ui :where(.right-sidebar-toggle, .context-dock-action, .context-dock-settings):hover {
+    background-color: var(--t-surface-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.tactile-ui :where(
+    button:not(:disabled),
+    a[href],
+    [role="button"]:not([aria-disabled="true"]),
+    summary,
+    .beryl-card.hoverable,
+    [data-hoverable]
+  ) {
+    transition-duration: 0.01ms;
+  }
 }

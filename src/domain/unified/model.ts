@@ -7,7 +7,7 @@
 
 export const CORE_ENTITY_TYPES = [
   'person', 'relationship', 'shared_space', 'cycle', 'stage', 'resource',
-  'relation', 'seed', 'insight', 'outcome', 'practice', 'daily_state', 'asset', 'scene', 'scene_participant', 'space', 'domain', 'scope', 'permission'
+  'relation', 'seed', 'insight', 'outcome', 'practice', 'daily_state', 'asset', 'scene', 'scene_participant', 'space', 'domain', 'scope', 'permission', 'dictionary_option'
 ] as const
 export type CoreEntityType = typeof CORE_ENTITY_TYPES[number]
 
@@ -44,10 +44,13 @@ export interface Ownership {
   privacy?: 'private' | 'shared'
 }
 
+export const PERSON_STATUSES = ['active', 'archived'] as const
+export type PersonStatus = typeof PERSON_STATUSES[number]
+
 export interface Person extends CoreEntityMeta {
   entityType: 'person'
   displayName: string
-  status: 'active' | 'archived'
+  status: PersonStatus
   roles: string[]
   domain?: string
   notes?: string
@@ -204,18 +207,43 @@ export type CycleStatus = typeof CYCLE_STATUSES[number]
 export const STAGE_STATUSES = ['planned', 'active', 'paused', 'completed', 'skipped'] as const
 export type StageStatus = typeof STAGE_STATUSES[number]
 
+export const RESOURCE_STATUSES = ['active', 'expired', 'retired'] as const
+export type ResourceStatus = typeof RESOURCE_STATUSES[number]
+export const ASSET_LIFECYCLES = ['active', 'expired', 'retired', 'missing'] as const
+export type AssetLifecycle = typeof ASSET_LIFECYCLES[number]
+export const SEED_STATUSES = ['open', 'cultivating', 'promoted', 'retired'] as const
+export type SeedStatus = typeof SEED_STATUSES[number]
+export const INSIGHT_STATUSES = ['draft', 'confirmed', 'retired'] as const
+export type InsightStatus = typeof INSIGHT_STATUSES[number]
+
 export interface Resource extends CoreEntityMeta {
   entityType: 'resource'
   title: string
   kind: 'reference' | 'tool' | 'template' | 'knowledge' | 'person_asset' | 'other'
-  status: 'active' | 'expired' | 'retired'
+  status: ResourceStatus
   body?: string
   uri?: string
   assetIds: string[]
   matterIds: string[]
   sourceIds: string[]
   tags: string[]
+  categoryOptionId?: string
+  tagOptionIds?: string[]
+  sourceOptionId?: string
   expiresAt?: number
+}
+
+export type DictionaryOptionModule = 'resource' | 'asset' | 'seed' | 'insight' | 'action' | 'capture' | 'finance' | 'goal' | 'matter' | 'person'
+export type DictionaryOptionField = 'category' | 'tag' | 'source' | 'status'
+export interface DictionaryOption extends CoreEntityMeta {
+  entityType: 'dictionary_option'
+  module: DictionaryOptionModule
+  field: DictionaryOptionField
+  value: string
+  /** Canonical domain status code for module-scoped status label/order overrides. */
+  systemKey?: string
+  status: 'active' | 'retired'
+  sortOrder: number
 }
 
 export interface EntityRef {
@@ -284,7 +312,7 @@ export type RelationValidation = { valid: true } | {
 }
 
 const ALL_RELATION_ENDPOINT_TYPES: EntityRef['entityType'][] = [
-  ...CORE_ENTITY_TYPES, 'thing', 'matter', 'action', 'record', 'today', 'shared_space'
+  ...CORE_ENTITY_TYPES.filter(type => type !== 'dictionary_option'), 'thing', 'matter', 'action', 'record', 'today', 'shared_space'
 ]
 const LEGACY_COMPAT_TYPES: EntityRef['entityType'][] = [
   'thing', 'matter', 'person', 'relationship', 'shared_space', 'cycle', 'stage', 'resource',
@@ -329,7 +357,7 @@ export interface Seed extends CoreEntityMeta {
   entityType: 'seed'
   title: string
   body: string
-  status: 'open' | 'cultivating' | 'promoted' | 'retired'
+  status: SeedStatus
   sourceRecordIds: string[]
   targetMatterIds: string[]
   tags: string[]
@@ -343,11 +371,13 @@ export interface Insight extends CoreEntityMeta {
   sourceRecordIds: string[]
   matterIds: string[]
   resourceIds: string[]
-  status: 'draft' | 'confirmed' | 'retired'
+  status: InsightStatus
   /** The user-facing memory view. This is metadata on an Insight, not a second entity. */
   memoryLayer?: 'ai_inference' | 'preference' | 'principle'
   confirmedAt?: number
   deniedAt?: number
+  /** Records which retired Insight action the user chose; older ambiguous records may omit it. */
+  retirementReason?: 'denied' | 'removed'
 }
 
 export interface Outcome extends CoreEntityMeta {
@@ -389,14 +419,14 @@ export interface Asset extends CoreEntityMeta {
   mimeType: string
   sizeBytes: number
   hash: string
-  lifecycle: 'active' | 'expired' | 'retired' | 'missing'
+  lifecycle: AssetLifecycle
   version: number
   externalUri?: string
 }
 
 export type CoreEntity =
   | Person | Scene | SceneParticipant | Space | Domain | Scope | Permission | Relationship | SharedSpace | Cycle | Stage | Resource | Relation
-  | Seed | Insight | Outcome | Practice | DailyState | Asset
+  | Seed | Insight | Outcome | Practice | DailyState | Asset | DictionaryOption
 
 export interface CoreEntityMutation {
   id: string

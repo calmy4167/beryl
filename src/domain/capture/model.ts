@@ -10,6 +10,8 @@ export type SuggestionEntityType = typeof SUGGESTION_ENTITY_TYPES[number]
 export interface CaptureItem {
   calmyId: string
   body: string
+  /** Stable IDs of reusable materials selected while composing this text snapshot. */
+  sourceMaterialIds?: string[]
   status: CaptureStatus
   suggestionIds: string[]
   createdAt: number

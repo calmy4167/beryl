@@ -2,6 +2,7 @@ import { ensureSchema } from '../lib/d1.js';
 import { requireSession } from '../lib/session.js';
 
 const MAX_PULL = 250;
+const MAX_SNAPSHOT = 250;
 const MAX_PUSH = 50;
 const MAX_CIPHERTEXT = 2_000_000;
 const MAX_ENVELOPE = 128_000;
@@ -66,6 +67,31 @@ export async function handleVaultPull(request, env) {
     keyEnvelope: row.key_envelope, version: Number(row.version), deviceId: row.device_id, deleted: Boolean(row.deleted)
   }));
   return { body: { ok: true, changes, cursor: changes.at(-1)?.sequence || after, hasMore } };
+}
+
+export async function handleVaultSnapshot(request, env) {
+  const actor = await actorFor(request, env);
+  if (actor.error) return { body: { error: actor.error }, status: actor.status };
+  const url = new URL(request.url);
+  const after = String(url.searchParams.get('after') || '');
+  const cursorBefore = Number((await env.BERYL_D1.prepare('SELECT COALESCE(MAX(sequence), 0) AS cursor FROM cipher_changes WHERE user_id = ?').bind(actor.userId).first())?.cursor || 0);
+  const result = await env.BERYL_D1.prepare(
+    'SELECT opaque_id, ciphertext, key_envelope, version, sequence, device_id, deleted FROM cipher_records ' +
+    'WHERE user_id = ? AND opaque_id > ? ORDER BY opaque_id LIMIT ?'
+  ).bind(actor.userId, after, MAX_SNAPSHOT + 1).all();
+  const cursorAfter = Number((await env.BERYL_D1.prepare('SELECT COALESCE(MAX(sequence), 0) AS cursor FROM cipher_changes WHERE user_id = ?').bind(actor.userId).first())?.cursor || 0);
+  if (cursorBefore !== cursorAfter) return { body: { error: 'vault-changed-during-snapshot' }, status: 409 };
+  const hasMore = result.results.length > MAX_SNAPSHOT;
+  const rows = result.results.slice(0, MAX_SNAPSHOT);
+  return {
+    body: {
+      ok: true,
+      records: rows.map(row => ({ opaqueId: row.opaque_id, ciphertext: row.ciphertext, keyEnvelope: row.key_envelope, version: Number(row.version), sequence: Number(row.sequence), deviceId: row.device_id, deleted: Boolean(row.deleted) })),
+      nextAfter: rows.at(-1)?.opaque_id || after,
+      hasMore,
+      cursor: cursorBefore
+    }
+  };
 }
 
 export async function handleVaultPush(request, env) {

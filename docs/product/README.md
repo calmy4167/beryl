@@ -2,6 +2,8 @@
 
 > 产品设计对齐：2026-09-19。当前产品本体以 `CALMY_PRODUCT_DESIGN_2026-09-19.md` 与 D-018 为准；旧 Attention OS 总稿解释当前实现与迁移约束。已完成实现与剩余任务分别以实现总档案和 `OPEN_WORK.md` 为准。
 
+> 账号与数据安全边界已由 2026-09-29 User Identity 设计和 2026-09-29 Accepted ADR-001 补充；二者约束全部产品模块。ADR-002 仍为待独立密码学审查的草案，不表示已启用跨用户分享。
+
 Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与世界之间的反思层”。迁移不会直接删除旧数据和稳定实现，而是先验证自然语言处境、未来回望、外部工具上下文和现实反馈的完整体验。
 
 ## 当前裁决
@@ -15,6 +17,8 @@ Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与�
 - `Today / Capture / Matters / Review`、Matter、Action、Record、Cycle、Stage、Trajectory 等暂为迁移兼容层；后续去留服从 OW-21 的验证和迁移设计。
 - 生产前端现统一为 Vue 3；React 运行时代码、依赖和预览入口已从当前工程移除，配对截图保留为迁移验收档案。离线恢复、真实设备和人工可访问性检查仍按 OW-04 验收，不能由前端迁移测试代替。
 - 设置与同步以 `/app/admin` 为唯一主入口，集中展示备份、同步、Vault 与实体迁移；旧 `/app/admin/advanced` 仅为兼容地址，不能再形成第二套设置体验。
+- 账号由管理员创建并管理；管理员权限不等于私人业务数据读取权。个人数据归属、模块访问和数据解密分别服从已接受的 User Identity 设计与 ADR-001。
+- 已接受 ADR-001：服务端负责身份、授权与密文同步，客户端负责解密和语义处理；必要的授权关系等控制元数据仍可能对服务端可见。
 
 ## 外部数据源规划
 
@@ -38,6 +42,9 @@ Calmy 已从以 Matter 和四入口为中心的 Attention OS，转向“人与�
 - [当前未完成工作](OPEN_WORK.md)
 - [项目文件架构](../PROJECT_STRUCTURE.md)
 - [产品决策](PRODUCT_DECISIONS_2026-08-19.md)
+- [User 身份与产品访问设计（已接受）](../superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md)
+- [ADR-001：零知识优先的数据架构（已接受）](../adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md)
+- [ADR-002：收件人密钥封套（草案，待独立审查）](../adr/ADR-002-recipient-key-envelope-protocol.md)
 - [产品参考与领域协议](reference/README.md)
 - [飞书数据适配与授权协议](reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md)
 - [飞书生活工作台规划（提案）](FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md)

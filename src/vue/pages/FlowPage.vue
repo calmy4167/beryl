@@ -6,6 +6,7 @@ import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
 import { unifiedAsyncRepository, type Resource, type Seed } from '@/domain/unified'
+import { useSeedInsightStatusDictionary } from '@/vue/composables/useSeedInsightStatusDictionary'
 import { todayKey } from '@/core/storage'
 import { withSaveState } from '@/core/save-state'
 import '@/styles/modules/flow.css'
@@ -23,6 +24,7 @@ const flowModes: Array<{ value: FlowMode; label: string; hint: string }> = [
 ]
 
 const route = useRoute()
+const { seedLabelFor, error: seedStatusDictionaryError, refresh: refreshSeedStatusDictionary } = useSeedInsightStatusDictionary()
 const router = useRouter()
 const seeds = ref<Seed[]>([])
 const resources = ref<Resource[]>([])
@@ -192,6 +194,7 @@ function giveEchoFeedback(record: RealityRecord, feedback: EchoFeedback): void {
 <template>
   <div class="flow-page">
     <header class="page-head"><div><p class="eyebrow">探索 · 有限内容</p><h1 class="font-title">带着问题找资料</h1><p>先写问题，再看最多 5 条相关内容；探索有明确边界，也有现实出口。</p></div></header>
+    <p v-if="seedStatusDictionaryError" class="form-error" role="alert">Seed 状态字典读取失败，当前使用内置名称。<button class="app-button" type="button" @click="refreshSeedStatusDictionary">重试</button></p>
     <section v-if="error" class="beryl-card empty-state" role="alert"><b>探索内容暂时无法读取</b><p>{{ error }}</p><button class="app-button" type="button" @click="refresh">重试</button></section>
     <section class="beryl-card flow-intent">
       <div><p class="eyebrow">当前意图</p><h2 class="font-title">这次为什么打开探索？</h2><p>可以是一个现实问题，也可以是明确的探索意图；不是为了打卡或延长停留。</p></div>
@@ -207,7 +210,7 @@ function giveEchoFeedback(record: RealityRecord, feedback: EchoFeedback): void {
     <div v-else-if="loading" class="empty-state" role="status">正在准备这一批内容…</div>
     <section v-else :class="['flow-batch', { 'focus-batch': mode === 'focus' }]"><div class="flow-batch-head"><div><p class="eyebrow">{{ activeMode.label.toUpperCase() }} · 本批 · {{ candidates.length + (mode === 'echo' ? echoRecords.length : 0) }} 项</p><h2 class="font-title">围绕“{{ intent.trim() }}”</h2><small v-if="mode === 'solve'" class="flow-solve-summary">证据：{{ desiredEvidence }} · 应用：{{ application }}</small><small v-if="mode === 'topic'" class="flow-topic-summary">专题范围：{{ topicScope.trim() }}</small></div><button class="app-button" type="button" @click="ended = true">已足够，结束探索</button></div>
       <div v-if="!candidates.length && mode !== 'echo'" class="empty-state beryl-card">资料里还没有符合本模式的内容；可以回到记录页先保存一条线索。</div>
-      <article v-for="item in candidates" :key="`${item.kind}-${item.entity.calmyId}`" :class="['beryl-card', 'flow-card', { 'focus-card': mode === 'focus' }]"><div class="flow-card-head"><span class="flow-kind">{{ item.kind === 'seed' ? '线索 · 尚未成熟' : '资料 · 可复用' }}</span><button class="app-button" type="button" @click="expanded = expanded === item.entity.calmyId ? null : item.entity.calmyId">{{ expanded === item.entity.calmyId ? '收起来源' : '展开来源' }}</button></div><h3>{{ item.entity.title }}</h3><p>{{ item.entity.body }}</p><small class="flow-meta">{{ new Date(item.entity.createdAt).toLocaleDateString('zh-CN') }} · {{ item.kind === 'seed' ? item.entity.status : item.entity.kind }}</small><small v-if="expanded === item.entity.calmyId" class="flow-source">来源：{{ sourceLabel(item) }}{{ item.entity.tags.length ? ` · 标签：${item.entity.tags.join('、')}` : '' }}</small><div class="flow-card-actions"><button class="app-button" type="button" @click="keep(item)">收下</button><button class="app-button" type="button" @click="useForProblem(item)">用于当前问题</button><button class="app-button primary" type="button" @click="tryIt(item)">试一下</button><button class="app-button" type="button" @click="sayGoodbye(item)">再见</button></div></article>
+      <article v-for="item in candidates" :key="`${item.kind}-${item.entity.calmyId}`" :class="['beryl-card', 'flow-card', { 'focus-card': mode === 'focus' }]"><div class="flow-card-head"><span class="flow-kind">{{ item.kind === 'seed' ? '线索 · 尚未成熟' : '资料 · 可复用' }}</span><button class="app-button" type="button" @click="expanded = expanded === item.entity.calmyId ? null : item.entity.calmyId">{{ expanded === item.entity.calmyId ? '收起来源' : '展开来源' }}</button></div><h3>{{ item.entity.title }}</h3><p>{{ item.entity.body }}</p><small class="flow-meta">{{ new Date(item.entity.createdAt).toLocaleDateString('zh-CN') }} · {{ item.kind === 'seed' ? seedLabelFor(item.entity.status) : item.entity.kind }}</small><small v-if="expanded === item.entity.calmyId" class="flow-source">来源：{{ sourceLabel(item) }}{{ item.entity.tags.length ? ` · 标签：${item.entity.tags.join('、')}` : '' }}</small><div class="flow-card-actions"><button class="app-button" type="button" @click="keep(item)">收下</button><button class="app-button" type="button" @click="useForProblem(item)">用于当前问题</button><button class="app-button primary" type="button" @click="tryIt(item)">试一下</button><button class="app-button" type="button" @click="sayGoodbye(item)">再见</button></div></article>
       <section v-if="mode === 'echo'" class="echo-records"><div class="echo-records-head"><h3 class="font-title">过去的现实证据</h3><small>{{ matterId ? '当前处境 · 最近 5 条' : '最近 5 条' }}</small></div><div v-if="!echoRecords.length" class="empty-state beryl-card">还没有可回响的 现实记录。</div><article v-for="record in echoRecords" :key="record.calmyId" class="beryl-card echo-record"><time>{{ new Date(record.occurredAt).toLocaleString('zh-CN') }} · {{ record.source }}</time><p>{{ record.body }}</p><small v-if="record.matterId">关联处境：{{ matters.find(item => item.calmyId === record.matterId)?.title || record.matterId }}</small><div class="echo-actions"><button class="app-button" type="button" :class="{ on: echoFeedback[record.calmyId] === '仍重要' }" @click="giveEchoFeedback(record, '仍重要')">仍重要</button><button class="app-button" type="button" :class="{ on: echoFeedback[record.calmyId] === '已完成' }" @click="giveEchoFeedback(record, '已完成')">已完成</button><button class="app-button" type="button" :class="{ on: echoFeedback[record.calmyId] === '需要更新' }" @click="giveEchoFeedback(record, '需要更新')">需要更新</button></div></article></section>
     </section>
   </div>

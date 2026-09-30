@@ -8,7 +8,7 @@
  * 启动时先恢复再镜像；写入先进入可恢复 outbox，再串行提交到 IndexedDB。
  * IndexedDB 暂不可用时不阻断页面，但会保留 outbox 并在下次启动重试。
  */
-import { accountDatabaseName, accountStorageKey, accountStoragePrefix, setActiveAccount } from './account-context.ts'
+import { accountDatabaseName, accountStorageKey, accountStoragePrefix, getActiveAccount, setActiveAccount } from './account-context.ts'
 
 const DB_VERSION = 3
 const KV = 'kv'
@@ -21,7 +21,6 @@ const DB_INITIALIZED_AT = 'initializedAt'
 
 const DEVICE_STORAGE_KEY = 'beryl_device_id'
 const ENTITY_VERSION_STORAGE_KEY = 'beryl_entity_version'
-
 function getDeviceId(): string {
   try {
     const existing = localStorage.getItem(DEVICE_STORAGE_KEY)
@@ -132,6 +131,7 @@ function enqueueDbWork(work: () => Promise<void>): Promise<void> {
 }
 
 function openDb(): Promise<IDBDatabase> {
+  if (!getActiveAccount()) return Promise.reject(new Error('user-account-required'))
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') {
@@ -334,6 +334,7 @@ export async function writeDbMeta<T>(key: string, value: T): Promise<boolean> {
 
 /** 单键变更（store.set 路径） */
 export async function dbPut(key: string, value: string, context?: EntityWriteContext): Promise<void> {
+  if (!key.startsWith('b_') || !getActiveAccount()) return
   // 先写 outbox，确保 tab 在异步事务完成前关闭时仍有下一次启动可恢复的凭据。
   const entityChanges = context ? buildEntityChanges(key, context.before, context.after) : []
   enqueuePendingWrite(key, value, false, entityChanges)
@@ -359,7 +360,7 @@ export async function dbPut(key: string, value: string, context?: EntityWriteCon
 
 /** 删除 IndexedDB KV 键并把删除意图留在 outbox，避免启动恢复旧值。 */
 export async function dbDelete(key: string): Promise<void> {
-  if (!key.startsWith('b_') || key === OUTBOX) return
+  if (!key.startsWith('b_') || key === OUTBOX || !getActiveAccount()) return
   enqueuePendingWrite(key, undefined, true)
   await enqueueDbWork(async () => {
     try {
@@ -601,10 +602,11 @@ export async function readEntityChangesAfter(cursor: EntityChangeCursor, limit =
 }
 
 function buildEntityChanges(key: string, before: unknown, after: unknown): EntityChange[] {
-  if (!Array.isArray(after) || !key.startsWith('b_')) return []
+  if (!key.startsWith('b_')) return []
+  if (!Array.isArray(after)) return []
   const asMap = (items: unknown[]) => new Map(items
-    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && (('id' in item && item.id != null) || ('date' in item && item.date != null)))
-    .map(item => [String(item.id ?? item.date), item]))
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && (('id' in item && item.id != null) || ('calmyId' in item && item.calmyId != null) || ('date' in item && item.date != null)))
+    .map(item => [String(item.id ?? item.calmyId ?? item.date), item]))
   const previous = asMap(Array.isArray(before) ? before : [])
   const next = asMap(after)
   const changeId = (entityId: string, version: number) => `${DEVICE_ID}:${version}:${entityChangeNonce++}:${entityId}`
@@ -643,6 +645,22 @@ export function recordEntityChanges(key: string, before: unknown, after: unknown
   return next
 }
 
+/** Persist an already-versioned remote record locally so its version/tombstone survives reloads. */
+export async function recordSyncedEntityChanges(changes: EntityChange[]): Promise<void> {
+  if (!changes.length) return
+  try {
+    const db = await openDb()
+    const tx = db.transaction(ENTITY_CHANGES, 'readwrite')
+    const store = tx.objectStore(ENTITY_CHANGES)
+    changes.forEach(change => store.put(change))
+    await waitForTransaction(tx)
+    await pruneEntityChanges()
+  } catch (error) {
+    // Fail the pull before its cursor advances so a later sync retries the durable write.
+    throw new Error(`synced-entity-version-persist-failed:${String(error)}`)
+  }
+}
+
 /** 等待已经排队的实体变更日志完成；不改变旧同步 API 的返回形态。 */
 export function flushEntityChanges(): Promise<void> {
   return entityChangeChain
@@ -653,13 +671,28 @@ async function pruneEntityChanges(): Promise<void> {
     const db = await openDb()
     const tx = db.transaction(ENTITY_CHANGES, 'readwrite')
     const store = tx.objectStore(ENTITY_CHANGES)
-    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
-      const req = store.getAllKeys()
-      req.onsuccess = () => resolve(req.result)
+    const all = await new Promise<EntityChange[]>((resolve, reject) => {
+      const req = store.getAll()
+      req.onsuccess = () => resolve(req.result as EntityChange[])
       req.onerror = () => reject(req.error)
     })
-    const ordered = keys.map(String).sort()
-    ordered.slice(0, Math.max(0, ordered.length - 5000)).forEach(key => store.delete(key))
+    const ordered = all.map(change => String(change.id)).sort()
+    const protectedCollections = new Set(['mvpTodayPlans', 'calmyCaptures', 'calmySuggestions'])
+    const latestProtected = new Map<string, EntityChange>()
+    for (const change of all) {
+      if (!protectedCollections.has(change.entity)) continue
+      const key = `${change.entity}:${change.entityId}`
+      const current = latestProtected.get(key)
+      if (!current || change.updatedAt > current.updatedAt || (change.updatedAt === current.updatedAt && change.device > current.device)) latestProtected.set(key, change)
+    }
+    const protectedIds = new Set([...latestProtected.values()].map(change => String(change.id)))
+    let remove = Math.max(0, ordered.length - 5000)
+    for (const key of ordered) {
+      if (!remove) break
+      if (protectedIds.has(key)) continue
+      store.delete(key)
+      remove--
+    }
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
