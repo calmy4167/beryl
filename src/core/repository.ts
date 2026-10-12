@@ -23,11 +23,17 @@ export interface CollectionRepository<T> {
 export interface AsyncCollectionRepository<T> {
   list(): Promise<T[]>
   replace(items: T[]): Promise<boolean>
-  create(item: T): Promise<T>
+  create(item: T, options?: AsyncCreateOptions<T>): Promise<T>
   update(id: EntityId, updater: (item: T) => T): Promise<boolean>
-  remove(id: EntityId): Promise<boolean>
+  remove(id: EntityId, beforeWrite?: () => void): Promise<boolean>
   find(id: EntityId): Promise<T | undefined>
   ready(): Promise<RepositoryReadyStatus>
+}
+
+/** Hooks run after queued reads, immediately before a mutation in this runtime. */
+export interface AsyncCreateOptions<T> {
+  beforeWrite?: () => void
+  reuseExisting?: (existing: T) => T
 }
 
 /**
@@ -189,14 +195,27 @@ export function createAsyncCollectionRepository<T>(
       let accepted = false
       return queueAsyncRepositoryWrite(key, async () => { accepted = await persist(items) }).then(() => accepted)
     },
-    async create(item) {
+    async create(item, options = {}) {
       let created = false
+      let result = item
       await queueAsyncRepositoryWrite(key, async () => {
         const items = await read()
+        options.beforeWrite?.()
+        const itemId = identify(item)
+        const existing = options.reuseExisting && itemId !== undefined
+          ? items.find(current => {
+            const currentId = identify(current)
+            return currentId !== undefined && sameId(currentId, itemId)
+          }) : undefined
+        if (existing !== undefined && options.reuseExisting) {
+          result = options.reuseExisting(existing)
+          created = true
+          return
+        }
         created = await persist([item, ...items])
       })
       if (!created) throw new Error(`storage-write-failed:${key}`)
-      return item
+      return result
     },
     async update(id, updater) {
       let updated = false
@@ -212,10 +231,11 @@ export function createAsyncCollectionRepository<T>(
       })
       return updated
     },
-    async remove(id) {
+    async remove(id, beforeWrite) {
       let removed = false
       await queueAsyncRepositoryWrite(key, async () => {
         const items = await read()
+        beforeWrite?.()
         const next = items.filter(item => {
           const entityId = identify(item)
           return entityId === undefined || !sameId(entityId, id)

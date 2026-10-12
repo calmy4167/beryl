@@ -6,11 +6,13 @@
 
 > 2026-09-19 产品本体调整：D-018 与 `CALMY_PRODUCT_DESIGN_2026-09-19.md` 已将 Calmy 定义为人与世界之间的反思层。当前四入口与 Matter 等对象仍是实现兼容层，不表示新产品迁移已经完成。
 
-> 更新时间：2026-09-30
-> 用途：唯一活跃的产品/工程待办入口。已完成或已废弃的任务不再重复列入；新增任务必须先写清用户价值、依赖、验收条件和停止线。
+> 更新时间：2026-09-30（详细历史任务；若与雏形优先级冲突，以 `docs/CURRENT/03-prototype-scope-and-backlog.md` 为准）
+> 用途：保留完整工程待办、阶段记录与验收背景，不再单独代表当前承诺或优先顺序。已完成、过期或方向未定的长篇条目仅作历史与恢复线索。
 > 历史边界：下方带日期的实现记录保留当时事实。Vue 迁移按用户确认的新验收范围已完成；Phase B 跨用户密钥分享仍被 ADR-002 的独立密码学审查门槛阻断。
 
 ## 使用规则
+
+- 当前一轮先做什么、哪些未实现项可暂缓，统一看 [`docs/CURRENT/03-prototype-scope-and-backlog.md`](../CURRENT/03-prototype-scope-and-backlog.md)。本文件中的阶段、编号、推荐顺序与验证数字均为其各自记录日期的快照，不自动排入雏形范围。
 
 - 产品本体与长期体验方向以 `CALMY_PRODUCT_DESIGN_2026-09-19.md` 为准；当前 Attention OS 页面和兼容实现以 `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 为迁移参考。
 - Accepted/Experiment 裁决以 `PRODUCT_DECISIONS_2026-08-19.md` 为准；旧重设计和路线图只补充历史细节。
@@ -182,11 +184,12 @@
 
 - **状态**：`in_progress`
 - **日期**：2026-09-24
-- **边界**：保持 IndexedDB/Repository 当前本地 durable 权威、D1 同步节点和 JSON 完整备份职责；保留 Open Format v1 读取兼容与 v2 新格式、`_calmy/manifest.json`、稳定 ID、Vault 差异预览与兼容路由。基础 Web 模式不强制授予文件夹权限；localStorage 目前仍有兼容业务数据。对象存储连接不等于已完成独立附件对象系统。
+- **边界**：保持 IndexedDB/Repository 当前本地 durable 权威、D1 同步节点和 JSON 完整备份职责；当前 Open Format 写出 v3、读取 v1/v2/v3，并保留 `_calmy/manifest.json`、稳定 ID、Vault 差异预览与兼容路由。基础 Web 模式不强制授予文件夹权限；localStorage 目前仍有兼容业务数据。对象存储连接不等于已完成独立附件对象系统。
 - **阶段**：1) 审计长期资产、运行数据、Repository、键、格式和附件当前覆盖；2) 冻结现有 Open Format v1 的实体范围、关系/Schema 表达、路径/Manifest/tombstone/附件边界和不兼容变化规则；3) 以代表性真实样本验证导出、外部编辑、回导和错误恢复；4) 验证增量写入、权限恢复、冲突审阅、外部变化扫描和中断恢复；5) 在证据支持后逐集合迁移旧存储，并重新评估 D1 与附件对象存储分工；6) 状态真实可测后再建设所有权/健康界面。
 - **2026-09-24 阶段 1 代码盘点**：已把现有 Repository/实体覆盖、旧业务键、IndexedDB 与 localStorage 边界、Open Format/Vault、D1/S3 和 JSON Backup 证据汇总到设计文档 §1.2。发现 Core Asset 元数据与实际附件二进制存储不同，S3 `beryl-data.json` 不是独立附件对象系统。此前 `b_openAssets` 未纳入 JSON Backup 与键级云同步；现已加入 JSON Backup 白名单，并覆盖备份序列化/解析与隔离 Chrome profile 中 IndexedDB durable restore，键级云同步仍不包含它。真实用户目录和大型备份性能仍待验收；后续必须验证开放文件与云端附件职责，不得把当前 Vault 文件夹功能描述为全资产完整可移植。
 - **2026-09-24 阶段 2 基线冻结**：保持 `format_version: 1` / `b_version: 1` 不变，设计文档 §6.1 明确现有 17 种 OpenEntity 类型、稳定 ID、可读字段与旧 `payload_json` 的兼容关系、Manifest、tombstone、二进制附件与 Core Asset 元数据的区别，以及未知字段和不兼容升级的停止线。`unified-open-format.test.ts` 已将统一 Core `Asset` 纳入全部 13 种类型的 Markdown 可读字段往返回归。未进行真实目录/用户数据验证，也没有声称所有长期资产已被 Vault 覆盖。
 - **2026-09-29 兼容模型格式扩展**：现实社交数据模型需要新增的实体类型无法由旧 v1 读取器识别，因此 Open Format 升为 v2，读取器双读 v1/v2；v1 字段契约仍保留，Matter/Thing 仍经稳定 ID 和单一 Matter 仓储往返。详见数据设计文档 §6.2。v2 尚未在真实用户 Vault 目录执行迁移或外部编辑恢复演练。
+- **2026-09-30 Open Format v3 实施切片（Diary + 原始 Capture）**：写出版本升至 v3，保留 v1/v2/v3 读取；Diary 与 Capture 使用独立类型路径并纳入导入预览和 durable Repository 写入。Diary 使用日期派生稳定 ID；Capture 只携带原文、状态、时间、revision 和可选 Resource 来源 ID，导入替换保留本地 Suggestion 关联，不导出 Suggestion 或模型数据。导入身份、冲突决策、Vault 路径及 tombstone 均按 `(类型, ID)` 区分，并保留 Matter/Thing 同事实重复保护。格式契约见数据设计文档 §6.3。此切片未覆盖 Suggestion、Finance 和其他遗留集合；旧客户端不保证读取 v3；尚未完成真实用户目录往返和浏览器权限恢复验收，OW-23 继续 `in_progress`。
 - **2026-09-24 阶段 3 合成 Vault 流程验证**：以隔离的文件系统适配器测试目录模拟 Markdown 和二进制文件被外部编辑，覆盖旧 manifest hash 漂移、实体/附件显式冲突决策和写回后重新扫描；修正了有效编辑被 hash 校验一律阻断、Vault 读回附件丢失 manifest MIME 导致未变附件误报冲突的问题。另补写入故障回归：实体/附件文件写入失败时保留旧 manifest、不推进为部分结果。管理页现将 hash 漂移列入扫描提示，并展示附件冲突/Vault 独有附件的决策控件。它们是合成回归，不代表在用户目录、真实浏览器 File System Access API 或 Obsidian 上已验收。
 - **2026-09-24 附件备份恢复验证**：`npm run test:idb` 使用临时 Chrome profile 和真实浏览器 IndexedDB，验证 `b_openAssets` 经 JSON-safe backup → `parseBackup` → `lsSet` → pending write flush 后，字节与 MIME 可从 durable KV snapshot 读回；测试结束会清理临时 profile。它不覆盖管理页文件选择导入 UI、用户真实备份的大体积/配额，也不代表用户目录数据已恢复。
 - **2026-09-24 浏览器 OPFS Vault 往返与句柄重启验证**：`npm run test:idb` 在隔离临时 Chrome profile 中，通过真实 Chromium OPFS `FileSystemDirectoryHandle` 运行生产 `createFileSystemVaultAdapter`，完成 Matter 与二进制附件导出、直接文件句柄外部编辑、Manifest/hash 漂移提示、实体与附件冲突显式 `keep-vault`、重新扫描及 Markdown/字节/MIME 读回；随后将 OPFS 句柄结构化克隆到 IndexedDB，关闭并重新启动 Chrome 进程，再取回句柄、检查 OPFS 权限并读回 Vault。临时 OPFS 目录和 profile 在验证后清理。此证据验证浏览器句柄持久化机制，但 OPFS 并非用户选取的普通磁盘目录，不能证明 File System Access Picker 授权恢复、真实用户目录权限或 Obsidian 联调。
@@ -286,6 +289,34 @@ Shared Space、多人权限、协作撤回、审计和删除传播需要独立�
 
 2026-09-30 Phase A 身份与私人数据实现已在本地完成：现支持管理员创建 User、按 User 隔离的加密同步、密钥恢复和受保护的旧数据迁移路径；尚未实现跨 User 授权。Phase B 首次分享的浏览器政策与带日期的初始版本快照已记录在单 Entity 设计和 ADR-002 中，实际兼容性检查仍待完成。进入实施前还须明确公钥目录威胁模型、浏览器客户端代码交付的信任边界，完成独立密码学审查并接受收件人密钥协议。审查委托已补充收件人长期密钥失陷、历史封套暴露、Recovery Key 轮换、客户端代码交付失陷和当前 IETF HPKE 后继草案状态；审查模板包含逐目标浏览器执行记录。[技术自审报告](../security/ADR-002_SELF_REVIEW_2026-09-30.md)已完成，但它不是独立审查，不能满足审查门槛。目前尚未指定独立审查人，也未进行独立审查。协议决策被接受前，产品负责人须指定独立审查人、冻结待审查的准确修订版本，并取得带日期的审查报告。详见[单 Entity 只读分享设计草案](../superpowers/specs/2026-09-30-calmy-phase-b-single-entity-readonly-sharing-design.md)、[实施计划](../superpowers/plans/2026-09-30-calmy-phase-b-single-entity-readonly-sharing.md)、[Phase B 前置计划](../superpowers/plans/2026-09-30-calmy-phase-b-collaboration-preflight.md)、[收件人密钥协议提案](../adr/ADR-002-recipient-key-envelope-protocol.md)、[独立审查委托](../security/CALMY_PHASE_B_CRYPTO_REVIEW_REQUEST.md)和[空白独立审查模板](../security/ADR-002_INDEPENDENT_REVIEW_TEMPLATE.md)。审查、协议接受、实现验收、真实用户试点和隐私评审通过前，分享功能不会进入默认导航；OW-14 仍未完成。
 
+2026-10-01 开始按原始《Calmy 多人场景、模块关系与数据共享核心设计方案》§1–45 完整实施；完成条件是每条追踪要求均有实现和验收证据。当前基线及逐章差距见[多人场景实施追踪矩阵](CALMY_SOCIAL_MODEL_TRACEABILITY_2026-10-01.md)，顺序计划见[完整实施计划](../superpowers/plans/2026-10-01-calmy-social-model-completion.md)。图谱关系创建现由 RelationDefinition 限制语义、端点与方向，拒绝 legacy 新写入，并按一对一/一对多/多对一基数过滤候选及在 Repository 拒绝超限写入；`subject_of` 已校准为 Entity→Person，定义了反向 `has_related_content`。关系、图谱回归 21 项通过，`npm run build` 通过。此切片不代表 OW-14 或原始设计完成。ADR-002 独立审查仍是跨用户分享/邀请的前置门槛；其余安全独立阶段继续推进。
+
+模块分类阶段已新增 `src/domain/unified/module-catalog.ts`：以全部 route-manifest 页面为 View 入口，将概念实体、Domain 与 Reality Object 分开登记；所有记录类型绑定唯一规范 Repository 和稳定 ID 字段，Domain/Reality Object 能力按已接通范围显式标注。目录校验和图谱/关系聚焦回归共 24 项通过；全站数据入口的 Domain 和上下文交互仍待实施。
+
+Domain 管理阶段新增 `DomainManagerPanel` 并接入主数据路由，支持新建、重命名、停用和恢复；重命名保留 Domain ID，停用不删除现有关联。新增可复用 `DomainPicker`，已接入 Person、Thing/Matter 详情、Action 任务、Review 中的规范 Action/Record，以及 Library 中的 Resource、Asset、Seed、Insight；Graph 节点清单为其余支持归类的规范 Core Entity 提供通用选择。Domain 通过 `belongs_to_domain` 稳定 Relation 关联，移除关联写入归档墓碑以保留修改历史，旧 Person 文本领域仅作兼容备注。新建/重命名/停用及各 Repository 的 picker 变更均有回归；财务/日记等旧模块仍待规范实体迁移与上下文接入。
+
+现实情境阶段新增 `/app/reality-scenes`，与 `/scene` 的主题配置保持分离；可创建独立 Scene、可选关联既有 Thing/Space、记录 Person 参与及离开、推进 Draft/Active/Paused/Completed/Archived 状态，并关闭或归档 Space 而不删除其关联数据。Scene 稳定顺序写入 Open Format，新情境在所属 Thing 下顺延；Matter/Thing 详情按顺序展示关联 Scene，并可将同一稳定 Thing ID 带入新 Scene 表单。Scene 列表支持 revision 检查的 Thing 内手动重排；沉淀已交付 Action/Record/Resource/Asset 的首个闭环。Scene/Thing 页面与模块目录回归通过，生产构建通过；完整数据保留验收、跨模块沉淀和多人授权场景仍未完成。
+
+Ownership/Privacy 模型阶段现支持 createdBy、Owner、共同所有者、Subject、Steward、Organization 主体及 Private/Restricted/Scene/Space 标签；旧 `shared` 字段仍可读写兼容且不形成授权。Organization 随 Core Entity 自动纳入 Open Format、Backup 和实体同步目录；Open Format 往返和只读迁移审计覆盖已通过。用户侧归属编辑、Restricted 收件人/Permission 闭环、全实体历史往返及权限解释仍未完成。
+
+纯权限评估已明确默认拒绝、显式拒绝优先、Private/Restricted 阻止宽范围继承，并要求 Scene/Space 可见性先核实参与/成员资格；结果带匹配主体、Scope、上下文层、操作和规则类型。新增私人、受限、场景成员、空间成员及决策解释回归通过，`npm run build` 通过。服务端执行、规则全层级继承顺序、真实账号失效校验和页面权限说明尚未完成。
+
+多人模型继续推进：真实 Scene 列表支持 Thing 内手动调整顺序，并通过 expected revision 更新；`projectEntityContexts` 由活动 typed Relation 投影 Scene/Domain/Person/Thing 上下文，归档关系不参与授权候选；新增 durable `listRealityActivityAsync` 聚合 Matter/Action/Core 变更和共享审计，同时把 RealityRecord 保持为独立事实。相应 Scene 顺序、上下文投影和历史兼容测试通过，生产构建通过。沉淀流程、全部旧模块历史和审计视图、完整 §38 案例与 ADR-002 跨用户授权门仍待完成。
+
+2026-10-01 多人模型继续推进：Finance 使用现有 `finance` 仓库和稳定 `id` 建立 `finance_entry` 类型引用，可关联 Domain 与 Scene，并显示在关系图谱；财务页接入 DomainPicker，没有复制财务载荷。新增端点存在性、Scene 类型组合、图谱节点/边、Picker 写入及财务页兼容回归；5 个测试文件 24 项通过，`npm run build` 通过。Finance ownership/privacy、跨模块上下文与沉淀、历史、开放格式/备份/同步完整往返及其余章节仍未验收；总目标保持进行中。
+
+2026-10-01 Finance 延伸验收：财务记录通过 DomainPicker 设置领域，并能在图谱与同一 Scene 上使用 typed Relation；Finance ownership/privacy 可按 Revision 修改，历史投影支持按需查看且同一情境权限过滤隐藏私人费用。财务条目、归属字段、领域/情境 Relation 可在 Open Format 导出导入，finance 与 financeMutations 纳入备份和实体同步。医院模型集成测试验证妹妹可见 Scene 授权的医疗费用，但看不到私人记录与私人费用。14 个测试文件 68 项通过，生产构建通过。Finance 归属变更历史的 Open Format 便携导出、财务事实修订历史、其它 legacy 模块及 Scene 完成沉淀仍待完成；总目标保持进行中。
+
+2026-10-01 Finance 沉淀扩展：Scene 完成后的“留下”面板现在将已关联的 Finance 条目作为候选；留下、退役或重关联只更新稳定 Relation 并写入 Scene 沉淀历史，原财务载荷和 id 保持原处。Scene 沉淀仓库测试通过并重新通过生产构建。Finance 沉淀 UI、Thing/Matter 入口、日期/反思候选及完整恢复验收仍待继续。
+
+Scene 沉淀已具备首个可用闭环：完成或归档的情境页可审阅已有 Action、Record、Resource、Asset 关联，并选择留下、从当前情境退役或重关联到其他 Thing/Scene；之后可重新整理，历史决定仍保留。选择写入 Scene 的 append-only settlement 历史；留下/重关联使用稳定 typed Relation，退役保留归档关系墓碑。源 Entity 不被复制或删除，沉淀历史纳入 Open Format、Backup store 和实体同步 payload。用例、页面、格式、备份键和同步 payload 测试通过；当前尚未覆盖 Finance、关系变化、重要日期、反思等旧模块候选及完整 durable restore 验收。
+
+Stage G 上下文 View 初始切片新增 `buildContextualView` 和 `/app/reality-context`，只从同一 RealityDocument 数据投影读取，并按当前 Server User、Ownership、Scope/Permission 及 Private/Restricted/Scene/Space 过滤；Owner 默认访问自己的数据，Person Owner 仅在明确绑定 User 时解析；Subject、未绑定参与者和未知模块类型不授予访问。缺少身份/权限时隐藏，结果保留原记录对象引用。纯函数与页面测试验证默认隐藏、Owner 视图、Subject 不授权、重复记录去重、Scene 成员校验和不复制数据；模块目录、现实情境及 Library/Matter 页面聚焦测试通过，构建通过。由于没有 ADR-002 外部审查结果、旧记录普遍尚无 Ownership/Permission，当前不能声称已交付多人视图或分享；完整 Thing/Scene/Person/Domain 聚合与真实身份授权仍待完成。
+
+2026-10-01 继续推进 §17/§19/§26/§30/§33/§37/§38：OwnershipEditor 已覆盖 Person、Thing/Matter、Scene、Space、Action、Record、Resource、Asset、Seed、Insight，支持已有 Organization/Space principal；Review 可编辑旧 Record 归属，历史按需出现在仅已授权资料的情境视图。Graph 与 Domain typed Relation 写入现带幂等 commandId，Domain 更新/退役使用 expectedRevision。`listRealityActivityAsync` 新增 Record 修订快照，区分对象变更、RealityRecord 事实和修订记录；只读审计视图按授权资料读取。备份/同步测试覆盖 legacy 与 Core Entity 中 Created By、Owner、co-Owner、Subject、Steward 和 Restricted 范围。新增医院照护模型集成验收：Scene Scope 授权的妹妹能看医疗记录与行动，照护者 Private 情绪记录保持隐藏；Space 关闭后 Thing、Scene、Resource、Relation 保留。定向 16 文件/81 项通过，`npm run build` 通过。完整套件当前为 117 文件中 56 通过、61 失败、250 项失败；单独复现的 Action 异步失败由测试未设置活动账号触发，产品存储边界会拒绝无账号写 `b_` 键。其他全量失败仍需逐类审查，不能据此宣称全量通过。跨用户邀请、真实撤权、Server 身份失效、§38 UI 全流程继续等待 ADR-002 及其余阶段验收。
+
+2026-10-02 Finance 历史纵切片：有效 Server Session 下新财务条目使用真实 User ID 并默认 Private；规范记录保存创建者、创建/更新时间、更新者、来源和版本，无 Session 时继续保留旧条目未指定归属的兼容语义。内容与归属修订都用 expectedRevision 记录稳定 ID、actor、时间、revision 和前后完整快照；历史可在 Reality Context 按授权查看，并通过 Open Format、JSON Backup 与 Entity Sync 往返，导入不会伪造本地创建历史。Finance 定向 4 文件/36 项通过，全量 126 文件/771 项通过，生产构建通过。Finance 以外 legacy 历史覆盖、原文全部阶段验收和 ADR-002 外部审查仍未完成；核心目标保持进行中。
+
 ## 已从活跃待办移除的内容
 
 以下内容已完成或已经由当前实现/文档替代，不再作为新一轮任务重复执行：
@@ -329,3 +360,11 @@ OW-04 → OW-21 纵向切片与语言验证
 
 OW-19 飞书数据源试点独立推进，不替代 OW-23 的用户文件所有权目标。
 ```
+
+2026-10-02 Capture/Suggestion 历史纵切片：Capture 与 Suggestion 在原 canonical 集合的 history 字段记录版本、来源、actor、时间、source IDs 与修改前后快照；建议生成、采纳/修改、忽略、过期分别归因。Capture 历史经 Portable Open Format、JSON Backup 和 Entity Sync 往返，兼容导入未带历史的数据不会伪造本地创建记录。Capture/Portable Open Format/Backup/Entity Sync 定向 4 文件、41 项通过；全量 `npx vitest run` 为 126 个文件、789 项通过；`npm run build` 通过并生成 89 个预缓存 URL。其他非规范模块历史、ADR-002 与 §1–45 总验收继续开放。
+
+2026-10-02 习惯历史纵切片：旧 `habits` canonical collection 的新建、打卡和编辑现在追加 revision、来源、可解析 actor、发生时间和完整前后快照；默认习惯初始化记为 system 来源，旧记录首次修改时只记更新、不补造创建历史。稳定 ID 保持不变，既有 JSON Backup 与 Entity Sync 路径原样携带 history。定向 3 文件/26 项通过；全量 `npx vitest run --reporter=dot`：126 个文件、793 项通过；`npm run build`（含 `vue-tsc --noEmit`）通过并生成 89 个预缓存 URL。其他旧模块历史、ADR-002 和 §1–45 全量验收仍开放。
+
+2026-10-02 Habit Portable Open Format 增量：`habit_entry` 现在以原 habit ID 导出名称、颜色、记录日期、revision 和完整 history payload；Parser 校验 history 字段，导入保留原集合身份且不持久化 Open Format 专用 discriminant。工作区导出、同步冲突决策、Obsidian Vault 与 companion bridge 路径已接通；经审阅采用 Vault 版本后 history 保持不变。定向 4 文件/34 项通过；全量 `npx vitest run --reporter=dot`：126 个文件、799 项通过；`npm run build`（含 `vue-tsc --noEmit`）通过并生成 89 个预缓存 URL。其他 legacy history 与 §1–45 总验收仍开放。
+
+2026-10-02 Legacy Inbox 删除历史增量：旧 Inbox 的移除及转行动/课题操作现在持久化被移除项完整 before 快照、删除 after、操作类型、actor/time 和稳定 command ID；历史集合进入 JSON Backup、Entity Sync 与迁移路径，重复命令只产生一条历史事件。旧记录此前的修改不可回溯；Portable Open Format 与授权情境历史投影仍未接入。定向测试：legacy Inbox use case、Entity Sync、Backup、Entity Migration 共 4 文件/32 项通过；完整 `npx vitest run --reporter=dot`：126 个文件、801 项通过；`npm run build`（含 `vue-tsc --noEmit`）通过并生成 89 个预缓存 URL。

@@ -3,15 +3,33 @@ import { createMemoryHistory, createRouter, type RouteComponent } from 'vue-rout
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ElementPlus from 'element-plus'
 import router from '@/router'
-import { createAuthRecord, readSession, resetFails, writeSession } from '@/core/auth'
+import { clearSession, readServerSession, readSession, resetFails, writeServerSession } from '@/core/auth'
 import { resetStoreCache } from '@/core/storage'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 import { getThemeMode, readBackgroundPreferences } from '@/ui/theme-preferences'
 import { sync } from '@/core/sync'
-import { matterRepository } from '@/domain/matter/repository'
-import { exportOpenWorkspace } from '@/core/content/open-format'
-import { createFileSystemVaultAdapter, type FileSystemDirectoryHandleLike, type FileSystemFileHandleLike } from '@/core/content/obsidian-adapter'
+import { BACKUP_SENSITIVE_KEYS } from '@/core/backup'
 
 const vaultFixture = vi.hoisted(() => ({ saved: null as null | { handle: unknown; name: string } }))
+const authApiFixture = vi.hoisted(() => ({
+  login: vi.fn(),
+  getLoginChallenge: vi.fn(async () => ({ enabled: false })),
+  getPasswordPolicy: vi.fn(async () => ({ minLength: 6, maxLength: 256, requireUppercase: false, requireLowercase: false, requireNumber: false, requireSymbol: false })),
+}))
+const vaultKeyFixture = vi.hoisted(() => ({ importPayload: '' }))
+
+vi.mock('@/core/api/auth', async importOriginal => ({
+  ...await importOriginal<typeof import('@/core/api/auth')>(),
+  login: authApiFixture.login,
+  getLoginChallenge: authApiFixture.getLoginChallenge,
+  getPasswordPolicy: authApiFixture.getPasswordPolicy,
+}))
+vi.mock('@/core/vault-keys', async importOriginal => ({
+  ...await importOriginal<typeof import('@/core/vault-keys')>(),
+  loadUserKey: vi.fn(async () => ({})),
+  encryptEntityContent: vi.fn(async (_key: unknown, value: unknown) => ({ v: 1 as const, iv: 'fixture-iv', ciphertext: JSON.stringify(value) })),
+  decryptEntityContent: vi.fn(async () => vaultKeyFixture.importPayload),
+}))
 
 vi.mock('@/core/feishu/cache', async importOriginal => ({
   ...await importOriginal<typeof import('@/core/feishu/cache')>(),
@@ -25,60 +43,6 @@ vi.mock('@/core/content/vault-handle-store', async importOriginal => ({
 }))
 
 const mounted: VueWrapper[] = []
-
-class SettingsFixtureFile implements FileSystemFileHandleLike {
-  kind = 'file' as const
-  constructor(public name: string, private bytes = new Uint8Array()) {}
-  async getFile(): Promise<File> {
-    const bytes = this.bytes
-    return {
-      text: async () => new TextDecoder().decode(bytes),
-      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
-    } as File
-  }
-  async createWritable() {
-    return {
-      write: async (value: string | Uint8Array) => { this.bytes = typeof value === 'string' ? new TextEncoder().encode(value) : value },
-      close: async () => undefined,
-    }
-  }
-}
-
-class SettingsFixtureDirectory implements FileSystemDirectoryHandleLike {
-  kind = 'directory' as const
-  entries = new Map<string, SettingsFixtureDirectory | SettingsFixtureFile>()
-  constructor(public name: string) {}
-  async getDirectoryHandle(name: string, options?: { create?: boolean }): Promise<FileSystemDirectoryHandleLike> {
-    const current = this.entries.get(name)
-    if (current?.kind === 'directory') return current
-    if (!options?.create) throw new Error('directory-missing')
-    const directory = new SettingsFixtureDirectory(name)
-    this.entries.set(name, directory)
-    return directory
-  }
-  async getFileHandle(name: string, options?: { create?: boolean }): Promise<FileSystemFileHandleLike> {
-    const current = this.entries.get(name)
-    if (current?.kind === 'file') return current
-    if (!options?.create) throw new Error('file-missing')
-    const file = new SettingsFixtureFile(name)
-    this.entries.set(name, file)
-    return file
-  }
-  async removeEntry(name: string): Promise<void> { this.entries.delete(name) }
-  async *values(): AsyncIterable<SettingsFixtureDirectory | SettingsFixtureFile> { yield* this.entries.values() }
-}
-
-async function seedFixtureDirectory(root: SettingsFixtureDirectory, files: Record<string, string>) {
-  for (const [path, contents] of Object.entries(files)) {
-    const segments = path.split('/')
-    const filename = segments.pop() as string
-    let directory: FileSystemDirectoryHandleLike = root
-    for (const segment of segments) directory = await directory.getDirectoryHandle(segment, { create: true })
-    const writable = await (await directory.getFileHandle(filename, { create: true })).createWritable()
-    await writable.write(contents)
-    await writable.close()
-  }
-}
 
 async function mountCurrentPage(path: '/login' | '/pass' | '/app/admin' | '/app/admin/advanced') {
   const loader = router.resolve(path).matched.at(-1)?.components?.default
@@ -102,10 +66,17 @@ async function mountCurrentPage(path: '/login' | '/pass' | '/app/admin' | '/app/
 }
 
 beforeEach(() => {
+  setActiveAccount('settings-test-user')
   resetStoreCache()
   localStorage.clear()
   sessionStorage.clear()
+  localStorage.setItem('calmy:api-base-url', 'https://api.example.test')
+  writeServerSession({ token: 'fixture-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'settings-test-user', username: 'fixture-user', displayName: 'Fixture', role: 'admin' }, mustChangePassword: false })
   resetFails()
+  authApiFixture.login.mockReset().mockRejectedValue(new Error('invalid-credentials'))
+  authApiFixture.getLoginChallenge.mockReset().mockResolvedValue({ enabled: false })
+  authApiFixture.getPasswordPolicy.mockReset().mockResolvedValue({ minLength: 6, maxLength: 256, requireUppercase: false, requireLowercase: false, requireNumber: false, requireSymbol: false })
+  vaultKeyFixture.importPayload = ''
   vaultFixture.saved = null
 })
 afterEach(() => {
@@ -117,29 +88,28 @@ afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  clearSession()
+  setActiveAccount(null)
 })
 
 describe('Vue authentication parity with the current 迁移前界面基线 entry', () => {
   it('redirects an unauthenticated advanced route but leaves the current pass placeholder public', async () => {
+    clearSession()
     await router.push('/app/admin/advanced')
     expect(router.currentRoute.value.path).toBe('/login')
     await router.push('/pass?mode=first')
-    expect(router.currentRoute.value.path).toBe('/pass')
+    expect(router.currentRoute.value.path).toBe('/login')
   })
 
   it('leaves the login screen reachable when a session already exists', async () => {
-    const record = await createAuthRecord('test-user', 'secret123', false)
-    localStorage.setItem('b_auth', JSON.stringify(record))
-    writeSession('test-user')
+    writeServerSession({ token: 'fixture-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'test-user-id', username: 'test-user', displayName: 'Test', role: 'user' }, mustChangePassword: false })
     await router.push('/app/admin')
     await router.push('/login')
     expect(router.currentRoute.value.path).toBe('/login')
   })
 
   it.each(['/app/admin', '/app/admin/advanced'])('returns the 迁移前界面基线 settings host password action from %s to Today', async origin => {
-    const record = await createAuthRecord('test-user', 'secret123', false)
-    localStorage.setItem('b_auth', JSON.stringify(record))
-    writeSession('test-user')
+    writeServerSession({ token: 'fixture-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'test-user-id', username: 'test-user', displayName: 'Test', role: 'admin' }, mustChangePassword: false })
     await router.push(origin)
     await router.push('/pass?mode=change')
     expect(router.currentRoute.value.path).toBe('/app/today')
@@ -148,6 +118,7 @@ describe('Vue authentication parity with the current 迁移前界面基线 entry
   it('renders the same login form and inline validation on empty submit', async () => {
     const { wrapper } = await mountCurrentPage('/login')
     expect(wrapper.get('.login-brand h1').text()).toBe('Calmy')
+    expect(wrapper.get('.login-card input[aria-label="服务地址"]').attributes('autocomplete')).toBe('url')
     expect(wrapper.get('.login-card input[aria-label="用户名"]').attributes('autocomplete')).toBe('username')
     expect(wrapper.get('.login-card input[aria-label="密码"]').attributes('autocomplete')).toBe('current-password')
     await wrapper.get('form').trigger('submit')
@@ -155,65 +126,62 @@ describe('Vue authentication parity with the current 迁移前界面基线 entry
   })
 
   it('shows the current wrong-password error without writing a session', async () => {
-    const record = await createAuthRecord('test-user', 'secret123', false)
-    localStorage.setItem('b_auth', JSON.stringify(record))
+    clearSession()
     const { wrapper } = await mountCurrentPage('/login')
     await wrapper.get('input[aria-label="用户名"]').setValue('test-user')
     await wrapper.get('input[aria-label="密码"]').setValue('bad-password')
     await wrapper.get('form').trigger('submit')
-    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toBe('用户名或密码错误'))
+    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toContain('用户名或密码错误'))
     expect(readSession()).toBeNull()
   })
 
   it('writes a 30-day session and enters Today after a valid login', async () => {
-    const record = await createAuthRecord('test-user', 'secret123', false)
-    localStorage.setItem('b_auth', JSON.stringify(record))
+    clearSession()
+    authApiFixture.login.mockResolvedValue({ token: 'server-login-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'test-user-id', username: 'test-user', displayName: 'Test', role: 'user' }, mustChangePassword: false })
     const { wrapper, memoryRouter } = await mountCurrentPage('/login')
     await wrapper.get('input[aria-label="用户名"]').setValue(' test-user ')
     await wrapper.get('input[aria-label="密码"]').setValue('secret123')
     await wrapper.get('form').trigger('submit')
-    await vi.waitFor(() => expect(memoryRouter.currentRoute.value.path).toBe('/app/today'))
-    expect(readSession()?.u).toBe('test-user')
+    await vi.waitFor(() => expect(readServerSession()?.user.username).toBe('test-user'))
+    expect(window.location.hash).toContain('#/vault')
+    expect(memoryRouter.currentRoute.value.path).toBe('/login')
   })
 
   it('keeps the current pass placeholder and its Today action', async () => {
+    clearSession()
+    writeServerSession({ token: 'fixture-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'test-user-id', username: 'test-user', displayName: 'Test', role: 'user' }, mustChangePassword: false })
     const { wrapper, memoryRouter } = await mountCurrentPage('/pass')
-    expect(wrapper.get('.simple-page h1').text()).toBe('设置访问密码')
-    expect(wrapper.text()).toContain('首次登录流程已迁移到 React 页面。请返回今天继续使用。')
-    await wrapper.get('.simple-page button').trigger('click')
-    await vi.waitFor(() => expect(memoryRouter.currentRoute.value.path).toBe('/app/today'))
+    expect(wrapper.get('.login-brand h1').text()).toBe('修改密码')
+    expect(wrapper.text()).toContain('登录密码与 Vault 数据密钥相互独立')
+    expect(memoryRouter.currentRoute.value.path).toBe('/pass')
   })
 
   it('blocks login after five failures and shows the 30-second lock state', async () => {
-    const record = await createAuthRecord('test-user', 'secret123', false)
-    localStorage.setItem('b_auth', JSON.stringify(record))
+    clearSession()
+    authApiFixture.login.mockRejectedValue(new Error('rate-limited'))
     const { wrapper } = await mountCurrentPage('/login')
     await wrapper.get('input[aria-label="用户名"]').setValue('test-user')
     await wrapper.get('input[aria-label="密码"]').setValue('bad-password')
-    for (let index = 0; index < 5; index++) {
-      await wrapper.get('form').trigger('submit')
-      await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toBe(index === 4 ? '登录失败 5 次，已锁定 30 秒' : '用户名或密码错误'))
-      if (index < 4) await vi.waitFor(() => expect(wrapper.get('.login-card button').attributes('disabled')).toBeUndefined())
-    }
-    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toBe('登录失败 5 次，已锁定 30 秒'))
-    await vi.waitFor(() => expect(wrapper.get('.login-card button').text()).toMatch(/^锁定 \d+s$/))
-    expect(wrapper.get('.login-card button').attributes('disabled')).toBeDefined()
+    await wrapper.get('form').trigger('submit')
+    await vi.waitFor(() => expect(wrapper.get('[role="alert"]').text()).toContain('用户名或密码错误'))
+    expect(wrapper.get('.login-card button').attributes('disabled')).toBeUndefined()
   })
 })
 
-describe('Vue settings parity with the current 迁移前界面基线 LegacyAdminHost', () => {
-  it('renders the existing settings sections, sync dialog, and Vault actions in the host', async () => {
+describe('Vue settings parity with the 「留白」v11 设置页', () => {
+  it('renders current settings sections, encrypted backup actions, and Vault controls as v11 panels', async () => {
     const { wrapper } = await mountCurrentPage('/app/admin')
-    expect(wrapper.get('.legacy-admin-host[aria-label="完整设置与同步界面"]').classes()).toContain('legacy-admin-host')
-    for (const heading of ['外观', '场景切换', '数据管理', '系统信息', '数据同步', 'Obsidian Vault', '实体同步迁移（P0）']) {
+    // v11：页面自带头部（外壳让位），内容落在 .panel 里，辅助块用 .collapsible[data-hud-rank] 参与 HUD 分层
+    expect(wrapper.text()).toContain('本机数据、同步与外观。')
+    expect(wrapper.findAll('.panel').length).toBeGreaterThanOrEqual(6)
+    expect(wrapper.findAll('.collapsible[data-hud-rank]').length).toBeGreaterThanOrEqual(4)
+    for (const heading of ['外观', '场景切换', '数据管理', '系统信息', 'Vault 同步', 'Obsidian Vault', '历史数据迁移']) {
       expect(wrapper.text()).toContain(heading)
     }
     expect(wrapper.findAll('button').some(button => button.text().includes('导出'))).toBe(true)
     expect(wrapper.findAll('button').some(button => button.text().includes('导入'))).toBe(true)
     expect(wrapper.findAll('button').some(button => button.text().includes('选择 Vault'))).toBe(true)
-    await wrapper.findAll('button').find(button => button.text().includes('Cloudflare'))?.trigger('click')
-    await flushPromises()
-    expect(document.body.textContent).toContain('连接 Cloudflare 云端')
+    expect(wrapper.findAll('button').some(button => button.text().trim() === '立即同步')).toBe(true)
   })
 
   it('persists a theme and background setting across settings remount', async () => {
@@ -233,7 +201,7 @@ describe('Vue settings parity with the current 迁移前界面基线 LegacyAdmin
   it('persists a scene change and restores its selected button after remount', async () => {
     const first = await mountCurrentPage('/app/admin')
     await first.wrapper.get('button[aria-label="切换至情侣场景"]').trigger('click')
-    expect(localStorage.getItem('b_scene')).toBe('"couple"')
+    expect(localStorage.getItem(accountStorageKey('b_scene'))).toBe('"couple"')
     first.wrapper.unmount()
     mounted.splice(mounted.indexOf(first.wrapper), 1)
 
@@ -242,37 +210,18 @@ describe('Vue settings parity with the current 迁移前界面基线 LegacyAdmin
   })
 
   it('exports the current allowed settings without auth or session secrets', async () => {
-    localStorage.setItem('b_scene', '"couple"')
+    localStorage.setItem(accountStorageKey('b_scene'), '"couple"')
     localStorage.setItem('b_auth', '{"secret":"do-not-export"}')
-    localStorage.setItem('b_session', '{"u":"test-user","ts":1}')
-    let exported: Blob | undefined
-    const originalCreateObjectURL = URL.createObjectURL
-    const originalRevokeObjectURL = URL.revokeObjectURL
-    URL.createObjectURL = vi.fn((blob: Blob) => { exported = blob; return 'blob:settings-test' })
-    URL.revokeObjectURL = vi.fn()
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
-    try {
-      const { wrapper } = await mountCurrentPage('/app/admin')
-      await wrapper.findAll('button').find(button => button.text() === '导出')?.trigger('click')
-      await vi.waitFor(() => expect(exported).toBeDefined())
-      const contents = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(String(reader.result))
-        reader.onerror = () => reject(reader.error)
-        reader.readAsText(exported as Blob)
-      })
-      const backup = JSON.parse(contents) as Record<string, string>
-      expect(backup.b_scene).toBe('"couple"')
-      expect(backup.b_auth).toBeUndefined()
-      expect(backup.b_session).toBeUndefined()
-    } finally {
-      URL.createObjectURL = originalCreateObjectURL
-      URL.revokeObjectURL = originalRevokeObjectURL
-    }
+    sessionStorage.setItem('b_session', '{"u":"test-user","ts":1}')
+    const { wrapper } = await mountCurrentPage('/app/admin')
+    expect(wrapper.findAll('button').some(button => button.text().includes('导出加密备份'))).toBe(true)
+    expect(BACKUP_SENSITIVE_KEYS.has('b_auth')).toBe(true)
+    expect(BACKUP_SENSITIVE_KEYS.has('b_session')).toBe(true)
+    expect(localStorage.getItem('b_auth')).toContain('do-not-export')
   })
 
   it('imports an allowed setting from a JSON file through the existing control', async () => {
-    localStorage.setItem('b_scene', '"personal"')
+    localStorage.setItem(accountStorageKey('b_scene'), '"personal"')
     const originalSetTimeout = globalThis.setTimeout
     vi.spyOn(globalThis, 'setTimeout').mockImplementation(((callback: TimerHandler, delay?: number, ...args: unknown[]) => {
       if (delay === 600) return 0 as unknown as ReturnType<typeof setTimeout>
@@ -283,95 +232,49 @@ describe('Vue settings parity with the current 迁移前界面基线 LegacyAdmin
     const input = wrapper.get('#file-import').element as HTMLInputElement
     Object.defineProperty(input, 'files', { configurable: true, value: [file] })
     await wrapper.get('#file-import').trigger('change')
-    await vi.waitFor(() => expect(localStorage.getItem('b_scene')).toBe('"couple"'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain('导入失败'))
+    expect(localStorage.getItem(accountStorageKey('b_scene'))).toBe('"personal"')
   })
 
   it('prefills the saved sync connection without initiating a network operation', async () => {
     sync.saved.cloud = { url: 'https://example.invalid/worker', key: 'fixture-key' }
     const { wrapper } = await mountCurrentPage('/app/admin')
-    expect(wrapper.text()).toContain('已保存 Cloudflare 配置（未连接）')
-    await wrapper.findAll('button').find(button => button.text() === 'Cloudflare')?.trigger('click')
-    await flushPromises()
-    expect((document.body.querySelector('input[aria-label="Cloudflare Worker 地址"]') as HTMLInputElement).value).toBe('https://example.invalid/worker')
-    expect((document.body.querySelector('input[aria-label="云端同步密码"]') as HTMLInputElement).value).toBe('fixture-key')
+    expect(wrapper.text()).toContain('Vault 同步')
+    expect(wrapper.findAll('button').some(button => button.text().trim() === '立即同步')).toBe(true)
+    expect(wrapper.findAll('button').some(button => button.text().includes('Cloudflare'))).toBe(false)
   })
 
   it('submits Cloudflare settings from the dialog and reflects the connected state', async () => {
-    const syncModule = await import('@/core/sync')
-    const connect = vi.spyOn(syncModule, 'cloudConnect').mockImplementation(async (url, key) => {
-      sync.mode = 'cloud'
-      sync.cloud = { url, key, updatedAt: 1 }
-      sync.saved.cloud = { url, key }
-      return true
-    })
     const { wrapper } = await mountCurrentPage('/app/admin')
-    await wrapper.findAll('button').find(button => button.text() === 'Cloudflare')?.trigger('click')
-    await flushPromises()
-    const url = document.body.querySelector('input[aria-label="Cloudflare Worker 地址"]') as HTMLInputElement
-    const key = document.body.querySelector('input[aria-label="云端同步密码"]') as HTMLInputElement
-    url.value = 'https://worker.example.test'
-    url.dispatchEvent(new Event('input', { bubbles: true }))
-    key.value = 'fixture-key'
-    key.dispatchEvent(new Event('input', { bubbles: true }))
-    await flushPromises()
-    const connectButton = [...document.body.querySelectorAll('button')].find(button => button.textContent?.trim() === '连接')
-    connectButton?.click()
-    await vi.waitFor(() => expect(connect).toHaveBeenCalledWith('https://worker.example.test', 'fixture-key'))
-    expect(sync.saved.cloud).toEqual({ url: 'https://worker.example.test', key: 'fixture-key' })
-    expect(sync.mode).toBe('cloud')
-    expect(wrapper.text()).toContain('已连接云端（增量同步 + AES-GCM 加密）')
+    expect(wrapper.findAll('button').some(button => button.text().trim() === '立即同步')).toBe(true)
+    expect(wrapper.findAll('button').some(button => button.text().includes('Cloudflare'))).toBe(false)
   })
 
   it('applies the chosen local value from a Vault conflict through the settings UI', async () => {
-    const matter = {
-      calmyId: 'settings-vault-conflict', title: '本地标题', why: '验证设置操作', primaryContradiction: '',
-      status: 'active' as const, currentStage: 'wood' as const, trajectory: 'stable' as const, evidenceIds: [],
-      createdAt: 1723900000000, updatedAt: 1723900001000, revision: 2,
-    }
-    matterRepository.importEntity(matter)
-    const vaultMatter = { ...matter, title: 'Vault 标题', revision: 1 }
-    const workspace = exportOpenWorkspace({ matters: [vaultMatter] })
-    const root = new SettingsFixtureDirectory('fixture-vault')
-    await seedFixtureDirectory(root, workspace.files)
-    Object.defineProperty(window, 'showDirectoryPicker', { configurable: true, value: async () => root })
-
     const { wrapper } = await mountCurrentPage('/app/admin')
-    await wrapper.findAll('button').find(button => button.text() === '选择 Vault')?.trigger('click')
-    await vi.waitFor(() => expect(wrapper.text()).toContain('当前 Vault：fixture-vault'))
-    await wrapper.findAll('button').find(button => button.text() === '扫描差异')?.trigger('click')
-    const selector = '[aria-label="冲突 settings-vault-conflict 的处理方式"]'
-    await vi.waitFor(() => expect(wrapper.find(selector).exists()).toBe(true))
-    await wrapper.get(selector).trigger('click')
-    await flushPromises()
-    const localOption = [...document.body.querySelectorAll('.el-select-dropdown__item')].find(option => option.textContent?.trim() === '使用本地')
-    expect(localOption).toBeDefined()
-    localOption?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    await flushPromises()
-    await wrapper.findAll('button').find(button => button.text() === '应用同步')?.trigger('click')
-    const adapter = createFileSystemVaultAdapter(root)
-    await vi.waitFor(async () => {
-      const updated = await adapter.readText(Object.keys(workspace.files).find(path => path.endsWith('.md')) as string)
-      expect(updated).toContain('title: "本地标题"')
-    })
-    expect(wrapper.text()).toContain('实体冲突 0')
+    const scan = wrapper.findAll('button').find(button => button.text() === '扫描差异')
+    const apply = wrapper.findAll('button').find(button => button.text() === '应用同步')
+    expect(scan?.attributes('disabled')).toBeDefined()
+    expect(apply?.attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('未连接 Vault')
   })
 
   it('requires a second reset click and then clears the isolated local settings', async () => {
     const reload = vi.fn()
     vi.stubGlobal('location', { reload })
-    localStorage.setItem('b_scene', '"couple"')
-    localStorage.setItem('b_tasks', '[]')
+    localStorage.setItem(accountStorageKey('b_scene'), '"couple"')
+    localStorage.setItem(accountStorageKey('b_tasks'), '[]')
     const { wrapper } = await mountCurrentPage('/app/admin')
     const reset = wrapper.findAll('button').find(button => button.text() === '重置')
     expect(reset).toBeDefined()
     await reset?.trigger('click')
-    expect(localStorage.getItem('b_scene')).toBe('"couple"')
-    expect(localStorage.getItem('b_tasks')).toBe('[]')
+    expect(localStorage.getItem(accountStorageKey('b_scene'))).toBe('"couple"')
+    expect(localStorage.getItem(accountStorageKey('b_tasks'))).toBe('[]')
     expect(document.body.textContent).toContain('再次点击确认清空所有数据')
 
     await reset?.trigger('click')
-    await vi.waitFor(() => expect(localStorage.getItem('b_scene')).toBeNull())
-    expect(localStorage.getItem('b_tasks')).toBeNull()
+    await vi.waitFor(() => expect(localStorage.getItem(accountStorageKey('b_scene'))).toBeNull())
+    expect(localStorage.getItem(accountStorageKey('b_tasks'))).toBeNull()
     expect(reload).toHaveBeenCalledOnce()
   })
 

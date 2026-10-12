@@ -9,7 +9,9 @@ import type { RealityRecord, RecordCreateInput } from '@/domain/record/model'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
-import { sharedSpaceFromSpace, spaceFromSharedSpace, unifiedAsyncRepository, unifiedFactories, unifiedRepository, type EntityRef, type RealityActivity, type Relationship, type SharedSpace, type Space, type SpaceCompatibilityProjection } from '@/domain/unified'
+import { financeAsyncRepository } from '@/domain/finance/repository'
+import { diaryRepository } from '@/domain/diary/repository'
+import { sharedSpaceFromSpace, spaceFromSharedSpace, unifiedAsyncRepository, unifiedFactories, unifiedRepository, type DailyState, type EntityRef, type Ownership, type RealityActivity, type Relationship, type SharedSpace, type Space, type SpaceCompatibilityProjection } from '@/domain/unified'
 import { evaluatePermission } from '@/domain/permission/policy'
 
 export type SharedOwnerType = 'relationship' | 'shared_space'
@@ -190,14 +192,126 @@ export function listRealityActivity(ref: EntityRef): RealityActivity[] {
   const records = ref.entityType === 'record'
     ? [recordRepository.find(id)].filter((record): record is RealityRecord => !!record)
     : isThingRef ? recordRepository.listForMatter(id) : []
-  for (const record of records) activity.push({
-    source: 'reality_record', originalId: record.calmyId,
-    entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'recorded',
-    sourceIds: [], occurredAt: record.occurredAt,
-    recordRevision: record.revision, recordType: record.type, recordSource: record.source,
-    evidenceIds: record.evidenceIds.slice(), body: record.body
-  })
+  for (const record of records) {
+    activity.push({
+      source: 'reality_record', originalId: record.calmyId,
+      entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'recorded',
+      sourceIds: [], occurredAt: record.occurredAt,
+      recordRevision: record.revision, recordType: record.type, recordSource: record.source,
+      evidenceIds: record.evidenceIds.slice(), body: record.body
+    })
+    for (const revision of recordRepository.history(record.calmyId)) activity.push({
+      source: 'record_revision', originalId: revision.id,
+      entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'revised',
+      sourceIds: [], occurredAt: revision.changedAt, recordRevision: revision.revision,
+      reason: revision.reason, actor: revision.actor, actorUserId: revision.actorId, body: revision.body
+    })
+  }
 
+  return activity.sort((a, b) => a.occurredAt - b.occurredAt || a.originalId.localeCompare(b.originalId))
+}
+
+/** Durable read-only activity projection; facts and object mutations remain separate entries. */
+export async function listRealityActivityAsync(ref: EntityRef): Promise<RealityActivity[]> {
+  const id = ref.calmyId
+  const isThingRef = ref.entityType === 'thing' || ref.entityType === 'matter'
+  const isDiaryRef = ref.entityType === 'diary_entry'
+  const [thingMutations, actionMutations, coreMutations, audits, records, financeMutations, diaryEntry, legacyGoal, legacyPost, dailyState] = await Promise.all([
+    isThingRef ? matterAsyncRepository.mutations(id) : Promise.resolve([]),
+    ref.entityType === 'action' ? actionAsyncRepository.mutations() : Promise.resolve([]),
+    unifiedAsyncRepository.mutations(),
+    listSharedAuditAsync(),
+    recordAsyncRepository.list(),
+    ref.entityType === 'finance_entry' ? financeAsyncRepository.history(id) : Promise.resolve([]),
+    isDiaryRef ? diaryRepository.findDurable(id) : Promise.resolve(undefined),
+    ref.entityType === 'goal' ? createAsyncCollectionRepository<{ id?: string; revision?: number; history?: Array<{ revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; done: boolean; status: string; progress: number; problem?: string; evidence?: string; nextAction?: string; matterId?: string; ownership?: Ownership }> }>('goals', item => item.id).find(id) : Promise.resolve(undefined),
+    ref.entityType === 'post' ? createAsyncCollectionRepository<{ id?: string; revision?: number; history?: Array<{ revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; content: string; date: string; archivedAt?: number; ownership?: Ownership }> }>('posts', item => item.id).find(id) : Promise.resolve(undefined),
+    ref.entityType === 'daily_state' ? unifiedAsyncRepository.find<DailyState>('daily_state', id) : Promise.resolve(undefined)
+  ])
+  const activity: RealityActivity[] = []
+  for (const mutation of thingMutations) activity.push({
+    source: 'matter_mutation', originalId: mutation.id, entityRef: ref, operation: mutation.operation,
+    actor: mutation.actor, actorUserId: mutation.actorId, sourceIds: mutation.sourceIds.slice(), fromRevision: mutation.fromRevision,
+    toRevision: mutation.toRevision, occurredAt: mutation.occurredAt, patch: mutation.patch,
+    previousSnapshot: mutation.previousSnapshot, snapshot: mutation.snapshot
+  })
+  for (const mutation of actionMutations.filter(item => item.entityId === id)) activity.push({
+    source: 'core_entity_mutation', originalId: mutation.id, entityRef: ref, operation: mutation.operation,
+    actor: mutation.actor, actorUserId: mutation.actorId, sourceIds: mutation.sourceIds.slice(), fromRevision: mutation.fromRevision,
+    toRevision: mutation.toRevision, occurredAt: mutation.occurredAt, patch: mutation.patch,
+    previousSnapshot: mutation.previousSnapshot, snapshot: mutation.snapshot
+  })
+  for (const mutation of coreMutations.filter(item => item.entityId === id && item.entityType === ref.entityType)) activity.push({
+    source: 'core_entity_mutation', originalId: mutation.id,
+    entityRef: { entityType: mutation.entityType, calmyId: mutation.entityId }, operation: mutation.operation,
+    actor: mutation.actor, actorUserId: mutation.actorId, sourceIds: mutation.sourceIds.slice(), fromRevision: mutation.fromRevision,
+    toRevision: mutation.toRevision, occurredAt: mutation.occurredAt, patch: mutation.patch,
+    previousSnapshot: mutation.previousSnapshot, snapshot: mutation.snapshot
+  })
+  for (const mutation of financeMutations) activity.push({
+    source: 'finance_mutation', originalId: mutation.id, entityRef: ref, operation: mutation.operation,
+    actorUserId: mutation.actorId, sourceIds: [], fromRevision: mutation.fromRevision, toRevision: mutation.toRevision,
+    occurredAt: mutation.occurredAt, patch: {
+      ownership: mutation.ownership, previousOwnership: mutation.previousOwnership,
+      snapshot: mutation.snapshot, previousSnapshot: mutation.previousSnapshot
+    }
+  })
+  for (const revision of diaryEntry?.history || []) activity.push({
+    source: 'diary_revision', originalId: `${id}#${revision.revision}`,
+    entityRef: { entityType: 'diary_entry', calmyId: id }, operation: revision.operation,
+    actorUserId: revision.actorUserId, sourceIds: [...(revision.sourceMaterialIds || [])],
+    fromRevision: revision.revision - 1, toRevision: revision.revision, occurredAt: revision.occurredAt,
+    patch: { content: revision.content, sourceMaterialIds: revision.sourceMaterialIds && [...revision.sourceMaterialIds], ownership: revision.ownership }
+  })
+  for (const revision of dailyState?.history || []) activity.push({
+    source: 'daily_state_revision', originalId: `${id}#${revision.revision}`,
+    entityRef: { entityType: 'daily_state', calmyId: id }, operation: revision.operation,
+    actorUserId: revision.actorUserId, sourceIds: [], fromRevision: revision.revision - 1,
+    toRevision: revision.revision, occurredAt: revision.occurredAt,
+    patch: { ...revision, protectedItems: [...revision.protectedItems], ownership: revision.ownership && { ...revision.ownership } }
+  })
+  for (const revision of legacyGoal?.history || []) activity.push({
+    source: 'goal_revision', originalId: `${id}#${revision.revision}`,
+    entityRef: { entityType: 'goal', calmyId: id }, operation: revision.operation,
+    actorUserId: revision.actorUserId, sourceIds: [], fromRevision: revision.revision - 1,
+    toRevision: revision.revision, occurredAt: revision.occurredAt,
+    patch: { title: revision.title, done: revision.done, status: revision.status, progress: revision.progress,
+      problem: revision.problem, evidence: revision.evidence, nextAction: revision.nextAction,
+      matterId: revision.matterId, ownership: revision.ownership }
+  })
+  for (const revision of legacyPost?.history || []) activity.push({
+    source: 'post_revision', originalId: `${id}#${revision.revision}`,
+    entityRef: { entityType: 'post', calmyId: id }, operation: revision.operation,
+    actorUserId: revision.actorUserId, sourceIds: [], fromRevision: revision.revision - 1,
+    toRevision: revision.revision, occurredAt: revision.occurredAt,
+    patch: { title: revision.title, content: revision.content, date: revision.date, archivedAt: revision.archivedAt, ownership: revision.ownership }
+  })
+  for (const entry of audits) {
+    if (entry.entityId !== id && !(isThingRef && entry.matterId === id)) continue
+    activity.push({
+      source: 'shared_audit', originalId: entry.id, entityRef: { entityType: entry.entityType, calmyId: entry.entityId },
+      operation: entry.operation, actorUserId: entry.actorId, sourceIds: [], fromRevision: entry.fromRevision,
+      toRevision: entry.toRevision, occurredAt: entry.occurredAt, patch: entry.patch
+    })
+  }
+  const relatedRecords = records.filter(record => ref.entityType === 'record'
+    ? record.calmyId === id
+    : isThingRef && record.matterId === id)
+  const recordHistory = await Promise.all(relatedRecords.map(record => recordAsyncRepository.history(record.calmyId)))
+  for (const [index, record] of relatedRecords.entries()) {
+    activity.push({
+      source: 'reality_record', originalId: record.calmyId,
+      entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'recorded',
+      sourceIds: [], occurredAt: record.occurredAt, recordRevision: record.revision, recordType: record.type,
+      recordSource: record.source, evidenceIds: record.evidenceIds.slice(), body: record.body
+    })
+    for (const revision of recordHistory[index]) activity.push({
+      source: 'record_revision', originalId: revision.id,
+      entityRef: { entityType: 'record', calmyId: record.calmyId }, operation: 'revised',
+      sourceIds: [], occurredAt: revision.changedAt, recordRevision: revision.revision,
+      reason: revision.reason, actor: revision.actor, actorUserId: revision.actorId, body: revision.body
+    })
+  }
   return activity.sort((a, b) => a.occurredAt - b.occurredAt || a.originalId.localeCompare(b.originalId))
 }
 

@@ -1,14 +1,16 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { matterRepository } from '@/domain/matter/repository'
 import { recordRepository } from '@/domain/record/repository'
 import { inferMatterTrajectory } from '@/domain/trajectory'
 import { unifiedRepository } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('Matter trajectory inference', () => {
   const windowNow = Date.parse('2026-08-19T12:00:00')
 
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('trajectory-query-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('infers advancing from completed Action and accepted Outcome without changing the declared Matter trajectory', () => {
     const matter = matterRepository.create({ title: '推进验证' })

@@ -3,6 +3,8 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
+import { clearSession, writeServerSession } from '@/core/auth'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
@@ -25,8 +27,8 @@ async function openCalendar(date = '2026-09-14') {
 }
 
 describe('Vue CalendarPage parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('vue-calendar-parity-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); clearSession(); setActiveAccount(null) })
 
   it('preserves the separate completed and total count text boundaries', async () => {
     const { page } = await openCalendar()
@@ -69,6 +71,49 @@ describe('Vue CalendarPage parity', () => {
     await page.get('.evidence-panel .evidence-actions button').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.path).toBe(`/app/matters/${matter.calmyId}`)
+  })
+
+  it('assigns a real DailyState to a Domain and Scene without copying the daily record', async () => {
+    const state = await unifiedAsyncRepository.create(unifiedFactories.dailyState({
+      date: '2026-09-14', bodyState: 'tired', mentalState: 'heavy', load: 70, trajectory: 'recovering', protectedItems: []
+    }))
+    const domain = await unifiedAsyncRepository.create(unifiedFactories.domain({ key: 'health', displayName: '健康' }))
+    const scene = await unifiedAsyncRepository.create(unifiedFactories.scene({ title: '住院照护' }))
+    const { page } = await openCalendar()
+
+    await page.get('.selected-day .domain-picker select').setValue(domain.calmyId)
+    await flushPromises()
+    const contextPicker = page.get('.selected-day .context-relation-picker')
+    await contextPicker.get('[aria-label="选择关联的人物、事情、情境或空间"]').setValue(`scene:${scene.calmyId}`)
+    await contextPicker.get('button').trigger('click')
+    await flushPromises()
+
+    const relations = await unifiedAsyncRepository.list('relation')
+    expect(relations).toContainEqual(expect.objectContaining({
+      from: { entityType: 'daily_state', calmyId: state.calmyId }, to: { entityType: 'domain', calmyId: domain.calmyId }, relationType: 'belongs_to_domain'
+    }))
+    expect(relations).toContainEqual(expect.objectContaining({
+      from: { entityType: 'daily_state', calmyId: state.calmyId }, to: { entityType: 'scene', calmyId: scene.calmyId }, relationType: 'context_of'
+    }))
+    expect(await unifiedAsyncRepository.find('daily_state', state.calmyId)).toEqual(state)
+  })
+
+  it('lets the signed-in owner set the DailyState subject and private visibility', async () => {
+    setActiveAccount('daily-state-calendar-owner')
+    writeServerSession({ token: 'daily-state-calendar-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'daily-state-calendar-owner', username: 'calendar-owner', displayName: 'Calendar owner', role: 'user' }, mustChangePassword: false })
+    const state = await unifiedAsyncRepository.create(unifiedFactories.dailyState({ date: '2026-09-14', bodyState: 'tired', mentalState: 'heavy', load: 70, trajectory: 'recovering', protectedItems: [] }))
+    const { page } = await openCalendar()
+    const editor = page.get('.selected-day .ownership-editor')
+    await editor.get('summary').trigger('click')
+    await editor.get('.ownership-toggle input').setValue(true)
+    await editor.findAll('.ownership-fields label').find(label => label.text().startsWith('所有者'))!.get('select').setValue('user:daily-state-calendar-owner')
+    await editor.findAll('.ownership-fields label').find(label => label.text().startsWith('可见范围'))!.get('select').setValue('private')
+    await editor.get('.ownership-fields button').trigger('click')
+    await flushPromises()
+
+    const saved = await unifiedAsyncRepository.find('daily_state', state.calmyId)
+    expect(saved).toMatchObject({ ownership: { createdByUserId: 'daily-state-calendar-owner', ownerRef: { type: 'user', id: 'daily-state-calendar-owner' }, privacy: 'private' } })
+    expect((saved as unknown as { history?: Array<{ revision: number; operation: string; actorUserId?: string; ownership?: unknown }> }).history).toEqual([expect.objectContaining({ revision: 2, operation: 'updated', actorUserId: 'daily-state-calendar-owner', ownership: saved?.ownership })])
   })
 
   it('shows empty evidence and opens today for the selected date', async () => {

@@ -1,0 +1,494 @@
+<body data-theme="night" data-nav="left">
+
+<div class="progress" id="progress"></div>
+<div class="brand">◆ 留白</div>
+<div class="nav-hint" aria-hidden="true"></div>
+<div class="sr-only" id="liveRegion" aria-live="polite" aria-atomic="true"></div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="zen-bar" role="status">
+  <span>禅模式</span>
+  <span>按 <kbd>Esc</kbd> 或 <kbd>Shift</kbd><kbd>Z</kbd> 退出</span>
+</div>
+
+<button class="hud-toggle" id="hudToggle" data-level="0"
+        aria-label="切换信息分层" aria-pressed="false">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <rect class="hud-1" x="3" y="4" width="18" height="4.5" rx="1.2"/>
+    <rect class="hud-2" x="3" y="11.5" width="14" height="3" rx="1"/>
+    <rect class="hud-3" x="3" y="17" width="9" height="3" rx="1"/>
+  </svg>
+</button>
+
+<button class="mode-toggle" id="modeToggle"
+        aria-label="切换简洁模式" aria-pressed="false"
+        title="简洁模式 / 全量模式 (M)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+    <rect x="3.5" y="4" width="17" height="16" rx="2"/>
+    <line class="m-line" x1="7" y1="9" x2="17" y2="9"/>
+    <line class="m-line" x1="7" y1="13" x2="17" y2="13"/>
+    <line class="m-line" x1="7" y1="17" x2="13" y2="17"/>
+  </svg>
+</button>
+
+<button class="gear" id="gear" aria-label="打开设置" aria-expanded="false">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+    <circle cx="12" cy="12" r="3.2"/>
+    <path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6
+             M5.2 5.2l1.8 1.8M17 17l1.8 1.8M18.8 5.2L17 7M7 17l-1.8 1.8"/>
+  </svg>
+</button>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="settings" id="settings" role="dialog" aria-modal="true" aria-label="设置">
+  <div class="settings-backdrop" data-close></div>
+  <div class="settings-panel">
+    <div class="set-title">背景主题</div>
+    <div class="swatches" id="swatches" role="radiogroup" aria-label="主题"></div>
+
+    <div class="set-title">导航位置</div>
+    <div class="seg" id="segNav" role="radiogroup" aria-label="导航位置">
+      <button data-pos="left" role="radio" aria-checked="false">左侧</button>
+      <button data-pos="right" role="radio" aria-checked="false">右侧</button>
+    </div>
+
+    <div class="set-title">显示模式</div>
+    <div class="seg" id="segMode" role="radiogroup" aria-label="显示模式">
+      <button data-mode="full" role="radio" aria-checked="false">全量模式</button>
+      <button data-mode="simple" role="radio" aria-checked="false">简洁模式</button>
+    </div>
+    <div class="set-hint">
+      简洁模式只保留每个模块的<strong style="color:var(--fg)">核心内容</strong>——统计卡、辅助面板、标题注释等全部收起。<br>
+      快捷键 <kbd>M</kbd> 一键切换。
+    </div>
+
+    <div class="set-title">使用提示</div>
+    <div class="set-hint" style="margin-top:0">
+      <kbd>H</kbd> 切换当前模块信息密度（0 / 1 / 2）<br>
+      <kbd>⇧H</kbd> 批量切换所有模块<br>
+      <kbd>M</kbd> 简洁 / 全量模式<br>
+      <kbd>⇧Z</kbd> 禅模式 · <kbd>Esc</kbd> 退出<br>
+      <kbd>⌘K</kbd> 命令面板 · <kbd>1–6</kbd> 跳转模块<br>
+      在任务详情「理解」里用视角思考，可存为知识卡。
+    </div>
+
+    <div class="set-title">数据</div>
+    <div class="set-actions">
+      <button class="set-btn" id="exportBtn">导出 JSON</button>
+      <button class="set-btn" id="importBtn">导入 JSON</button>
+      <button class="set-btn danger" id="resetBtn" style="grid-column:span 2;">清空所有数据</button>
+    </div>
+    <div class="set-hint">数据保存在浏览器本地，建议定期导出备份。</div>
+
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+</div>
+
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="命令面板">
+  <div class="palette-backdrop" data-close></div>
+  <div class="palette-box">
+    <input type="text" class="palette-input" id="paletteInput"
+           placeholder="输入命令或跳转到…" aria-label="命令搜索" autocomplete="off">
+    <ul class="palette-list" id="paletteList" role="listbox"></ul>
+    <div class="palette-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>↵</kbd> 执行</span>
+      <span><kbd>esc</kbd> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<div class="detail" id="detail" role="dialog" aria-modal="true" aria-label="详情">
+  <div class="detail-backdrop" data-close></div>
+  <div class="detail-box" id="detailBox"></div>
+</div>
+
+<main class="stage" id="stage">
+
+  <section class="slide active" data-title="总览" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint" id="dateLine">—</p>
+          <h1 id="headline">今天还有 <em>3</em> 件事。</h1>
+        </div>
+        <div class="date-nav" data-nav-for="0">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">今天</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <span class="panel-title">当日重点</span>
+          <span class="panel-note" id="ovNote">—</span>
+        </div>
+        <ul class="ov-list" id="overviewList"></ul>
+      </div>
+
+      <div class="collapsible" data-block="stats">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">当日数据</span>
+            </div>
+            <div class="stat-grid" id="overviewStats"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="focusFlow">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">当日注意力流向</span>
+              <span class="panel-note" id="ovFocusNote">—</span>
+            </div>
+            <ul class="ov-list" id="overviewFocus"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="任务" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint">任务</p>
+          <div class="head-title-row">
+            <h2 id="taskTitle">今天的待办。</h2>
+            <span class="info" tabindex="0" data-tip="点击任务文字查看详情。勾选框标记完成，◎ 设为当前专注。有理解记录的任务会标记 ◇。">i</span>
+          </div>
+        </div>
+        <div class="date-nav" data-nav-for="1">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">今天</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <span class="panel-title">任务清单</span>
+          <span class="panel-note" id="taskListNote">—</span>
+        </div>
+        <ul class="tasks" id="taskList"></ul>
+        <div class="add-row">
+          <input class="add-input" id="addTaskInput" placeholder="添加任务，回车确认…" maxlength="80">
+          <input class="add-tag" id="addTaskTag" placeholder="标签" maxlength="4">
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="taskStats">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">任务统计</span>
+            </div>
+            <div class="stat-grid" id="taskStats"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="习惯" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint">习惯</p>
+          <div class="head-title-row">
+            <h2 id="habitTitle">点一下圆点。</h2>
+            <span class="info" tabindex="0" data-tip="显示所选日期所在的那一周。过去可补打，未来不可预填。">i</span>
+          </div>
+        </div>
+        <div class="date-nav" data-nav-for="2">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">本周</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <span class="panel-title">习惯清单</span>
+          <span class="panel-note" id="habitNote">—</span>
+        </div>
+        <ul class="habits" id="habitList"></ul>
+        <div class="add-row">
+          <input class="add-input" id="addHabitInput" placeholder="添加习惯，回车确认…" maxlength="12">
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="habitSummary">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">该周概览</span>
+            </div>
+            <div class="stat-grid" id="habitSummary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="注意力" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint">注意力</p>
+          <div class="head-title-row">
+            <h2 id="attentionHeadline">今天的心神放在哪？</h2>
+            <span class="info" tabindex="0" data-tip="分配预算 → 保护专注块 → 执行 → 捕获干扰 → 恢复上下文 → 复盘。点击专注块可查看详情。">i</span>
+          </div>
+        </div>
+        <div class="date-nav" data-nav-for="3">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">今天</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel focus-bar">
+        <div class="fc-left">
+          <button class="fc-btn" id="focusBtn">▶ 开始专注</button>
+          <div class="fc-meta">
+            <div class="fc-task" id="fcTask">未选择任务</div>
+            <div class="fc-sub" id="fcSub">选择保护级别后开始</div>
+          </div>
+        </div>
+        <div class="fc-levels" id="fcLevels" role="group" aria-label="保护级别">
+          <button class="lv" data-lv="0">L0 开放</button>
+          <button class="lv" data-lv="1">L1 可中断</button>
+          <button class="lv on" data-lv="2">L2 仅紧急</button>
+          <button class="lv" data-lv="3">L3 完全封锁</button>
+        </div>
+        <div class="fc-timer" id="fcTimer">00:00</div>
+      </div>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <span class="panel-title">专注块</span>
+          <span class="panel-note" id="blockNote">—</span>
+        </div>
+        <ul class="block-list" id="blockList"></ul>
+      </div>
+
+      <div class="collapsible" data-block="budget">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">当日预算</span>
+            </div>
+            <div class="stat-grid" id="budgetGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="attnAux">
+        <div class="collapsible-inner">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">注意力收件箱</span>
+                <span class="panel-note" id="inboxNote">—</span>
+              </div>
+              <ul class="inbox" id="inboxList"></ul>
+              <div class="add-row">
+                <input class="add-input" id="addInboxInput" placeholder="捕获一个念头 / 请求…" maxlength="60">
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">上下文快照</span>
+                <span class="panel-note" id="ctxNote">—</span>
+              </div>
+              <div class="ctx" id="ctxBody"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">干扰源排行</span>
+              <span class="panel-note" id="srcNote">—</span>
+            </div>
+            <ul class="src-list" id="srcList"></ul>
+            <div class="ctx-actions" style="margin-top:auto;padding-top:12px">
+              <button class="ctx-btn" id="addInterruptBtn">+ 记录一次中断</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="笔记" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint">笔记</p>
+          <div class="head-title-row">
+            <h2 id="noteTitle">想到什么，就写下来。</h2>
+            <span class="info" tabindex="0" data-tip="笔记极低摩擦记录；知识卡记录你从书中提炼、且能回到现实的理解。">i</span>
+          </div>
+        </div>
+        <div class="date-nav" data-nav-for="4">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">今天</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <div class="note-tabs" id="noteTabs" role="tablist" aria-label="视图">
+            <button class="note-tab on" data-tab="notes" role="tab" aria-selected="true">笔记</button>
+            <button class="note-tab" data-tab="insights" role="tab" aria-selected="false">知识卡</button>
+          </div>
+          <span class="panel-note" id="noteListNote">—</span>
+        </div>
+        <ul class="notes" id="noteList"></ul>
+        <ul class="insights" id="insightList" hidden></ul>
+        <div class="add-row" id="noteAddRow">
+          <button class="add-btn" id="addNoteBtn">+ 新建笔记</button>
+        </div>
+        <div class="add-row" id="insightAddRow" hidden>
+          <button class="add-btn" id="addInsightBtn">+ 新建知识卡</button>
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="noteStats">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">笔记统计</span>
+            </div>
+            <div class="stat-grid" id="noteStats"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-title="复盘" data-hud="0">
+    <div class="inner">
+      <header class="slide-head">
+        <div class="head-main">
+          <p class="hint">复盘</p>
+          <div class="head-title-row">
+            <h2 id="reviewTitle">本周专注 0 小时。</h2>
+            <span class="info" tabindex="0" data-tip="过程指标 + 结果指标，关注深度工作质量而不是计时长度。">i</span>
+          </div>
+        </div>
+        <div class="date-nav" data-nav-for="5">
+          <button class="dn-trigger" aria-haspopup="true" aria-expanded="false">
+            <span class="dn-text">本周</span>
+            <span class="dn-dot" hidden></span>
+            <span class="dn-caret" aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="panel grow">
+        <div class="panel-head">
+          <span class="panel-title">专注分布</span>
+          <span class="panel-note" id="reviewTotal">共 0 h</span>
+        </div>
+        <div class="bars" id="bars"></div>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:1em" id="reviewNote">点击柱子可以修改当天的专注时长。</p>
+      </div>
+
+      <div class="collapsible" data-block="reviewMetrics">
+        <div class="collapsible-inner">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">过程指标</span>
+              </div>
+              <div class="stat-grid" id="reviewStats"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <span class="panel-title">注意力流向</span>
+              </div>
+              <ul class="ov-list" id="reviewAttention"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="cognition">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">本周认知</span>
+              <span class="panel-note" id="cogNote">—</span>
+            </div>
+            <div class="stat-grid" id="cognitionStats"></div>
+            <ul class="suggest cog-list" id="cognitionList"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible" data-block="reviewAux">
+        <div class="collapsible-inner">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">主观专注感</span>
+              <span class="panel-note" id="feelNote">—</span>
+            </div>
+            <div class="feel-row" id="feelRow" role="radiogroup" aria-label="主观专注感"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">小实验建议</span>
+            </div>
+            <ul class="suggest" id="reviewSuggest"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="date-menu" id="dateMenu" role="menu">
+  <button class="dm-item" data-action="today" role="menuitem"><span class="dm-icon">·</span>今天</button>
+  <button class="dm-item" data-action="yesterday" role="menuitem"><span class="dm-icon">·</span>昨天</button>
+  <button class="dm-item" data-action="pick" role="menuitem"><span class="dm-icon">⌖</span>选择日期…</button>
+  <button class="dm-item" data-action="all" role="menuitem"><span class="dm-icon">∞</span>全部</button>
+  <div class="dm-sep" hidden></div>
+  <button class="dm-item dm-sync" data-action="sync" role="menuitem" hidden>
+    <span class="dm-icon">⇄</span>同步到所有模块
+  </button>
+</div>
+
+<nav class="dots" id="dots" aria-label="模块导航">
+  <button class="dot active" data-index="0" aria-current="true">总览</button>
+  <button class="dot" data-index="1">任务</button>
+  <button class="dot" data-index="2">习惯</button>
+  <button class="dot" data-index="3">注意力</button>
+  <button class="dot" data-index="4">笔记</button>
+  <button class="dot" data-index="5">复盘</button>
+</nav>
+
+<div class="counter"><span id="curNum">01</span> <em>/ 06</em></div>
+<div class="tip">滚轮 / ↑↓ 切换 · <kbd>H</kbd> 分层 · <kbd>M</kbd> 模式 · <kbd>⌘K</kbd> 命令</div>

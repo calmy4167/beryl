@@ -1,59 +1,46 @@
-.master-data-page { max-width: 1080px; margin: 0 auto; padding: 8px 4px 36px; color: var(--c-text); }
-html.tactile-ui #app .page-container .master-data-page { width: 100%; max-width: none; margin-inline: 0; }
-.master-data-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 4px 0 22px; }
-.master-data-heading h1 { margin: 0; font-size: clamp(24px, 3vw, 31px); letter-spacing: -.035em; }
-.master-data-heading p, .master-data-composer-heading p, .master-data-library-heading p { margin: 5px 0 0; color: var(--c-text-2); font-size: 13px; }
-.master-data-tabs { display: flex; gap: 5px; width: fit-content; padding: 4px; margin-bottom: 18px; border-radius: 12px; background: var(--c-surface-2, #f1f4f5); }
-.master-data-tabs button { border: 0; border-radius: 9px; padding: 8px 15px; background: transparent; color: var(--c-text-2); font: inherit; cursor: pointer; transition: background-color .18s ease, color .18s ease, box-shadow .18s ease; }
-.master-data-tabs button.active { background: var(--c-surface, #fff); color: var(--c-accent, #315fe8); box-shadow: 0 1px 3px #182a3612; }
-.master-data-page button:focus-visible, .master-data-page input:focus-visible, .master-data-page textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--c-accent, #315fe8) 26%, transparent); outline-offset: 2px; }
-.master-data-composer, .master-data-library { padding: 18px 20px; border: 1px solid var(--c-border, #e5eaed); border-radius: 16px; background: var(--c-surface, #fff); box-shadow: 0 5px 18px #24394408; }
-.master-data-composer { margin-bottom: 16px; }
-.master-data-composer-heading, .master-data-library-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
-.master-data-composer h2, .master-data-library h2 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: -.015em; }
-.master-data-composer form { display: grid; grid-template-columns: minmax(180px, .7fr) minmax(0, 1.6fr) auto; align-items: end; gap: 12px; margin-top: 15px; }
-.master-data-composer label { display: grid; gap: 6px; color: var(--c-text-2); font-size: 12px; }
-.master-data-composer input, .master-data-composer textarea, .master-data-composer select, .master-data-search { width: 100%; min-width: 0; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; background: var(--c-surface, #fff); color: var(--c-text); font: inherit; font-size: 13px; padding: 10px 11px; }
-.master-data-composer select { min-height: 42px; }
-.master-data-composer .master-data-tag-options { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-width: 0; margin: 0; padding: 10px 12px; border: 1px solid var(--c-border, #e1e7eb); border-radius: 10px; }
-.master-data-composer .master-data-tag-options legend { padding: 0 5px; color: var(--c-text-2); font-size: 12px; }
-.master-data-composer .master-data-tag-options label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-.master-data-composer .master-data-tag-options input { width: auto; min-height: auto; accent-color: var(--c-accent, #315fe8); }
-.master-data-composer .master-data-tag-options span, .master-data-composer .master-data-tag-options small { color: var(--c-text-2); font-size: 11px; }
-.master-data-composer textarea { resize: vertical; min-height: 42px; max-height: 160px; }
-.master-data-form-actions { display: flex; gap: 8px; }
-.master-data-form-actions .app-button { min-height: 40px; white-space: nowrap; }
-.master-data-library-heading { align-items: center; margin-bottom: 13px; }
-.master-data-archived-toggle { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--c-text-2); font-size: 12px; cursor: pointer; }
-.master-data-archived-toggle input { accent-color: var(--c-accent, #315fe8); }
-.master-data-search { margin-bottom: 3px; }
-.master-data-list { list-style: none; margin: 4px 0 0; padding: 0; }
-.master-data-list li { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 3px; border-bottom: 1px solid var(--c-border, #edf0f2); }
+/* 主数据页的局部排版。
+ *
+ * 面板骨架（.slide-head / .panel / .collapsible）来自「留白」设计层，这里只保留页面自己的
+ * 列表、标签选项与表单排版，颜色一律取 v11 令牌（--fg / --muted / --line / --panel-2）。
+ * 迁移时删掉了原先挂在 html 级实验 class 上的作用域选择器——那个 class 运行期从不添加，是死规则。
+ */
+
+/* ── 句子素材列表 ─────────────────────────────────────────────── */
+/* tab 用 v11 的 .seg；.seg 的分段按钮是 flex:1，给整条一个合理宽度免得四个 tab 各占半屏 */
+.master-data-tabs { max-width: min(560px, 100%); }
+.master-data-library-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.master-data-search { flex: 1 1 220px; min-width: 0; min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.master-data-archived-toggle { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: .72rem; white-space: nowrap; cursor: pointer; }
+.master-data-list { list-style: none; margin: 0; padding: 0; }
+.master-data-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .master-data-list li:last-child { border-bottom: 0; }
-.master-data-list li.retired { opacity: .72; }
+.master-data-list li.retired { opacity: .6; }
 .master-data-copy { min-width: 0; }
 .master-data-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.master-data-copy h3 { margin: 0; color: var(--c-text); font-size: 14px; font-weight: 620; }
-.master-data-copy p { margin: 5px 0 0; color: var(--c-text-2); font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
-.master-data-copy small, .master-data-status { color: var(--c-text-3, #89959c); font-size: 11px; }
-.master-data-status { padding: 2px 7px; border-radius: 10px; background: var(--c-surface-2, #f1f4f5); }
-.master-data-item-actions { display: flex; flex: 0 0 auto; gap: 5px; }
-html.tactile-ui #app .page-container .master-data-item-actions .app-button { all: revert; font: inherit; cursor: pointer; min-height: 32px; padding: 0 10px; }
-.master-data-state { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 24px 4px 7px; margin: 0; color: var(--c-text-3, #89959c); font-size: 13px; }
-.master-data-state.error { color: var(--c-danger, #bd4b50); }
-.master-data-dictionary-note { margin: 12px 4px 0; color: var(--c-text-3, #89959c); font-size: 11px; }
+.master-data-copy h3 { margin: 0; color: var(--fg); font-size: .9rem; font-weight: 600; }
+.master-data-copy p { margin: 4px 0 0; color: var(--muted); font-size: .8rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.master-data-copy small { color: var(--muted); font-size: .7rem; }
+.master-data-status { padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .66rem; }
+.master-data-item-actions { display: flex; flex: none; gap: 6px; }
+.master-data-state { margin: 0; padding: 10px 0 4px; color: var(--muted); font-size: .78rem; }
+.master-data-state.error { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--danger); }
+
+/* ── 句子素材表单 ─────────────────────────────────────────────── */
+.sentence-meta-form { display: grid; gap: 12px; }
+.sentence-meta-form label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; }
+.sentence-meta-form input, .sentence-meta-form select { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.sentence-meta-form textarea { padding: 8px 10px; font: inherit; font-size: .8rem; resize: vertical; min-height: 64px; }
+.master-data-tag-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.master-data-tag-options legend { padding: 0 5px; color: var(--muted); font-size: .72rem; }
+.master-data-tag-options label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.master-data-tag-options input { width: auto; min-height: auto; }
+.master-data-tag-options span, .master-data-tag-options small { color: var(--muted); font-size: .7rem; }
+.master-data-form-actions { display: flex; gap: 8px; }
+
+/* 人物页嵌在主数据页里的标记（parity 测试按它断言） */
 .people-page-embedded { margin-top: 2px; }
-@media (max-width: 760px) {
-  .master-data-page { padding-inline: 0; }
-  .master-data-composer form { grid-template-columns: 1fr; }
-  .master-data-form-actions { justify-content: flex-end; }
-  .master-data-composer, .master-data-library { padding: 15px; border-radius: 13px; }
-}
+
 @media (max-width: 480px) {
-  .master-data-heading { align-items: flex-start; }
   .master-data-list li { align-items: flex-start; flex-direction: column; gap: 10px; }
   .master-data-item-actions { align-self: flex-end; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .master-data-tabs button { transition: none; }
 }

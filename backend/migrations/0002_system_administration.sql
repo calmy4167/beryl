@@ -96,13 +96,23 @@ VALUES
   ('system.basic_user', 'system.basic_user', '普通用户', '不含系统管理权限', 1, 'active', unixepoch() * 1000, unixepoch() * 1000);
 
 INSERT OR IGNORE INTO role_permissions (role_id, permission_code, created_at)
-SELECT 'system.super_admin', permission_code, unixepoch() * 1000 FROM (
-  SELECT 'system.users.read' AS permission_code UNION ALL SELECT 'system.users.create' UNION ALL SELECT 'system.users.update' UNION ALL
-  SELECT 'system.users.disable' UNION ALL SELECT 'system.users.delete' UNION ALL SELECT 'system.users.reset_password' UNION ALL
-  SELECT 'system.users.unlock' UNION ALL SELECT 'system.users.assign_roles' UNION ALL SELECT 'system.roles.read' UNION ALL SELECT 'system.roles.manage' UNION ALL
-  SELECT 'system.security.read' UNION ALL SELECT 'system.security.manage' UNION ALL SELECT 'system.login_logs.read' UNION ALL
-  SELECT 'system.operation_logs.read' UNION ALL SELECT 'system.sessions.read' UNION ALL SELECT 'system.sessions.revoke'
-);
+VALUES
+  ('system.super_admin', 'system.users.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.create', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.update', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.disable', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.delete', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.reset_password', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.unlock', unixepoch() * 1000),
+  ('system.super_admin', 'system.users.assign_roles', unixepoch() * 1000),
+  ('system.super_admin', 'system.roles.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.roles.manage', unixepoch() * 1000),
+  ('system.super_admin', 'system.security.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.security.manage', unixepoch() * 1000),
+  ('system.super_admin', 'system.login_logs.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.operation_logs.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.sessions.read', unixepoch() * 1000),
+  ('system.super_admin', 'system.sessions.revoke', unixepoch() * 1000);
 
 INSERT OR IGNORE INTO role_permissions (role_id, permission_code, created_at)
 VALUES

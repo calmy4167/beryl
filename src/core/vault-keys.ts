@@ -85,10 +85,19 @@ async function unwrap(envelope: Envelope, key: CryptoKey): Promise<Uint8Array> {
   return new Uint8Array(raw)
 }
 function validateRecoveryKey(value: string): Uint8Array {
-  const trimmed = value.trim()
-  if (!trimmed) throw new Error('recovery-key-required')
+  let candidate = value.trim()
+  if (!candidate) throw new Error('recovery-key-required')
+  if (candidate.startsWith('{')) {
+    try {
+      const recoveryPackage = JSON.parse(candidate) as { format?: unknown; recoveryKey?: unknown }
+      if (recoveryPackage.format !== FORMAT || typeof recoveryPackage.recoveryKey !== 'string') throw new Error('invalid-recovery-package')
+      candidate = recoveryPackage.recoveryKey.trim()
+    } catch {
+      throw new Error('恢复包格式不正确，请使用 Calmy recovery-v1 恢复包。')
+    }
+  }
   try {
-    const raw = unbase64(trimmed)
+    const raw = unbase64(candidate)
     if (raw.byteLength !== 32) throw new Error()
     return raw
   } catch { throw new Error('恢复密钥格式不正确，请使用 32 字节恢复密钥或恢复包中的密钥字段。') }
@@ -96,9 +105,22 @@ function validateRecoveryKey(value: string): Uint8Array {
 
 async function getRecoveryEnvelope(baseUrl: string): Promise<Envelope | null> {
   const response = await apiFetch(baseUrl, '/api/vault/key')
-  const body = await response.json().catch(() => ({})) as { ok?: boolean; initialized?: boolean; recoveryEnvelope?: Envelope }
+  const body = await response.json().catch(() => ({})) as { ok?: boolean; initialized?: boolean; recoveryEnvelope?: unknown }
   if (!response.ok) throw new Error('无法读取 Vault 密钥状态')
-  return body.initialized && body.recoveryEnvelope ? body.recoveryEnvelope : null
+  if (!body.initialized || !body.recoveryEnvelope) return null
+  // Older Workers return the D1 TEXT column verbatim (serialized JSON) while
+  // newer ones return the envelope object. Accept both API representations.
+  let value: unknown = body.recoveryEnvelope
+  if (typeof value === 'string') {
+    try { value = JSON.parse(value) as unknown }
+    catch { throw new Error('服务器返回的 Vault 恢复包格式无效。') }
+  }
+  if (!value || typeof value !== 'object') throw new Error('服务器返回的 Vault 恢复包格式无效。')
+  const envelope = value as Partial<Envelope>
+  if (envelope.v !== 1 || typeof envelope.iv !== 'string' || typeof envelope.ciphertext !== 'string') {
+    throw new Error('服务器返回的 Vault 恢复包格式无效。')
+  }
+  return envelope as Envelope
 }
 
 function sameBytes(left: Uint8Array, right: Uint8Array): boolean {

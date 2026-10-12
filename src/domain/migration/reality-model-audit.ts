@@ -1,10 +1,11 @@
 import type { Matter, Thing } from '@/domain/matter/model'
 import { matterFromThing } from '@/domain/matter/model'
 import { SCENES } from '@/core/scenes'
-import { RELATION_DEFINITIONS, validateRelation, type Domain, type EntityRef, type Permission, type Person, type Relation, type Scene, type SceneParticipant, type Scope, type Space, type LegacySpaceBoundary } from '@/domain/unified/model'
+import { RELATION_DEFINITIONS, validateRelation, type Domain, type EntityRef, type Organization, type Permission, type Person, type Relation, type Scene, type SceneParticipant, type Scope, type Space, type LegacySpaceBoundary } from '@/domain/unified/model'
 
 export interface RealityModelSnapshot {
   people: Person[]
+  organizations?: Organization[]
   matters: Matter[]
   things: Thing[]
   scenes: Scene[]
@@ -39,6 +40,7 @@ export function auditRealityModelMigration(snapshot: RealityModelSnapshot): Real
   const add = (code: string, ids: string[], detail: string) => issues.push({ code, sourceIds: [...ids].sort(), detail })
   const ids = {
     person: new Set(snapshot.people.map(item => item.calmyId)),
+    organization: new Set((snapshot.organizations || []).map(item => item.calmyId)),
     matter: new Set(snapshot.matters.map(item => item.calmyId)),
     scene: new Set(snapshot.scenes.map(item => item.calmyId)),
     scene_participant: new Set(snapshot.sceneParticipants.map(item => item.calmyId)),
@@ -51,7 +53,7 @@ export function auditRealityModelMigration(snapshot: RealityModelSnapshot): Real
 
   const typedIds = new Map<string, string[]>()
   const addIds = (type: string, values: { calmyId: string }[]) => values.forEach(item => typedIds.set(item.calmyId, [...(typedIds.get(item.calmyId) || []), type]))
-  addIds('person', snapshot.people); addIds('matter', snapshot.matters); addIds('thing', snapshot.things); addIds('scene', snapshot.scenes)
+  addIds('person', snapshot.people); addIds('organization', snapshot.organizations || []); addIds('matter', snapshot.matters); addIds('thing', snapshot.things); addIds('scene', snapshot.scenes)
   addIds('scene_participant', snapshot.sceneParticipants); addIds('space', snapshot.spaces); addIds('relation', snapshot.relations)
   addIds('domain', snapshot.domains); addIds('scope', snapshot.scopes); addIds('permission', snapshot.permissions)
   for (const [id, types] of typedIds) {
@@ -82,6 +84,7 @@ export function auditRealityModelMigration(snapshot: RealityModelSnapshot): Real
   const endpointExists = (ref: EntityRef): boolean => {
     if (ref.entityType === 'thing' || ref.entityType === 'matter') return ids.matter.has(ref.calmyId)
     if (ref.entityType === 'person') return ids.person.has(ref.calmyId)
+    if (ref.entityType === 'organization') return ids.organization.has(ref.calmyId)
     if (ref.entityType === 'scene') return ids.scene.has(ref.calmyId)
     if (ref.entityType === 'scene_participant') return ids.scene_participant.has(ref.calmyId)
     if (ref.entityType === 'space' || ref.entityType === 'shared_space') return ids.space.has(ref.calmyId)
@@ -107,11 +110,12 @@ export function auditRealityModelMigration(snapshot: RealityModelSnapshot): Real
   for (const entity of ownerships) {
     const ownership = entity.ownership
     if (!ownership) continue
-    const principals = [ownership.ownerRef, ...ownership.stewardRefs]
+    const principals = [ownership.ownerRef, ...(ownership.coOwnerRefs || []), ...ownership.stewardRefs]
     for (const principal of principals) {
       const exists = principal.type === 'person' ? personIds.has(principal.id)
         : principal.type === 'space' ? spaceIds.has(principal.id)
-          : !hasUserSet || users.has(principal.id)
+          : principal.type === 'organization' ? ids.organization.has(principal.id)
+            : !hasUserSet || users.has(principal.id)
       if (!exists) add('UNKNOWN_OWNERSHIP_REFERENCE', [entity.calmyId, principal.id], `Unknown ${principal.type} ownership reference`)
     }
     if (ownership.subjectRef && !endpointExists(ownership.subjectRef)) {
@@ -145,7 +149,7 @@ export function auditRealityModelMigration(snapshot: RealityModelSnapshot): Real
   issues.sort((a, b) => a.code.localeCompare(b.code) || a.sourceIds.join('|').localeCompare(b.sourceIds.join('|')) || a.detail.localeCompare(b.detail))
   return {
     counts: {
-      people: snapshot.people.length, matters: snapshot.matters.length, things: snapshot.things.length,
+      people: snapshot.people.length, organizations: (snapshot.organizations || []).length, matters: snapshot.matters.length, things: snapshot.things.length,
       scenes: snapshot.scenes.length, sceneParticipants: snapshot.sceneParticipants.length, spaces: snapshot.spaces.length,
       legacySpaceBoundaries: snapshot.legacySpaceBoundaries.length, relations: snapshot.relations.length,
       domains: snapshot.domains.length, scopes: snapshot.scopes.length, permissions: snapshot.permissions.length

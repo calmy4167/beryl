@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { exportOpenWorkspace, importOpenWorkspace } from '@/core/content/open-format'
 import { assetRepository, hashOpenBytes } from '@/core/content/assets'
 import { CoreDomainError, unifiedFactories, unifiedRepository, type Asset, type Resource } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('resource and asset lifecycle', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('resource-lifecycle-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a versioned asset and moves both resource and asset through explicit lifecycle states', () => {
     const resource = unifiedRepository.create(unifiedFactories.resource({

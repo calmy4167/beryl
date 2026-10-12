@@ -2,6 +2,8 @@ import type { Matter } from '@/domain/matter/model'
 import type { ActionItem } from '@/domain/action/model'
 import type { RealityRecord } from '@/domain/record/model'
 import type { TodayPlan } from '@/domain/today/model'
+import type { CaptureItem } from '@/domain/capture/model'
+import type { DiaryEntry } from '@/domain/diary/model'
 import type { OpenAsset, OpenEntity, OpenImportResult, OpenTombstone, OpenWorkspace } from './open-format'
 import {
   compareOpenAssets,
@@ -10,9 +12,12 @@ import {
   exportOpenWorkspace,
   hashOpenText,
   importOpenWorkspace,
+  isHabit,
   isUnifiedOpenEntity,
   mergeOpenEntity,
   openEntityId,
+  openEntityKey,
+  openEntityRevision,
   openEntityType,
   scanOpenAssetReferences,
   serializeOpenEntity,
@@ -127,12 +132,16 @@ export function buildWorkspaceImportPreview(
     added_ids: entityComparison.added.map(openEntityId),
     unchanged_ids: entityComparison.unchanged.map(openEntityId),
     conflict_ids: entityComparison.conflicts.map(conflict => conflict.calmyId),
+    added_identity_keys: entityComparison.added.map(openEntityKey),
+    unchanged_identity_keys: entityComparison.unchanged.map(openEntityKey),
+    conflict_identity_keys: entityComparison.conflicts.map(conflict => conflict.identityKey),
     asset_conflict_paths: assetComparison.conflicts.map(conflict => conflict.path),
     missing_asset_paths: imported.missingAssetReferences.map(reference => reference.asset_path),
     orphan_asset_paths: imported.orphanAssets.map(asset => asset.path),
     issues: imported.issues.map(issue => ({ path: issue.path, code: issue.code, message: issue.message })),
     conflict_previews: conflictPreviews,
-    tombstone_ids: imported.tombstones.map(tombstone => tombstone.calmy_id)
+    tombstone_ids: imported.tombstones.map(tombstone => tombstone.calmy_id),
+    tombstone_identity_keys: imported.tombstones.map(tombstone => `${tombstone.calmy_type}:${tombstone.calmy_id}`)
   }
 }
 
@@ -157,9 +166,17 @@ function generatedPathForEntity(entity: OpenEntity): string {
     ? exportOpenWorkspace({ matters: [entity as Matter] })
     : type === 'action'
       ? exportOpenWorkspace({ actions: [entity as ActionItem] })
-      : type === 'record'
+        : type === 'record'
         ? exportOpenWorkspace({ records: [entity as RealityRecord] })
-        : exportOpenWorkspace({ dailies: [entity as TodayPlan] })
+        : type === 'diary'
+          ? exportOpenWorkspace({ diaries: [entity as DiaryEntry] })
+      : type === 'capture'
+        ? exportOpenWorkspace({ captures: [entity as CaptureItem] })
+            : isHabit(entity)
+              ? exportOpenWorkspace({ habits: [entity] })
+            : type === 'goal'
+              ? exportOpenWorkspace({ goals: [entity as import('./open-format').OpenGoal] })
+            : exportOpenWorkspace({ dailies: [entity as TodayPlan] })
   return Object.keys(generated.files).find(path => path.toLowerCase().endsWith('.md')) as string
 }
 
@@ -173,9 +190,9 @@ function entitiesToStableWorkspace(
   const manifestEntries = [] as Array<{ calmy_id: string; calmy_type: ReturnType<typeof openEntityType>; path: string; revision: number; hash: string }>
   for (const entity of entities) {
     const content = serializeOpenEntity(entity)
-    const path = pathsById.get(openEntityId(entity)) || generatedPathForEntity(entity)
+    const path = pathsById.get(openEntityKey(entity)) || generatedPathForEntity(entity)
     files[path] = content
-    manifestEntries.push({ calmy_id: openEntityId(entity), calmy_type: openEntityType(entity), path, revision: entity.revision, hash: hashOpenText(content) })
+    manifestEntries.push({ calmy_id: openEntityId(entity), calmy_type: openEntityType(entity), path, revision: openEntityRevision(entity), hash: hashOpenText(content) })
   }
   const manifestAssets = assets.map(asset => ({ path: asset.path, hash: hashOpenBytes(asset.data), size: asset.data.byteLength, mime_type: asset.mimeType }))
   manifestEntries.sort((a, b) => a.path.localeCompare(b.path))
@@ -189,7 +206,7 @@ function entitiesToStableWorkspace(
     asset_references: scanOpenAssetReferences(files)
   }
   if (tombstones.length) {
-    manifest.tombstones = [...new Map(tombstones.map(tombstone => [tombstone.calmy_id, tombstone])).values()]
+    manifest.tombstones = [...new Map(tombstones.map(tombstone => [`${tombstone.calmy_type}:${tombstone.calmy_id}`, tombstone])).values()]
       .sort((a, b) => a.path.localeCompare(b.path))
   }
   files[OPEN_MANIFEST_PATH] = JSON.stringify(manifest, null, 2) + '\n'
@@ -202,34 +219,47 @@ function resolveIncomingEntities(
   decisions: Record<string, BridgeDecision>,
   incomingTombstones: OpenTombstone[] = []
 ): { entities?: OpenEntity[]; missingDecisions: string[]; appliedTombstones: OpenTombstone[] } {
-  const localById = new Map(localEntities.map(entity => [openEntityId(entity), entity]))
-  const incomingById = new Map(incomingEntities.map(entity => [openEntityId(entity), entity]))
+  const localById = new Map(localEntities.map(entity => [openEntityKey(entity), entity]))
+  const incomingById = new Map(incomingEntities.map(entity => [openEntityKey(entity), entity]))
   const comparison = compareOpenEntities(localEntities, incomingEntities)
+  const identitiesByLegacyId = new Map<string, Set<string>>()
+  for (const entity of [...localEntities, ...incomingEntities]) {
+    const id = openEntityId(entity)
+    const identities = identitiesByLegacyId.get(id) || new Set<string>()
+    identities.add(openEntityKey(entity))
+    identitiesByLegacyId.set(id, identities)
+  }
+  const keyForTombstone = (tombstone: OpenTombstone) => `${tombstone.calmy_type}:${tombstone.calmy_id}`
+  const decisionFor = (key: string, id: string): BridgeDecision | undefined => decisions[key] ?? (identitiesByLegacyId.get(id)?.size === 1 ? decisions[id] : undefined)
   const requiredTombstoneDecisions = incomingTombstones
-    .filter(tombstone => localById.has(tombstone.calmy_id))
-    .map(tombstone => tombstone.calmy_id)
+    .filter(tombstone => localById.has(keyForTombstone(tombstone)))
+    .map(tombstone => keyForTombstone(tombstone))
   const missingDecisions = [...new Set([
-    ...comparison.conflicts.map(conflict => conflict.calmyId),
+    ...comparison.conflicts.map(conflict => conflict.identityKey),
     ...requiredTombstoneDecisions
-  ])].filter(id => decisions[id] === undefined)
+  ])].filter(key => {
+    const id = key.slice(key.indexOf(':') + 1)
+    return decisionFor(key, id) === undefined
+  })
   if (missingDecisions.length) return { missingDecisions, appliedTombstones: [] }
 
-  const appliedTombstones = incomingTombstones.filter(tombstone => !localById.has(tombstone.calmy_id) || decisions[tombstone.calmy_id] === 'use-incoming')
+  const appliedTombstones = incomingTombstones.filter(tombstone => !localById.has(keyForTombstone(tombstone)) || decisionFor(keyForTombstone(tombstone), tombstone.calmy_id) === 'use-incoming')
   const entities = localEntities.flatMap(local => {
     const id = openEntityId(local)
-    const tombstone = incomingTombstones.find(item => item.calmy_id === id)
-    if (tombstone && decisions[id] === 'use-incoming') return []
-    const incoming = incomingById.get(id)
+    const key = openEntityKey(local)
+    const tombstone = incomingTombstones.find(item => keyForTombstone(item) === key)
+    const decision = decisionFor(key, id)
+    if (tombstone && decision === 'use-incoming') return []
+    const incoming = incomingById.get(key)
     if (!incoming) return [local]
-    if (JSON.stringify(local) === JSON.stringify(incoming)) return [local]
-    const decision = decisions[id]
+    if (!compareOpenEntityFields(local, incoming).length) return [local]
     if (decision === 'keep-local') return [local]
     if (decision === 'use-incoming') return [incoming]
     if (typeof decision === 'object' && decision.mode === 'merge') return [mergeOpenEntity(local, incoming, decision.fields)]
     return [local]
   })
   for (const incoming of incomingEntities) {
-    if (!localById.has(openEntityId(incoming))) entities.push(incoming)
+    if (!localById.has(openEntityKey(incoming))) entities.push(incoming)
   }
   return { entities, missingDecisions: [], appliedTombstones }
 }
@@ -260,8 +290,8 @@ export async function applyWorkspaceImportToVault(
   }
   const assetsByPath = new Map(local.assets.map(asset => [asset.path, asset]))
   for (const asset of incoming.assets) assetsByPath.set(asset.path, asset)
-  const pathsById = new Map(local.manifest.entities.map(entry => [entry.calmy_id, entry.path]))
-  for (const entry of incoming.manifest.entities) if (!pathsById.has(entry.calmy_id)) pathsById.set(entry.calmy_id, entry.path)
+  const pathsById = new Map(local.manifest.entities.map(entry => [`${entry.calmy_type}:${entry.calmy_id}`, entry.path]))
+  for (const entry of incoming.manifest.entities) if (!pathsById.has(`${entry.calmy_type}:${entry.calmy_id}`)) pathsById.set(`${entry.calmy_type}:${entry.calmy_id}`, entry.path)
   const workspace = entitiesToStableWorkspace(resolved.entities, [...assetsByPath.values()], pathsById, resolved.appliedTombstones)
   const localPaths = new Set(local.paths)
   const deletePaths = resolved.appliedTombstones.map(tombstone => tombstone.path).filter(path => localPaths.has(path))

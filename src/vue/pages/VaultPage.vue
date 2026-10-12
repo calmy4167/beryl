@@ -18,7 +18,7 @@ onMounted(async () => {
   if (!session) { await router.replace('/login'); return }
   try {
     const result = await setupVault(apiBaseUrl(), session.user.id)
-    if (result.alreadyUnlocked) { await router.replace('/app/today'); return }
+    if (result.alreadyUnlocked) { await router.replace('/app/desk'); return }
     if (result.recoveryNeeded) recoveryNeeded.value = true
     if (result.recoveryKey) recoveryKey.value = result.recoveryKey
   } catch (cause) { error.value = cause instanceof Error ? cause.message : 'Vault 初始化失败' }
@@ -31,7 +31,7 @@ async function unlock() {
   error.value = ''
   try {
     await recoverVault(apiBaseUrl(), session.user.id, recoveryInput.value)
-    window.location.hash = '#/app/today'
+    window.location.hash = '#/app/desk'
     window.location.reload()
   } catch (cause) { error.value = cause instanceof Error ? cause.message : 'Vault 恢复失败' }
   finally { loading.value = false }
@@ -54,7 +54,7 @@ async function finishSetup() {
     try { await confirmRecoveryKeySaved(session.user.id) }
     catch (cause) { error.value = cause instanceof Error ? cause.message : '无法确认恢复密钥状态'; loading.value = false; return }
   }
-  window.location.hash = '#/app/today'
+  window.location.hash = '#/app/desk'
   window.location.reload()
 }
 </script>
@@ -74,8 +74,9 @@ async function finishSetup() {
       </template>
       <template v-else-if="recoveryNeeded">
         <h2>在此设备恢复 Vault</h2>
-        <p>此设备没有本账号的本地解锁密钥。输入此前保存的 32 字节恢复密钥；恢复密钥不会发送到服务器。</p>
+        <p>此设备没有本账号的本地解锁密钥。粘贴此前保存的 32 字节恢复密钥，或完整的 Calmy recovery-v1 JSON 恢复包；恢复密钥不会发送到服务器。</p>
         <label>恢复密钥<input v-model="recoveryInput" aria-label="恢复密钥" autocomplete="off" spellcheck="false" /></label>
+        <p v-if="error" class="form-error" role="alert">{{ error }}</p>
         <button class="app-button primary full" type="button" :disabled="loading || !recoveryInput" @click="unlock">{{ loading ? '正在恢复…' : '恢复并解锁' }}</button>
       </template>
       <template v-else-if="error">

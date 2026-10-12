@@ -33,6 +33,8 @@ const TYPE_META: Record<SearchResultType, { label: string; icon: string }> = {
   pomo: { label: '专注', icon: '🍅' },
   moment: { label: '动态', icon: '♡' },
   person: { label: '人物', icon: '♧' },
+  important_date: { label: '重要日期', icon: '◷' },
+  organization: { label: '组织', icon: '⌂' },
   relationship: { label: '关系', icon: '↔' },
   shared_space: { label: '空间', icon: '⌂' },
   cycle: { label: '周期', icon: '◌' },

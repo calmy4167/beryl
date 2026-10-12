@@ -1,11 +1,14 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { setActiveAccount } from '@/core/account-context'
 import { MatterDomainError } from '@/domain/matter/model'
 import { matterRepository } from '@/domain/matter/repository'
 
 describe('matterRepository', () => {
   beforeEach(() => {
+    setActiveAccount('matter-test-user')
     localStorage.clear()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a Matter with stable identity and a create mutation', () => {
     const matter = matterRepository.create({ title: '学习 Java', why: '建立独立开发能力' }, { commandId: 'cmd-create-1' })

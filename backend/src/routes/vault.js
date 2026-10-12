@@ -32,7 +32,11 @@ export async function handleGetUserKey(request, env) {
   if (actor.error) return { body: { error: actor.error }, status: actor.status };
   const envelope = await env.BERYL_D1.prepare('SELECT recovery_envelope, version, updated_at FROM user_key_envelopes WHERE user_id = ?').bind(actor.userId).first();
   if (!envelope) return { body: { ok: true, initialized: false } };
-  return { body: { ok: true, initialized: true, recoveryEnvelope: envelope.recovery_envelope, version: Number(envelope.version), updatedAt: Number(envelope.updated_at) } };
+  let recoveryEnvelope = envelope.recovery_envelope;
+  if (typeof recoveryEnvelope === 'string') {
+    try { recoveryEnvelope = JSON.parse(recoveryEnvelope); } catch { /* let the client report the malformed stored envelope */ }
+  }
+  return { body: { ok: true, initialized: true, recoveryEnvelope, version: Number(envelope.version), updatedAt: Number(envelope.updated_at) } };
 }
 
 export async function handlePutUserKey(request, env) {

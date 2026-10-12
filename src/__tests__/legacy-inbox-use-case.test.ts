@@ -27,13 +27,17 @@ vi.mock('../core/db.ts', () => ({
   recordEntityChanges: vi.fn(async () => undefined)
 }))
 
+vi.mock('@/core/auth', () => ({ readServerSession: () => ({ user: { id: 'inbox-actor' } }) }))
+
 import { flushRepositoryWrites } from '@/core/repository'
 import { resetStoreCache, store } from '@/core/storage'
 import { caseAsyncRepository } from '@/domain/case/repository'
 import { convertLegacyInboxToCase, convertLegacyInboxToTask, legacyInboxRepositories, linkFinanceToCase } from '@/application/use-cases/legacy-inbox'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('legacy inbox and finance application use cases', () => {
   beforeEach(async () => {
+    setActiveAccount('legacy-inbox-use-case-test-user')
     durable.values.clear()
     durable.dbPut.mockClear()
     durable.flushPendingDbWrites.mockClear()
@@ -46,6 +50,7 @@ describe('legacy inbox and finance application use cases', () => {
   afterEach(() => {
     resetStoreCache()
     localStorage.clear()
+    setActiveAccount(null)
   })
 
   it('converts one legacy inbox item to one task on repeated command submission', async () => {
@@ -58,6 +63,16 @@ describe('legacy inbox and finance application use cases', () => {
     expect(repeated).toEqual(first)
     await expect(legacyInboxRepositories.tasks.list()).resolves.toEqual([first.task])
     await expect(legacyInboxRepositories.inbox.list()).resolves.toEqual([])
+    await expect(legacyInboxRepositories.history.list()).resolves.toMatchObject([{
+      id: 'legacy-inbox-history:convert-task-command',
+      revision: 1,
+      operation: 'converted-to-task',
+      source: 'user',
+      actorUserId: 'inbox-actor',
+      before: { id: 'inbox-1', text: '整理合同', date: '2026-08-24' },
+      after: null,
+      target: { type: 'task', id: 'legacy-task:convert-task-command' },
+    }])
   })
 
   it('keeps legacy case conversion idempotent with a stable case id', async () => {

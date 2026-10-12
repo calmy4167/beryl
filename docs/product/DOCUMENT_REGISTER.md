@@ -37,7 +37,7 @@
 | `docs/PROJECT_STRUCTURE.md` | 当前权威 | 代码入口、目录职责和文件放置规则 |
 | `docs/product/README.md` | 当前权威 | 产品文档包导航和当前裁决入口 |
 | `docs/product/DOCUMENT_REGISTER.md` | 当前权威 | 全部文档/资产的状态登记和冲突处理 |
-| `docs/product/DOCUMENT_AUDIT_2026-09-19.md` | 实现快照 | 2026-09-19 全量文档与界面收敛审计、修订范围和验证记录 |
+| `docs/product/DOCUMENT_AUDIT_2026-09-19.md` | 已过期（实现快照） | 2026-09-19 全量文档与界面收敛审计；正文仍以 React 为生产前端，勿据此判断当前实现 |
 | `docs/adr/ADR-001-content-zero-knowledge-with-visible-access-metadata.md` | 当前权威（Accepted） | Calmy 零知识优先数据架构、密文同步与可见控制元数据边界 |
 | `docs/adr/ADR-002-recipient-key-envelope-protocol.md` | 草案（Proposed） | 跨用户分享密钥封套；受独立密码学审查门槛约束，未接受前不得实施 |
 | `docs/superpowers/specs/2026-09-29-calmy-user-identity-and-product-access-design.md` | 当前权威（已接受） | User 账号生命周期、归属、权限、数据隔离和全产品访问模型 |
@@ -50,13 +50,13 @@
 | `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` | 执行参考 | Attention OS、四入口和 Matter 兼容实现；用于迁移，不再定义新增功能的产品本体 |
 | `docs/product/PRODUCT_REDESIGN_2026-08-22.md` | 执行参考 | 旧产品重设计细节；已合并到统一总稿 |
 | `docs/product/UX_UI_REDESIGN_2026-08-22.md` | 执行参考 | 旧信息架构、页面和 Flow UI 细节；已合并到统一总稿 |
-| `docs/product/ENGINEERING_REVIEW_2026-08-22.md` | 当前权威（含日期快照） | 工程风险与目标架构；当前生产入口、身份/加密边界和未完成门槛以第 20 节及 `OPEN_WORK.md` 为准 |
+| `docs/product/ENGINEERING_REVIEW_2026-08-22.md` | 执行参考（第 20 节有效） | 第 1–19 节为 React 时代评审快照，代码证据已不存在；当前生产入口、身份/加密边界和未完成门槛只以**第 20 节**及 `OPEN_WORK.md` 为准 |
 | `docs/product/ROADMAP_AND_ACCEPTANCE_2026-08-22.md` | 执行参考 | 旧实施顺序与 Flow 验收细节；当前阶段顺序以统一总稿和 OPEN_WORK 为准 |
-| `docs/product/OPEN_WORK.md` | 当前权威 | 唯一活跃的未完成工作；已完成任务不再重复列入 |
+| `docs/product/OPEN_WORK.md` | 执行参考（完整历史待办） | 保留工程任务、阶段记录和验收背景；当前雏形优先级以 `docs/CURRENT/03-prototype-scope-and-backlog.md` 为准 |
 | `docs/product/FEISHU_LIFE_WORKSPACE_PLAN_2026-09-19.md` | 规划提案 | D-014：飞书生活工作台、三个默认入口、字段映射、数据归属及分阶段验收；不等同于已实现 |
 | `docs/product/FEISHU_OFFICIAL_CAPABILITY_CHECKLIST_2026-09-19.md` | 当前权威 | D-016：飞书官方多维表格能力、Calmy 适配状态、持续同步清单和验收规则 |
 | `docs/product/REVIEW_MEETING_2026-08-22.md` | 历史参考 | 2026-08-22 多角色评审、分歧和当时裁决依据 |
-| `docs/product/REACT_MIGRATION_2026-08-23.md` | 历史参考 | 记录旧 React 主入口和 Vue 迁移来源；不描述当前代码结构 |
+| `docs/product/REACT_MIGRATION_2026-08-23.md` | 已过期（历史参考） | 记录旧 React 主入口和 Vue 迁移来源；React 代码已移除，本文不描述当前代码结构 |
 | `docs/product/source/ORIGINAL_PRODUCT_DESIGN_2026-08-18.docx` | 执行参考 | 理念、领域语义和长期愿景；只读保留 |
 | `Obsidian_calmy/Calmy_产品设计完整整理_2026-09-02.md` | 思想母本 | 长篇设计语料的库内总文档；模块双向同步，但不覆盖当前产品总设计和已接受产品决策 |
 | `Obsidian_calmy/00_总纲与治理/02_为解决问题而学习.md` | 思想母本 | D-012 的完整理念、跨模块解释与示例；通过 Obsidian 同步工具进入总文档 |
@@ -74,9 +74,9 @@
 | `docs/product/reference/Calmy_Obsidian_Companion_Bridge协议_2026-08-19.md` | 执行参考 | 未来 Companion Bridge 契约，不代表真实服务已联调 |
 | `docs/product/reference/Calmy_MVP验证与测试计划_2026-08-19.md` | 执行参考 | 测试维度；发布门槛由本轮路线图补充 |
 | `docs/product/reference/Calmy_Feishu_数据适配与授权协议_2026-09-19.md` | 执行参考 | 飞书多维表格接入、授权、字段演进和多人扩展边界；尚不替换 IndexedDB 事实源 |
-| `docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` | 实现快照 | 能力和验证证据，不定义产品范围 |
-| `docs/operations/HANDOFF_2026-08-22.md` | 实现快照 | 当前工程续接上下文 |
-| `docs/history/BERYL_DESIGN_README.md` | 历史参考 | Beryl 旧设计与迁移来源 |
+| `docs/implementation/IMPLEMENTATION_BASELINE_2026-08-19.md` | 已过期（实现快照） | 第 15–19 节以 React 为生产主语；且「IndexedDB 为权威主存储」「local-first 离线可用」与当前代码不符（见 `DOCUMENT_CONSOLIDATION_2026-10-05.md` §5.4） |
+| `docs/operations/HANDOFF_2026-08-22.md` | 已过期（实现快照） | 工程续接索引；其中生产入口描述为 React，已失效 |
+| `docs/history/BERYL_DESIGN_README.md` | 已过期（历史参考） | Beryl 旧设计与迁移来源；其维护约定指向已不存在的 v1 单文件实现 |
 | `docs/history/BERYL_DESIGN.md` | 历史参考 | Beryl 旧视觉/交互说明 |
 | `docs/history/BERYL_CODE_REVIEW.md` | 历史参考 | 旧代码审查清单；未逐条复核的项不可视为当前缺陷 |
 | `docs/history/README.md` | 历史参考 | 历史设计与审查目录说明 |
@@ -123,6 +123,8 @@
 
 ## 2026-08-29 实现档案校准
 
+> ⚠️ 2026-10-05 标注：本节的 React 入口、`LegacyAdminHost`、`src/react/*` 路径等陈述均为历史记录，React 代码已从仓库移除，勿据此判断当前实现。
+
 - 本轮 OW-03 兼容复核补齐旧 Worker 全量写入的失败传播；当前代码与验证事实仍以实现档案和 `OPEN_WORK.md` 为准。
 - 本轮 OW-04 代码侧复核补齐 React 登录错误播报、导入文件控件名称和移动 More 抽屉焦点回收，UI smoke 已通过浏览器 AX tree 验证错误节点；真实设备与辅助技术验收仍以 `OPEN_WORK.md` 为准。
 
@@ -156,3 +158,38 @@
 - `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 降为迁移期执行参考。它继续解释当前四入口、Matter 兼容对象、数据安全、AI 判断权与现实出口，不再定义新增功能的产品本体。
 - `OPEN_WORK.md` 新增 OW-21。先验证一个真实纵向切片、用户语言、未来回望和外部工具上下文，再决定导航、领域模型和批量迁移。
 - 当前代码、测试与 2026-09-19 早先审计仍是原实现事实。本次只整合产品文档，没有把新方向表述为已实现。
+
+## 2026-10-05 文档整理补登记与过期标注
+
+本轮为一次性文档整理，完整清单、已实现/未实现判定和分批处置见 [`DOCUMENT_CONSOLIDATION_2026-10-05.md`](../DOCUMENT_CONSOLIDATION_2026-10-05.md)。本登记册由此发生以下变更：
+
+### 补登记（此前未被本册收录的正式文档）
+
+| 文档 | 状态 | 当前用途 |
+|---|---|---|
+| `PRODUCT.md`（根目录） | 当前权威 | 产品定义、用户、平台、约束与品牌承诺；与当前 Vue 实现一致 |
+| `DESIGN.md`（根目录） | 当前权威（视觉方向） | 「留白 Reference Frontend」六模块原生前端的结构与交互说明；代码已落地 |
+| `Calmy-多人场景-模块关系与数据共享核心设计方案.md`（根目录） | 当前权威（§1–45 基准） | 多人场景与现实数据模型的源规范；被 5 份下游文档引用为验收基准。2026-10-05 裁决：**仍为基准，但排在雏形范围之后**，见 D-021 |
+| `docs/product/OW-21_WORK_SCENARIO_PILOT_2026-09-20.md` | 执行参考 | OW-21 纵向试点设计；当前唯一仍在推进的产品方向 |
+| `docs/superpowers/plans/2026-10-04-reference-stage-frontend.md` | 执行参考 | 当前前端方向的实施计划；Task 4 验证缺口未关闭 |
+
+### 当前雏形入口
+
+| 文档 | 状态 | 当前用途 |
+|---|---|---|
+| `docs/CURRENT/README.md` | 当前入口 | 雏形阶段的阅读顺序、状态语义和维护规则 |
+| `docs/CURRENT/01-product.md` | 当前摘要 | 产品方向假设和未冻结范围 |
+| `docs/CURRENT/02-decisions.md` | 当前摘要 | D-018–D-021 决策索引 |
+| `docs/CURRENT/03-prototype-scope-and-backlog.md` | 当前权威（雏形优先级） | 先做、暂缓和重新启动条件 |
+| `docs/CURRENT/04-implementation-facts.md` | 实现快照（2026-10-05） | 代码状态、验证边界和未确认项 |
+| `docs/CURRENT/05-boundaries.md` | 当前权威（硬约束摘要） | 稳定 ID、开放格式、归属、备份和零知识边界 |
+
+### 过期标注（仍保留，但不得作为当前实现依据）
+
+`DOCUMENT_AUDIT_2026-09-19.md`、`REACT_MIGRATION_2026-08-23.md`、`ENGINEERING_REVIEW_2026-08-22.md`（仅第 20 节有效）、`IMPLEMENTATION_BASELINE_2026-08-19.md`、`HANDOFF_2026-08-22.md`、`BERYL_DESIGN_README.md`、`Obsidian_calmy/README.md`、以及本册 2026-08-29 段落。以上文件均已加注过期眉批。
+
+### 待裁决与后续批次
+
+- 零知识边界（ADR-001）与多人模型定位已由 D-021 记录。
+- 归档移动（`docs/ARCHIVE/`）和 119 MB 截图台账外移仍待单独批准；`docs/CURRENT/` 的低风险入口和摘要结构已建立，原始专题文件仍保留原位。
+- 本轮发现但**未修**的代码问题：`src/core/content/open-format.ts` 的 `isRecord` 类型守卫不严谨（`OpenLegacyInboxHistory` 也带 `occurredAt`），导致 `vault-sync.ts:189` 类型错误使 `npm run build` 失败，且 inbox 历史文件的路径会落到 `50 Records/` 而非 `90 History/Inbox/`；`src/vue/pages/CompatibilityPlaceholderPage.vue` 仍向用户显示「已由 React 接管」。详见整理报告 §5.4。

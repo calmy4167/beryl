@@ -1,13 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import ElementPlus from 'element-plus'
 import type { FileSystemDirectoryHandleLike, FileSystemFileHandleLike } from '@/core/content/obsidian-adapter'
 import { exportOpenWorkspace } from '@/core/content/open-format'
 import { matterRepository } from '@/domain/matter/repository'
+import { setActiveAccount } from '@/core/account-context'
 import { assetRepository } from '@/core/content/assets'
 import type { Matter } from '@/domain/matter/model'
-import AdminView from '@/views/AdminView.vue'
+import AdminPage from '@/vue/pages/AdminPage.vue'
 
 const vaultHandleMocks = vi.hoisted(() => ({
   load: vi.fn(), save: vi.fn(), clear: vi.fn(), queryPermission: vi.fn(), requestPermission: vi.fn()
@@ -81,6 +82,7 @@ const localMatter: Matter = {
 
 describe('Admin Vault conflict review', () => {
   beforeEach(() => {
+    setActiveAccount('admin-vault-review-test-user')
     localStorage.clear()
     vaultHandleMocks.load.mockReset().mockResolvedValue(undefined)
     vaultHandleMocks.save.mockReset().mockResolvedValue(undefined)
@@ -90,6 +92,8 @@ describe('Admin Vault conflict review', () => {
     matterRepository.importEntity(localMatter)
     assetRepository.importAsset({ path: 'assets/evidence.bin', data: new Uint8Array([1, 2]), mimeType: 'application/octet-stream' })
   })
+
+  afterEach(() => setActiveAccount(null))
 
   it('shows manifest drift and exposes a decision control for external binary conflicts', async () => {
     const workspace = exportOpenWorkspace({ matters: [localMatter], assets: [{ path: 'assets/evidence.bin', data: new Uint8Array([1, 2]), mimeType: 'application/octet-stream' }] })
@@ -102,10 +106,10 @@ describe('Admin Vault conflict review', () => {
     await writeFile(root, 'assets/evidence.bin', new Uint8Array([3, 4]))
     Object.defineProperty(window, 'showDirectoryPicker', { configurable: true, value: async () => root })
 
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminView }] })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminPage }] })
     await router.push('/admin')
     await router.isReady()
-    const wrapper = mount(AdminView, { global: { plugins: [router, ElementPlus] } })
+    const wrapper = mount(AdminPage, { global: { plugins: [router, ElementPlus] } })
     try {
       await wrapper.findAll('button').find(button => button.text().includes('选择 Vault'))?.trigger('click')
       await wrapper.findAll('button').find(button => button.text().includes('扫描差异'))?.trigger('click')
@@ -123,10 +127,10 @@ describe('Admin Vault conflict review', () => {
   it('offers an explicit disconnect action after the user chooses a Vault', async () => {
     const root = new MemoryDirectory('test-vault')
     Object.defineProperty(window, 'showDirectoryPicker', { configurable: true, value: async () => root })
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminView }] })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminPage }] })
     await router.push('/admin')
     await router.isReady()
-    const wrapper = mount(AdminView, { global: { plugins: [router, ElementPlus] } })
+    const wrapper = mount(AdminPage, { global: { plugins: [router, ElementPlus] } })
     try {
       await wrapper.findAll('button').find(button => button.text().includes('选择 Vault'))?.trigger('click')
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -146,10 +150,10 @@ describe('Admin Vault conflict review', () => {
     const root = new MemoryDirectory('existing-vault')
     vaultHandleMocks.load.mockResolvedValue({ handle: root, name: root.name })
     vaultHandleMocks.queryPermission.mockResolvedValue('prompt')
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminView }] })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminPage }] })
     await router.push('/admin')
     await router.isReady()
-    const wrapper = mount(AdminView, { global: { plugins: [router, ElementPlus] } })
+    const wrapper = mount(AdminPage, { global: { plugins: [router, ElementPlus] } })
     try {
       await new Promise(resolve => setTimeout(resolve, 0))
       expect(vaultHandleMocks.requestPermission).not.toHaveBeenCalled()
@@ -169,10 +173,10 @@ describe('Admin Vault conflict review', () => {
     vaultHandleMocks.load.mockResolvedValue({ handle: root, name: root.name })
     vaultHandleMocks.queryPermission.mockResolvedValue('prompt')
     vaultHandleMocks.requestPermission.mockResolvedValue('denied')
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminView }] })
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/admin', component: AdminPage }] })
     await router.push('/admin')
     await router.isReady()
-    const wrapper = mount(AdminView, { global: { plugins: [router, ElementPlus] } })
+    const wrapper = mount(AdminPage, { global: { plugins: [router, ElementPlus] } })
     try {
       await new Promise(resolve => setTimeout(resolve, 0))
       await wrapper.findAll('button').find(button => button.text().includes('恢复 Vault 授权'))?.trigger('click')

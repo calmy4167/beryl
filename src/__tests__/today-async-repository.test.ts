@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -67,6 +67,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { setActiveAccount } from '../core/account-context'
 import { todayAsyncRepository } from '../domain/today/repository'
 import type { TodayPlan } from '../domain/today/model'
 
@@ -86,10 +87,12 @@ function plan(date: string, revision = 1): TodayPlan {
 
 describe('todayAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('today-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('reads and writes plans through the durable async seam', async () => {
     await expect(todayAsyncRepository.list()).resolves.toEqual([])

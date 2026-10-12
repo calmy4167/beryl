@@ -27,18 +27,45 @@ describe('read-only Reality Model migration audit', () => {
     expect(matterFromThing(thing)).toEqual(matter)
   })
 
+  it('audits multiple typed contexts against one stable content ID without rewriting the source snapshot', () => {
+    const person = unifiedFactories.person({ displayName: '照护者' })
+    const matter = matterFixture()
+    const thing = thingFromMatter(matter)
+    const scene = unifiedFactories.scene({ title: '门诊安排' })
+    const space = unifiedFactories.space({ title: '家庭照护', memberPersonIds: [person.calmyId], relationshipIds: [], thingIds: [], sceneIds: [] })
+    const domain = unifiedFactories.domain({ key: 'health', displayName: '健康' })
+    const financeRef = { entityType: 'finance_entry' as const, calmyId: 'finance-1' }
+    const timeRef = { entityType: 'time' as const, calmyId: '2026-10' }
+    const relations = [
+      unifiedFactories.relation({ from: financeRef, to: { entityType: 'person', calmyId: person.calmyId }, relationType: 'subject_of', directed: true, sourceIds: [] }),
+      unifiedFactories.relation({ from: financeRef, to: { entityType: 'domain', calmyId: domain.calmyId }, relationType: 'belongs_to_domain', directed: true, sourceIds: [] }),
+      unifiedFactories.relation({ from: financeRef, to: { entityType: 'thing', calmyId: thing.calmyId }, relationType: 'context_of', directed: true, sourceIds: [] }),
+      unifiedFactories.relation({ from: financeRef, to: { entityType: 'scene', calmyId: scene.calmyId }, relationType: 'used_in', directed: true, sourceIds: [] }),
+      unifiedFactories.relation({ from: financeRef, to: { entityType: 'space', calmyId: space.calmyId }, relationType: 'context_of', directed: true, sourceIds: [] }),
+      unifiedFactories.relation({ from: financeRef, to: timeRef, relationType: 'context_of', directed: true, sourceIds: [] })
+    ]
+    const snapshot = {
+      ...emptySnapshot(), people: [person], matters: [matter], things: [thing], scenes: [scene], spaces: [space],
+      domains: [domain], relations, otherEntityRefs: [financeRef, timeRef]
+    }
+    const before = JSON.stringify(snapshot)
+
+    expect(auditRealityModelMigration(snapshot)).toMatchObject({ issueCount: 0, counts: { relations: 6 } })
+    expect(JSON.stringify(snapshot)).toBe(before)
+  })
+
   it('emits stable issues for identity, projection, relation, ownership, permission, scope, and legacy Scene problems', () => {
     const person = {
       ...unifiedFactories.person({ displayName: 'Person' }),
       calmyId: 'duplicate-id', linkedUserId: 'missing-user',
-      ownership: { ownerRef: { type: 'person' as const, id: 'unknown-owner' }, stewardRefs: [] }
+      ownership: { ownerRef: { type: 'organization' as const, id: 'unknown-organization' }, stewardRefs: [] }
     }
     const sameIdScene = { ...unifiedFactories.scene({ title: 'Collision', status: 'draft' }), calmyId: 'duplicate-id' }
     const legacyConfigScene = { ...unifiedFactories.scene({ title: '旧静态配置同 ID' }), calmyId: 'personal' }
     const matter = matterFixture()
     const thing = { ...thingFromMatter(matter), title: '被改过的投影' }
     const relation = unifiedFactories.relation({
-      from: { entityType: 'person', calmyId: person.calmyId }, to: { entityType: 'thing', calmyId: 'missing-thing' },
+      from: { entityType: 'thing', calmyId: 'missing-thing' }, to: { entityType: 'person', calmyId: person.calmyId },
       relationType: 'subject_of', directed: true, sourceIds: []
     })
     const scope = unifiedFactories.scope({ personId: 'missing-person', domainId: 'missing-domain', thingId: 'missing-thing', sceneId: 'missing-scene', spaceId: 'missing-space' })

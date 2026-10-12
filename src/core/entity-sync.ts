@@ -11,7 +11,7 @@ export interface EntitySyncCursor { ts: number; device: string; entity: string; 
 export interface EntitySyncRecord { entity: string; entityId: string; value?: unknown; updatedAt: number; device: string; deleted?: boolean }
 
 const ENTITY_COLLECTIONS = [
-  'tasks', 'inbox', 'habits', 'goals', 'finance', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments', 'matters',
+  'tasks', 'inbox', 'inboxHistory', 'habits', 'goals', 'finance', 'financeMutations', 'diary', 'chars', 'posts', 'cases', 'caseRelations', 'moments', 'matters',
   'mvpTodayPlans', 'calmyCaptures', 'calmySuggestions',
   ...CORE_ENTITY_TYPES.map(type => `core:${type}`)
 ]

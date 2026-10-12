@@ -1,8 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { CoreDomainError, unifiedFactories, unifiedRepository, type Relationship, type SharedSpace, type Stage } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
+import { resetStoreCache } from '@/core/storage'
 
 describe('unified Personal OS domain', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('unified-domain-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a stable Person and records a mutation', () => {
     const person = unifiedRepository.create(unifiedFactories.person({ displayName: '林默', roles: ['partner'] }))
@@ -10,6 +13,20 @@ describe('unified Personal OS domain', () => {
     expect(person.calmyId).toBeTruthy()
     expect(unifiedRepository.find('person', person.calmyId)).toMatchObject({ displayName: '林默', revision: 1 })
     expect(unifiedRepository.mutations('person', person.calmyId)).toHaveLength(1)
+  })
+
+  it('requires canonical Person rows for Space membership', () => {
+    expect(() => unifiedRepository.create(unifiedFactories.space({
+      title: '家庭空间', memberPersonIds: ['missing-person'], relationshipIds: [], thingIds: [], sceneIds: [], status: 'active'
+    }))).toThrowError(/person missing-person not found/)
+    expect(() => unifiedRepository.create(unifiedFactories.space({
+      title: '家庭空间', memberPersonIds: [], relationshipIds: ['missing-relationship'], thingIds: [], sceneIds: [], status: 'active'
+    }))).toThrowError(/relationship missing-relationship not found/)
+
+    const person = unifiedRepository.create(unifiedFactories.person({ displayName: '家庭成员' }))
+    expect(unifiedRepository.create(unifiedFactories.space({
+      title: '家庭空间', memberPersonIds: [person.calmyId], relationshipIds: [], thingIds: [], sceneIds: [], status: 'active'
+    })).memberPersonIds).toEqual([person.calmyId])
   })
 
   it('protects updates with expected revisions and preserves command idempotency', () => {
@@ -55,6 +72,30 @@ describe('unified Personal OS domain', () => {
     expect(unifiedRepository.find('cycle', cycle.calmyId)).toMatchObject({ status: 'active', revision: 4 })
     expect(unifiedRepository.find('stage', stage.calmyId)).toMatchObject({ status: 'completed', revision: 3 })
     expect(() => unifiedRepository.transitionCycle(cycle.calmyId, 'planned')).toThrowError(CoreDomainError)
+  })
+
+  it.each([
+    ['draft', 'draft', true], ['draft', 'active', true], ['draft', 'paused', false], ['draft', 'completed', false], ['draft', 'archived', true],
+    ['active', 'draft', false], ['active', 'active', true], ['active', 'paused', true], ['active', 'completed', true], ['active', 'archived', true],
+    ['paused', 'draft', false], ['paused', 'active', true], ['paused', 'paused', true], ['paused', 'completed', true], ['paused', 'archived', true],
+    ['completed', 'draft', false], ['completed', 'active', false], ['completed', 'paused', false], ['completed', 'completed', true], ['completed', 'archived', true],
+    ['archived', 'draft', false], ['archived', 'active', false], ['archived', 'paused', false], ['archived', 'completed', true], ['archived', 'archived', true]
+  ] as const)('enforces the Scene lifecycle transition %s → %s', (from, to, allowed) => {
+    const scene = unifiedRepository.create(unifiedFactories.scene({ title: `${from} → ${to}`, status: from }))
+    const commandId = `scene-transition:${scene.calmyId}:${to}`
+
+    if (!allowed) {
+      expect(() => unifiedRepository.transitionScene(scene.calmyId, to, { expectedRevision: 1, commandId })).toThrowError(CoreDomainError)
+      expect(unifiedRepository.find('scene', scene.calmyId)).toMatchObject({ status: from, revision: 1 })
+      return
+    }
+
+    const transitioned = unifiedRepository.transitionScene(scene.calmyId, to, { expectedRevision: 1, commandId })
+    const replay = unifiedRepository.transitionScene(scene.calmyId, to, { expectedRevision: 1, commandId })
+    expect(transitioned).toMatchObject({ status: to, revision: 2 })
+    expect(replay).toEqual(transitioned)
+    expect(() => unifiedRepository.transitionScene(scene.calmyId, to, { expectedRevision: 1, commandId: `${commandId}:stale` })).toThrowError(CoreDomainError)
+    expect(unifiedRepository.find('scene', scene.calmyId)).toMatchObject({ status: to, revision: 2 })
   })
 
   it('binds stages to their cycle and exposes matter-scoped queries', () => {

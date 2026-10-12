@@ -4,8 +4,7 @@ import { defineComponent, h } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/core/auth', () => ({
-  readSession: () => ({ u: 'fixture-user' }),
-  ensureAuth: async () => ({ u: 'fixture-user', _d: false }),
+  readServerSession: () => ({ token: 'server-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'fixture-user', username: 'fixture-user', displayName: 'Fixture', role: 'user' }, mustChangePassword: false, validatedAt: Date.now() }),
 }))
 vi.mock('@/core/scenes', () => ({ currentSceneId: () => 'personal', applySceneTheme: vi.fn() }))
 vi.mock('@/core/storage', () => ({ lsGet: () => 'personal' }))

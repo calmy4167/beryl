@@ -50,8 +50,8 @@ export const sync = reactive<SyncState>({
   , lastError: ''
 })
 
-export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
-const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
+export const SYNC_KEYS = ['b_tasks', 'b_inbox', 'b_inboxHistory', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments', 'b_pomoTotal', 'b_pomoCount', 'b_scene']
+const ENTITY_SYNC_KEYS = new Set(['b_tasks', 'b_inbox', 'b_inboxHistory', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
 interface SyncVersion { ts: number; device: string }
 const LOCAL_VERSION_META_KEY = 'b_sync_versions'
 

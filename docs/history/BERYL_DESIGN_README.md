@@ -1,5 +1,7 @@
 # Beryl 个人管理体系 — 设计与维护文档
 
+> ⚠️ **已过期（2026-10-05 标注）**：本文的「维护约定：每次网页有任何改动，必须同步更新本文档」已不适用——它指向的 v1 单文件 `index.html` 与旧 KV 实现早已不在仓库中（当前入口为 `index.html → src/main.ts`）。本文只作 Beryl 迁移来源追溯。整理依据见 [`DOCUMENT_CONSOLIDATION_2026-10-05.md`](../DOCUMENT_CONSOLIDATION_2026-10-05.md)。
+
 > **历史参考**：这是 Beryl 旧体系与迁移来源，不再作为 Calmy 当前产品或 UI 基线。当前入口见 [`../README.md`](../README.md)，状态说明见 [`../product/DOCUMENT_REGISTER.md`](../product/DOCUMENT_REGISTER.md)。
 
 > 本文档是 `index.html` 的完整设计说明与维护日志。

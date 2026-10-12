@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -63,6 +63,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { socialAsyncRepository } from '../domain/social/repository'
 import type { SocialPost } from '../domain/social/model'
 
@@ -81,13 +82,15 @@ function post(id: string, createdAt = 1): SocialPost {
 
 describe('socialAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('social-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('reads the durable moments snapshot instead of stale localStorage', async () => {
-    localStorage.setItem('b_moments', JSON.stringify([post('stale')]))
+    localStorage.setItem(accountStorageKey('b_moments'), JSON.stringify([post('stale')]))
     durable.values.set('b_moments', JSON.stringify([post('durable')]))
 
     await expect(socialAsyncRepository.list()).resolves.toEqual([post('durable')])

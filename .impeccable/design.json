@@ -1,0 +1,25 @@
+{
+  "name": "Calmy Reference Stage",
+  "version": 1,
+  "tokens": {
+    "canvas": { "light": "#f6f5f2", "dark": "#0a0a0b" },
+    "ink": { "light": "#1c1c1e", "dark": "#ededed" },
+    "muted": { "light": "#6b6b62", "dark": "#8a8a90" },
+    "line": { "light": "#ddd9d0", "dark": "#232326" },
+    "accent": { "light": "#2555d4", "dark": "#c8ff4d" },
+    "panel": { "light": "#ffffff", "dark": "#111113" },
+    "panelSubtle": { "light": "#fbfaf7", "dark": "#151517" },
+    "contentWidth": "1040px",
+    "wideContentWidth": "1440px",
+    "pageRadius": "10px",
+    "controlRadius": "6px"
+  },
+  "components": {
+    "shell": "src/vue/shell/AppShell.vue",
+    "toolbar": "src/vue/shell/StageToolbar.vue",
+    "navigation": "src/vue/shell/StageNavigation.vue",
+    "directory": "src/vue/shell/StageDirectory.vue",
+    "commandPalette": "src/vue/shell/StageCommandPalette.vue",
+    "tokens": "src/styles/shared/reference-stage.css"
+  }
+}

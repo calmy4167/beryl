@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ActionDomainError } from '@/domain/action/model'
 import { actionRepository } from '@/domain/action/repository'
 import { todayRepository } from '@/domain/today/repository'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('actionRepository', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('action-today-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a planned action for a date', () => {
     const action = actionRepository.create({ title: '完成登录模块最小闭环', date: '2026-08-19', matterId: 'mat-1' })
@@ -41,7 +43,8 @@ describe('actionRepository', () => {
 })
 
 describe('todayRepository', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('action-today-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a stable daily plan and updates opening answers', () => {
     const first = todayRepository.get('2026-08-19')

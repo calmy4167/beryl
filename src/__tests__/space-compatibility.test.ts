@@ -1,11 +1,14 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { setActiveAccount } from '@/core/account-context'
+import { resetStoreCache } from '@/core/storage'
 import { sharedSpaceFromSpace, spaceFromSharedSpace } from '@/domain/unified/model'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified/repository'
 import { assertSpaceAllowsNewCollaborativeWrites, createCollaborativeSharedSpace, readSpaceCompatibilityProjection, sharedWriteAccess, spaceCollaborativeWritesOpen, writeSpaceCompatibilityProjection } from '@/domain/social/collaboration'
 import { matterRepository } from '@/domain/matter/repository'
 
 describe('SharedSpace to Space compatibility', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('space-compatibility-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => setActiveAccount(null))
 
   it('preserves old access boundaries during the canonical Space projection', () => {
     const shared = unifiedFactories.sharedSpace({

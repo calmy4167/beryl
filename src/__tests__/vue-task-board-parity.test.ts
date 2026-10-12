@@ -3,6 +3,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import TaskBoardPage from '@/vue/pages/TaskBoardPage.vue'
@@ -20,8 +21,8 @@ async function openBoard() {
   return { page: wrapper, router }
 }
 describe('Vue TaskBoard parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('vue-task-board-parity-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
   it('uses native selects for the matter filter and each card status, matching the React route', async () => {
     const matter = await matterAsyncRepository.create({ title: '选择器事项' })
     const item = await actionAsyncRepository.create({ title: '选择器任务', date: '2026-10-01', matterId: matter.calmyId })

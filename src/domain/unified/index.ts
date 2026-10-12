@@ -1,4 +1,7 @@
 export * from './model'
 export * from './repository'
+export * from './module-catalog'
 export { matterFromThing, thingFromMatter } from '../matter/model'
 export type { Thing } from '../matter/model'
+export { financeRepository, financeAsyncRepository } from '../finance/repository'
+export type { FinanceEntry } from '../finance/repository'

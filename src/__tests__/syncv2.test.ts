@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, it, expect, beforeAll, afterEach } from 'vitest'
 import { webcrypto } from 'node:crypto'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 
 // jsdom 无 crypto.subtle，注入 Node webcrypto
 beforeAll(() => {
@@ -69,18 +70,22 @@ describe('增量合并 LWW（阶段 3 规则）', async () => {
 
 describe('数据版本迁移（阶段 2）', async () => {
   it('migrateData 写回当前版本', async () => {
-    localStorage.setItem('b_version', '2')
+    setActiveAccount('syncv2-migration-test-user')
+    localStorage.setItem(accountStorageKey('b_version'), '2')
     const { migrateData, DATA_VERSION } = await import('@/core/migrate')
     migrateData()
-    expect(Number(localStorage.getItem('b_version'))).toBe(DATA_VERSION)
+    expect(Number(localStorage.getItem(accountStorageKey('b_version')))).toBe(DATA_VERSION)
     expect(DATA_VERSION).toBe(4)
+    setActiveAccount(null)
   })
 
   it('已是当前版本时不重复执行', async () => {
-    localStorage.setItem('b_version', '4')
+    setActiveAccount('syncv2-current-version-test-user')
+    localStorage.setItem(accountStorageKey('b_version'), '4')
     const { migrateData } = await import('@/core/migrate')
     migrateData()
-    expect(localStorage.getItem('b_version')).toBe('4')
+    expect(localStorage.getItem(accountStorageKey('b_version'))).toBe('4')
+    setActiveAccount(null)
   })
 })
 

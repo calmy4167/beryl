@@ -59,12 +59,17 @@ export interface BridgeWorkspaceImportPreviewMessage extends BridgeMessageBase<'
   added_ids: string[]
   unchanged_ids: string[]
   conflict_ids: string[]
+  /** Typed identities added in v3; legacy ID arrays remain for older bridge clients. */
+  added_identity_keys?: string[]
+  unchanged_identity_keys?: string[]
+  conflict_identity_keys?: string[]
   asset_conflict_paths: string[]
   missing_asset_paths: string[]
   orphan_asset_paths: string[]
   issues: Array<{ path: string; code: string; message: string }>
   conflict_previews?: BridgeConflictPreview[]
   tombstone_ids?: string[]
+  tombstone_identity_keys?: string[]
 }
 
 export interface BridgeWorkspaceImportApplyMessage extends BridgeMessageBase<'workspace_import_apply'> {
@@ -306,12 +311,16 @@ export function parseCompanionMessage(input: unknown): CompanionMessage {
         added_ids: requireStringArray(input, 'added_ids'),
         unchanged_ids: requireStringArray(input, 'unchanged_ids'),
         conflict_ids: requireStringArray(input, 'conflict_ids'),
+        added_identity_keys: optionalStringArray(input, 'added_identity_keys'),
+        unchanged_identity_keys: optionalStringArray(input, 'unchanged_identity_keys'),
+        conflict_identity_keys: optionalStringArray(input, 'conflict_identity_keys'),
         asset_conflict_paths: requireStringArray(input, 'asset_conflict_paths'),
         missing_asset_paths: requireStringArray(input, 'missing_asset_paths'),
         orphan_asset_paths: requireStringArray(input, 'orphan_asset_paths'),
         issues: requireIssueArray(input, 'issues'),
         conflict_previews: optionalConflictPreviews(input),
-        tombstone_ids: optionalStringArray(input, 'tombstone_ids')
+        tombstone_ids: optionalStringArray(input, 'tombstone_ids'),
+        tombstone_identity_keys: optionalStringArray(input, 'tombstone_identity_keys')
       }
     case 'workspace_import_apply':
       return {

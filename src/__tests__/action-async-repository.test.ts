@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -63,6 +63,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { actionAsyncRepository } from '../domain/action/repository'
 import type { ActionItem } from '../domain/action/model'
 
@@ -80,13 +81,15 @@ function action(calmyId: string, revision = 1): ActionItem {
 
 describe('actionAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('action-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('reads the durable snapshot instead of stale localStorage', async () => {
-    localStorage.setItem('b_mvpActions', JSON.stringify([action('stale')]))
+    localStorage.setItem(accountStorageKey('b_mvpActions'), JSON.stringify([action('stale')]))
     durable.values.set('b_mvpActions', JSON.stringify([action('durable')]))
 
     await expect(actionAsyncRepository.list()).resolves.toEqual([action('durable')])
@@ -131,8 +134,8 @@ describe('actionAsyncRepository', () => {
       id: 'mutation-1', entity: 'action', entityId: durableAction.calmyId, operation: 'create', commandId: 'durable-command',
       actor: 'user', actorId: 'local-user', sourceIds: [], fromRevision: 0, toRevision: 1, occurredAt: 1, patch: durableAction
     }
-    localStorage.setItem('b_actionMutations', JSON.stringify([{ ...durableMutation, id: 'stale-mutation' }]))
-    localStorage.setItem('b_actionCommands', JSON.stringify([{ id: 'durable-command', result: action('stale-action') }]))
+    localStorage.setItem(accountStorageKey('b_actionMutations'), JSON.stringify([{ ...durableMutation, id: 'stale-mutation' }]))
+    localStorage.setItem(accountStorageKey('b_actionCommands'), JSON.stringify([{ id: 'durable-command', result: action('stale-action') }]))
     durable.values.set('b_actionMutations', JSON.stringify([durableMutation]))
     durable.values.set('b_actionCommands', JSON.stringify([{ id: 'durable-command', result: durableAction }]))
 

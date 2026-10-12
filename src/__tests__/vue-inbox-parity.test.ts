@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache, store } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { undoLastAsync } from '@/core/undo'
 import { captureAsyncRepository } from '@/domain/capture'
 import { actionAsyncRepository } from '@/domain/action/repository'
@@ -37,6 +38,7 @@ async function chooseFilter(value: string) {
 
 describe('Vue Inbox parity', () => {
   beforeEach(() => {
+    setActiveAccount('vue-inbox-parity-test-user')
     localStorage.clear()
     resetStoreCache()
     messages.length = 0
@@ -46,6 +48,7 @@ describe('Vue Inbox parity', () => {
     page?.unmount()
     page = undefined
     window.removeEventListener('beryl-toast', onToast)
+    setActiveAccount(null)
     vi.restoreAllMocks()
   })
 
@@ -92,7 +95,9 @@ describe('Vue Inbox parity', () => {
     await openInbox()
     expect(page!.get('[aria-label="收集筛选"]').element.tagName).toBe('SELECT')
     const controlsCss = readFileSync(resolve(process.cwd(), 'src/styles/controls.css'), 'utf8')
-    expect(controlsCss).toContain('html.tactile-ui #app .page-container .inbox-page select')
+    // 原生 select 的外观来自全局规则（迁移期那条 `html.tactile-ui … .inbox-page select` 运行期不生效，第 32 轮删除）
+    expect(controlsCss).toContain('html :where(select:not([multiple]):not([size]):not(.matter-trajectory-select))')
+    expect(controlsCss).not.toMatch(/html\.tactile-ui[^{]*\{/)
   })
   it('lists all filter states in the native select', async () => {
     await openInbox()

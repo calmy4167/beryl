@@ -9,7 +9,17 @@ import type { Matter } from '@/domain/matter/model'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import type { RealityRecord } from '@/domain/record/model'
 import { unifiedAsyncRepository, type DailyState } from '@/domain/unified'
+import { readServerSession } from '@/core/auth'
+import type { Ownership, Person } from '@/domain/unified/model'
 import { useActionStatusDictionary } from '@/vue/composables/useActionStatusDictionary'
+import ContextRelationPicker from '@/vue/components/ContextRelationPicker.vue'
+import DomainPicker from '@/vue/components/DomainPicker.vue'
+import OwnershipEditor from '@/vue/components/OwnershipEditor.vue'
+import { useOwnSlideHead } from '@/vue/liubai/slide-head'
+import LbPanel from '@/vue/liubai/LbPanel.vue'
+
+// 页面自带头部（参考稿里 .slide-head 属于页面自身），外壳因此不再渲染第二行标题。
+useOwnSlideHead()
 
 interface Cell { date: string; day: number; inMonth: boolean }
 interface Evidence { actions: ActionItem[]; records: RealityRecord[]; state?: DailyState }
@@ -58,12 +68,15 @@ function formatTime(timestamp: number): string { return new Date(timestamp).toLo
 
 const route = useRoute()
 const router = useRouter()
+const currentUserId = readServerSession()?.user.id
 const { labelFor: actionStatusLabel } = useActionStatusDictionary()
 const initialDate = isDateKey(route.query.date) ? route.query.date : todayKey()
 const selectedDate = ref(initialDate)
 const cursor = ref(monthStart(initialDate))
 const data = ref<Data>({ actions: [], records: [], matters: [], states: [] })
+const people = ref<Person[]>([])
 const loading = ref(true)
+const ownershipBusy = ref(false)
 const error = ref('')
 let active = true
 watch(() => route.query.date, value => {
@@ -75,11 +88,11 @@ async function refresh(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    const [actions, records, matters, states] = await Promise.all([
+    const [actions, records, matters, states, currentPeople] = await Promise.all([
       actionAsyncRepository.list(), recordAsyncRepository.list(), matterAsyncRepository.list(),
-      unifiedAsyncRepository.list<DailyState>('daily_state'),
+      unifiedAsyncRepository.list<DailyState>('daily_state'), unifiedAsyncRepository.list<Person>('person')
     ])
-    if (active) data.value = { actions, records, matters, states }
+    if (active) { data.value = { actions, records, matters, states }; people.value = currentPeople }
   } catch (reason) {
     if (active) error.value = reason instanceof Error ? reason.message : '日历数据读取失败'
   } finally { if (active) loading.value = false }
@@ -131,67 +144,108 @@ function shiftMonth(amount: number): void { cursor.value = new Date(cursor.value
 function goToday(): void { selectDate(todayKey()) }
 function openToday(): void { void router.push(`/app/today?date=${encodeURIComponent(selectedDate.value)}`) }
 function openMatter(matterId: string): void { void router.push(`/app/matters/${encodeURIComponent(matterId)}`) }
+async function saveDailyStateOwnership(ownership: Ownership | undefined): Promise<void> {
+  const state = selectedState.value
+  if (!state) return
+  ownershipBusy.value = true
+  try {
+    const updated = await unifiedAsyncRepository.update<DailyState>('daily_state', state.calmyId, { ownership }, {
+      expectedRevision: state.revision, actor: 'user', actorId: currentUserId || 'local-user'
+    })
+    data.value = { ...data.value, states: data.value.states.map(item => item.calmyId === updated.calmyId ? updated : item) }
+    window.dispatchEvent(new CustomEvent('beryl-data-synced'))
+    window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message: '每日状态归属已保存', kind: 'success' } }))
+  } catch (cause) {
+    window.dispatchEvent(new CustomEvent('beryl-toast', { detail: { message: cause instanceof Error ? cause.message : '每日状态归属保存失败', kind: 'error' } }))
+  } finally { ownershipBusy.value = false }
+}
 </script>
 
 <template>
-  <div class="calendar-page">
-    <header class="page-head calendar-head"><div><p class="eyebrow">日历 · 行动与记录</p><h1 class="font-title">日历</h1><p>按日期回看行动、记录和当天状态，必要时回到今天或对应处境继续处理。</p></div><div class="calendar-controls" aria-label="月份切换"><button type="button" aria-label="上一个月" @click="shiftMonth(-1)">←</button><button type="button" class="month-label" aria-label="回到今天" @click="goToday">{{ monthLabel }}</button><button type="button" aria-label="下一个月" @click="shiftMonth(1)">→</button></div></header>
-    <section v-if="error" class="beryl-card empty-state" role="alert" style="padding:14px;color:var(--c-danger);margin-bottom:16px"><b>日历数据暂时无法读取</b><p>{{ error }}</p><button type="button" class="quiet" @click="retry">重试</button></section>
-    <div class="calendar-layout"><section class="month-panel beryl-card" :aria-label="`${monthLabel}日历`"><div class="week-row" aria-hidden="true"><span v-for="day in weekdays" :key="day">{{ day }}</span></div><div class="month-grid"><button v-for="cell in cells" :key="cell.date" type="button" class="calendar-cell" :class="{ outside: !cell.inMonth, selected: cell.date === selectedDate, today: cell.date === todayKey() }" :aria-label="`${cell.date}${cell.date === todayKey() ? '，今天' : ''}${cell.date === selectedDate ? '，已选中' : ''}`" :aria-pressed="cell.date === selectedDate" @click="selectDate(cell.date)"><span aria-hidden="true">{{ cell.day }}</span><span v-if="evidenceFor(cell.date).actions.length || evidenceFor(cell.date).records.length || evidenceFor(cell.date).state" class="cell-dots" aria-hidden="true"><i v-if="evidenceFor(cell.date).actions.length" class="action-dot" /><i v-if="evidenceFor(cell.date).records.length" class="record-dot" /><i v-if="evidenceFor(cell.date).state" class="state-dot" /></span></button></div><div class="calendar-legend" style="display:flex;gap:12px;margin-top:12px;color:var(--c-text-3);font-size:10px"><span><i class="action-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px" />行动</span><span><i class="record-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:#7c75b7" />记录</span><span><i class="state-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:#c8874d" />状态</span></div></section>
-      <aside class="day-panel"><section class="selected-day beryl-card"><div class="panel-head"><div><p class="eyebrow">选中日期</p><h2 class="font-title">{{ selectedDate }}</h2></div><button type="button" class="quiet" @click="openToday">打开今天 →</button></div><div class="day-metrics"><span>行动 <ActionCount /></span><span>记录 <b>{{ selectedEvidence.records.length }}</b></span><span v-if="selectedState">负荷 <b>{{ selectedState.load }}%</b></span></div><div v-if="selectedState" class="state-line"><b>身体：{{ statusLabels[selectedState.bodyState] || selectedState.bodyState }}</b><span>心理：{{ statusLabels[selectedState.mentalState] || selectedState.mentalState }}</span><strong>趋势：{{ trajectoryLabels[selectedState.trajectory] || selectedState.trajectory }}</strong></div><p v-else class="muted">这一天没有 DailyState，不对容量做空白推断。</p><div class="day-list"><div v-for="item in selectedEvidence.actions" :key="item.calmyId"><i :class="{ done: item.status === 'done' }" /><span>{{ item.title }}</span><small>{{ actionStatusLabel(item.status) }}</small></div><p v-if="!selectedEvidence.actions.length" class="muted">没有行动证据。</p></div></section></aside></div>
-    <section class="evidence-panel beryl-card" aria-labelledby="calendar-evidence-title"><div class="panel-head"><div><p class="eyebrow">现实记录 · {{ selectedDate }}</p><h2 id="calendar-evidence-title" class="font-title">当天行动与记录</h2></div><span>{{ loading ? '正在读取…' : `${selectedEvidence.actions.length + selectedEvidence.records.length} 条证据` }}</span></div><div class="evidence-section"><h3>行动</h3><div class="record-list"><div v-for="item in selectedEvidence.actions" :key="`action-${item.calmyId}`" class="evidence-row"><i /><div class="evidence-copy"><b>{{ item.title }}</b><small>{{ actionStatusLabel(item.status) }}{{ item.matterId && matterById.get(item.matterId) ? ` · ${matterById.get(item.matterId)?.title}` : '' }}</small></div><div class="evidence-actions"><small>行动</small><button v-if="item.matterId && matterById.get(item.matterId)" type="button" @click="openMatter(item.matterId)">查看处境</button></div></div><p v-if="!selectedEvidence.actions.length" class="muted">当天没有行动证据。</p></div></div><div class="evidence-section"><h3>现实记录</h3><div class="record-list"><div v-for="item in selectedEvidence.records" :key="`record-${item.calmyId}`" class="evidence-row"><i class="record" /><div class="evidence-copy"><b>{{ item.body }}</b><small>{{ formatTime(item.occurredAt) }} · {{ statusLabels[item.type] || item.type }}{{ item.matterId && matterById.get(item.matterId) ? ` · ${matterById.get(item.matterId)?.title}` : '' }}</small></div><div class="evidence-actions"><small>记录</small><button v-if="item.matterId && matterById.get(item.matterId)" type="button" @click="openMatter(item.matterId)">查看处境</button></div></div><p v-if="!selectedEvidence.records.length" class="muted">当天没有现实记录。</p></div></div></section>
-    <section class="evidence-panel beryl-card" style="margin-top:16px"><div class="panel-head"><div><p class="eyebrow">本月处境 · {{ monthPrefix }}</p><h2 class="font-title">本月有记录的处境</h2></div><span>行动与记录</span></div><div class="record-list"><div v-for="item in monthlyMatters" :key="item.matter.calmyId" class="evidence-row"><i /><div class="evidence-copy"><b>{{ item.matter.title }}</b><small>{{ item.count }} 条本月证据 · {{ item.matter.currentStage }}</small></div><div class="evidence-actions"><button type="button" @click="openMatter(item.matter.calmyId)">打开处境 →</button></div></div><p v-if="!monthlyMatters.length" class="muted">本月还没有关联课题的证据。</p></div></section>
-  </div>
+  <header class="slide-head">
+    <div class="head-main">
+      <p class="hint">日历 · 行动与记录</p>
+      <div class="head-title-row">
+        <h2 v-if="loading">正在读取…</h2>
+        <h2 v-else>{{ monthLabel }}，<em>{{ selectedEvidence.actions.length + selectedEvidence.records.length }}</em> 条证据。</h2>
+        <span class="info" tabindex="0" data-tip="按日期回看行动、记录和当天状态；必要时回到今天或对应处境继续处理。H 收起辅助信息。" aria-label="日历说明">i</span>
+      </div>
+    </div>
+    <div class="calendar-controls" aria-label="月份切换"><button class="chip" type="button" aria-label="上一个月" @click="shiftMonth(-1)">←</button><button class="chip month-label" type="button" aria-label="回到今天" @click="goToday">{{ monthLabel }}</button><button class="chip" type="button" aria-label="下一个月" @click="shiftMonth(1)">→</button></div>
+  </header>
+    <section v-if="error" class="panel calendar-error" role="alert"><b>日历数据暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="retry">重试</button></section>
+    <div class="calendar-layout"><section class="month-panel panel" :aria-label="`${monthLabel}日历`"><div class="week-row" aria-hidden="true"><span v-for="day in weekdays" :key="day">{{ day }}</span></div><div class="month-grid"><button v-for="cell in cells" :key="cell.date" type="button" class="calendar-cell" :class="{ outside: !cell.inMonth, selected: cell.date === selectedDate, today: cell.date === todayKey() }" :aria-label="`${cell.date}${cell.date === todayKey() ? '，今天' : ''}${cell.date === selectedDate ? '，已选中' : ''}`" :aria-pressed="cell.date === selectedDate" @click="selectDate(cell.date)"><span aria-hidden="true">{{ cell.day }}</span><span v-if="evidenceFor(cell.date).actions.length || evidenceFor(cell.date).records.length || evidenceFor(cell.date).state" class="cell-dots" aria-hidden="true"><i v-if="evidenceFor(cell.date).actions.length" class="action-dot" /><i v-if="evidenceFor(cell.date).records.length" class="record-dot" /><i v-if="evidenceFor(cell.date).state" class="state-dot" /></span></button></div><div class="calendar-legend"><span><i class="action-dot" />行动</span><span><i class="record-dot" />记录</span><span><i class="state-dot" />状态</span></div></section>
+      <aside class="day-panel"><section class="selected-day panel"><div class="panel-head"><div><p class="eyebrow">选中日期</p><h2>{{ selectedDate }}</h2></div><button type="button" class="quiet" @click="openToday">打开今天 →</button></div><div class="day-metrics"><span>行动 <ActionCount /></span><span>记录 <b>{{ selectedEvidence.records.length }}</b></span><span v-if="selectedState">负荷 <b>{{ selectedState.load }}%</b></span></div><div v-if="selectedState" class="state-line"><b>身体：{{ statusLabels[selectedState.bodyState] || selectedState.bodyState }}</b><span>心理：{{ statusLabels[selectedState.mentalState] || selectedState.mentalState }}</span><strong>趋势：{{ trajectoryLabels[selectedState.trajectory] || selectedState.trajectory }}</strong></div><template v-if="selectedState"><DomainPicker :entity-ref="{ entityType: 'daily_state', calmyId: selectedState.calmyId }" /><ContextRelationPicker :entity-ref="{ entityType: 'daily_state', calmyId: selectedState.calmyId }" :target-types="['person', 'thing', 'scene', 'space']" /><OwnershipEditor :ownership="selectedState.ownership" :people="people" :current-user-id="currentUserId" :disabled="ownershipBusy || loading" label="每日状态归属与隐私" @save="saveDailyStateOwnership" /></template><p v-else class="dim">这一天没有 DailyState，不对容量做空白推断。</p><div class="day-list"><div v-for="item in selectedEvidence.actions" :key="item.calmyId"><i :class="{ done: item.status === 'done' }" /><span>{{ item.title }}</span><small>{{ actionStatusLabel(item.status) }}</small></div><p v-if="!selectedEvidence.actions.length" class="dim">没有行动证据。</p></div></section></aside></div>
+    <LbPanel class="evidence-panel" title="当天行动与记录" :note="loading ? '正在读取…' : `${selectedEvidence.actions.length + selectedEvidence.records.length} 条证据`"><div class="evidence-section"><h3>行动</h3><div class="record-list"><div v-for="item in selectedEvidence.actions" :key="`action-${item.calmyId}`" class="evidence-row"><i /><div class="evidence-copy"><b>{{ item.title }}</b><small>{{ actionStatusLabel(item.status) }}{{ item.matterId && matterById.get(item.matterId) ? ` · ${matterById.get(item.matterId)?.title}` : '' }}</small></div><div class="evidence-actions"><small>行动</small><button v-if="item.matterId && matterById.get(item.matterId)" class="chip" type="button" @click="openMatter(item.matterId)">查看处境</button></div></div><p v-if="!selectedEvidence.actions.length" class="dim">当天没有行动证据。</p></div></div><div class="evidence-section"><h3>现实记录</h3><div class="record-list"><div v-for="item in selectedEvidence.records" :key="`record-${item.calmyId}`" class="evidence-row"><i class="record" /><div class="evidence-copy"><b>{{ item.body }}</b><small>{{ formatTime(item.occurredAt) }} · {{ statusLabels[item.type] || item.type }}{{ item.matterId && matterById.get(item.matterId) ? ` · ${matterById.get(item.matterId)?.title}` : '' }}</small></div><div class="evidence-actions"><small>记录</small><button v-if="item.matterId && matterById.get(item.matterId)" class="chip" type="button" @click="openMatter(item.matterId)">查看处境</button></div></div><p v-if="!selectedEvidence.records.length" class="dim">当天没有现实记录。</p></div></div></LbPanel>
+    <LbPanel class="evidence-panel" title="本月有记录的处境" :note="`本月处境 · ${monthPrefix}`"><div class="record-list"><div v-for="item in monthlyMatters" :key="item.matter.calmyId" class="evidence-row"><i /><div class="evidence-copy"><b>{{ item.matter.title }}</b><small>{{ item.count }} 条本月证据 · {{ item.matter.currentStage }}</small></div><div class="evidence-actions"><button class="chip" type="button" @click="openMatter(item.matter.calmyId)">打开处境 →</button></div></div><p v-if="!monthlyMatters.length" class="dim">本月还没有关联课题的证据。</p></div></LbPanel>
 </template>
 
-<style>
-.calendar-page{max-width:1180px;margin:0 auto}
-.calendar-page .calendar-head{align-items:end}
-.calendar-page .calendar-controls{display:flex;align-items:center;gap:6px}
-.calendar-page .calendar-controls button,.calendar-page .quiet{border:1px solid var(--c-border);background:transparent;color:var(--c-text-2);border-radius:8px;padding:8px 11px;cursor:pointer}
-.calendar-page .calendar-controls button:hover,.calendar-page .quiet:hover{border-color:var(--scene);background:var(--scene-soft);color:var(--scene)}
-.calendar-page .calendar-controls .month-label{min-width:132px}
-.calendar-page .calendar-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px}
-.calendar-page .month-panel,.calendar-page .selected-day,.calendar-page .evidence-panel{padding:18px}
-.calendar-page .week-row,.calendar-page .month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
-.calendar-page .week-row{margin-bottom:6px}
-.calendar-page .week-row span{text-align:center;font-size:10px;color:var(--c-text-3);padding:4px}
-.calendar-page .calendar-cell{min-height:78px;border:1px solid var(--c-border-soft);background:transparent;border-radius:8px;color:var(--c-text);text-align:left;padding:8px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between}
-.calendar-page .calendar-cell:hover{border-color:var(--scene);background:var(--scene-soft)}
-.calendar-page .calendar-cell.outside{opacity:.42}
-.calendar-page .calendar-cell.selected{border-color:var(--scene);box-shadow:inset 0 0 0 1px var(--scene);background:var(--scene-soft)}
-.calendar-page .calendar-cell.today>span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--scene);color:#fff}
-.calendar-page .cell-dots{display:flex;justify-content:flex-end;gap:4px}
-.calendar-page .cell-dots i{width:6px;height:6px;border-radius:50%}
-.calendar-page .action-dot{background:var(--scene)}
-.calendar-page .record-dot{background:#7c75b7}
-.calendar-page .state-dot{background:#c8874d}
-.calendar-page .day-panel{display:grid;align-content:start}
-.calendar-page .selected-day .panel-head{margin-bottom:14px}
-.calendar-page .selected-day h2{font-size:23px;margin:0}
-.calendar-page .day-metrics{display:flex;flex-wrap:wrap;gap:6px}
-.calendar-page .day-metrics span{font-size:10px;background:var(--c-hover);border-radius:6px;padding:6px 7px;color:var(--c-text-2)}
-.calendar-page .day-metrics b{color:var(--scene)}
-.calendar-page .state-line{display:grid;gap:5px;border-top:1px solid var(--c-border-soft);margin-top:14px;padding-top:12px;font-size:11px;color:var(--c-text-2)}
-.calendar-page .state-line strong{color:var(--scene);font-weight:600}
-.calendar-page .day-list,.calendar-page .record-list{display:grid;gap:8px;border-top:1px solid var(--c-border-soft);margin-top:14px;padding-top:12px}
-.calendar-page .day-list>div{display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:7px;align-items:center}
-.calendar-page .day-list i{width:8px;height:8px;border-radius:50%;background:var(--c-border)}
-.calendar-page .day-list i.done{background:var(--scene)}
-.calendar-page .day-list span,.calendar-page .evidence-copy b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.calendar-page .day-list small,.calendar-page .evidence-copy small{font-size:10px;color:var(--c-text-3)}
-.calendar-page .evidence-panel{margin-top:16px}
-.calendar-page .evidence-section{margin-top:16px}
-.calendar-page .evidence-section h3{font-size:15px;margin:0}
-.calendar-page .evidence-row{display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:9px;align-items:center;border-top:1px solid var(--c-border-soft);padding:10px 0}
-.calendar-page .evidence-row>i{width:8px;height:8px;border-radius:50%;background:var(--scene)}
-.calendar-page .evidence-row>i.record{background:#7c75b7}
-.calendar-page .evidence-copy{display:grid;gap:4px;min-width:0}
-.calendar-page .evidence-copy b{white-space:normal}
-.calendar-page .evidence-actions{display:flex;align-items:center;gap:8px}
-.calendar-page .evidence-actions small{color:var(--c-text-3);font-size:10px}
-.calendar-page .evidence-actions button{border:1px solid var(--c-border);background:transparent;color:var(--scene);border-radius:7px;padding:6px 8px;font-size:10px;cursor:pointer;white-space:nowrap}
-.calendar-page .evidence-actions button:hover{border-color:var(--scene);background:var(--scene-soft)}
-@media(max-width:850px){.calendar-page .calendar-layout{grid-template-columns:1fr}.calendar-page .day-panel{grid-row:1}.calendar-page .evidence-row{grid-template-columns:8px minmax(0,1fr)}.calendar-page .evidence-actions{grid-column:2;justify-content:space-between}}
-@media(max-width:580px){.calendar-page .calendar-head{display:block}.calendar-page .calendar-controls{margin-top:16px}.calendar-page .month-panel,.calendar-page .selected-day,.calendar-page .evidence-panel{padding:12px}.calendar-page .month-grid{gap:3px}.calendar-page .calendar-cell{min-height:58px;padding:5px}.calendar-page .week-row{gap:3px}.calendar-page .calendar-controls .month-label{flex:1}.calendar-page .calendar-cell span{font-size:12px}}
+<style scoped>
+/* 日历页局部排版：颜色一律取「留白」令牌（原先是一整块用旧 --c-* 令牌的非 scoped 样式）。
+   .calendar-cell / .month-panel / .selected-day / .evidence-panel / .day-metrics / .state-line /
+   .quiet / .cell-dots 等都是 parity 测试的钩子，类名全部保留。 */
+.slide-head .calendar-controls { align-self: flex-end; margin-left: auto; }
+.calendar-controls { display: flex; align-items: center; gap: 6px; }
+.month-label { min-width: 132px; }
+.calendar-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+.quiet { padding: 5px 11px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--muted); font: inherit; font-size: .78rem; cursor: pointer; }
+.quiet:hover { color: var(--fg); border-color: var(--line-strong); }
+
+.calendar-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: clamp(10px, 1.2vw, 14px); align-items: start; }
+.month-panel { gap: 10px; padding: 16px; }
+.week-row, .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.week-row { margin-bottom: 6px; }
+.week-row span { padding: 4px; text-align: center; color: var(--muted); font-size: .66rem; }
+.calendar-cell { display: flex; flex-direction: column; justify-content: space-between; min-height: 78px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--fg); text-align: left; cursor: pointer; }
+.calendar-cell:hover { border-color: var(--line-strong); background: var(--hover); }
+.calendar-cell.outside { opacity: .42; }
+.calendar-cell.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--hover); }
+.calendar-cell.today > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); }
+.calendar-legend { display: flex; gap: 12px; margin-top: 12px; color: var(--muted); font-size: .66rem; }
+.calendar-legend i, .cell-dots i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+.calendar-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.cell-dots { display: flex; justify-content: flex-end; gap: 4px; }
+.action-dot { background: var(--accent); }
+.record-dot { background: #7c75b7; }
+.state-dot { background: #c8874d; }
+
+.day-panel { display: grid; align-content: start; }
+.selected-day { gap: 10px; padding: 16px; }
+.selected-day h2 { margin: 0; font-size: 1.35rem; font-weight: 600; }
+.day-metrics { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-metrics span { padding: 5px 8px; border-radius: 6px; background: var(--panel-2); color: var(--muted); font-size: .68rem; }
+.day-metrics b { color: var(--accent); }
+.state-line { display: grid; gap: 5px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: .72rem; }
+.state-line strong { color: var(--accent); font-weight: 600; }
+.day-list, .record-list { display: grid; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.day-list > div { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 7px; }
+.day-list i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.day-list i.done { background: var(--accent); }
+.day-list span, .evidence-copy b { font-size: .74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-list small, .evidence-copy small { color: var(--muted); font-size: .68rem; }
+
+.evidence-panel { gap: 8px; padding: 16px; }
+.evidence-section { margin-top: 10px; }
+.evidence-section h3 { margin: 0; font-size: .9rem; font-weight: 600; }
+.evidence-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 9px 0; border-top: 1px solid var(--line); }
+.evidence-row > i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.evidence-row > i.record { background: #7c75b7; }
+.evidence-copy { display: grid; gap: 4px; min-width: 0; }
+.evidence-copy b { white-space: normal; }
+.evidence-actions { display: flex; align-items: center; gap: 8px; }
+.evidence-actions small { color: var(--muted); font-size: .68rem; }
+
+@media (max-width: 850px) {
+  .calendar-layout { grid-template-columns: 1fr; }
+  .day-panel { grid-row: 1; }
+  .evidence-row { grid-template-columns: 8px minmax(0, 1fr); }
+  .evidence-actions { grid-column: 2; justify-content: space-between; }
+}
+@media (max-width: 580px) {
+  .month-panel, .selected-day, .evidence-panel { padding: 12px; }
+  .month-grid, .week-row { gap: 3px; }
+  .calendar-cell { min-height: 58px; padding: 5px; }
+  .calendar-cell span { font-size: .74rem; }
+  .month-label { flex: 1; }
+}
 </style>

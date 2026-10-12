@@ -1,7 +1,9 @@
-import { afterEach, describe, it, expect, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { hydrateStoreCache, resetStoreCache, store, safeParse, nextId, fmtDate, todayKey, lsGet, lsSet, lsRemove } from '../core/storage'
+import { setActiveAccount } from '../core/account-context'
 
-afterEach(() => resetStoreCache())
+beforeEach(() => { setActiveAccount('storage-test-user'); localStorage.clear(); resetStoreCache() })
+afterEach(() => { resetStoreCache(); setActiveAccount(null) })
 
 describe('storage', () => {
   it('store 读写与容错解析', () => {

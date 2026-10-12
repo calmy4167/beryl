@@ -18,7 +18,7 @@ import { todayAsyncRepository } from '@/domain/today/repository'
 import type { TodayPlan } from '@/domain/today/model'
 import { store } from '@/core/storage'
 import { createAsyncCollectionRepository, readAsyncStorageValue } from '@/core/repository'
-import { CORE_ENTITY_TYPES, unifiedAsyncRepository, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle } from '@/domain/unified'
+import { CORE_ENTITY_TYPES, unifiedAsyncRepository, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle, type Ownership } from '@/domain/unified'
 import { legacyMapping } from '@/domain/legacy/migration'
 
 export type RealitySource = 'legacy' | 'unified'
@@ -50,6 +50,7 @@ export interface RealityDocument {
   currentStage?: string
   trajectory?: string
   revision?: number
+  ownership?: Ownership
   priority?: string
   dueAt?: string
   done?: boolean
@@ -91,6 +92,24 @@ function dateTimestamp(value: string): number | undefined {
   return Number.isFinite(timestamp) ? timestamp : undefined
 }
 
+function importantDateTimestamp(monthDay: string, year: number | undefined, recurrence: 'yearly' | 'once'): number | undefined {
+  const [month, day] = monthDay.split('-').map(Number)
+  if (recurrence === 'once') {
+    if (!year) return undefined
+    const exact = new Date(Date.UTC(year, month - 1, day))
+    return exact.getUTCMonth() === month - 1 && exact.getUTCDate() === day ? exact.getTime() : undefined
+  }
+  const now = new Date()
+  for (let candidateYear = now.getFullYear(); candidateYear <= now.getFullYear() + 8; candidateYear += 1) {
+    const exact = new Date(Date.UTC(candidateYear, month - 1, day))
+    if (month < 1 || day < 1 || exact.getUTCMonth() !== month - 1 || exact.getUTCDate() !== day) continue
+    const timestamp = exact.getTime()
+    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+    if (timestamp >= today) return timestamp
+  }
+  return undefined
+}
+
 function parsedTimestamp(value?: string): number {
   const timestamp = value ? Date.parse(value) : NaN
   return Number.isFinite(timestamp) ? timestamp : 0
@@ -107,7 +126,7 @@ function matterRoute(matterId?: string): string | undefined {
 }
 
 function routeForCore(entity: CoreEntity): string {
-  if (entity.entityType === 'person' || entity.entityType === 'relationship' || entity.entityType === 'shared_space') return '/app/people'
+  if (entity.entityType === 'person' || entity.entityType === 'important_date' || entity.entityType === 'relationship' || entity.entityType === 'shared_space') return '/app/people'
   if (entity.entityType === 'cycle') return matterRoute(entity.matterId) || '/app/library'
   if (entity.entityType === 'stage') {
     const cycle = unifiedRepository.find<Cycle>('cycle', entity.cycleId)
@@ -124,6 +143,7 @@ function routeForCore(entity: CoreEntity): string {
 function coreTitle(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return entity.displayName
+    case 'important_date': return entity.title
     case 'relationship': return entity.label
     case 'relation': return `${entity.from.entityType} ${entity.relationType} ${entity.to.entityType}`
     case 'daily_state': return `Today ${entity.date}`
@@ -135,6 +155,7 @@ function coreTitle(entity: CoreEntity): string {
 function coreSummary(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return [entity.domain, entity.notes, ...entity.roles, ...entity.tags].filter(Boolean).join(' ') || 'Person 人物'
+    case 'important_date': return [`${entity.monthDay}${entity.year ? ` · ${entity.year}` : ''}`, entity.recurrence === 'yearly' ? '每年' : '一次', entity.notes].filter(Boolean).join(' · ')
     case 'relationship': return [entity.boundary, entity.rhythm].filter(Boolean).join(' ') || 'Relationship 关系'
     case 'shared_space': return [entity.purpose, entity.boundary].filter(Boolean).join(' ') || 'Shared Space 空间'
     case 'cycle': return [entity.theme, entity.status, entity.trajectory].filter(Boolean).join(' ')
@@ -168,19 +189,19 @@ function legacyDocuments(): RealityDocument[] {
     id: item.calmyId, source: 'legacy', entityType: 'matter', title: item.title,
     summary: item.primaryContradiction || item.why || `${item.status} · ${item.currentStage}`,
     route: `/app/matters/${item.calmyId}`, updatedAt: item.updatedAt, matterId: item.calmyId,
-    status: item.status, why: item.why, currentStage: item.currentStage, trajectory: item.trajectory, revision: item.revision
+    status: item.status, why: item.why, currentStage: item.currentStage, trajectory: item.trajectory, revision: item.revision, ownership: item.ownership
   }))
   const actions = actionRepository.list().map((item: ActionItem) => document({
     id: item.calmyId, source: 'legacy', entityType: 'action', title: item.title,
     summary: item.resultNote || `${item.date} · ${item.status}`, route: matterRoute(item.matterId) || '/app/today',
-    updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date, status: item.status, resultNote: item.resultNote
+    updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date, status: item.status, resultNote: item.resultNote, ownership: item.ownership
   }))
   const records = recordRepository.list().map((item: RealityRecord) => document({
     id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
     summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
     route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt, matterId: item.matterId,
     cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
-    journalCategory: item.journalCategory, impact: item.impact
+    journalCategory: item.journalCategory, impact: item.impact, ownership: item.ownership
   }))
   const today = todayRepository.list().map((item: TodayPlan) => document({
     id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,
@@ -207,21 +228,21 @@ function legacyDocuments(): RealityDocument[] {
       route: '/app/module/inbox', updatedAt: Date.parse(item.date || '') || 0, date: item.date, status: 'open', sourceIndex
     })
   }).filter((item): item is RealityDocument => !!item)
-  const rawDiary = store.get<Array<{ date?: string; content?: string }>>('diary', [])
+  const rawDiary = store.get<Array<{ date?: string; content?: string; ownership?: Ownership }>>('diary', [])
   const diary = (Array.isArray(rawDiary) ? rawDiary : []).filter(item => item.date && item.content?.trim()).map(item => document({
     id: item.date!, source: 'legacy', entityType: 'diary', title: `Diary ${item.date}`, summary: item.content!.slice(0, 120), body: item.content!,
-    route: '/app/module/diary', updatedAt: parsedTimestamp(item.date), occurredAt: dateTimestamp(item.date!), date: item.date
+    route: '/app/module/diary', updatedAt: parsedTimestamp(item.date), occurredAt: dateTimestamp(item.date!), date: item.date, ownership: item.ownership
   }))
-  const rawPosts = store.get<Array<{ id?: string; title?: string; content?: string; date?: string }>>('posts', [])
+  const rawPosts = store.get<LegacyPost[]>('posts', [])
   const posts = (Array.isArray(rawPosts) ? rawPosts : []).filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'post', title: item.title!.trim(), summary: item.content?.replace(/\r?\n/g, ' ').slice(0, 120) || '文章', body: item.content,
-    route: '/app/module/posts', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date
+    route: '/app/module/posts', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date, revision: item.revision, ownership: item.ownership
   }))
-  const rawFinance = store.get<Array<{ id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string }>>('finance', [])
+  const rawFinance = store.get<Array<{ id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string; ownership?: Ownership; revision?: number }>>('finance', [])
   const transactions = (Array.isArray(rawFinance) ? rawFinance : []).filter(item => item.id).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'transaction', title: item.category || '其他', summary: `${item.type === 'income' ? 'income' : 'expense'} · ${item.category || '其他'}`,
     body: item.note, route: '/app/module/finance', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined,
-    date: item.date, status: item.type, amount: item.amount, amountCents: item.amountCents, category: item.category, financeType: item.type
+    date: item.date, status: item.type, amount: item.amount, amountCents: item.amountCents, category: item.category, financeType: item.type, ownership: item.ownership, revision: item.revision
   }))
   const rawHabits = store.get<Array<{ id?: string; name?: string; color?: string; days?: number; dates?: string[] }>>('habits', [])
   const habits = (Array.isArray(rawHabits) ? rawHabits : []).filter(item => item.id && item.name?.trim()).map(item => document({
@@ -234,11 +255,11 @@ function legacyDocuments(): RealityDocument[] {
     route: '/app/module/chars', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date,
     name: item.name, charTitle: item.title
   }))
-  const rawGoals = store.get<Array<{ id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string }>>('goals', [])
+  const rawGoals = store.get<Array<{ id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string; ownership?: Ownership }>>('goals', [])
   const goals = (Array.isArray(rawGoals) ? rawGoals : []).filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'goal', title: item.title!.trim(), summary: item.done ? 'done · 目标' : 'open · 目标',
     route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done,
-    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId
+    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId, ownership: item.ownership
   }))
   const pomoMinutes = Number(store.get('pomoTotal', 0)) || 0
   const pomoCount = Number(store.get('pomoCount', 0)) || 0
@@ -259,7 +280,8 @@ function unifiedDocuments(): RealityDocument[] {
   return REALITY_CORE_ENTITY_TYPES.flatMap(entityType => unifiedRepository.list<CoreEntity & { entityType: typeof entityType }>(entityType).map(entity => document({
     id: entity.calmyId, source: 'unified', entityType: entity.entityType, title: coreTitle(entity), summary: coreSummary(entity),
     route: routeForCore(entity), updatedAt: entity.updatedAt,
-    occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : undefined,
+    occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : entity.entityType === 'important_date'
+      ? importantDateTimestamp(entity.monthDay, entity.year, entity.recurrence) : undefined,
     matterId: 'matterId' in entity ? entity.matterId : undefined
   })))
 }
@@ -304,14 +326,14 @@ export async function listActionRecordDocumentsAsync(query: RealityQuery = {}): 
       id: item.calmyId, source: 'legacy', entityType: 'action', title: item.title,
       summary: item.resultNote || `${item.date} · ${item.status}`, route: matterRoute(item.matterId) || '/app/today',
       updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date,
-      status: item.status, resultNote: item.resultNote, revision: item.revision
+      status: item.status, resultNote: item.resultNote, revision: item.revision, ownership: item.ownership
     })),
     ...records.map(item => document({
       id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
       summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
       route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
       matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
-      journalCategory: item.journalCategory, impact: item.impact, revision: item.revision
+      journalCategory: item.journalCategory, impact: item.impact, revision: item.revision, ownership: item.ownership
     }))
   ]
   const types = query.types?.length ? new Set(query.types) : undefined
@@ -329,12 +351,12 @@ export async function listActionRecordDocumentsAsync(query: RealityQuery = {}): 
 
 type LegacyTask = { id?: string; title?: string; priority?: string; date?: string; dueAt?: string; done?: boolean }
 type LegacyInbox = { id?: string; text?: string; date?: string }
-type LegacyDiary = { date?: string; content?: string }
-type LegacyPost = { id?: string; title?: string; content?: string; date?: string }
-type LegacyFinance = { id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string }
+type LegacyDiary = { date?: string; content?: string; ownership?: Ownership }
+type LegacyPost = { id?: string; title?: string; content?: string; date?: string; archivedAt?: number; revision?: number; ownership?: Ownership; history?: Array<{ revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; content: string; date: string; archivedAt?: number; ownership?: Ownership }> }
+type LegacyFinance = { id?: string; type?: string; amount?: number; amountCents?: number; category?: string; note?: string; date?: string; ownership?: Ownership; revision?: number }
 type LegacyHabit = { id?: string; name?: string; color?: string; days?: number; dates?: string[] }
 type LegacyChar = { id?: string; name?: string; title?: string; date?: string }
-type LegacyGoal = { id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string }
+type LegacyGoal = { id?: string; title?: string; done?: boolean; problem?: string; evidence?: string; nextAction?: string; matterId?: string; ownership?: Ownership }
 type LegacyMoment = { id?: string; author?: { name?: string }; content?: string; visibility?: string; createdAt?: number; updatedAt?: number; comments?: unknown[]; likedBy?: unknown[] }
 
 const asyncTasks = createAsyncCollectionRepository<LegacyTask>('tasks', item => item.id)
@@ -362,20 +384,20 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
     id: item.calmyId, source: 'legacy', entityType: 'matter', title: item.title,
     summary: item.primaryContradiction || item.why || `${item.status} · ${item.currentStage}`,
     route: `/app/matters/${item.calmyId}`, updatedAt: item.updatedAt, matterId: item.calmyId,
-    status: item.status, why: item.why, currentStage: item.currentStage, trajectory: item.trajectory, revision: item.revision
+    status: item.status, why: item.why, currentStage: item.currentStage, trajectory: item.trajectory, revision: item.revision, ownership: item.ownership
   }))
   const actionDocuments = actions.map((item: ActionItem) => document({
     id: item.calmyId, source: 'legacy', entityType: 'action', title: item.title,
     summary: item.resultNote || `${item.date} · ${item.status}`, route: matterRoute(item.matterId) || '/app/today',
     updatedAt: item.updatedAt, occurredAt: dateTimestamp(item.date), matterId: item.matterId, date: item.date,
-    status: item.status, resultNote: item.resultNote, revision: item.revision
+    status: item.status, resultNote: item.resultNote, revision: item.revision, ownership: item.ownership
   }))
   const recordDocuments = records.map((item: RealityRecord) => document({
     id: item.calmyId, source: 'legacy', entityType: 'record', title: item.body.split(/\r?\n/, 1)[0].slice(0, 100),
     summary: `${item.type} · ${new Date(item.occurredAt).toLocaleDateString()}`, body: item.body,
     route: matterRoute(item.matterId) || '/app/today', updatedAt: item.updatedAt, occurredAt: item.occurredAt,
     matterId: item.matterId, cycleId: item.cycleId, stageId: item.stageId, type: item.type, recordType: item.type,
-    journalCategory: item.journalCategory, impact: item.impact, revision: item.revision
+    journalCategory: item.journalCategory, impact: item.impact, revision: item.revision, ownership: item.ownership
   }))
   const todayDocuments = today.map((item: TodayPlan) => document({
     id: item.date, source: 'legacy', entityType: 'today', title: `Today ${item.date}`,
@@ -400,16 +422,16 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
   }).filter((item): item is RealityDocument => !!item)
   const diaryDocuments = diary.filter(item => item.date && item.content?.trim()).map(item => document({
     id: item.date!, source: 'legacy', entityType: 'diary', title: `Diary ${item.date}`, summary: item.content!.slice(0, 120), body: item.content!,
-    route: '/app/module/diary', updatedAt: parsedTimestamp(item.date), occurredAt: dateTimestamp(item.date!), date: item.date
+    route: '/app/module/diary', updatedAt: parsedTimestamp(item.date), occurredAt: dateTimestamp(item.date!), date: item.date, ownership: item.ownership
   }))
   const postDocuments = posts.filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'post', title: item.title!.trim(), summary: item.content?.replace(/\r?\n/g, ' ').slice(0, 120) || '文章', body: item.content,
-    route: '/app/module/posts', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date
+    route: '/app/module/posts', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined, date: item.date, revision: item.revision, ownership: item.ownership
   }))
   const financeDocuments = finance.filter(item => item.id).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'transaction', title: item.category || '其他', summary: `${item.type === 'income' ? 'income' : 'expense'} · ${item.category || '其他'}`,
     body: item.note, route: '/app/module/finance', updatedAt: parsedTimestamp(item.date), occurredAt: item.date ? dateTimestamp(item.date) : undefined,
-    date: item.date, status: item.type, amount: item.amount, amountCents: item.amountCents, category: item.category, financeType: item.type
+    date: item.date, status: item.type, amount: item.amount, amountCents: item.amountCents, category: item.category, financeType: item.type, ownership: item.ownership, revision: item.revision
   }))
   const habitDocuments = habits.filter(item => item.id && item.name?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'habit', title: item.name!.trim(), summary: `${item.days || item.dates?.length || 0} 天`,
@@ -422,7 +444,7 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
   const goalDocuments = goals.filter(item => item.id && item.title?.trim()).map(item => document({
     id: item.id!, source: 'legacy', entityType: 'goal', title: item.title!.trim(), summary: item.done ? 'done · 目标' : 'open · 目标',
     route: '/app/module/goals', updatedAt: 0, status: item.done ? 'done' : 'open', done: !!item.done,
-    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId
+    problem: item.problem?.trim(), evidence: item.evidence?.trim(), nextAction: item.nextAction?.trim(), matterId: item.matterId, ownership: item.ownership
   }))
   const pomoDocument = document({ id: 'pomo', source: 'legacy', entityType: 'pomo', title: '番茄钟', summary: `${Number(pomoCount) || 0} 个专注段 · ${Number(pomoMinutes) || 0} 分钟（可选记录）`,
     route: '/app/module/pomo', updatedAt: 0, minutes: Number(pomoMinutes) || 0, count: Number(pomoCount) || 0 })
@@ -436,7 +458,7 @@ async function legacyDocumentsAsync(): Promise<RealityDocument[]> {
 }
 
 async function routeForCoreAsync(entity: CoreEntity): Promise<string> {
-  if (entity.entityType === 'person' || entity.entityType === 'relationship' || entity.entityType === 'shared_space') return '/app/people'
+  if (entity.entityType === 'person' || entity.entityType === 'important_date' || entity.entityType === 'relationship' || entity.entityType === 'shared_space') return '/app/people'
   if (entity.entityType === 'cycle') return matterRoute(entity.matterId) || '/app/library'
   if (entity.entityType === 'stage') {
     const cycle = await unifiedAsyncRepository.find<Cycle>('cycle', entity.cycleId)
@@ -456,8 +478,10 @@ async function unifiedDocumentsAsync(): Promise<RealityDocument[]> {
     return Promise.all(entities.map(async entity => document({
       id: entity.calmyId, source: 'unified', entityType: entity.entityType, title: coreTitle(entity), summary: coreSummary(entity),
       route: await routeForCoreAsync(entity), updatedAt: entity.updatedAt,
-      occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : undefined,
-      matterId: 'matterId' in entity ? entity.matterId : undefined
+      occurredAt: entity.entityType === 'daily_state' ? dateTimestamp(entity.date) : entity.entityType === 'important_date'
+        ? importantDateTimestamp(entity.monthDay, entity.year, entity.recurrence) : undefined,
+      matterId: 'matterId' in entity ? entity.matterId : undefined,
+      ownership: entity.ownership
     })))
   }))
   return groups.flat()

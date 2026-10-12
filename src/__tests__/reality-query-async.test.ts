@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import { listActionRecordDocumentsAsync, listRealityDocumentsAsync } from '@/domain/reality'
 
 describe('async reality evidence query', () => {
   beforeEach(() => {
+    setActiveAccount('reality-query-async-test-user')
     localStorage.clear()
     resetStoreCache()
   })
@@ -13,6 +15,7 @@ describe('async reality evidence query', () => {
   afterEach(() => {
     localStorage.clear()
     resetStoreCache()
+    setActiveAccount(null)
   })
 
   it('reads Action and Record evidence through async repositories', async () => {
@@ -40,7 +43,7 @@ describe('async reality evidence query', () => {
   })
 
   it('keeps legacy collection keys readable through the async compatibility boundary', async () => {
-    localStorage.setItem('b_tasks', JSON.stringify([{ id: 'legacy-task', title: '旧键任务', date: '2026-08-28', done: false }]))
+    localStorage.setItem(accountStorageKey('b_tasks'), JSON.stringify([{ id: 'legacy-task', title: '旧键任务', date: '2026-08-28', done: false }]))
 
     const documents = await listRealityDocumentsAsync({ types: ['task'] })
 

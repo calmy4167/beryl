@@ -1,4 +1,6 @@
 import { createAsyncCollectionRepository, createCollectionRepository, createEntityId, flushRepositoryWrites, type RepositoryReadyStatus } from '@/core/repository'
+import { readServerSession } from '@/core/auth'
+import { ownershipForSignedInUser } from './ownership'
 import {
   CoreDomainError,
   CORE_ENTITY_TYPES,
@@ -13,13 +15,17 @@ import {
   type Cycle,
   type CycleStatus,
   type DailyState,
+  type DailyStateHistorySnapshot,
   type Domain,
   type DictionaryOption,
   type Asset,
   ASSET_LIFECYCLES,
   type Insight,
+  isValidImportantMonthDay,
+  type ImportantDate,
   INSIGHT_STATUSES,
   type Outcome,
+  type Organization,
   type Person,
   PERSON_STATUSES,
   type Permission,
@@ -42,11 +48,38 @@ import {
 } from './model'
 import { matterRepository } from '@/domain/matter/repository'
 import { ACTION_STATUSES } from '@/domain/action/model'
+import { actionRepository } from '@/domain/action/repository'
+import { recordRepository } from '@/domain/record/repository'
 import { CAPTURE_STATUSES } from '@/domain/capture/model'
 import { GOAL_STATUSES } from '@/domain/goal/status-labels'
 import { MATTER_STATUSES } from '@/domain/matter/model'
+import { financeRepository } from '@/domain/finance/repository'
+import { diaryRepository } from '@/domain/diary/repository'
 
 type RepositoryItem = CoreEntity
+interface LegacyGoalEndpoint { id: string }
+interface LegacyPostEndpoint { id: string }
+
+const legacyGoals = createCollectionRepository<LegacyGoalEndpoint>('goals', item => item.id)
+const asyncLegacyGoals = createAsyncCollectionRepository<LegacyGoalEndpoint>('goals', item => item.id)
+const legacyPosts = createCollectionRepository<LegacyPostEndpoint>('posts', item => item.id)
+const asyncLegacyPosts = createAsyncCollectionRepository<LegacyPostEndpoint>('posts', item => item.id)
+
+function plainSnapshot<T extends RepositoryItem>(entity: T): Record<string, unknown> {
+  const { revisionHistory: _revisionHistory, history: _history, ...snapshot } = entity as T & { revisionHistory?: unknown; history?: unknown }
+  return JSON.parse(JSON.stringify(snapshot)) as Record<string, unknown>
+}
+
+function withCoreRevision<T extends RepositoryItem>(entity: T, operation: 'created' | 'updated', actor: CoreEntitySource, actorId: string, occurredAt: number, previous?: T): T {
+  const snapshot = plainSnapshot(entity)
+  const previousSnapshot = previous ? plainSnapshot(previous) : undefined
+  const entry = {
+    revision: entity.revision, operation, source: actor, ...(actorId ? { actorUserId: actorId } : {}), occurredAt,
+    fromRevision: previous?.revision || 0, toRevision: entity.revision,
+    ...(previousSnapshot ? { previousSnapshot } : {}), snapshot
+  } as const
+  return { ...entity, revisionHistory: [...(entity.revisionHistory || []), entry] } as T
+}
 
 const entityStores = new Map<CoreEntityType, ReturnType<typeof createCollectionRepository<RepositoryItem>>>()
 const asyncEntityStores = new Map<CoreEntityType, ReturnType<typeof createAsyncCollectionRepository<RepositoryItem>>>()
@@ -83,16 +116,26 @@ function requireText(value: string | undefined, label: string): string {
   return normalized
 }
 
-function assertEntity(entity: RepositoryItem, validateSyncDictionaryUniqueness = true): void {
+function assertEntity(entity: RepositoryItem, validateSyncDictionaryUniqueness = true, additionalEndpointLookup?: (ref: EntityRef) => boolean): void {
   if (!entity.calmyId || !entity.entityType) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity id and type are required')
   if (!Number.isFinite(entity.revision) || entity.revision < 1) throw new CoreDomainError('VALIDATION_FAILED', 'Core entity revision must be positive')
   if (entity.entityType === 'scene') {
     requireText(entity.title, 'Scene title')
+    if (entity.order !== undefined && (!Number.isInteger(entity.order) || entity.order < 0)) throw new CoreDomainError('VALIDATION_FAILED', 'Scene order must be a non-negative integer')
     if (entity.thingId && !matterRepository.find(entity.thingId)) throw new CoreDomainError('NOT_FOUND', `thing ${entity.thingId} not found`)
     if (entity.spaceId && !unifiedRepository.find<Space>('space', entity.spaceId)) throw new CoreDomainError('NOT_FOUND', `space ${entity.spaceId} not found`)
     if (entity.endedAt !== undefined && entity.startedAt !== undefined && entity.endedAt < entity.startedAt) {
       throw new CoreDomainError('VALIDATION_FAILED', 'Scene endedAt must be on or after startedAt')
     }
+  }
+  if (entity.entityType === 'organization') requireText(entity.title, 'Organization title')
+  if (entity.entityType === 'important_date') {
+    requireText(entity.title, 'Important date title')
+    if (!isValidImportantMonthDay(entity.monthDay)) throw new CoreDomainError('VALIDATION_FAILED', 'Important date must use a valid MM-DD date')
+    if (!['yearly', 'once'].includes(entity.recurrence) || !['birthday', 'anniversary', 'memorial', 'other'].includes(entity.kind)) throw new CoreDomainError('VALIDATION_FAILED', 'Important date kind or recurrence is invalid')
+    if (entity.year !== undefined && (!Number.isInteger(entity.year) || entity.year < 1 || entity.year > 9999)) throw new CoreDomainError('VALIDATION_FAILED', 'Important date year must be between 1 and 9999')
+    if (entity.recurrence === 'once' && entity.year === undefined) throw new CoreDomainError('VALIDATION_FAILED', 'A one-time important date requires a year')
+    if (entity.personId && !unifiedRepository.find<Person>('person', entity.personId)) throw new CoreDomainError('NOT_FOUND', `person ${entity.personId} not found`)
   }
   if (entity.entityType === 'scene_participant') {
     if (!unifiedRepository.find<Scene>('scene', entity.sceneId)) throw new CoreDomainError('NOT_FOUND', `scene ${entity.sceneId} not found`)
@@ -103,19 +146,31 @@ function assertEntity(entity: RepositoryItem, validateSyncDictionaryUniqueness =
   }
   if (entity.entityType === 'space') {
     requireText(entity.title, 'Space title')
-    for (const thingId of entity.thingIds) {
+    for (const personId of entity.memberPersonIds || []) {
+      if (!unifiedRepository.find<Person>('person', personId)) throw new CoreDomainError('NOT_FOUND', `person ${personId} not found`)
+    }
+    for (const relationshipId of entity.relationshipIds || []) {
+      if (!unifiedRepository.find<Relationship>('relationship', relationshipId)) throw new CoreDomainError('NOT_FOUND', `relationship ${relationshipId} not found`)
+    }
+    for (const thingId of entity.thingIds || []) {
       if (!matterRepository.find(thingId)) throw new CoreDomainError('NOT_FOUND', `thing ${thingId} not found`)
     }
-    for (const sceneId of entity.sceneIds) {
+    for (const sceneId of entity.sceneIds || []) {
       if (!unifiedRepository.find<Scene>('scene', sceneId)) throw new CoreDomainError('NOT_FOUND', `scene ${sceneId} not found`)
     }
   }
   if (entity.entityType === 'relation') {
     const result = validateRelation(entity, undefined, (ref: EntityRef) => {
       if (ref.entityType === 'thing' || ref.entityType === 'matter') return !!matterRepository.find(ref.calmyId)
+      if (ref.entityType === 'action') return !!actionRepository.find(ref.calmyId)
+      if (ref.entityType === 'record') return !!recordRepository.find(ref.calmyId)
+      if (ref.entityType === 'finance_entry') return !!financeRepository.find(ref.calmyId)
+      if (ref.entityType === 'diary_entry') return additionalEndpointLookup?.(ref) ?? !!diaryRepository.find(ref.calmyId)
+      if (ref.entityType === 'goal') return additionalEndpointLookup?.(ref) ?? !!legacyGoals.find(ref.calmyId)
+      if (ref.entityType === 'post') return additionalEndpointLookup?.(ref) ?? !!legacyPosts.find(ref.calmyId)
       if ((CORE_ENTITY_TYPES as readonly string[]).includes(ref.entityType)) return !!storeFor(ref.entityType as CoreEntityType).find(ref.calmyId)
       return false
-    })
+    }, storeFor('relation').list().filter((item): item is Relation => item.entityType === 'relation' && !item.archivedAt && item.calmyId !== entity.calmyId))
     if (!result.valid) throw new CoreDomainError('VALIDATION_FAILED', result.reason)
   }
   if (entity.entityType === 'domain' && (!entity.key.trim() || !entity.displayName.trim())) {
@@ -157,7 +212,18 @@ async function assertAsyncEntity(entity: RepositoryItem): Promise<void> {
   // Async repositories are backed by IndexedDB/outbox and may not be mirrored
   // in the synchronous compatibility cache. Validate uniqueness against the
   // same durable collection that the async write will update.
-  assertEntity(entity, false)
+  const durableDiaryIds = entity.entityType === 'relation'
+    ? new Set((await diaryRepository.listDurable()).map(item => item.date))
+    : undefined
+  const durableGoalIds = entity.entityType === 'relation'
+    ? new Set((await asyncLegacyGoals.list()).map(item => item.id))
+    : undefined
+  const durablePostIds = entity.entityType === 'relation'
+    ? new Set((await asyncLegacyPosts.list()).map(item => item.id))
+    : undefined
+  assertEntity(entity, false, ref => ref.entityType === 'diary_entry' && !!durableDiaryIds?.has(ref.calmyId)
+    || ref.entityType === 'goal' && !!durableGoalIds?.has(ref.calmyId)
+    || ref.entityType === 'post' && !!durablePostIds?.has(ref.calmyId))
   if (entity.entityType !== 'dictionary_option') return
   const normalized = entity.value.trim().toLocaleLowerCase()
   const duplicate = (await asyncStoreFor('dictionary_option').list()).find(item => item.entityType === 'dictionary_option'
@@ -177,10 +243,11 @@ function canTransitionScene(from: SceneStatus, to: SceneStatus): boolean {
   return from === 'archived' && to === 'completed'
 }
 
-function appendMutation(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): void {
+function appendMutation(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown, previous?: RepositoryItem): void {
   mutations.create({
     id: createEntityId(), entityType: entity.entityType, entityId: entity.calmyId, operation, commandId,
-    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch
+    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch,
+    ...(previous ? { previousSnapshot: plainSnapshot(previous) } : {}), snapshot: plainSnapshot(entity)
   })
 }
 
@@ -193,10 +260,21 @@ function saveCommand(commandId: string, result: RepositoryItem): RepositoryItem 
   return result
 }
 
-async function appendMutationAsync(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): Promise<void> {
+function snapshotDailyState(state: DailyState, operation: DailyStateHistorySnapshot['operation'], actorUserId: string, occurredAt: number): DailyStateHistorySnapshot {
+  return {
+    revision: state.revision, operation, occurredAt, actorUserId, date: state.date,
+    bodyState: state.bodyState, mentalState: state.mentalState, load: state.load,
+    actualTimeMinutes: state.actualTimeMinutes, trajectory: state.trajectory,
+    todayPlanId: state.todayPlanId, protectedItems: state.protectedItems.slice(),
+    ...(state.ownership ? { ownership: { ...state.ownership } } : {})
+  }
+}
+
+async function appendMutationAsync(entity: RepositoryItem, operation: CoreEntityMutation['operation'], commandId: string, actor: CoreEntitySource, actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown, previous?: RepositoryItem): Promise<void> {
   await asyncMutations.create({
     id: createEntityId(), entityType: entity.entityType, entityId: entity.calmyId, operation, commandId,
-    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch
+    actor, actorId, sourceIds, fromRevision, toRevision: entity.revision, occurredAt: Date.now(), patch,
+    ...(previous ? { previousSnapshot: plainSnapshot(previous) } : {}), snapshot: plainSnapshot(entity)
   })
 }
 
@@ -275,14 +353,21 @@ export const unifiedRepository = {
   },
   create<T extends RepositoryItem>(entity: T, meta: CoreCommandMeta = {}): T {
     assertEntity(entity)
-    const command = metaOf(meta)
+    const session = readServerSession()
+    const actor = meta.actor || 'user'
+    const command = metaOf({ ...meta, actorId: meta.actorId || (actor === 'user' ? session?.user.id : undefined) })
     const duplicate = duplicateResult(command.commandId)
     if (duplicate) return duplicate as T
-    const current = storeFor(entity.entityType).find(entity.calmyId)
-    if (current) throw new CoreDomainError('VALIDATION_FAILED', `${entity.entityType} ${entity.calmyId} already exists`)
-    storeFor(entity.entityType).create(entity)
-    appendMutation(entity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, entity)
-    return saveCommand(command.commandId, entity) as T
+    const ownershipBearing = !['permission', 'scope', 'dictionary_option'].includes(entity.entityType)
+    let createdEntity = session && ownershipBearing && entity.source === 'user' && command.actor === 'user' && command.actorId === session.user.id
+      ? { ...entity, ownership: ownershipForSignedInUser(entity.ownership, session.user.id) } as T : entity
+    createdEntity = withCoreRevision(createdEntity, 'created', command.actor, command.actorId, createdEntity.createdAt) as T
+    assertEntity(createdEntity)
+    const current = storeFor(createdEntity.entityType).find(createdEntity.calmyId)
+    if (current) throw new CoreDomainError('VALIDATION_FAILED', `${createdEntity.entityType} ${createdEntity.calmyId} already exists`)
+    storeFor(createdEntity.entityType).create(createdEntity)
+    appendMutation(createdEntity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, createdEntity)
+    return saveCommand(command.commandId, createdEntity) as T
   },
   update<T extends RepositoryItem>(entityType: T['entityType'], calmyId: string, patch: Partial<T>, meta: CoreCommandMeta = {}): T {
     const command = metaOf(meta)
@@ -291,10 +376,16 @@ export const unifiedRepository = {
     const current = storeFor(entityType).find(calmyId)
     if (!current) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
     assertRevision(current, meta.expectedRevision)
-    const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 } as T
+    const occurredAt = Date.now()
+    let next = { ...current, ...patch, updatedAt: occurredAt, revision: current.revision + 1 } as T
+    if (entityType === 'daily_state') {
+      const state = next as DailyState
+      next = { ...state, history: [...((current as DailyState).history || []), snapshotDailyState(state, 'updated', command.actorId, occurredAt)] } as T
+    }
+    next = withCoreRevision(next, 'updated', command.actor, command.actorId, occurredAt, current) as T
     assertEntity(next)
     storeFor(entityType).update(calmyId, () => next)
-    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch, current)
     return saveCommand(command.commandId, next) as T
   },
   transitionCycle(calmyId: string, status: CycleStatus, meta: CoreCommandMeta = {}): Cycle {
@@ -380,7 +471,7 @@ export const unifiedRepository = {
     if (!current) return this.importEntity(entity)
     if (JSON.stringify(current) === JSON.stringify(entity)) return 'unchanged'
     storeFor(entity.entityType).update(entity.calmyId, () => entity)
-    appendMutation(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity)
+    appendMutation(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity, current)
     return 'replaced'
   },
   mutations(entityType?: CoreEntityType, calmyId?: string): CoreEntityMutation[] {
@@ -401,14 +492,21 @@ export const unifiedAsyncRepository = {
   },
   async create<T extends RepositoryItem>(entity: T, meta: CoreCommandMeta = {}): Promise<T> {
     await assertAsyncEntity(entity)
-    const command = metaOf(meta)
+    const session = readServerSession()
+    const actor = meta.actor || 'user'
+    const command = metaOf({ ...meta, actorId: meta.actorId || (actor === 'user' ? session?.user.id : undefined) })
     const duplicate = await duplicateResultAsync(command.commandId)
     if (duplicate) return duplicate as T
-    const current = await asyncStoreFor(entity.entityType).find(entity.calmyId)
-    if (current) throw new CoreDomainError('VALIDATION_FAILED', `${entity.entityType} ${entity.calmyId} already exists`)
-    await asyncStoreFor(entity.entityType).create(entity)
-    await appendMutationAsync(entity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, entity)
-    return await saveCommandAsync(command.commandId, entity) as T
+    const ownershipBearing = !['permission', 'scope', 'dictionary_option'].includes(entity.entityType)
+    let createdEntity = session && ownershipBearing && entity.source === 'user' && command.actor === 'user' && command.actorId === session.user.id
+      ? { ...entity, ownership: ownershipForSignedInUser(entity.ownership, session.user.id) } as T : entity
+    createdEntity = withCoreRevision(createdEntity, 'created', command.actor, command.actorId, createdEntity.createdAt) as T
+    await assertAsyncEntity(createdEntity)
+    const current = await asyncStoreFor(createdEntity.entityType).find(createdEntity.calmyId)
+    if (current) throw new CoreDomainError('VALIDATION_FAILED', `${createdEntity.entityType} ${createdEntity.calmyId} already exists`)
+    await asyncStoreFor(createdEntity.entityType).create(createdEntity)
+    await appendMutationAsync(createdEntity, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, createdEntity)
+    return await saveCommandAsync(command.commandId, createdEntity) as T
   },
   async update<T extends RepositoryItem>(entityType: T['entityType'], calmyId: string, patch: Partial<T>, meta: CoreCommandMeta = {}): Promise<T> {
     const command = metaOf(meta)
@@ -417,11 +515,17 @@ export const unifiedAsyncRepository = {
     const current = await asyncStoreFor(entityType).find(calmyId)
     if (!current) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
     assertRevision(current, meta.expectedRevision)
-    const next = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 } as T
+    const occurredAt = Date.now()
+    let next = { ...current, ...patch, updatedAt: occurredAt, revision: current.revision + 1 } as T
+    if (entityType === 'daily_state') {
+      const state = next as DailyState
+      next = { ...state, history: [...((current as DailyState).history || []), snapshotDailyState(state, 'updated', command.actorId, occurredAt)] } as T
+    }
+    next = withCoreRevision(next, 'updated', command.actor, command.actorId, occurredAt, current) as T
     await assertAsyncEntity(next)
     const updated = await asyncStoreFor(entityType).update(calmyId, () => next)
     if (!updated) throw new CoreDomainError('NOT_FOUND', `${entityType} ${calmyId} not found`)
-    await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+    await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch, current)
     return await saveCommandAsync(command.commandId, next) as T
   },
   async transitionCycle(calmyId: string, status: CycleStatus, meta: CoreCommandMeta = {}): Promise<Cycle> {
@@ -492,7 +596,7 @@ export const unifiedAsyncRepository = {
     if (JSON.stringify(current) === JSON.stringify(entity)) return 'unchanged'
     const replaced = await store.update(entity.calmyId, () => entity)
     if (!replaced) return this.importEntity(entity)
-    await appendMutationAsync(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity)
+    await appendMutationAsync(entity, 'update', `import-replace:${entity.calmyId}:${entity.revision}`, 'import', 'import', [], current.revision, entity, current)
     return 'replaced'
   },
   async mutations(entityType?: CoreEntityType, calmyId?: string): Promise<CoreEntityMutation[]> {
@@ -518,6 +622,12 @@ export const unifiedFactories = {
       ...createMeta('person'), displayName: requireText(input.displayName, 'Person displayName'), status: input.status || 'active',
       roles: input.roles || [], domain: input.domain, notes: input.notes, tags: input.tags || [], linkedUserId: input.linkedUserId
     }
+  },
+  importantDate(input: Pick<ImportantDate, 'title' | 'kind' | 'monthDay' | 'recurrence'> & Partial<Pick<ImportantDate, 'personId' | 'year' | 'notes' | 'ownership'>>): ImportantDate {
+    return { ...createMeta('important_date'), ...input, title: requireText(input.title, 'Important date title') }
+  },
+  organization(input: Pick<Organization, 'title'> & Partial<Pick<Organization, 'status'>>): Organization {
+    return { ...createMeta('organization'), title: requireText(input.title, 'Organization title'), status: input.status || 'active' }
   },
   scene(input: Omit<Scene, keyof CoreEntityMetaSeed | 'status'> & { status?: SceneStatus }): Scene {
     return { ...createMeta('scene'), ...input, title: requireText(input.title, 'Scene title'), status: input.status || 'draft' }

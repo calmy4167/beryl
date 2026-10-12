@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -59,6 +59,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { captureAsyncRepository } from '../domain/capture/repository'
 import type { AiSuggestion, CaptureItem } from '../domain/capture/model'
 import { decideCapture } from '../application/use-cases/decide-capture'
@@ -82,14 +83,16 @@ function suggestion(calmyId: string, captureId: string): AiSuggestion {
 
 describe('captureAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('capture-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('prefers durable captures and suggestions over stale localStorage', async () => {
-    localStorage.setItem('b_calmyCaptures', JSON.stringify([capture('stale', '旧缓存')]))
-    localStorage.setItem('b_calmySuggestions', JSON.stringify([suggestion('stale-suggestion', 'stale')]))
+    localStorage.setItem(accountStorageKey('b_calmyCaptures'), JSON.stringify([capture('stale', '旧缓存')]))
+    localStorage.setItem(accountStorageKey('b_calmySuggestions'), JSON.stringify([suggestion('stale-suggestion', 'stale')]))
     durable.values.set('b_calmyCaptures', JSON.stringify([capture('durable', '持久快照')]))
     durable.values.set('b_calmySuggestions', JSON.stringify([suggestion('durable-suggestion', 'durable')]))
 
@@ -98,16 +101,30 @@ describe('captureAsyncRepository', () => {
     await expect(captureAsyncRepository.listSuggestions()).resolves.toEqual([suggestion('durable-suggestion', 'durable')])
   })
 
+  it('does not invent local history when importing a legacy capture without history', async () => {
+    const legacy = capture('legacy-capture')
+
+    await expect(captureAsyncRepository.importEntity(legacy)).resolves.toBe('created')
+    await expect(captureAsyncRepository.find(legacy.calmyId)).resolves.toEqual(legacy)
+  })
+
   it('creates, suggests, rejects, and reports durable readiness', async () => {
     const created = await captureAsyncRepository.create('  完成供应商确认邮件  ')
     const proposed = await captureAsyncRepository.suggest(created.calmyId)
 
     expect(created).toMatchObject({ body: '完成供应商确认邮件', status: 'inbox', revision: 1 })
+    expect(created.history).toMatchObject([expect.objectContaining({ operation: 'created', source: 'user', actorUserId: 'local-user', fromRevision: 0, toRevision: 1, snapshot: expect.objectContaining({ body: '完成供应商确认邮件' }) })])
+    expect(created.history?.[0].snapshot).not.toHaveProperty('history')
     expect(proposed).toMatchObject({ status: 'suggested', captureId: created.calmyId, privacyBoundary: 'local-only' })
-    await expect(captureAsyncRepository.find(created.calmyId)).resolves.toMatchObject({ status: 'suggested', suggestionIds: [proposed.calmyId] })
+    const suggestedCapture = await captureAsyncRepository.find(created.calmyId)
+    expect(suggestedCapture).toMatchObject({ status: 'suggested', suggestionIds: [proposed.calmyId] })
+    expect(suggestedCapture?.history?.at(-1)).toMatchObject({ operation: 'suggested', source: 'ai_assisted', fromRevision: 1, toRevision: 2, previousSnapshot: expect.objectContaining({ status: 'inbox' }), snapshot: expect.objectContaining({ status: 'suggested' }) })
+    expect(suggestedCapture?.history?.at(-1)?.previousSnapshot).not.toHaveProperty('history')
+    expect(proposed.history).toMatchObject([expect.objectContaining({ operation: 'created', source: 'ai_assisted', fromRevision: 0, toRevision: 1, snapshot: expect.objectContaining({ status: 'suggested' }) })])
 
     const rejected = await captureAsyncRepository.rejectSuggestion(proposed.calmyId)
     expect(rejected).toMatchObject({ status: 'rejected', revision: 2 })
+    expect(rejected.history?.at(-1)).toMatchObject({ operation: 'rejected', source: 'user', fromRevision: 1, toRevision: 2, previousSnapshot: expect.objectContaining({ status: 'suggested' }), snapshot: expect.objectContaining({ status: 'rejected' }) })
     await expect(captureAsyncRepository.find(created.calmyId)).resolves.toMatchObject({ status: 'rejected' })
     await expect(captureAsyncRepository.ready()).resolves.toMatchObject({ durable: true, state: 'ready', pendingWrites: 0 })
     expect(durable.values.get('b_calmySuggestions')).toContain('rejected')

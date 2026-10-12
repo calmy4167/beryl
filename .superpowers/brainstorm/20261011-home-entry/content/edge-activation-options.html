@@ -1,0 +1,47 @@
+<h2>选了侧边缘入口，怎么唤出更顺手？</h2>
+<p class="subtitle">首页仍以空白输入为主；这里比较模块入口出现的方式。三种方案都可支持键盘快捷键，区别是鼠标与触屏的默认操作。</p>
+
+<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:14px">
+  <div class="card" data-choice="hover" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:275px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:0;top:40%;width:4px;height:58px;background:#718578;border-radius:0 4px 4px 0"></div>
+        <div style="position:absolute;left:0;top:0;bottom:0;width:168px;padding:18px 14px;background:#f4f3ed;border-right:1px solid #e5e4dd;color:#62635b;box-shadow:5px 0 20px #25251b10">
+          <div style="color:#718578;margin-bottom:16px">Calmy　×</div><div style="padding:5px 7px;background:#e8e9e2;border-radius:5px">桌面</div><div style="padding:5px 7px">今天</div><div style="padding:5px 7px">处境</div><div style="padding:5px 7px">回顾</div><div style="padding:5px 7px">任务　·</div><div style="padding:5px 7px">日记　资料</div>
+        </div>
+        <div style="position:absolute;left:25px;right:24px;top:31%;color:#c0c0b7;font-size:14px">回车记录 · 连按两次回车建任务<br>Alt+回车换行</div>
+        <div style="position:absolute;right:16px;top:12px;color:#9c9c92;font-size:11px">· 设置</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A · 指针移到边缘自动展开</h3><p>边缘留一条细提示；鼠标碰到左边缘就展开，离开后收起。快捷键可作为补充。桌面操作最快，但触屏需要另一个入口。</p></div>
+  </div>
+
+  <div class="card" data-choice="click" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:275px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:0;top:42%;width:23px;height:58px;display:flex;align-items:center;justify-content:center;background:#f0f0e9;border:1px solid #deded7;border-left:0;border-radius:0 7px 7px 0;color:#718578">›</div>
+        <div style="position:absolute;left:0;top:0;bottom:0;width:168px;padding:18px 14px;background:#f4f3ed;border-right:1px solid #e5e4dd;color:#62635b;box-shadow:5px 0 20px #25251b10">
+          <div style="color:#718578;margin-bottom:16px">Calmy　×</div><div style="padding:5px 7px;background:#e8e9e2;border-radius:5px">桌面</div><div style="padding:5px 7px">今天</div><div style="padding:5px 7px">处境</div><div style="padding:5px 7px">回顾</div><div style="padding:5px 7px">任务　·</div><div style="padding:5px 7px">日记　资料</div>
+        </div>
+        <div style="position:absolute;left:25px;right:24px;top:31%;color:#c0c0b7;font-size:14px">回车记录 · 连按两次回车建任务<br>Alt+回车换行</div>
+        <div style="position:absolute;right:16px;top:12px;color:#9c9c92;font-size:11px">· 设置</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B · 点边缘把手展开</h3><p>平时只露出一个小把手，点击后固定展开，再点关闭。操作明确，也适合触屏；首页会一直保留少量入口提示。</p></div>
+  </div>
+
+  <div class="card" data-choice="shortcut" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:275px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:18px;top:14px;color:#85867d;font-size:11px">Calmy <span style="margin-left:7px;padding:2px 6px;border:1px solid #e3e2db;border-radius:5px">⌘ K</span></div>
+        <div style="position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:245px;padding:13px 15px;background:#fff;border:1px solid #e4e3dc;border-radius:10px;box-shadow:0 15px 45px #25251b18;color:#5e5f57">
+          <div style="font-size:11px;color:#9c9c92;margin-bottom:7px">跳转到模块</div><div style="padding:6px 8px;background:#eff0ea;border-radius:5px">⌕　今天</div><div style="padding:6px 8px">　　处境</div><div style="padding:6px 8px">　　回顾</div><div style="padding:6px 8px">　　任务 · 日记 · 资料</div>
+        </div>
+        <div style="position:absolute;right:16px;bottom:12px;color:#898a82;font-size:10px">esc · 记录</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C · 只用快捷键呼出</h3><p>输入面最干净，按快捷键再搜索模块。键盘熟练后很快，但入口不明显，也不适合触屏作为唯一方式。</p></div>
+  </div>
+</div>
+
+<div class="section"><p class="subtitle">点击一个方案即可。若你想组合，例如“鼠标悬停 + 点击固定 + 快捷键”，也可以直接说明。</p></div>

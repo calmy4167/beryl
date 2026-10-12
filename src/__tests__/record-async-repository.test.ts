@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Cycle, Stage } from '@/domain/unified/model'
 import type { RealityRecord } from '@/domain/record/model'
 
@@ -102,6 +102,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { recordAsyncRepository } from '../domain/record/repository'
 
 function record(calmyId: string, overrides: Partial<RealityRecord> = {}): RealityRecord {
@@ -127,13 +128,15 @@ function stage(calmyId: string, cycleId: string): Stage {
 
 describe('recordAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('record-async-repository-test-user')
     isolated.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('reads the durable snapshot instead of stale localStorage', async () => {
-    localStorage.setItem('b_realityRecords', JSON.stringify([record('stale', { body: '旧缓存' })]))
+    localStorage.setItem(accountStorageKey('b_realityRecords'), JSON.stringify([record('stale', { body: '旧缓存' })]))
     isolated.values.set('b_realityRecords', JSON.stringify([record('durable', { body: '持久快照' })]))
 
     await expect(recordAsyncRepository.list()).resolves.toEqual([record('durable', { body: '持久快照' })])

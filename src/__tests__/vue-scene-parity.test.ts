@@ -1,9 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ScenePage from '@/vue/pages/ScenePage.vue'
 import { SCENES } from '@/core/scenes'
 import { resetStoreCache, store } from '@/core/storage'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 
 function mountScene() {
   const router = createRouter({ history: createMemoryHistory(), routes: [
@@ -17,9 +18,11 @@ function mountScene() {
 }
 
 beforeEach(() => {
+  setActiveAccount('vue-scene-parity-test-user')
   localStorage.clear()
   resetStoreCache()
 })
+afterEach(() => setActiveAccount(null))
 
 describe('Vue scene page parity', () => {
   it('renders all scene choices and reflects the persisted current selection', async () => {
@@ -35,7 +38,7 @@ describe('Vue scene page parity', () => {
   it('persists a chosen scene and applies it before entering Today', async () => {
     const { wrapper, router } = await mountScene()
     await wrapper.get('button[aria-label="选择情侣场景"]').trigger('click')
-    expect(localStorage.getItem('b_scene')).toBe('"couple"')
+    expect(localStorage.getItem(accountStorageKey('b_scene'))).toBe('"couple"')
     expect(wrapper.get('button[aria-label="选择情侣场景"]').attributes('aria-pressed')).toBe('true')
 
     await wrapper.get('.scene-start').trigger('click')

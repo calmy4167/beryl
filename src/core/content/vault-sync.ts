@@ -1,12 +1,20 @@
 import { hashOpenBytes } from './assets'
+import type { CaptureItem } from '@/domain/capture/model'
+import type { DiaryEntry } from '@/domain/diary/model'
+import type { TodayPlan } from '@/domain/today/model'
+import type { FinanceMutation } from '@/domain/finance/repository'
 import {
   compareOpenEntityFields,
   exportOpenWorkspace,
+  isHabit,
+  isGoal,
   isUnifiedOpenEntity,
   hashOpenText,
   importOpenWorkspace,
   mergeOpenEntity,
   openEntityId,
+  openEntityKey,
+  openEntityRevision,
   openEntityType,
   serializeOpenEntity,
   scanOpenAssetReferences,
@@ -29,6 +37,7 @@ export type VaultAssetDecision = 'keep-vault' | 'use-local' | 'delete-vault'
 export interface VaultEntityConflict {
   calmyId: string
   calmyType: OpenEntityType
+  identityKey: string
   path?: string
   vault: OpenEntity
   local: OpenEntity
@@ -38,6 +47,7 @@ export interface VaultEntityConflict {
 export interface VaultOnlyEntity {
   calmyId: string
   calmyType: OpenEntityType
+  identityKey: string
   path: string
   entity: OpenEntity
 }
@@ -45,6 +55,7 @@ export interface VaultOnlyEntity {
 export interface VaultDeletedEntity {
   calmyId: string
   calmyType: OpenEntityType
+  identityKey: string
   path: string
   tombstone: OpenTombstone
   local: OpenEntity
@@ -61,6 +72,7 @@ export interface VaultSyncPlan {
   localWorkspace: OpenWorkspace
   localEntities: OpenEntity[]
   localAssets: OpenAsset[]
+  financeMutations: FinanceMutation[]
   warnings: string[]
   addedEntities: OpenEntity[]
   unchangedEntities: OpenEntity[]
@@ -90,12 +102,14 @@ export function formatVaultSyncSummary(plan: VaultSyncPlan): string {
   return summary + warnings
 }
 
+function identityKey(type: OpenEntityType, id: string): string { return `${type}:${id}` }
+
 function pathById(snapshot: VaultImportSnapshot): Map<string, string> {
-  return new Map((snapshot.manifest?.entities || []).map(entry => [entry.calmy_id, entry.path]))
+  return new Map((snapshot.manifest?.entities || []).map(entry => [identityKey(entry.calmy_type, entry.calmy_id), entry.path]))
 }
 
 function tombstoneById(snapshot: VaultImportSnapshot): Map<string, OpenTombstone> {
-  return new Map((snapshot.tombstones || []).map(tombstone => [tombstone.calmy_id, tombstone]))
+  return new Map((snapshot.tombstones || []).map(tombstone => [identityKey(tombstone.calmy_type, tombstone.calmy_id), tombstone]))
 }
 
 function assetHash(asset: OpenAsset): string { return hashOpenBytes(asset.data) }
@@ -110,10 +124,17 @@ export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: 
   const blockingSnapshotIssues = snapshot.issues.filter(issue => !reviewableDrift.has(issue.code))
   const issues = [...blockingSnapshotIssues.map(issue => `${issue.path}: ${issue.message}`), ...localImport.issues.map(issue => `${issue.path}: ${issue.message}`)]
   if (snapshot.paths.length && !snapshot.manifest) issues.push('Vault 缺少 _calmy/manifest.json，无法安全保留现有实体路径')
+  const financeMutationMap = new Map<string, FinanceMutation>()
+  for (const mutation of [...(snapshot.manifest?.finance_mutations || []), ...localImport.financeMutations]) {
+    const current = financeMutationMap.get(mutation.id)
+    if (current && JSON.stringify(current) !== JSON.stringify(mutation)) issues.push(`Finance mutation ID 冲突：${mutation.id}`)
+    else financeMutationMap.set(mutation.id, mutation)
+  }
+  const financeMutations = [...financeMutationMap.values()].sort((a, b) => a.occurredAt - b.occurredAt || a.id.localeCompare(b.id))
   const localEntities = localImport.entities
   const localAssets = localImport.assets
-  const vaultById = new Map(snapshot.entities.map(entity => [openEntityId(entity), entity]))
-  const localById = new Map(localEntities.map(entity => [openEntityId(entity), entity]))
+  const vaultById = new Map(snapshot.entities.map(entity => [openEntityKey(entity), entity]))
+  const localById = new Map(localEntities.map(entity => [openEntityKey(entity), entity]))
   const tombstones = tombstoneById(snapshot)
   const conflicts: VaultEntityConflict[] = []
   const addedEntities: OpenEntity[] = []
@@ -121,19 +142,20 @@ export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: 
   const vaultDeletedEntities: VaultDeletedEntity[] = []
   for (const local of localEntities) {
     const id = openEntityId(local)
-    const vault = vaultById.get(id)
+    const key = openEntityKey(local)
+    const vault = vaultById.get(key)
     if (vault) {
       if (JSON.stringify(vault) === JSON.stringify(local)) unchangedEntities.push(local)
-      else conflicts.push({ calmyId: id, calmyType: openEntityType(local), path: pathById(snapshot).get(id), vault, local, fields: compareOpenEntityFields(vault, local) })
+      else conflicts.push({ calmyId: id, calmyType: openEntityType(local), identityKey: key, path: pathById(snapshot).get(key), vault, local, fields: compareOpenEntityFields(vault, local) })
       continue
     }
-    const tombstone = tombstones.get(id)
-    if (tombstone) vaultDeletedEntities.push({ calmyId: id, calmyType: openEntityType(local), path: tombstone.path, tombstone, local })
+    const tombstone = tombstones.get(key)
+    if (tombstone) vaultDeletedEntities.push({ calmyId: id, calmyType: openEntityType(local), identityKey: key, path: tombstone.path, tombstone, local })
     else addedEntities.push(local)
   }
   const vaultOnlyEntities = snapshot.entities
-    .filter(entity => !localById.has(openEntityId(entity)))
-    .map(entity => ({ calmyId: openEntityId(entity), calmyType: openEntityType(entity), path: pathById(snapshot).get(openEntityId(entity)) || '', entity }))
+    .filter(entity => !localById.has(openEntityKey(entity)))
+    .map(entity => ({ calmyId: openEntityId(entity), calmyType: openEntityType(entity), identityKey: openEntityKey(entity), path: pathById(snapshot).get(openEntityKey(entity)) || '', entity }))
   const vaultByAssetPath = new Map(snapshot.assets.map(asset => [asset.path, asset]))
   const localByAssetPath = new Map(localAssets.map(asset => [asset.path, asset]))
   const assetConflicts: VaultAssetConflict[] = []
@@ -147,7 +169,7 @@ export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: 
   }
   const vaultOnlyAssets = snapshot.assets.filter(asset => !localByAssetPath.has(asset.path))
   return {
-    snapshot, localWorkspace, localEntities, localAssets, warnings, addedEntities, unchangedEntities, conflicts,
+    snapshot, localWorkspace, localEntities, localAssets, financeMutations, warnings, addedEntities, unchangedEntities, conflicts,
     vaultOnlyEntities, vaultDeletedEntities, addedAssets, unchangedAssets, assetConflicts, vaultOnlyAssets, issues
   }
 }
@@ -155,15 +177,27 @@ export async function buildVaultSyncPlan(adapter: VaultAdapter, localWorkspace: 
 function generatedPathForEntity(entity: OpenEntity): string {
   const workspace = isUnifiedOpenEntity(entity)
     ? exportOpenWorkspace({ unified: [entity] })
+    : 'entityType' in entity && entity.entityType === 'finance_entry'
+      ? exportOpenWorkspace({ finance: [entity] })
     : 'entityType' in entity && entity.entityType === 'thing'
       ? exportOpenWorkspace({ things: [entity] })
+    : isGoal(entity)
+      ? exportOpenWorkspace({ goals: [entity] })
       : 'currentStage' in entity
         ? exportOpenWorkspace({ matters: [entity] })
-        : 'occurredAt' in entity
-          ? exportOpenWorkspace({ records: [entity] })
-          : 'title' in entity
-            ? exportOpenWorkspace({ actions: [entity] })
-            : exportOpenWorkspace({ dailies: [entity] })
+      : 'occurredAt' in entity
+        ? exportOpenWorkspace({ records: [entity] })
+      : 'entityType' in entity && entity.entityType === 'post'
+        ? exportOpenWorkspace({ posts: [entity] })
+        : 'title' in entity
+          ? exportOpenWorkspace({ actions: [entity] })
+          : openEntityType(entity) === 'diary'
+            ? exportOpenWorkspace({ diaries: [entity as DiaryEntry] })
+            : openEntityType(entity) === 'capture'
+              ? exportOpenWorkspace({ captures: [entity as CaptureItem] })
+              : isHabit(entity)
+                ? exportOpenWorkspace({ habits: [entity] })
+                : exportOpenWorkspace({ dailies: [entity as TodayPlan] })
   return Object.keys(workspace.files).find(path => path.toLowerCase().endsWith('.md')) as string
 }
 
@@ -176,15 +210,15 @@ function mergeVaultEntity(vault: OpenEntity, local: OpenEntity, fields: Record<s
   return mergeOpenEntity(vault, local, decisions)
 }
 
-function stableWorkspace(entities: OpenEntity[], assets: OpenAsset[], pathsById: Map<string, string>, tombstones: OpenTombstone[]): OpenWorkspace {
+function stableWorkspace(entities: OpenEntity[], assets: OpenAsset[], pathsById: Map<string, string>, tombstones: OpenTombstone[], financeMutations: FinanceMutation[]): OpenWorkspace {
   const files: Record<string, string> = {}
   const manifestEntries: OpenManifestEntry[] = []
   for (const entity of entities) {
     const content = serializeOpenEntity(entity)
-    const path = pathsById.get(openEntityId(entity)) || generatedPathForEntity(entity)
+    const path = pathsById.get(openEntityKey(entity)) || generatedPathForEntity(entity)
     if (files[path]) throw new Error('duplicate-vault-path:' + path)
     files[path] = content
-    manifestEntries.push({ calmy_id: openEntityId(entity), calmy_type: openEntityType(entity), path, revision: entity.revision, hash: hashOpenText(content) })
+    manifestEntries.push({ calmy_id: openEntityId(entity), calmy_type: openEntityType(entity), path, revision: openEntityRevision(entity), hash: hashOpenText(content) })
   }
   manifestEntries.sort((a, b) => a.path.localeCompare(b.path))
   const manifest = {
@@ -194,7 +228,8 @@ function stableWorkspace(entities: OpenEntity[], assets: OpenAsset[], pathsById:
     entities: manifestEntries,
     assets: assets.map(asset => ({ path: asset.path, hash: assetHash(asset), size: asset.data.byteLength, mime_type: asset.mimeType })).sort((a, b) => a.path.localeCompare(b.path)),
     asset_references: scanOpenAssetReferences(files),
-    ...(tombstones.length ? { tombstones: [...new Map(tombstones.map(tombstone => [tombstone.calmy_id, tombstone])).values()].sort((a, b) => a.path.localeCompare(b.path)) } : {})
+    ...(tombstones.length ? { tombstones: [...new Map(tombstones.map(tombstone => [identityKey(tombstone.calmy_type, tombstone.calmy_id), tombstone])).values()].sort((a, b) => a.path.localeCompare(b.path)) } : {}),
+    ...(financeMutations.length ? { finance_mutations: financeMutations } : {})
   }
   files[OPEN_MANIFEST_PATH] = JSON.stringify(manifest, null, 2) + '\n'
   return { files, assets, manifest }
@@ -203,25 +238,25 @@ function stableWorkspace(entities: OpenEntity[], assets: OpenAsset[], pathsById:
 export async function applyVaultSyncPlan(adapter: VaultAdapter, plan: VaultSyncPlan, decisions: Record<string, VaultEntityDecision | VaultAssetDecision>): Promise<VaultSyncApplyResult> {
   if (plan.issues.length) return { missingDecisions: [], appliedEntityIds: [], deletedEntityIds: [], deletedAssetPaths: [], errors: plan.issues }
   const required = [
-    ...plan.conflicts.map(conflict => conflict.calmyId),
-    ...plan.vaultOnlyEntities.map(entity => entity.calmyId),
-    ...plan.vaultDeletedEntities.map(entity => entity.calmyId),
+    ...plan.conflicts.map(conflict => conflict.identityKey),
+    ...plan.vaultOnlyEntities.map(entity => entity.identityKey),
+    ...plan.vaultDeletedEntities.map(entity => entity.identityKey),
     ...plan.assetConflicts.map(conflict => `asset:${conflict.path}`),
     ...plan.vaultOnlyAssets.map(asset => `asset:${asset.path}`)
   ]
   const missingDecisions = required.filter(key => decisions[key] === undefined)
   if (missingDecisions.length) return { missingDecisions, appliedEntityIds: [], deletedEntityIds: [], deletedAssetPaths: [], errors: [] }
-  const vaultById = new Map(plan.snapshot.entities.map(entity => [openEntityId(entity), entity]))
+  const vaultById = new Map(plan.snapshot.entities.map(entity => [openEntityKey(entity), entity]))
   const pathsById = pathById(plan.snapshot)
   const tombstones = [...(plan.snapshot.tombstones || [])]
   const entities: OpenEntity[] = []
   const deletedEntityIds: string[] = []
   for (const local of plan.localEntities) {
-    const id = openEntityId(local)
-    const vault = vaultById.get(id)
-    const decision = decisions[id] as VaultEntityDecision | undefined
+    const key = openEntityKey(local)
+    const vault = vaultById.get(key)
+    const decision = decisions[key] as VaultEntityDecision | undefined
     if (!vault) {
-      if (plan.vaultDeletedEntities.some(entity => entity.calmyId === id) && decision === 'keep-vault') continue
+      if (plan.vaultDeletedEntities.some(entity => entity.identityKey === key) && decision === 'keep-vault') continue
       entities.push(local)
       continue
     }
@@ -229,16 +264,16 @@ export async function applyVaultSyncPlan(adapter: VaultAdapter, plan: VaultSyncP
     if (decision === 'keep-vault') entities.push(vault)
     else if (decision === 'use-local') entities.push(local)
     else if (decision === 'delete-vault') {
-      deletedEntityIds.push(id)
-      tombstones.push(entityTombstone(local, pathsById.get(id) || generatedPathForEntity(local), Math.max(vault.revision, local.revision) + 1))
+      deletedEntityIds.push(key)
+      tombstones.push(entityTombstone(local, pathsById.get(key) || generatedPathForEntity(local), Math.max(openEntityRevision(vault), openEntityRevision(local)) + 1))
     } else entities.push(mergeVaultEntity(vault, local, decision.fields))
   }
   for (const vaultOnly of plan.vaultOnlyEntities) {
-    const decision = decisions[vaultOnly.calmyId] as VaultEntityDecision
+    const decision = decisions[vaultOnly.identityKey] as VaultEntityDecision
     if (decision === 'keep-vault') entities.push(vaultOnly.entity)
     else {
-      deletedEntityIds.push(vaultOnly.calmyId)
-      tombstones.push(entityTombstone(vaultOnly.entity, vaultOnly.path, vaultOnly.entity.revision + 1))
+      deletedEntityIds.push(vaultOnly.identityKey)
+      tombstones.push(entityTombstone(vaultOnly.entity, vaultOnly.path, openEntityRevision(vaultOnly.entity) + 1))
     }
   }
   const assetsByPath = new Map<string, OpenAsset>()
@@ -258,9 +293,9 @@ export async function applyVaultSyncPlan(adapter: VaultAdapter, plan: VaultSyncP
     if (decision === 'keep-vault') assetsByPath.set(path, vault)
     else deletedAssetPaths.push(path)
   }
-  const retainedTombstones = tombstones.filter(tombstone => !entities.some(entity => openEntityId(entity) === tombstone.calmy_id))
-  const workspace = stableWorkspace(entities, [...assetsByPath.values()], pathsById, retainedTombstones)
+  const retainedTombstones = tombstones.filter(tombstone => !entities.some(entity => openEntityKey(entity) === identityKey(tombstone.calmy_type, tombstone.calmy_id)))
+  const workspace = stableWorkspace(entities, [...assetsByPath.values()], pathsById, retainedTombstones, plan.financeMutations)
   const deletedPaths = [...retainedTombstones.map(tombstone => tombstone.path), ...deletedAssetPaths].filter(path => plan.snapshot.paths.includes(path))
   const sync = await syncWorkspaceToVault(adapter, workspace, deletedPaths)
-  return { sync, missingDecisions: [], appliedEntityIds: entities.map(openEntityId), deletedEntityIds, deletedAssetPaths, errors: sync.errors }
+  return { sync, missingDecisions: [], appliedEntityIds: entities.map(openEntityKey), deletedEntityIds, deletedAssetPaths, errors: sync.errors }
 }

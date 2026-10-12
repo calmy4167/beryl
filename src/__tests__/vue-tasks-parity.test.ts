@@ -1,122 +1,146 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { h, nextTick } from 'vue'
+import { h } from 'vue'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resetStoreCache } from '@/core/storage'
+import { resetStoreCache, todayKey } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { todayAsyncRepository } from '@/domain/today/repository'
-import TasksPage from '@/vue/pages/TasksPage.vue'
+import { unifiedAsyncRepository, unifiedFactories, type Relation } from '@/domain/unified'
+import LiubaiTasks from '@/vue/pages/LiubaiTasks.vue'
+
+/**
+ * 「任务」页（v11）的行为覆盖。
+ *
+ * 迁移说明（第 27 轮）：本文件原来测的是旧页面 `TasksPage.vue`（已删除）。迁移时这一页漏掉了
+ * 行动卡片上的「所属领域 / 上下文关联 / 归属与可见范围」三块编辑能力与「创建时选日期 / 关联处境」，
+ * 第 27 轮已补齐（直接复用 DomainPicker / ContextRelationPicker / OwnershipEditor 与既有仓储路径），
+ * 本文件因此覆盖：带日期与处境的新建（进当日重点）、完成/重开、设为当日重点、取消、
+ * 以及三块编辑能力。旧页面还有「状态筛选 tab / load-pill / 空标题警告 toast / 打开看板」，
+ * v11 页按参考稿没有这些，已记入交接文档 §4.2。
+ */
 
 let wrapper: VueWrapper | undefined
-
-async function openTasks(settle = true) {
+async function openTasks() {
   const router = createRouter({ history: createMemoryHistory(), routes: [
-    { path: '/app/tasks', component: TasksPage },
-    { path: '/app/task-board', component: { template: '<h1>看板</h1>' } },
-    { path: '/app/matters/:id', component: { template: '<h1>课题详情</h1>' } },
+    { path: '/app/module/tasks', component: LiubaiTasks },
   ] })
-  await router.push('/app/tasks'); await router.isReady()
+  await router.push('/app/module/tasks'); await router.isReady()
   wrapper = mount({ render: () => h(RouterView) }, { global: { plugins: [router] } })
-  if (settle) await flushPromises()
-  return { page: wrapper, router }
+  await flushPromises()
+  return wrapper
 }
+const buttonByLabel = (page: VueWrapper, label: string) =>
+  page.findAll('button').find(button => button.attributes('aria-label') === label)!
 
-async function click(page: VueWrapper, label: string) {
-  const button = page.findAll('button').find(item => item.text().trim() === label)
-  expect(button, `button ${label}`).toBeDefined()
-  await button!.trigger('click'); await flushPromises()
-}
+describe('Vue LiubaiTasks (v11) parity', () => {
+  beforeEach(() => { setActiveAccount('tasks-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
 
-describe('Vue TasksPage parity', () => {
-  it('matches the React native select treatment for the task matter field', () => {
-    const css = readFileSync(resolve(process.cwd(), 'src/styles/controls.css'), 'utf8')
-    const match = css.match(/html\.tactile-ui #app \.page-container \.tasks-page select\s*\{([^}]+)\}/)
-    expect(match?.[1]).toContain('padding: 9px 11px;')
-    expect(match?.[1]).toContain('background-image: none;')
-    expect(match?.[1]).toContain('appearance: auto;')
-  })
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
-
-  it('creates a trimmed task on the selected date with an active matter and adds it to that day’s focus', async () => {
+  it('creates a trimmed task on the chosen date with an active matter and adds it to that day’s focus', async () => {
     const active = await matterAsyncRepository.create({ title: '准备面试' })
     const archived = await matterAsyncRepository.create({ title: '旧课题' })
     await matterAsyncRepository.archive(archived.calmyId)
-    const { page } = await openTasks()
-    await page.get('[aria-label="任务日期"]').setValue('2026-10-05')
-    await flushPromises()
+    const page = await openTasks()
+
     const matterSelect = page.get('[aria-label="关联处境"]')
     expect(matterSelect.element.tagName).toBe('SELECT')
     expect(page.find(`option[value="${archived.calmyId}"]`).exists()).toBe(false)
+
+    await page.get('[aria-label="任务日期"]').setValue('2026-10-05')
     await matterSelect.setValue(active.calmyId)
     await page.get('[aria-label="任务名称"]').setValue('  整理作品集  ')
-    await page.get('form').trigger('submit')
+    await page.get('[aria-label="任务名称"]').trigger('keydown.enter')
     await flushPromises()
+
     const actions = await actionAsyncRepository.list()
     expect(actions).toEqual([expect.objectContaining({ title: '整理作品集', date: '2026-10-05', matterId: active.calmyId, status: 'planned' })])
     expect((await todayAsyncRepository.get('2026-10-05')).focusActionIds).toContain(actions[0].calmyId)
-    expect(page.get('.action-card').text()).toContain('今日焦点')
     expect((page.get('[aria-label="任务名称"]').element as HTMLInputElement).value).toBe('')
   })
 
-  it('filters statuses, completes and reopens through the real action repository', async () => {
-    const planned = await actionAsyncRepository.create({ title: '写总结', date: '2026-10-06' })
-    await actionAsyncRepository.create({ title: '做饭', date: '2026-10-04' })
-    const { page } = await openTasks()
-    expect(page.text()).toContain('2 个待处理 · 0 个已完成')
-    expect(Array.from(page.get('.load-pill').element.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.textContent !== '').map(node => node.textContent)).toEqual(['2', ' 个待处理 · ', '0', ' 个已完成'])
-    await page.findAll('[role="tab"]').find(item => item.text() === '待开始')!.trigger('click')
-    expect(page.findAll('.action-card')).toHaveLength(2)
-    await page.findAll('.action-card').find(item => item.text().includes('写总结'))!.find('button[aria-label="完成任务"]').trigger('click')
+  it('completes and reopens a task through the real action repository', async () => {
+    const planned = await actionAsyncRepository.create({ title: '写总结', date: todayKey() })
+    const page = await openTasks()
+
+    await buttonByLabel(page, '标记完成').trigger('click')
     await flushPromises()
     expect((await actionAsyncRepository.find(planned.calmyId))?.status).toBe('done')
-    expect(page.text()).toContain('1 个待处理 · 1 个已完成')
-    expect(page.findAll('.action-card')).toHaveLength(1)
-    await page.findAll('[role="tab"]').find(item => item.text() === '已完成')!.trigger('click')
-    expect(page.get('.action-card h3').classes()).toContain('done')
-    await click(page, '重开')
+
+    await buttonByLabel(page, '标记未完成').trigger('click')
+    await flushPromises()
     expect((await actionAsyncRepository.find(planned.calmyId))?.status).toBe('planned')
-    expect(page.text()).toContain('2 个待处理 · 0 个已完成')
-    expect(page.findAll('.action-card')).toHaveLength(0)
   })
 
-  it('validates blank titles and navigates to the board and linked matter', async () => {
-    const matter = await matterAsyncRepository.create({ title: '读书课题' })
-    await actionAsyncRepository.create({ title: '读一章', date: '2026-10-06', matterId: matter.calmyId })
-    const messages: Array<{ message: string; kind: string }> = []
-    const listener = (event: Event) => messages.push((event as CustomEvent<{ message: string; kind: string }>).detail)
-    window.addEventListener('beryl-toast', listener)
-    try {
-      const { page, router } = await openTasks()
-      await page.get('form').trigger('submit')
-      expect(messages.at(-1)).toEqual({ message: '请先写下任务名称', kind: 'warning' })
-      expect(await actionAsyncRepository.list()).toHaveLength(1)
-      await page.get('[aria-label="打开课题 读书课题"]').trigger('click')
-      await flushPromises()
-      expect(router.currentRoute.value.path).toBe(`/app/matters/${matter.calmyId}`)
-      await router.push('/app/tasks'); await flushPromises()
-      await click(page, '打开看板')
-      expect(router.currentRoute.value.path).toBe('/app/task-board')
-    } finally { window.removeEventListener('beryl-toast', listener) }
+  it('sets the day focus by clicking the title and cancels a task from its row', async () => {
+    const action = await actionAsyncRepository.create({ title: '读一章', date: todayKey() })
+    await todayAsyncRepository.get(todayKey())
+    const page = await openTasks()
+
+    await page.get('.task .text').trigger('click')
+    await flushPromises()
+    expect((await todayAsyncRepository.get(todayKey())).focusActionIds).toContain(action.calmyId)
+    expect(page.get('.task').classes()).toContain('is-focus')
+
+    await buttonByLabel(page, '取消').trigger('click')
+    await flushPromises()
+    expect((await actionAsyncRepository.find(action.calmyId))?.status).toBe('cancelled')
   })
 
-  it('shows loading, read failure, and retry without clearing the retained list', async () => {
-    let release!: () => void
-    const gate = new Promise<void>(resolve => { release = resolve })
-    const realList = actionAsyncRepository.list.bind(actionAsyncRepository)
-    vi.spyOn(actionAsyncRepository, 'list').mockImplementationOnce(async () => { await gate; throw new Error('读取失败') }).mockImplementation(realList)
-    try {
-      const { page } = await openTasks(false)
-      await nextTick()
-      expect(page.get('[role="status"]').text()).toContain('正在读取任务')
-      release(); await flushPromises()
-      expect(page.get('[role="alert"]').text()).toContain('读取失败')
-      await click(page, '重试')
-      expect(page.find('[role="alert"]').exists()).toBe(false)
-      expect(page.text()).toContain('当前筛选下没有任务')
-    } finally { release() }
+  it('assigns a Domain to an Action through the stable Action repository id', async () => {
+    const domain = await unifiedAsyncRepository.create(unifiedFactories.domain({ key: 'work', displayName: '工作' }))
+    const action = await actionAsyncRepository.create({ title: '校准需求', date: todayKey() })
+    const page = await openTasks()
+
+    await page.get('.task-detail [aria-label="所属领域（可选）"]').setValue(domain.calmyId)
+    await flushPromises()
+
+    expect(await unifiedAsyncRepository.list<Relation>('relation')).toEqual([
+      expect.objectContaining({
+        from: { entityType: 'action', calmyId: action.calmyId },
+        to: { entityType: 'domain', calmyId: domain.calmyId },
+        relationType: 'belongs_to_domain'
+      })
+    ])
+  })
+
+  it('links an Action to its Space context through a typed Relation and keeps one Action record', async () => {
+    const space = await unifiedAsyncRepository.create(unifiedFactories.space({ title: '家庭照护', memberPersonIds: [], relationshipIds: [], thingIds: [], sceneIds: [], status: 'active' }))
+    const action = await actionAsyncRepository.create({ title: '联系医院', date: todayKey() })
+    const page = await openTasks()
+
+    const picker = page.get('.task-detail .context-relation-picker')
+    await picker.get('select').setValue(`space:${space.calmyId}`)
+    await picker.get('.context-relation-add button').trigger('click')
+    await flushPromises()
+
+    expect(await unifiedAsyncRepository.list<Relation>('relation')).toContainEqual(expect.objectContaining({
+      from: { entityType: 'action', calmyId: action.calmyId }, to: { entityType: 'space', calmyId: space.calmyId }, relationType: 'context_of'
+    }))
+    expect(await actionAsyncRepository.list()).toHaveLength(1)
+  })
+
+  it('edits Action Owner, Subject, Steward, and Private visibility independently', async () => {
+    const dad = await unifiedAsyncRepository.create(unifiedFactories.person({ displayName: '爸爸' }))
+    const mom = await unifiedAsyncRepository.create(unifiedFactories.person({ displayName: '妈妈' }))
+    const action = await actionAsyncRepository.create({ title: '联系医院', date: todayKey() })
+    const page = await openTasks()
+
+    const editor = page.get('.task-detail .ownership-editor')
+    await editor.find('summary').trigger('click')
+    await editor.get('input[type="checkbox"]').setValue(true)
+    await editor.get('select').setValue(`person:${dad.calmyId}`)
+    await editor.get('[aria-label="共同所有者"]').setValue([`person:${mom.calmyId}`])
+    await editor.findAll('select')[2].setValue(dad.calmyId)
+    await editor.get('[aria-label="管理者"]').setValue([`person:${mom.calmyId}`])
+    await editor.findAll('select')[4].setValue('private')
+    await editor.findAll('button').find(button => button.text() === '保存归属设置')!.trigger('click')
+    await flushPromises()
+
+    expect((await actionAsyncRepository.find(action.calmyId))?.ownership).toMatchObject({
+      ownerRef: { type: 'person', id: dad.calmyId }, coOwnerRefs: [{ type: 'person', id: mom.calmyId }],
+      subjectRef: { entityType: 'person', calmyId: dad.calmyId }, stewardRefs: [{ type: 'person', id: mom.calmyId }], privacy: 'private'
+    })
   })
 })

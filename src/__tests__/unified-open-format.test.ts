@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 import { importOpenWorkspace, exportOpenWorkspace, serializeOpenEntity } from '@/core/content/open-format'
 import { applyOpenEntities } from '@/core/content/open-workspace'
 import { unifiedFactories } from '@/domain/unified'
 
 describe('unified entities in Open Format', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('unified-open-format-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('round-trips Person and Cycle through Markdown plus payload metadata', () => {
     const person = unifiedFactories.person({ displayName: '周行', tags: ['context'] })
@@ -23,6 +25,24 @@ describe('unified entities in Open Format', () => {
     expect(imported.entities).toEqual(expect.arrayContaining([person, cycle]))
   })
 
+  it('preserves complete revision snapshots in the portable entity payload', () => {
+    const person = unifiedFactories.person({ displayName: '当前姓名' })
+    const versionedPerson = {
+      ...person,
+      revisionHistory: [{
+        revision: 2, operation: 'updated' as const, source: 'user' as const, actorUserId: 'user-1',
+        occurredAt: 200, fromRevision: 1, toRevision: 2,
+        previousSnapshot: { calmyId: person.calmyId, revision: 1, displayName: '旧姓名' },
+        snapshot: { calmyId: person.calmyId, revision: 2, displayName: '当前姓名' }
+      }]
+    }
+    const workspace = exportOpenWorkspace({ unified: [versionedPerson] })
+    const imported = importOpenWorkspace(workspace.files)
+
+    expect(imported.issues).toEqual([])
+    expect(imported.entities[0]).toMatchObject({ revisionHistory: versionedPerson.revisionHistory })
+  })
+
   it('round-trips reusable sentence templates with their stable ID and source links', () => {
     const template = unifiedFactories.resource({
       title: '写下事实', kind: 'template', status: 'active', body: '我观察到……',
@@ -32,7 +52,7 @@ describe('unified entities in Open Format', () => {
     const imported = importOpenWorkspace(workspace.files, workspace.assets)
 
     expect(imported.issues).toEqual([])
-    expect(imported.entities).toEqual([template])
+    expect(imported.entities).toEqual([expect.objectContaining(template)])
   })
 
   it('applies imported unified entities without sending them to legacy repositories', () => {
@@ -40,8 +60,8 @@ describe('unified entities in Open Format', () => {
     const result = applyOpenEntities([person])
 
     expect(result.created).toBe(1)
-    expect(localStorage.getItem('b_core:person')).toContain('只进入统一域')
-    expect(localStorage.getItem('b_cases')).toBeNull()
+    expect(localStorage.getItem(accountStorageKey('b_core:person'))).toContain('只进入统一域')
+    expect(localStorage.getItem(accountStorageKey('b_cases'))).toBeNull()
   })
 
   it('round-trips every supported unified entity through readable YAML fields', () => {
@@ -56,7 +76,7 @@ describe('unified entities in Open Format', () => {
     const insight = unifiedFactories.insight({ title: '一个洞察', body: '先缩小范围更容易推进', status: 'draft', confidence: 0.72, memoryLayer: 'ai_inference', sourceRecordIds: [], matterIds: ['matter-readable'], resourceIds: [] })
     const outcome = unifiedFactories.outcome({ actionId: 'action-readable', matterId: 'matter-readable', summary: '完成一次验证', result: '得到反馈', status: 'observed', evidenceRecordIds: [] })
     const practice = unifiedFactories.practice({ title: '先做验证', description: '先验证再扩展', status: 'candidate', matterIds: ['matter-readable'], outcomeIds: [outcome.calmyId], evidenceIds: [], cadence: '每次开始前' })
-    const daily = unifiedFactories.dailyState({ date: '2026-08-19', bodyState: 'normal', mentalState: 'clear', load: 35, actualTimeMinutes: 90, trajectory: 'advancing', todayPlanId: 'daily_2026-08-19', protectedItems: ['睡眠'] })
+    const daily = unifiedFactories.dailyState({ date: '2026-08-19', bodyState: 'normal', mentalState: 'clear', load: 35, actualTimeMinutes: 90, trajectory: 'advancing', todayPlanId: 'daily_2026-08-19', protectedItems: ['睡眠'], ownership: { createdByUserId: 'daily-owner', ownerRef: { type: 'user', id: 'daily-owner' }, stewardRefs: [], privacy: 'private' }, history: [{ revision: 1, operation: 'created', occurredAt: 1, actorUserId: 'daily-owner', date: '2026-08-19', bodyState: 'normal', mentalState: 'clear', load: 35, actualTimeMinutes: 90, trajectory: 'advancing', todayPlanId: 'daily_2026-08-19', protectedItems: ['睡眠'], ownership: { createdByUserId: 'daily-owner', ownerRef: { type: 'user', id: 'daily-owner' }, stewardRefs: [], privacy: 'private' } }] })
     const asset = unifiedFactories.asset({ path: 'assets/evidence/report.pdf', mimeType: 'application/pdf', sizeBytes: 2048, hash: 'fnv1a-1234abcd', lifecycle: 'active', version: 1, externalUri: 'https://example.com/report.pdf' })
     const entities = [person, relationship, sharedSpace, cycle, stage, resource, relation, seed, insight, outcome, practice, daily, asset]
     const workspace = exportOpenWorkspace({ unified: entities })
@@ -66,7 +86,7 @@ describe('unified entities in Open Format', () => {
 
     expect(imported.issues).toEqual([])
     expect(imported.entities).toHaveLength(entities.length)
-    expect(imported.entities).toEqual(expect.arrayContaining(entities))
+    expect(imported.entities).toEqual(expect.arrayContaining(entities.map(entity => expect.objectContaining(entity))))
   })
 
   it('prefers an externally edited readable field over stale payload_json', () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Matter } from '@/domain/matter/model'
 import { hashOpenText, exportOpenWorkspace, OPEN_MANIFEST_PATH } from '@/core/content/open-format'
+import type { OpenHabit } from '@/core/content/open-format'
 import { applyVaultSyncPlan, buildVaultSyncPlan, formatVaultSyncSummary } from '@/core/content/vault-sync'
 import type { VaultAdapter } from '@/core/content/obsidian-adapter'
 
@@ -27,6 +28,12 @@ const matter: Matter = {
   status: 'active', currentStage: 'wood', trajectory: 'stable', evidenceIds: [], createdAt: 1723900000000,
   updatedAt: 1723900001000, revision: 1
 }
+const habit: OpenHabit = {
+  entityType: 'habit_entry', id: 'vault-habit-1', name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'], revision: 2,
+  history: [{ revision: 2, operation: 'updated', source: 'user', occurredAt: 20,
+    before: { name: '散步', color: '#123456', days: 0, dates: [] },
+    after: { name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'] } }]
+}
 
 function putWorkspace(vault: MemoryVault, workspace: ReturnType<typeof exportOpenWorkspace>, path?: string) {
   const originalPath = Object.keys(workspace.files).find(item => item.endsWith('.md')) as string
@@ -51,6 +58,22 @@ describe('Obsidian Vault sync plan', () => {
     expect(plan.assetConflicts).toEqual([])
   })
 
+  it('preserves Habit history through a reviewed Portable Vault edit', async () => {
+    const vault = new MemoryVault()
+    const workspace = exportOpenWorkspace({ habits: [habit] })
+    putWorkspace(vault, workspace, 'Routines/walk.md')
+    vault.files.set('Routines/walk.md', String(vault.files.get('Routines/walk.md')).replace('title: "散步"', 'title: "饭后散步"'))
+
+    const plan = await buildVaultSyncPlan(vault, workspace)
+    expect(plan.conflicts).toHaveLength(1)
+    expect(plan.conflicts[0].identityKey).toBe(`habit_entry:${habit.id}`)
+    const applied = await applyVaultSyncPlan(vault, plan, { [`habit_entry:${habit.id}`]: 'keep-vault' })
+
+    expect(applied.errors).toEqual([])
+    const verified = await buildVaultSyncPlan(vault, workspace)
+    expect(verified.snapshot.entities[0]).toMatchObject({ entityType: 'habit_entry', id: habit.id, name: '饭后散步', history: habit.history })
+  })
+
   it('allows an explicitly reviewed external Markdown edit despite its stale manifest hash', async () => {
     const vault = new MemoryVault()
     const workspace = exportOpenWorkspace({ matters: [matter] })
@@ -69,10 +92,10 @@ describe('Obsidian Vault sync plan', () => {
     expect(formatVaultSyncSummary(plan)).toContain('文件完整性提示')
 
     const blocked = await applyVaultSyncPlan(vault, plan, {})
-    expect(blocked.missingDecisions).toEqual([matter.calmyId])
+    expect(blocked.missingDecisions).toEqual([`matter:${matter.calmyId}`])
     expect(vault.files.get('Projects/custom-matter.md')).toContain('外部编辑标题')
 
-    const applied = await applyVaultSyncPlan(vault, plan, { [matter.calmyId]: 'keep-vault' })
+    const applied = await applyVaultSyncPlan(vault, plan, { [`matter:${matter.calmyId}`]: 'keep-vault' })
     expect(applied.errors).toEqual([])
     const verified = await buildVaultSyncPlan(vault, workspace)
     expect(verified.issues).toEqual([])
@@ -111,7 +134,7 @@ describe('Obsidian Vault sync plan', () => {
     expect(plan.conflicts[0].path).toBe('Projects/custom-matter.md')
     expect(plan.conflicts[0].fields.map(field => field.key)).toContain('title')
 
-    const result = await applyVaultSyncPlan(vault, plan, { [matter.calmyId]: 'use-local' })
+    const result = await applyVaultSyncPlan(vault, plan, { [`matter:${matter.calmyId}`]: 'use-local' })
     expect(result.errors).toEqual([])
     expect(vault.files.has('Projects/custom-matter.md')).toBe(true)
     expect(String(vault.files.get('Projects/custom-matter.md'))).toContain('本地新标题')
@@ -123,10 +146,10 @@ describe('Obsidian Vault sync plan', () => {
     const plan = await buildVaultSyncPlan(vault, exportOpenWorkspace({}))
 
     const blocked = await applyVaultSyncPlan(vault, plan, {})
-    expect(blocked.missingDecisions).toEqual([matter.calmyId])
+    expect(blocked.missingDecisions).toEqual([`matter:${matter.calmyId}`])
     expect(vault.files.has('Projects/delete-me.md')).toBe(true)
 
-    const result = await applyVaultSyncPlan(vault, plan, { [matter.calmyId]: 'delete-vault' })
+    const result = await applyVaultSyncPlan(vault, plan, { [`matter:${matter.calmyId}`]: 'delete-vault' })
     expect(result.errors).toEqual([])
     expect(vault.files.has('Projects/delete-me.md')).toBe(false)
     const manifest = JSON.parse(String(vault.files.get(OPEN_MANIFEST_PATH))) as { tombstones?: Array<{ calmy_id: string; path: string }> }
@@ -137,7 +160,7 @@ describe('Obsidian Vault sync plan', () => {
     const vault = new MemoryVault()
     putWorkspace(vault, exportOpenWorkspace({ matters: [matter] }))
     const deletionPlan = await buildVaultSyncPlan(vault, exportOpenWorkspace({}))
-    await applyVaultSyncPlan(vault, deletionPlan, { [matter.calmyId]: 'delete-vault' })
+    await applyVaultSyncPlan(vault, deletionPlan, { [`matter:${matter.calmyId}`]: 'delete-vault' })
     const restorePlan = await buildVaultSyncPlan(vault, exportOpenWorkspace({ matters: [matter] }))
 
     expect(restorePlan.vaultDeletedEntities).toHaveLength(1)

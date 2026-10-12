@@ -46,7 +46,7 @@ describe('Vue migration entry and route registry', () => {
 
 describe('飞书缓存安全边界', () => {
   it('刷新时立即进入只读状态，并在缓存清理失败时保留错误', () => {
-    const admin = source('src/views/AdminView.vue')
+    const admin = source('src/vue/pages/AdminPage.vue')
     const workspace = source('src/core/feishu/workspace.ts')
     const resetHandler = admin.slice(admin.indexOf('function resetData()'), admin.indexOf('\nfunction logout()'))
 

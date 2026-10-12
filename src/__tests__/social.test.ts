@@ -1,8 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { socialRepository } from '@/domain/social/repository'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('social moments repository', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('social-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('creates a single-user post with a future-safe author and visibility contract', () => {
     const post = socialRepository.create('今天完成了一件小事', 'friends')

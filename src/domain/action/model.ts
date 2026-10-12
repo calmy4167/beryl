@@ -14,6 +14,7 @@ export interface ActionItem {
   createdAt: number
   updatedAt: number
   revision: number
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export interface ActionCreateInput {
@@ -22,6 +23,7 @@ export interface ActionCreateInput {
   matterId?: string
   personId?: string
   cycleId?: string
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export interface ActionCommandMeta {
@@ -36,7 +38,7 @@ export interface ActionMutation {
   id: string
   entity: 'action'
   entityId: string
-  operation: 'create' | 'update' | 'transition'
+  operation: 'create' | 'update' | 'transition' | 'remove'
   commandId: string
   actor: NonNullable<ActionCommandMeta['actor']>
   actorId?: string
@@ -45,6 +47,8 @@ export interface ActionMutation {
   toRevision: number
   occurredAt: number
   patch?: unknown
+  previousSnapshot?: Record<string, unknown>
+  snapshot?: Record<string, unknown>
 }
 
 export class ActionDomainError extends Error {

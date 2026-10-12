@@ -1,12 +1,14 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { matterRepository } from '@/domain/matter/repository'
 import { recordRepository } from '@/domain/record/repository'
 import { listSharedBoundariesForMatter, listSharedContextForRelationship, listSharedContextForSpace } from '@/domain/social/shared-context'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('shared context query', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('shared-context-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('aggregates common Matter, Action, Record and auditable history for an active Relationship', () => {
     const matter = matterRepository.create({ title: '共同搬家' })

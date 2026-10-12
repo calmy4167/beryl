@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { importOpenWorkspace, exportOpenWorkspace } from '@/core/content/open-format'
 import { recordRepository } from '@/domain/record/repository'
 import { unifiedFactories, unifiedRepository, type DailyState } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('reality extensions', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('reality-extensions-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('records negative changes without treating all records as waste', () => {
     const record = recordRepository.createNegative({ body: '刷视频逃避困难任务', impact: 'escape', matterId: 'matter-1' })

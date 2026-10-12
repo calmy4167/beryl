@@ -5,6 +5,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import { unifiedAsyncRepository, unifiedFactories, type Insight } from '@/domain/unified'
 import MemoryPage from '@/vue/pages/MemoryPage.vue'
@@ -22,12 +23,15 @@ async function openMemory() {
 }
 
 describe('Vue MemoryPage parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('vue-memory-parity-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
 
-  it('lets the memory page fill the React reference content width', () => {
+  it('lets the memory page fill the 留白 content width', () => {
     const componentSource = readFileSync(resolve(process.cwd(), 'src/vue/pages/MemoryPage.vue'), 'utf8')
-    expect(componentSource).toMatch(/\.memory-page\s*\{[^}]*max-width:\s*none;/s)
+    // 迁移前靠 `.memory-page{max-width:none}` 撤销旧壳的内容宽度上限；
+    // v11 里页面直接挂在 .inner 下（本就占满内容宽度），所以改为断言组件自己不再设任何宽度上限。
+    expect(componentSource).not.toMatch(/max-width:\s*\d/)
+    expect(componentSource).toContain('useOwnSlideHead()')
   })
   it('switches fact/reflection layers and displays the real record content', async () => {
     await recordAsyncRepository.create({ type: 'fact', body: '记录过的事实' })

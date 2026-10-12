@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -49,14 +49,38 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
-import { unifiedAsyncRepository, unifiedFactories } from '../domain/unified/repository'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
+import { clearSession, writeServerSession } from '../core/auth'
+import { unifiedAsyncRepository, unifiedFactories, unifiedRepository } from '../domain/unified/repository'
 import type { CoreEntityMutation } from '../domain/unified/model'
 
 describe('unifiedAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('unified-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
+  })
+  afterEach(() => { clearSession(); setActiveAccount(null) })
+
+  it('defaults signed-in user-created Core Entities to private ownership without assigning ownership to access-control metadata', async () => {
+    writeServerSession({ token: 'core-owner-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'core-owner', username: 'core-owner', displayName: 'Core Owner', role: 'user' }, mustChangePassword: false })
+    const person = unifiedFactories.person({ displayName: '由当前用户创建' })
+    const asyncPerson = unifiedFactories.person({ displayName: '异步当前用户创建' })
+    const importedPerson = { ...unifiedFactories.person({ displayName: '导入的人物' }), calmyId: 'imported-person-no-owner', source: 'import' as const }
+    const permission = unifiedFactories.permission({ principalUserId: 'reader', entityRef: { entityType: 'person', calmyId: person.calmyId }, effect: 'allow', actions: ['view'] })
+
+    const createdSync = unifiedRepository.create(person)
+    const createdAsync = await unifiedAsyncRepository.create(asyncPerson)
+    const createdPermission = await unifiedAsyncRepository.create(permission)
+    await unifiedAsyncRepository.importEntity(importedPerson)
+
+    const expectedOwnership = { createdByUserId: 'core-owner', ownerRef: { type: 'user', id: 'core-owner' }, stewardRefs: [], privacy: 'private' }
+    expect(createdSync.ownership).toEqual(expectedOwnership)
+    expect(createdAsync.ownership).toEqual(expectedOwnership)
+    expect(createdPermission.ownership).toBeUndefined()
+    expect((await unifiedAsyncRepository.find('person', importedPerson.calmyId))?.ownership).toBeUndefined()
+    expect((await unifiedAsyncRepository.mutations('person', asyncPerson.calmyId))[0]).toMatchObject({ actorId: 'core-owner', patch: expect.objectContaining({ ownership: expectedOwnership }) })
   })
 
   it('reads the entity-type store from the durable snapshot', async () => {
@@ -70,7 +94,7 @@ describe('unifiedAsyncRepository', () => {
 
   it('creates and updates an entity through the async durable facade', async () => {
     const person = unifiedFactories.person({ displayName: '异步联系人' })
-    await expect(unifiedAsyncRepository.create(person)).resolves.toEqual(person)
+    await expect(unifiedAsyncRepository.create(person)).resolves.toMatchObject({ ...person, revisionHistory: [expect.objectContaining({ revision: 1, operation: 'created', snapshot: expect.objectContaining({ displayName: person.displayName }) })] })
 
     const updated = await unifiedAsyncRepository.update('person', person.calmyId, { displayName: '更新后的联系人' }, { expectedRevision: 1 })
 
@@ -95,8 +119,8 @@ describe('unifiedAsyncRepository', () => {
     }
     durable.values.set('b_coreEntityMutations', JSON.stringify([mutation]))
     durable.values.set('b_coreEntityCommands', JSON.stringify([{ id: 'snapshot-command', result: person }]))
-    localStorage.setItem('b_coreEntityMutations', JSON.stringify([]))
-    localStorage.setItem('b_coreEntityCommands', JSON.stringify([]))
+    localStorage.setItem(accountStorageKey('b_coreEntityMutations'), JSON.stringify([]))
+    localStorage.setItem(accountStorageKey('b_coreEntityCommands'), JSON.stringify([]))
 
     await expect(unifiedAsyncRepository.mutations('person', person.calmyId)).resolves.toEqual([mutation])
     await expect(unifiedAsyncRepository.create(person, { commandId: 'snapshot-command' })).resolves.toEqual(person)
@@ -105,8 +129,9 @@ describe('unifiedAsyncRepository', () => {
   it('makes repeated command ids idempotent without appending another durable mutation', async () => {
     const first = unifiedFactories.person({ displayName: '第一次创建' })
     const replay = unifiedFactories.person({ displayName: '重放不应覆盖' })
-    await expect(unifiedAsyncRepository.create(first, { commandId: 'idempotent-create' })).resolves.toEqual(first)
-    await expect(unifiedAsyncRepository.create(replay, { commandId: 'idempotent-create' })).resolves.toEqual(first)
+    const created = await unifiedAsyncRepository.create(first, { commandId: 'idempotent-create' })
+    expect(created).toMatchObject({ ...first, revisionHistory: [expect.objectContaining({ revision: 1, operation: 'created' })] })
+    await expect(unifiedAsyncRepository.create(replay, { commandId: 'idempotent-create' })).resolves.toEqual(created)
 
     await expect(unifiedAsyncRepository.mutations('person', first.calmyId)).resolves.toHaveLength(1)
     await expect(unifiedAsyncRepository.find('person', replay.calmyId)).resolves.toBeUndefined()

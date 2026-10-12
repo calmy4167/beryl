@@ -3,12 +3,17 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createAsyncCollectionRepository } from '@/core/repository'
 import { resetStoreCache, store } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { undoLastAsync } from '@/core/undo'
+import { clearSession, writeServerSession } from '@/core/auth'
+import { unifiedAsyncRepository, unifiedFactories, type Relation } from '@/domain/unified'
 import * as reality from '@/domain/reality'
 import * as saveState from '@/core/save-state'
+import { listRealityActivityAsync } from '@/domain/social/collaboration'
+import { exportOpenWorkspace, importOpenWorkspace } from '@/core/content/open-format'
 import PostsPage from '@/vue/pages/PostsPage.vue'
 
-interface Post { id: string; title: string; content: string; date: string; archivedAt?: number }
+interface Post { id: string; title: string; content: string; date: string; archivedAt?: number; revision?: number; ownership?: { ownerRef: { type: 'user'; id: string }; stewardRefs: []; privacy: 'private' | 'restricted' }; history?: Array<{ revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; content: string; date: string; archivedAt?: number; ownership?: { ownerRef: { type: 'user'; id: string }; stewardRefs: []; privacy: 'private' | 'restricted' } }> }
 const posts = createAsyncCollectionRepository<Post>('posts')
 let page: VueWrapper | undefined
 const messages: Array<{ message: string; kind: string }> = []
@@ -40,7 +45,9 @@ function failNextPostWrite() {
 
 describe('Vue Posts parity', () => {
   beforeEach(() => {
+    setActiveAccount('vue-posts-parity-test-user')
     localStorage.clear()
+    clearSession()
     resetStoreCache()
     messages.length = 0
     window.addEventListener('beryl-toast', onToast)
@@ -50,6 +57,8 @@ describe('Vue Posts parity', () => {
     page?.unmount()
     page = undefined
     window.removeEventListener('beryl-toast', onToast)
+    clearSession()
+    setActiveAccount(null)
     vi.restoreAllMocks()
   })
 
@@ -74,6 +83,56 @@ describe('Vue Posts parity', () => {
     page!.unmount()
     await openPosts()
     expect(page!.get('.history-card').text()).toContain('一篇文章')
+  })
+
+  it('defaults signed-in new Posts to Private and preserves revision history and ownership in Open Format', async () => {
+    writeServerSession({ token: 'post-fixture-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'post-owner-user', username: 'post-owner', displayName: 'Post owner', role: 'user' }, mustChangePassword: false })
+    await openPosts()
+    await page!.get('[aria-label="文章标题"]').setValue('私人文章')
+    await page!.get('[aria-label="文章内容"]').setValue('初始内容')
+    await click('发布文章')
+    const post = (await posts.list())[0]
+    expect(post).toMatchObject({ revision: 1, ownership: { ownerRef: { type: 'user', id: 'post-owner-user' }, privacy: 'private' }, history: [expect.objectContaining({ revision: 1, operation: 'created', actorUserId: 'post-owner-user', content: '初始内容' })] })
+    await page!.get('.ownership-editor summary').trigger('click')
+    const privacySelect = page!.findAll('.ownership-fields select').at(-1)!
+    await privacySelect.setValue('restricted')
+    await click('保存归属设置')
+    await click('编辑')
+    await page!.get('[aria-label="文章内容"]').setValue('更新内容')
+    await click('保存修改')
+    const updated = await posts.find(post.id)
+    expect(updated?.revision).toBe(3)
+    expect(updated?.ownership?.privacy).toBe('restricted')
+    expect(updated?.history?.map(item => item.revision)).toEqual([1, 2, 3])
+    expect(updated?.history?.[1]).toMatchObject({ operation: 'updated', ownership: { privacy: 'restricted' } })
+    expect(updated?.history?.[2]).toMatchObject({ operation: 'updated', actorUserId: 'post-owner-user', content: '更新内容' })
+    const exported = exportOpenWorkspace({ posts: [{ ...updated!, entityType: 'post' }] })
+    const imported = importOpenWorkspace(exported.files)
+    expect(imported.issues).toEqual([])
+    expect(imported.entities).toContainEqual(expect.objectContaining({ id: post.id, entityType: 'post', revision: 3, ownership: updated!.ownership, history: updated!.history }))
+    expect(await listRealityActivityAsync({ entityType: 'post', calmyId: post.id })).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source: 'post_revision', entityRef: { entityType: 'post', calmyId: post.id }, toRevision: 1 }),
+      expect.objectContaining({ source: 'post_revision', entityRef: { entityType: 'post', calmyId: post.id }, toRevision: 3 })
+    ]))
+  })
+
+  it('links an article to an existing Scene through its stable legacy ID', async () => {
+    await seed('context-post', '复诊经验', '按原有文章保存。')
+    const scene = await unifiedAsyncRepository.create(unifiedFactories.scene({ title: '复诊期间' }))
+    await openPosts()
+
+    expect(page!.findAll('.context-relation-picker')).toHaveLength(1)
+    await page!.get('[aria-label="选择关联的人物、事情、情境或空间"]').setValue(`scene:${scene.calmyId}`)
+    await page!.find('.context-relation-picker button').trigger('click')
+    await flushPromises()
+
+    const relations = await unifiedAsyncRepository.list<Relation>('relation')
+    expect(relations).toHaveLength(1)
+    expect(relations[0]).toMatchObject({
+      from: { entityType: 'post', calmyId: 'context-post' },
+      to: { entityType: 'scene', calmyId: scene.calmyId }, relationType: 'context_of'
+    })
+    expect(await posts.find('context-post')).toMatchObject({ title: '复诊经验', content: '按原有文章保存。' })
   })
 
   it('searches title and body and switches active, archived and all filters', async () => {
@@ -184,12 +243,12 @@ describe('Vue Posts parity', () => {
       expect(page!.get('[aria-label="文章标题"]').attributes('disabled')).toBeDefined()
       expect(page!.get('[aria-label="文章内容"]').attributes('disabled')).toBeDefined()
       expect(page!.get('button[type="submit"]').text()).toBe('保存中…')
-      expect(page!.get('.history-card button.app-button').attributes('disabled')).toBeDefined()
+      expect(page!.get('.history-card button.chip').attributes('disabled')).toBeDefined()
       release()
       await flushPromises()
       expect((await posts.find('one'))?.title).toBe('新标题')
       expect(page!.get('[aria-label="文章标题"]').attributes('disabled')).toBeUndefined()
-      expect(page!.get('.history-card button.app-button').attributes('disabled')).toBeUndefined()
+      expect(page!.get('.history-card button.chip').attributes('disabled')).toBeUndefined()
     } finally { release() }
   })
 
@@ -213,12 +272,12 @@ describe('Vue Posts parity', () => {
     await click('归档')
     expect((await posts.find('one'))?.archivedAt).toBeUndefined()
     expect(messages.at(-1)).toEqual({ message: '文章不存在，可能已被其他设备删除', kind: 'error' })
-    expect(page!.get('.history-card button.app-button').attributes('disabled')).toBeUndefined()
+    expect(page!.get('.history-card button.chip').attributes('disabled')).toBeUndefined()
     archiveFailure.mockRestore()
     failNextPostWrite()
     await click('删除')
     expect((await posts.find('one'))?.title).toBe('保留文章')
     expect(messages.at(-1)).toEqual({ message: '文章删除失败', kind: 'error' })
-    expect(page!.get('.history-card button.app-button').attributes('disabled')).toBeUndefined()
+    expect(page!.get('.history-card button.chip').attributes('disabled')).toBeUndefined()
   })
 })

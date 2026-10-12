@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Matter } from '@/domain/matter/model'
 import { exportOpenWorkspace, OPEN_MANIFEST_PATH } from '@/core/content/open-format'
+import type { OpenHabit } from '@/core/content/open-format'
 import { unifiedFactories } from '@/domain/unified'
 import {
   createWorkspaceExportRequest,
@@ -39,6 +40,13 @@ function matter(title: string, revision: number): Matter {
     status: 'active', currentStage: 'wood', trajectory: 'stable', evidenceIds: [], createdAt: 1723900000000,
     updatedAt: 1723900000000 + revision, revision
   }
+}
+
+const habit: OpenHabit = {
+  entityType: 'habit_entry', id: 'bridge-habit-1', name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'], revision: 2,
+  history: [{ revision: 2, operation: 'updated', source: 'user', occurredAt: 20,
+    before: { name: '散步', color: '#123456', days: 0, dates: [] },
+    after: { name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'] } }]
 }
 
 function putWorkspace(vault: RuntimeMemoryVault, workspace: ReturnType<typeof exportOpenWorkspace>): void {
@@ -105,6 +113,29 @@ describe('Companion bridge runtime', () => {
     expect(applied.kind).toBe('ack')
     expect([...vault.files.keys()].some(path => path.startsWith('10 People/'))).toBe(true)
     expect((await readVaultSnapshot(vault)).entities).toEqual([person])
+  })
+
+  it('imports and exports Habit history through the companion bridge without changing its identity', async () => {
+    const vault = new RuntimeMemoryVault()
+    putWorkspace(vault, exportOpenWorkspace({}))
+    const session = new CompanionBridgeSession(vault)
+    const imported = await session.handle(createWorkspaceImportApply(encodeBridgeWorkspace(exportOpenWorkspace({ habits: [habit] })), {}, 'apply-habit'))
+
+    expect(imported.kind).toBe('ack')
+    const snapshot = await readVaultSnapshot(vault)
+    expect(snapshot.entities).toEqual([habit])
+    expect([...vault.files.keys()].some(path => path.startsWith('60 Habits/'))).toBe(true)
+
+    const exported = await session.handle(createWorkspaceExportRequest('export-habit'))
+    expect(exported.kind).toBe('workspace_export')
+    if (exported.kind === 'workspace_export') {
+      const roundTrip = exportOpenWorkspace({ habits: [habit] })
+      const exportedHabit = Object.entries(exported.workspace.files).find(([path]) => path.endsWith('.md'))
+      const expectedHabit = Object.entries(roundTrip.files).find(([path]) => path.endsWith('.md'))
+      expect(exportedHabit).toEqual(expectedHabit)
+      const manifest = JSON.parse(exported.workspace.files[OPEN_MANIFEST_PATH]) as { entities: Array<{ calmy_id: string; calmy_type: string; revision: number }> }
+      expect(manifest.entities).toMatchObject([{ calmy_id: habit.id, calmy_type: 'habit_entry', revision: habit.revision }])
+    }
   })
 
   it('requires an explicit tombstone decision and then deletes the Vault file while preserving deletion history', async () => {

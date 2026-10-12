@@ -75,6 +75,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { caseAsyncRelationRepository, caseAsyncRepository } from '../domain/case/repository'
 import type { CaseItem } from '../domain/case/model'
 
@@ -98,6 +99,7 @@ function item(id: string, title: string): CaseItem {
 
 describe('caseAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('case-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
@@ -106,10 +108,11 @@ describe('caseAsyncRepository', () => {
   afterEach(() => {
     resetStoreCache()
     localStorage.clear()
+    setActiveAccount(null)
   })
 
   it('prioritizes the durable IndexedDB snapshot over stale localStorage', async () => {
-    localStorage.setItem('b_cases', JSON.stringify([item('stale', '旧缓存')]))
+    localStorage.setItem(accountStorageKey('b_cases'), JSON.stringify([item('stale', '旧缓存')]))
     durable.values.set('b_cases', JSON.stringify([item('durable', '持久快照')]))
 
     await expect(caseAsyncRepository.list()).resolves.toEqual([item('durable', '持久快照')])

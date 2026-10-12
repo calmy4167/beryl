@@ -11,7 +11,8 @@ migrations_dir = "migrations"
 
 [vars]
 # 填入实际 Pages/自定义域名（多个来源用英文逗号分隔）。空值仅为本地开发兼容，生产必须设置。
-FRONTEND_ORIGINS = "https://beryl-ddk.pages.dev"
+# 生产 Pages 与本机 Vite 开发地址；Workers 仅接受这些浏览器来源。
+FRONTEND_ORIGINS = "https://beryl-ddk.pages.dev,http://127.0.0.1:5173,http://127.0.0.1:5174,http://localhost:5173,http://localhost:5174"
 # 飞书配置：App Secret 使用 Cloudflare Secret，不要写入此文件。
 # FEISHU_APP_ID = "cli_..."
 # FEISHU_BASE_TOKEN = "..."

@@ -30,6 +30,7 @@ export interface RealityRecord {
   impact?: NegativeRecordImpact
   journalCategory?: JournalCategory
   redactedAt?: number
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export interface RecordCreateInput {
@@ -44,6 +45,7 @@ export interface RecordCreateInput {
   evidenceIds?: string[]
   impact?: NegativeRecordImpact
   journalCategory?: JournalCategory
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export interface RecordCommandMeta {
@@ -67,6 +69,7 @@ export interface RecordRevision {
   actor: RecordSource
   actorId?: string
   changedAt: number
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export class RecordDomainError extends Error {

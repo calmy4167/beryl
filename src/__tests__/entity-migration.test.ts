@@ -1,7 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDurableEntityMigrationPlan, createEntityMigrationPlan, rollbackMigration, rollbackMigrationDurable, saveMigrationBackup, summarizeEntityConflicts } from '@/core/entity-migration'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 
 describe('entity migration safety', () => {
+  beforeEach(() => { setActiveAccount('entity-migration-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
   it('creates a deterministic entity seed plan and backup', () => {
     const storage = new StorageMock({ b_tasks: '[{"id":"t1","title":"任务"}]', b_diary: '[{"date":"2026-08-16","content":"日记"}]' })
     const plan = createEntityMigrationPlan(storage)
@@ -36,14 +39,14 @@ describe('entity migration safety', () => {
   it('writes a production rollback through the IndexedDB outbox when IndexedDB is unavailable', async () => {
     localStorage.clear()
     vi.stubGlobal('indexedDB', undefined)
-    localStorage.setItem('b_tasks', '[{"id":"t1"}]')
+    localStorage.setItem(accountStorageKey('b_tasks'), '[{"id":"t1"}]')
     const plan = createEntityMigrationPlan(localStorage)
     expect(saveMigrationBackup(plan, localStorage)).toBe(true)
-    localStorage.setItem('b_tasks', '[{"id":"changed"}]')
+    localStorage.setItem(accountStorageKey('b_tasks'), '[{"id":"changed"}]')
 
     await expect(rollbackMigrationDurable(localStorage)).resolves.toBe(true)
-    expect(localStorage.getItem('b_tasks')).toBe('[{"id":"t1"}]')
-    expect(JSON.parse(localStorage.getItem('b_db_outbox') || '[]')).toEqual(expect.arrayContaining([
+    expect(localStorage.getItem(accountStorageKey('b_tasks'))).toBe('[{"id":"t1"}]')
+    expect(JSON.parse(localStorage.getItem(accountStorageKey('b_db_outbox')) || '[]')).toEqual(expect.arrayContaining([
       { key: 'b_tasks', value: '[{"id":"t1"}]' }
     ]))
     vi.unstubAllGlobals()

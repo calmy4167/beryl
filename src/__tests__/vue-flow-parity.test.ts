@@ -3,6 +3,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
@@ -53,8 +54,8 @@ async function startSolve(page: VueWrapper, intent = '确认下一步') {
 }
 
 describe('Vue Flow page parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('vue-flow-parity-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
 
   it('loads matter query context, excludes archived matters and redacted records, and prefills the solve fields', async () => {
     const matter = await matterAsyncRepository.create({
@@ -251,7 +252,13 @@ describe('Vue Flow page parity', () => {
   it('shows repository read failure and reloads the same batch after retry', async () => {
     await addSeed('重试后可见')
     const list = unifiedAsyncRepository.list.bind(unifiedAsyncRepository)
-    vi.spyOn(unifiedAsyncRepository, 'list').mockImplementationOnce(async () => { throw new Error('离线读取失败') }).mockImplementation(list)
+    vi.spyOn(unifiedAsyncRepository, 'list').mockImplementation(async (type, ...args) => {
+      if (type === 'seed') {
+        vi.mocked(unifiedAsyncRepository.list).mockImplementation(list)
+        throw new Error('离线读取失败')
+      }
+      return list(type, ...args)
+    })
     const { wrapper: page } = await openFlow()
     expect(page.get('[role="alert"]').text()).toContain('离线读取失败')
     await clickButton(page, '重试')

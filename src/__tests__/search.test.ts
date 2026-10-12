@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { captureRepository } from '@/domain/capture'
 import { matterRepository } from '@/domain/matter/repository'
@@ -9,9 +9,11 @@ import { actionAsyncRepository } from '@/domain/action/repository'
 import { resetStoreCache } from '@/core/storage'
 import { todayRepository } from '@/domain/today/repository'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('global search query', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
+  beforeEach(() => { setActiveAccount('search-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => setActiveAccount(null))
 
   it('finds legacy and unified entities by title and body text', () => {
     const matter = matterRepository.create({ title: '供应商交付', why: '需要确认新的交付节奏' })

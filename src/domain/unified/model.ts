@@ -6,7 +6,7 @@
  */
 
 export const CORE_ENTITY_TYPES = [
-  'person', 'relationship', 'shared_space', 'cycle', 'stage', 'resource',
+  'person', 'important_date', 'organization', 'relationship', 'shared_space', 'cycle', 'stage', 'resource',
   'relation', 'seed', 'insight', 'outcome', 'practice', 'daily_state', 'asset', 'scene', 'scene_participant', 'space', 'domain', 'scope', 'permission', 'dictionary_option'
 ] as const
 export type CoreEntityType = typeof CORE_ENTITY_TYPES[number]
@@ -20,6 +20,18 @@ export type ElementStage = typeof ELEMENT_STAGES[number]
 export const TRAJECTORIES = ['advancing', 'stable', 'stalled', 'retreating', 'diverging', 'lost', 'recovering', 'restarting', 'unknown'] as const
 export type Trajectory = typeof TRAJECTORIES[number]
 
+export interface CoreEntityHistorySnapshot {
+  revision: number
+  operation: 'created' | 'updated' | 'archived' | 'transitioned'
+  source: CoreEntitySource
+  actorUserId?: string
+  occurredAt: number
+  fromRevision: number
+  toRevision: number
+  previousSnapshot?: Record<string, unknown>
+  snapshot: Record<string, unknown>
+}
+
 export interface CoreEntityMeta {
   calmyId: string
   entityType: CoreEntityType
@@ -29,19 +41,23 @@ export interface CoreEntityMeta {
   source: CoreEntitySource
   archivedAt?: number
   ownership?: Ownership
+  revisionHistory?: CoreEntityHistorySnapshot[]
 }
 
 export interface PrincipalRef {
-  type: 'user' | 'person' | 'space'
+  type: 'user' | 'person' | 'space' | 'organization'
   id: string
 }
 
 export interface Ownership {
   createdByUserId?: string
   ownerRef: PrincipalRef
+  /** Additional owners for genuinely joint ownership; access still requires Permission. */
+  coOwnerRefs?: PrincipalRef[]
   subjectRef?: EntityRef
   stewardRefs: PrincipalRef[]
-  privacy?: 'private' | 'shared'
+  /** `shared` is retained for legacy compatibility; it does not grant access. */
+  privacy?: 'private' | 'restricted' | 'scene' | 'space' | 'shared'
 }
 
 export const PERSON_STATUSES = ['active', 'archived'] as const
@@ -59,7 +75,49 @@ export interface Person extends CoreEntityMeta {
   linkedUserId?: string
 }
 
+export type ImportantDateKind = 'birthday' | 'anniversary' | 'memorial' | 'other'
+export type ImportantDateRecurrence = 'yearly' | 'once'
+
+/** A canonical date record; Person/Thing/Scene associations remain typed Relations. */
+export interface ImportantDate extends CoreEntityMeta {
+  entityType: 'important_date'
+  title: string
+  kind: ImportantDateKind
+  personId?: string
+  /** Month and day only, so dates such as Feb 29 can recur in leap years. */
+  monthDay: string
+  year?: number
+  recurrence: ImportantDateRecurrence
+  notes?: string
+}
+
+export function isValidImportantMonthDay(value: string): boolean {
+  if (!/^\d{2}-\d{2}$/.test(value)) return false
+  const [month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(2000, month - 1, day))
+  return date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
+
+export interface Organization extends CoreEntityMeta {
+  entityType: 'organization'
+  title: string
+  status: 'active' | 'archived'
+}
+
 export type SceneStatus = 'draft' | 'active' | 'paused' | 'completed' | 'archived'
+
+export interface RealitySettlementDecision {
+  entityRef: EntityRef
+  choice: 'keep' | 'retire' | 'reassociate'
+  targetRef?: EntityRef
+  decidedAt: number
+}
+
+export interface RealitySettlement {
+  commandId: string
+  settledAt: number
+  decisions: RealitySettlementDecision[]
+}
 
 export interface Scene extends CoreEntityMeta {
   entityType: 'scene'
@@ -68,7 +126,10 @@ export interface Scene extends CoreEntityMeta {
   spaceId?: string
   startedAt?: number
   endedAt?: number
+  order?: number
   status: SceneStatus
+  /** Append-only settlement decisions reference existing Entities; they never copy payloads. */
+  settlements?: RealitySettlement[]
 }
 
 export interface SceneParticipant extends CoreEntityMeta {
@@ -89,7 +150,7 @@ export interface Space extends CoreEntityMeta {
   relationshipIds: string[]
   thingIds: string[]
   sceneIds: string[]
-  ownerRef?: { type: 'user' | 'person' | 'space'; id: string }
+  ownerRef?: PrincipalRef
   status: 'active' | 'closed' | 'archived'
   /** Retained adapter metadata for a legacy SharedSpace; it never acts as a Permission grant. */
   legacyBoundary?: LegacySpaceBoundary
@@ -247,14 +308,27 @@ export interface DictionaryOption extends CoreEntityMeta {
 }
 
 export interface EntityRef {
-  entityType: CoreEntityType | 'thing' | 'shared_space' | 'matter' | 'action' | 'record' | 'today'
+  entityType: CoreEntityType | 'thing' | 'shared_space' | 'matter' | 'action' | 'record' | 'today' | 'finance_entry' | 'diary_entry' | 'goal' | 'post' | 'time'
   calmyId: string
+}
+
+/** Time is a value reference, not a copied/stored Entity. IDs accept year, month, or exact date. */
+export function isValidTimeContextId(value: string): boolean {
+  if (/^\d{4}$/.test(value)) return Number(value) >= 1 && Number(value) <= 9999
+  if (/^\d{4}-\d{2}$/.test(value)) {
+    const [, month] = value.split('-').map(Number)
+    return month >= 1 && month <= 12
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
 
 export type RelationType =
   | 'supports' | 'blocks' | 'contradicts' | 'derived_from' | 'related_to'
   | 'belongs_to' | 'depends_on' | 'practices' | 'evidences' | 'part_of'
-  | 'subject_of' | 'used_in' | 'belongs_to_domain' | 'context_of'
+  | 'subject_of' | 'has_related_content' | 'used_in' | 'belongs_to_domain' | 'context_of'
 
 export interface Relation extends CoreEntityMeta {
   entityType: 'relation'
@@ -298,6 +372,7 @@ export interface RelationDefinition {
   fromTypes: EntityRef['entityType'][]
   toTypes: EntityRef['entityType'][]
   directed: boolean | 'either'
+  cardinality: 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many'
   minCardinality: number
   maxCardinality?: number
   inverseType?: RelationType
@@ -307,49 +382,68 @@ export interface RelationDefinition {
 
 export type RelationValidation = { valid: true } | {
   valid: false
-  code: 'UNKNOWN_RELATION_TYPE' | 'INVALID_TYPE_PAIR' | 'ENDPOINT_NOT_FOUND'
+  code: 'UNKNOWN_RELATION_TYPE' | 'INVALID_TYPE_PAIR' | 'ENDPOINT_NOT_FOUND' | 'CARDINALITY_EXCEEDED'
   reason: string
 }
 
 const ALL_RELATION_ENDPOINT_TYPES: EntityRef['entityType'][] = [
-  ...CORE_ENTITY_TYPES.filter(type => type !== 'dictionary_option'), 'thing', 'matter', 'action', 'record', 'today', 'shared_space'
+  'person', 'important_date', 'diary_entry', 'post', 'organization', 'relationship', 'shared_space', 'cycle', 'stage', 'resource', 'seed', 'insight', 'outcome',
+  'practice', 'daily_state', 'asset', 'scene', 'space', 'domain', 'thing', 'matter', 'action', 'record', 'today', 'finance_entry', 'goal', 'time'
 ]
+const STORED_RELATION_ENDPOINT_TYPES = ALL_RELATION_ENDPOINT_TYPES.filter(type => type !== 'time')
+const NON_PERSON_RELATION_ENDPOINT_TYPES = ALL_RELATION_ENDPOINT_TYPES.filter(type => type !== 'person' && type !== 'time')
+const CONTEXT_SOURCE_TYPES = ALL_RELATION_ENDPOINT_TYPES.filter(type => !['time', 'domain', 'scope', 'permission'].includes(type))
 const LEGACY_COMPAT_TYPES: EntityRef['entityType'][] = [
   'thing', 'matter', 'person', 'relationship', 'shared_space', 'cycle', 'stage', 'resource',
-  'action', 'record', 'today', 'seed', 'insight', 'outcome', 'practice', 'asset'
+  'action', 'record', 'today', 'finance_entry', 'goal', 'seed', 'insight', 'outcome', 'practice', 'asset'
 ]
 
 export const RELATION_DEFINITIONS: RelationDefinition[] = [
-  { relationType: 'subject_of', fromTypes: ['person'], toTypes: ['thing', 'scene', 'record', 'asset'], directed: true, minCardinality: 0 },
-  { relationType: 'related_to', fromTypes: ALL_RELATION_ENDPOINT_TYPES, toTypes: ALL_RELATION_ENDPOINT_TYPES, directed: 'either', minCardinality: 0 },
-  { relationType: 'used_in', fromTypes: ['resource', 'asset', 'action', 'record'], toTypes: ['scene', 'thing', 'matter'], directed: true, minCardinality: 0 },
-  { relationType: 'belongs_to_domain', fromTypes: ALL_RELATION_ENDPOINT_TYPES.filter(type => type !== 'domain'), toTypes: ['domain'], directed: true, minCardinality: 0 },
-  { relationType: 'context_of', fromTypes: ['scene', 'space', 'shared_space'], toTypes: ['thing', 'matter', 'person'], directed: true, minCardinality: 0 },
-  { relationType: 'supports', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'blocks', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'contradicts', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'derived_from', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'belongs_to', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'depends_on', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'practices', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'evidences', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true },
-  { relationType: 'part_of', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, minCardinality: 0, legacyCompatibility: true }
+  { relationType: 'subject_of', fromTypes: NON_PERSON_RELATION_ENDPOINT_TYPES, toTypes: ['person'], directed: true, cardinality: 'many-to-many', minCardinality: 0, inverseType: 'has_related_content' },
+  { relationType: 'has_related_content', fromTypes: ['person'], toTypes: NON_PERSON_RELATION_ENDPOINT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, inverseType: 'subject_of' },
+  { relationType: 'related_to', fromTypes: STORED_RELATION_ENDPOINT_TYPES, toTypes: STORED_RELATION_ENDPOINT_TYPES, directed: 'either', cardinality: 'many-to-many', minCardinality: 0 },
+  { relationType: 'used_in', fromTypes: ['resource', 'asset', 'action', 'record', 'finance_entry', 'diary_entry', 'post', 'relationship', 'insight', 'important_date'], toTypes: ['scene', 'thing', 'matter'], directed: true, cardinality: 'many-to-many', minCardinality: 0 },
+  { relationType: 'belongs_to_domain', fromTypes: STORED_RELATION_ENDPOINT_TYPES.filter(type => type !== 'domain'), toTypes: ['domain'], directed: true, cardinality: 'many-to-one', minCardinality: 0 },
+  { relationType: 'context_of', fromTypes: CONTEXT_SOURCE_TYPES, toTypes: ['thing', 'matter', 'person', 'scene', 'space', 'time'], directed: true, cardinality: 'many-to-many', minCardinality: 0 },
+  { relationType: 'supports', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'blocks', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'contradicts', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'derived_from', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'belongs_to', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'depends_on', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'practices', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'evidences', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true },
+  { relationType: 'part_of', fromTypes: LEGACY_COMPAT_TYPES, toTypes: LEGACY_COMPAT_TYPES, directed: true, cardinality: 'many-to-many', minCardinality: 0, legacyCompatibility: true }
 ]
 
 export function validateRelation(
   relation: Relation,
   definitions: RelationDefinition[] = RELATION_DEFINITIONS,
-  lookup: (ref: EntityRef) => boolean = () => true
+  lookup: (ref: EntityRef) => boolean = () => true,
+  existingRelations: Relation[] = []
 ): RelationValidation {
   const definition = definitions.find(item => item.relationType === relation.relationType)
   if (!definition) return { valid: false, code: 'UNKNOWN_RELATION_TYPE', reason: `No definition for ${relation.relationType}` }
   if (!definition.fromTypes.includes(relation.from.entityType) || !definition.toTypes.includes(relation.to.entityType) || (definition.directed !== 'either' && definition.directed !== relation.directed)) {
     return { valid: false, code: 'INVALID_TYPE_PAIR', reason: `${relation.from.entityType} ${relation.relationType} ${relation.to.entityType} is not allowed` }
   }
-  if (!relation.from.calmyId || !relation.to.calmyId || !lookup(relation.from) || !lookup(relation.to)) {
+  const endpointExists = (ref: EntityRef) => ref.entityType === 'time' ? isValidTimeContextId(ref.calmyId) : lookup(ref)
+  if (!relation.from.calmyId || !relation.to.calmyId || !endpointExists(relation.from) || !endpointExists(relation.to)) {
     if (definition.legacyCompatibility && relation.from.calmyId && relation.to.calmyId) return { valid: true }
     return { valid: false, code: 'ENDPOINT_NOT_FOUND', reason: 'Relation endpoint is missing' }
   }
+  const sameRef = (left: EntityRef, right: EntityRef) => left.entityType === right.entityType && left.calmyId === right.calmyId
+  const matches = existingRelations.filter(item => item.relationType === relation.relationType)
+  const sourceAlreadyConnected = matches.some(item => sameRef(item.from, relation.from) && !sameRef(item.to, relation.to))
+  const targetAlreadyConnected = matches.some(item => sameRef(item.to, relation.to) && !sameRef(item.from, relation.from))
+  const cardinalityExceeded = definition.cardinality === 'one-to-one'
+    ? sourceAlreadyConnected || targetAlreadyConnected
+    : definition.cardinality === 'one-to-many'
+      ? targetAlreadyConnected
+      : definition.cardinality === 'many-to-one'
+        ? sourceAlreadyConnected
+        : false
+  if (cardinalityExceeded) return { valid: false, code: 'CARDINALITY_EXCEEDED', reason: `${relation.relationType} cardinality ${definition.cardinality} would be exceeded` }
   return { valid: true }
 }
 
@@ -411,6 +505,23 @@ export interface DailyState extends CoreEntityMeta {
   trajectory: Trajectory
   todayPlanId?: string
   protectedItems: string[]
+  history?: DailyStateHistorySnapshot[]
+}
+
+export interface DailyStateHistorySnapshot {
+  revision: number
+  operation: 'created' | 'updated'
+  occurredAt: number
+  actorUserId?: string
+  date: string
+  bodyState: DailyState['bodyState']
+  mentalState: DailyState['mentalState']
+  load: number
+  actualTimeMinutes?: number
+  trajectory: Trajectory
+  todayPlanId?: string
+  protectedItems: string[]
+  ownership?: Ownership
 }
 
 export interface Asset extends CoreEntityMeta {
@@ -425,7 +536,7 @@ export interface Asset extends CoreEntityMeta {
 }
 
 export type CoreEntity =
-  | Person | Scene | SceneParticipant | Space | Domain | Scope | Permission | Relationship | SharedSpace | Cycle | Stage | Resource | Relation
+  | Person | ImportantDate | Organization | Scene | SceneParticipant | Space | Domain | Scope | Permission | Relationship | SharedSpace | Cycle | Stage | Resource | Relation
   | Seed | Insight | Outcome | Practice | DailyState | Asset | DictionaryOption
 
 export interface CoreEntityMutation {
@@ -441,11 +552,13 @@ export interface CoreEntityMutation {
   toRevision: number
   occurredAt: number
   patch?: unknown
+  previousSnapshot?: Record<string, unknown>
+  snapshot?: Record<string, unknown>
 }
 
 export type RealityActivity =
   | {
-    source: 'matter_mutation' | 'core_entity_mutation' | 'shared_audit'
+    source: 'matter_mutation' | 'core_entity_mutation' | 'shared_audit' | 'goal_revision' | 'post_revision'
     originalId: string
     entityRef: EntityRef
     operation: string
@@ -456,6 +569,8 @@ export type RealityActivity =
     toRevision: number
     occurredAt: number
     patch?: unknown
+    previousSnapshot?: Record<string, unknown>
+    snapshot?: Record<string, unknown>
   }
   | {
     source: 'reality_record'
@@ -470,6 +585,55 @@ export type RealityActivity =
     recordSource: string
     evidenceIds: string[]
     body: string
+  }
+  | {
+    source: 'record_revision'
+    originalId: string
+    entityRef: EntityRef
+    operation: 'revised'
+    sourceIds: string[]
+    occurredAt: number
+    recordRevision: number
+    reason: string
+    actor: 'user' | 'ai' | 'import' | 'sync'
+    actorUserId?: string
+    body: string
+  }
+  | {
+    source: 'finance_mutation'
+    originalId: string
+    entityRef: EntityRef
+    operation: 'created' | 'updated' | 'ownership-updated'
+    actorUserId: string
+    sourceIds: string[]
+    fromRevision: number
+    toRevision: number
+    occurredAt: number
+    patch: { ownership?: Ownership; previousOwnership?: Ownership; snapshot?: Record<string, unknown>; previousSnapshot?: Record<string, unknown> }
+  }
+  | {
+    source: 'diary_revision'
+    originalId: string
+    entityRef: EntityRef
+    operation: 'created' | 'content_updated' | 'ownership_updated'
+    actorUserId?: string
+    sourceIds: string[]
+    fromRevision: number
+    toRevision: number
+    occurredAt: number
+    patch: { content: string; sourceMaterialIds?: string[]; ownership?: Ownership }
+  }
+  | {
+    source: 'daily_state_revision'
+    originalId: string
+    entityRef: EntityRef
+    operation: 'created' | 'updated'
+    actorUserId?: string
+    sourceIds: string[]
+    fromRevision: number
+    toRevision: number
+    occurredAt: number
+    patch: DailyStateHistorySnapshot
   }
 
 export interface CoreCommandMeta {

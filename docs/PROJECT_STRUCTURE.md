@@ -71,7 +71,8 @@ Vue page
 - `docs/README.md`：全部文档导航和权威层级。
 - `docs/PROJECT_STRUCTURE.md`：本文件，当前代码目录和边界。
 - `docs/product/DOCUMENT_REGISTER.md`：文档状态登记和冲突处理。
-- `docs/product/OPEN_WORK.md`：唯一活跃未完成工作清单。
+- `docs/CURRENT/03-prototype-scope-and-backlog.md`：雏形阶段当前优先级、暂缓项和停止线。
+- `docs/product/OPEN_WORK.md`：完整工程待办、历史阶段记录和恢复线索；与当前优先级冲突时以前者为准。
 
 ### 当前产品与工程文档
 

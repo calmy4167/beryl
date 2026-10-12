@@ -1,7 +1,10 @@
 # Calmy 产品设计文档库
 
 > [!IMPORTANT]
-> [[Calmy_产品设计完整整理_2026-09-02]] 是本 Obsidian 文档库的汇编总文档。库内模块必须与它保持一致；跨仓库的产品执行先服从 `docs/product/PRODUCT_DECISIONS_2026-08-19.md` 和 `docs/product/CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md`。最新稳定理念是 [[00_总纲与治理/02_为解决问题而学习|为解决问题而学习]]。
+> [[Calmy_产品设计完整整理_2026-09-02]] 是本 Obsidian 文档库的汇编总文档。库内模块必须与它保持一致；跨仓库的产品执行先服从 `docs/product/PRODUCT_DECISIONS_2026-08-19.md` 和 **`docs/product/CALMY_PRODUCT_DESIGN_2026-09-19.md`（2026-10-05 勘误：原指针 `CALMY_UNIFIED_PRODUCT_DESIGN_2026-08-29.md` 已于 2026-09-19 被 D-018 降为迁移期执行参考，不再定义新增功能的产品本体）**。最新稳定理念是 [[00_总纲与治理/02_为解决问题而学习|为解决问题而学习]]。
+
+> [!WARNING]
+> **2026-10-05 同步基线警告**：本库冻结在 `last_aligned: 2026-09-07`，不含 D-018 / 2026-09-19 产品本体转向、User 身份设计与 ADR-001 的任何内容。当前 `.同步状态.json` 的 `masterHash` 与总文档实际哈希不一致，而 11 个模块路径全部未变——按 `90_同步与变更/Calmy-文档同步.ps1` 的 Auto 规则，**直接运行 `-Mode Auto` 会用滞后语义反向覆盖库内模块正文**。改动本库前先跑 `-Mode Status` 并人工决定方向。整理依据见 [`../docs/DOCUMENT_CONSOLIDATION_2026-10-05.md`](../docs/DOCUMENT_CONSOLIDATION_2026-10-05.md)。
 
 > 2026-09-07 全库复核：历史正文与备份不自动定义当前行为；凡与“为解决问题而学习”冲突的段落，均按该增量裁决解释。
 

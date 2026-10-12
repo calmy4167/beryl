@@ -1,0 +1,1164 @@
+/* 「留白」应用层 —— 全应用唯一的应用侧样式层。
+ *
+ * 架构（迁移期结束后只剩两层样式来源）：
+ *   1. `liubai-v11.css`  设计层：参考稿原样，**永不修改**（面板/下划线/pill/图标/HUD 语言都在这里）
+ *   2. `<页面>.vue` 的 `<style scoped>`  页面层：每一页自己的排版
+ *   3. 本文件            应用层：全应用共享的少量适配 —— 外壳微调、旧类名 → 留白令牌、表单与第三方控件跟随主题
+ *
+ * 历史：迁移期曾经有 `liubai-bridge.css`（旧类名映射）与 `liubai-compat.css`（外壳挂载时的中和）两层脚手架。
+ * 30 个路由页全部改版后，两层合并进本文件并删除；合并时按"还有没有用例"逐类核对，
+ * 已经没有引用的类（`.card` `.setting-card` `.admin-section` `.cycle-widget` `.opening` `.legacy-stage`
+ * `.stage-directory` `.stage-command` `.status-tabs` `.source-tabs` `.page-container` `.beryl-button`
+ * `.add-tag` `.edit-input` `.edit-tag` `.dr-input` `.dr-select` `.day-input`）直接剔除，不再搬运。
+ *
+ * 特异性说明：`product-ui.css` 用 `#app :where(input,textarea,select)`（1,0,0）设了填充底色，
+ * 因此旧类名映射统一写成 `html.liubai-active body #app …`（1,1,2）来压过它；参考稿自身的选择器也在其下。
+ */
+
+/* ══ 1. 外壳微调 ═══════════════════════════════════════════════════ */
+
+/* 日期切换的位置。
+ *
+ * 参考稿把 .date-nav 放在 .slide-head 的右上角（align-items:flex-start）。
+ * 但本应用的外壳在右上角有一排固定图标（齿轮 / 信息分层 / 简洁模式，top ≈ 22–54px），
+ * 于是日期按钮落在这排图标的紧下方（y ≈ 48–84），看起来像是图标簇的一部分，而不是内容的一部分。
+ * 改为贴着标题基线（底对齐），与左侧大标题同一行。 */
+.slide-head .date-nav {
+  align-self: flex-end;
+  margin-left: auto;
+  flex: none;
+}
+.slide-head {
+  column-gap: clamp(12px, 2vw, 28px);
+}
+@media (max-width: 780px) {
+  .slide-head .date-nav {
+    align-self: flex-start;
+    margin-left: 0;
+  }
+}
+
+/* hidden 属性在作者样式设了 display 时会失效（作者样式优先于浏览器默认的 [hidden]{display:none}）。
+ * 参考稿的 .dm-item / .dm-sep / .dn-dot 都设了 display，于是"同步到所有模块"与偏离小圆点
+ * 会一直显示。这里只对这几个元素恢复 hidden 的语义，不动其它组件。 */
+.date-menu .dm-item[hidden],
+.date-menu .dm-sep[hidden],
+.date-nav .dn-dot[hidden] {
+  display: none;
+}
+
+/* 「长页面不被压扁」。
+ * .inner 是固定高度的 flex 列（.slide 绝对定位铺满视口），overflow-y:auto 靠它自己滚动。
+ * 但 flex 子项默认 flex-shrink:1，于是当页面内容比视口高时，各面板先被压扁、
+ * 内容溢出面板边框，看起来像面板互相重叠（参考稿每个模块都刚好放得下一屏，所以没暴露这个问题）。
+ * 迁移到面板更多的页面（设置 7 块、看板 5 列…）后必须显式声明：普通块按内容高度、不压缩，
+ * 让 .inner 滚动；只有 .grow 的主面板继续占满剩余空间。 */
+.stage .slide .inner > *:not(.grow) {
+  flex: none;
+}
+
+/* `.dim` 在参考稿里只用于调 .ov-list 圆点的颜色（.ov-list li 本身已是 muted），
+ * 没有定义"弱化文字"。迁移页会在 .ov-list 之外也用 .dim 标说明性文字（空态、提示），
+ * 不补这条就会和正文一样重。 */
+.dim {
+  color: var(--muted);
+}
+
+/* ══ 2. 外壳挂载时的中和（旧全局层与参考稿的冲突） ═══════════════════ */
+
+/* 1) main.css 给 body::before 加了一层绿色径向渐变，深色主题下会压色。 */
+html.liubai-active body::before {
+  display: none;
+}
+
+/* 2) 旧层用 `html.… body`（0,1,2）设过画布底色与文字色，压过参考稿的 `body`（0,0,1）——
+ *    结果是深色主题下面板变深、页面底色仍是浅色，浅色文字落在浅色底上几乎不可见。
+ *    这里用同特异性 + 更晚加载把它夺回来。 */
+html.liubai-active body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* 3) main.css 在窄屏给所有 button/select/input 加 min-height:44px，而 min-height 优先于 height，
+ *    会把参考稿的 32px 图标按钮顶成 44px。外壳内的这些元素统一中和。 */
+html.liubai-active :where(.progress, .brand, .counter, .tip, .zen-bar, .tooltip, .toast,
+  .gear, .hud-toggle, .mode-toggle, .settings, .settings-panel, .palette, .palette-box,
+  .detail, .detail-box, .dots, .nav-hint, .swatch, .seg, .set-btn, .palette-item,
+  .date-menu, .dm-item, .info, .dot) {
+  min-height: 0;
+}
+html.liubai-active :where(.gear, .hud-toggle, .mode-toggle) {
+  width: 32px;
+  height: 32px;
+}
+
+/* 4) product-ui.css 的表单填充底色带 id 选择器（特异性 1,0,0），压过参考稿的表单类名，
+ *    把下划线输入变成白色实心块。中和规则也必须带 id：html + .liubai-active + body + #app = (1,1,2)。
+ *    注意不能只写 border:0，会把参考稿的底边框一起抹掉，所以要重新声明下边框。 */
+html.liubai-active body #app :where(.add-input) {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+html.liubai-active body #app :where(.add-input):focus {
+  border-bottom-color: var(--accent);
+}
+html.liubai-active body #app :where(.palette-input) {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* ══ 3. 未挂外壳的独立路由（/login、/pass、/vault、/desk、/scene） ═══════ */
+
+/* 参考稿把页面锁成不可滚动：body{overflow:hidden; touch-action:none}，因为它的内容都在
+ * .stage > .slide > .inner（唯一滚动容器）里。独立路由依赖文档滚动，被锁住后无法滚动，
+ * /vault 会直接卡死。外壳挂载时会给 <html> 加 .liubai-active，这里只对未挂载外壳的路由放宽。 */
+html:not(.liubai-active) body {
+  overflow-y: auto;
+  touch-action: auto;
+}
+/* 未挂载外壳时，参考稿的全局外边距重置会让旧页面的段落/标题挤在一起，这里恢复最小可读间距。 */
+html:not(.liubai-active) :where(h1, h2, h3, h4, p, ul, ol, blockquote) {
+  margin-block: revert;
+}
+html:not(.liubai-active) :where(ul, ol) {
+  padding-inline-start: revert;
+}
+
+/* ══ 4. 旧类名 → 留白令牌（仍在用的历史组件/分支） ═══════════════════ */
+
+/* 4.1 表面：卡片类容器一律改用参考稿的面板色与描边。
+ *     为什么需要：旧组件的卡片底色来自旧主题的浅色令牌（`--c-card`、`--surface-raised`），
+ *     而文字颜色已经继承「留白」的 `--fg`（深色主题下是浅色）。白卡片 + 白文字 = 读不出来。 */
+html.liubai-active body #app :where(
+  .beryl-card, .panel, .empty-state, .matter-card, .history-card,
+  .task-board-card, .admin-block, .cycle-block,
+  .record-row, .today-review, .review-evidence, .matter-create, .capture-box, .capture-gate-card,
+  .feishu-record-card, .feishu-composer, .feishu-overview, .login-card,
+  .master-data-composer, .master-picker-field
+) {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--fg);
+  box-shadow: none;
+}
+
+/* 4.2 次级表面（嵌套的小块）用 panel-2，避免整页一个色 */
+html.liubai-active body #app :where(
+  .create-row, .record-controls, .task-board-toolbar, .range-tabs,
+  .workspace-source, .load-pill, .capture-composer-tools, .suggestion-actions, .gate-actions
+) {
+  background: var(--panel-2);
+  border-color: var(--line);
+  color: var(--fg);
+}
+
+/* 4.3 表单控件：下划线语言之外，至少保证底色与文字来自当前主题 */
+html.liubai-active body #app :where(input, textarea, select) {
+  background: var(--panel-2);
+  border-color: var(--line);
+  color: var(--fg);
+  caret-color: var(--accent);
+}
+html.liubai-active body #app :where(input, textarea, select):focus {
+  border-color: var(--line-strong);
+  outline-color: var(--accent);
+}
+html.liubai-active body #app :where(input, textarea, select)::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+html.liubai-active body #app :where(option) {
+  background: var(--panel);
+  color: var(--fg);
+}
+/* 复选框/单选框不要被上面的底色染成一块 */
+html.liubai-active body #app :where(input[type='checkbox'], input[type='radio']) {
+  background: none;
+  border-color: var(--line-strong);
+}
+
+/* 4.4 文字层级：标题用前景色，说明性文字用 muted */
+html.liubai-active body #app :where(.page-head h1, .page-head h2, .section-title h2, .panel-head h2, h1, h2, h3, h4) {
+  color: var(--fg);
+}
+html.liubai-active body #app :where(
+  .muted, .field-hint, .panel-note, .eyebrow, .load-pill, .set-hint, small, .hint,
+  .problem-driven-summary, .feishu-read-state, .matter-status, .action-status
+) {
+  color: var(--muted);
+}
+
+/* 4.5 按钮：主按钮改用参考稿强调色，次按钮保持描边。
+ *     （`.app-button` 仍是 FlowPage 等处的类名/测试钩子，见交接文档 §3.22） */
+html.liubai-active body #app :where(.app-button, button.primary, .capture-footer button) {
+  border-color: var(--line);
+  color: var(--fg);
+  background: none;
+}
+html.liubai-active body #app :where(.app-button.primary, button.primary) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+html.liubai-active body #app :where(.app-button.danger, button.danger) {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* 4.6 表格 / 列表分隔线跟随主题 */
+html.liubai-active body #app :where(th, td, .record-row, .feishu-record-card) {
+  border-color: var(--line);
+}
+html.liubai-active body #app :where(th) {
+  color: var(--muted);
+}
+
+/* 4.7 旧 `.page-head` 映射：第 25 轮已删除。
+ *     它服务的是"未改版页面自带 .page-head"这一情形；30 个路由页与飞书分支
+ *     （FeishuTaskBoard）都改成 `.slide-head` 后，运行期已没有任何页面渲染 `.page-head`
+ *     （只剩 10 个没有路由指向的旧页面文件），外壳里的 DOM 探针也一起删掉了。 */
+
+/* 4.7b 面板头里的 `<h2>`（看板列、周期页的分块等仍用 `<h2>` 而不是参考稿的 `.panel-title`）
+ *      统一成参考稿的小号 kicker 排版。 */
+html.liubai-active body #app :where(.section-title h2, .panel-head h2) {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* 4.8 从已删除的 tactile-ui.css 搬来的活规则（该文件 603 条规则里只有这几条没有 html.tactile-ui 前缀，
+ *     而那个 class 运行期从不添加；它们服务的是尚未改版的组件，删层时不能一起丢）：
+ *     拖拽列宽时的光标、常用句工具条、常用句错误提示。 */
+html.shell-is-resizing,
+html.shell-is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+html.liubai-active body #app :where(.capture-composer-tools) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+html.liubai-active body #app :where(.capture-composer-tools .master-picker) {
+  width: min(320px, 100%);
+}
+html.liubai-active body #app :where(.master-sentence-error) {
+  margin: 4px 0 10px;
+  color: var(--danger);
+  font-size: 12px;
+}
+html.liubai-active body #app :where(.master-sentence-error button) {
+  margin-left: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  html.liubai-active body #app :where(.capture-composer-tools .master-picker) {
+    width: 100%;
+  }
+}
+
+/* ══ 5. Element Plus 组件跟随主题（旧页面里的 ElSelect / ElDialog 等） ══ */
+html.liubai-active body #app {
+  --el-bg-color: var(--panel);
+  --el-bg-color-overlay: var(--panel);
+  --el-text-color-primary: var(--fg);
+  --el-text-color-regular: var(--fg);
+  --el-text-color-secondary: var(--muted);
+  --el-border-color: var(--line);
+  --el-border-color-light: var(--line);
+  --el-fill-color-blank: var(--panel-2);
+  --el-color-primary: var(--accent);
+}
+
+/* Full module directory: grouped from the route manifest without changing the
+ * reference shell's six-slide typography or its lightweight navigation style. */
+html.liubai-active body #app .dots {
+  width: clamp(190px, 18vw, 228px);
+  max-height: min(82dvh, 760px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px 9px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--panel);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .2);
+  scrollbar-width: thin;
+}
+html.liubai-active body #app .dot-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+html.liubai-active body #app .dot-group + .dot-group {
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+html.liubai-active body #app .dot-group-title {
+  margin: 0 9px 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  line-height: 1.5;
+}
+html.liubai-active body #app .dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  opacity: .76;
+  text-align: left;
+  transition: background-color .18s ease, color .18s ease, opacity .18s ease;
+}
+html.liubai-active body #app .dot::before {
+  position: absolute;
+  left: 5px;
+  width: 2px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--accent);
+  content: '';
+  opacity: 0;
+}
+html.liubai-active body #app .dot:hover {
+  background: var(--hover);
+  opacity: 1;
+}
+html.liubai-active body #app .dot.active {
+  background: var(--hover);
+  color: var(--accent);
+  opacity: 1;
+}
+html.liubai-active body #app .dot.active::before {
+  opacity: 1;
+}
+html.liubai-active body #app .module-nav-toggle {
+  position: fixed;
+  z-index: 92;
+  right: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--fg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+html.liubai-active body #app .module-nav-toggle:hover {
+  border-color: var(--accent);
+}
+html.liubai-active body #app .module-nav-toggle span {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+html.liubai-active body #app .module-manager-backdrop {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--backdrop);
+}
+html.liubai-active body #app .module-manager {
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(86dvh, 780px);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .28);
+}
+html.liubai-active body #app .module-manager-header,
+html.liubai-active body #app .module-manager-actions,
+html.liubai-active body #app .module-manager-row,
+html.liubai-active body #app .module-manager-row label {
+  display: flex;
+  align-items: center;
+}
+html.liubai-active body #app .module-manager-header,
+html.liubai-active body #app .module-manager-actions,
+html.liubai-active body #app .module-manager-row {
+  justify-content: space-between;
+  gap: 16px;
+}
+html.liubai-active body #app .module-manager-header {
+  flex: none;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+html.liubai-active body #app .module-manager-header h2 {
+  color: var(--fg);
+  font-size: 18px;
+  font-weight: 600;
+}
+html.liubai-active body #app .module-manager-header p,
+html.liubai-active body #app .module-manager-actions > span {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+html.liubai-active body #app .module-manager-close,
+html.liubai-active body #app .module-manager-actions button,
+html.liubai-active body #app .module-manager-open {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+html.liubai-active body #app .module-manager-close {
+  flex: none;
+  width: 36px;
+  padding: 0;
+  font-size: 22px;
+}
+html.liubai-active body #app .module-manager-actions {
+  flex: none;
+  padding: 12px 0;
+}
+html.liubai-active body #app .module-manager-actions > div {
+  display: flex;
+  gap: 8px;
+}
+html.liubai-active body #app .module-manager-actions button:hover,
+html.liubai-active body #app .module-manager-open:hover,
+html.liubai-active body #app .module-manager-close:hover {
+  border-color: var(--accent);
+}
+html.liubai-active body #app .module-manager-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 18px 28px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+html.liubai-active body #app .module-manager-group h3 {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+html.liubai-active body #app .module-manager-row {
+  min-height: 40px;
+  border-bottom: 1px solid var(--line);
+}
+html.liubai-active body #app .module-manager-row label {
+  flex: 1;
+  gap: 10px;
+  min-width: 0;
+  min-height: 40px;
+  cursor: pointer;
+}
+html.liubai-active body #app .module-manager-row label span {
+  overflow: hidden;
+  color: var(--fg);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html.liubai-active body #app .module-manager-row input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+html.liubai-active body #app .module-manager-open {
+  flex: none;
+  min-height: 30px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+html.liubai-active body #app .module-manager :focus-visible,
+html.liubai-active body #app .module-nav-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+html.liubai-active body #app .dot-empty {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 680px) {
+  html.liubai-active body #app .module-nav-toggle {
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  html.liubai-active body #app .dots,
+  html.liubai-active body[data-nav="left"] #app .dots,
+  html.liubai-active body[data-nav="right"] #app .dots {
+    top: auto;
+    right: 12px;
+    bottom: 60px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    max-height: min(58dvh, 480px);
+    translate: 0 0;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none !important;
+    transform: translateY(8px) !important;
+  }
+  html.liubai-active body.nav-show #app .dots {
+    opacity: 1 !important;
+    visibility: visible;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+  }
+  html.liubai-active body #app .dot-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 4px 10px;
+  }
+  html.liubai-active body #app .dot-group-title {
+    grid-column: 1 / -1;
+  }
+  html.liubai-active body #app .dot {
+    min-height: 40px;
+    padding: 8px 4px;
+    text-align: left;
+    white-space: normal;
+    letter-spacing: .01em;
+  }
+  html.liubai-active body[data-nav="left"] #app .dot,
+  html.liubai-active body[data-nav="right"] #app .dot {
+    text-align: left;
+  }
+  html.liubai-active body #app .module-manager-backdrop {
+    align-items: end;
+    padding: 12px;
+  }
+  html.liubai-active body #app .module-manager {
+    width: 100%;
+    max-height: 88dvh;
+    padding: 16px;
+    border-radius: 16px 16px 12px 12px;
+  }
+  html.liubai-active body #app .module-manager-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  html.liubai-active body #app .module-manager-header p {
+    max-width: 34ch;
+  }
+}
+
+/* Desk is a focused capture surface. Keep the shared module directory available,
+ * but present it as a pinned drawer only on /app/desk. */
+html.liubai-active body.desk-home #app .slide {
+  padding-left: clamp(14px, 2.2vw, 30px);
+  padding-right: clamp(14px, 2.2vw, 30px);
+}
+html.liubai-active body.desk-home #app .stage {
+  transition: left .32s cubic-bezier(.22,1,.36,1), right .32s cubic-bezier(.22,1,.36,1), width .32s cubic-bezier(.22,1,.36,1);
+}
+html.liubai-active body.desk-home.desk-nav-open[data-nav='left'] #app .stage {
+  left: 252px;
+  right: 0;
+  width: calc(100% - 252px);
+}
+html.liubai-active body.desk-home.desk-nav-open[data-nav='right'] #app .stage {
+  left: 0;
+  right: 252px;
+  width: calc(100% - 252px);
+}
+html.liubai-active body.desk-home #app .dots {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  translate: 0 0;
+  display: flex;
+  width: 252px;
+  max-width: min(82vw, 320px);
+  height: 100dvh;
+  max-height: none;
+  align-items: stretch;
+  gap: 10px;
+  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: 12px 0 36px rgba(0, 0, 0, .12);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-100%);
+  transition: opacity .26s var(--ease), transform .3s var(--ease), visibility .3s;
+}
+html.liubai-active body.desk-home[data-nav='right'] #app .dots {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+  box-shadow: -12px 0 36px rgba(0, 0, 0, .12);
+  transform: translateX(100%);
+}
+html.liubai-active body.desk-home.desk-nav-open #app .dots {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+html.liubai-active body.desk-home #app .desk-nav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  padding: 0 4px 13px;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+html.liubai-active body.desk-home #app .desk-nav-close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 23px;
+  cursor: pointer;
+}
+html.liubai-active body.desk-home #app .desk-nav-close:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+html.liubai-active body.desk-home #app .desk-nav-actions {
+  display: grid;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+html.liubai-active body.desk-home #app .desk-nav-actions button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+html.liubai-active body.desk-home #app .desk-nav-actions button:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+html.liubai-active body.desk-home #app .desk-nav-actions kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 10px;
+}
+html.liubai-active body.desk-home #app .module-nav-toggle { display: none; }
+html.liubai-active body.desk-home #app .desk-nav-handle { display: none; }
+html.liubai-active body.desk-home #app :where(.brand, .progress, .counter, .tip, .gear, .hud-toggle, .mode-toggle) {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body.desk-home.desk-nav-open #app .stage {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+  html.liubai-active body.desk-home #app .dots,
+  html.liubai-active body.desk-home[data-nav='left'] #app .dots,
+  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    translate: 0 0;
+    width: min(300px, 84vw);
+    height: 100dvh;
+    max-width: 84vw;
+    max-height: none;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 18px 14px max(18px, env(safe-area-inset-bottom));
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-radius: 0;
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none !important;
+    transform: translateX(-100%) !important;
+  }
+  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
+    right: 0;
+    left: auto;
+    border-right: 0;
+    border-left: 1px solid var(--line);
+    transform: translateX(100%) !important;
+  }
+  html.liubai-active body.desk-home.desk-nav-open #app .dots {
+    opacity: 1 !important;
+    visibility: visible;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+  }
+  html.liubai-active body.desk-home #app .desk-nav-handle {
+    position: fixed;
+    z-index: 91;
+    top: 50%;
+    left: 0;
+    display: grid;
+    width: 27px;
+    height: 54px;
+    place-items: center;
+    border: 1px solid var(--line-strong);
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+    background: var(--panel);
+    color: var(--muted);
+    font: inherit;
+    font-size: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  html.liubai-active body.desk-home[data-nav='right'] #app .desk-nav-handle {
+    right: 0;
+    left: auto;
+    border-right: 0;
+    border-left: 1px solid var(--line-strong);
+    border-radius: 8px 0 0 8px;
+  }
+}
+
+/* Expanded navigation occupies its own layout region. The stage moves beside
+   it on desktop and below it on narrow screens, so no page content sits under
+   the navigation surface. */
+html.liubai-active body #app .stage {
+  transition: left .28s var(--ease), right .28s var(--ease), top .28s var(--ease), width .28s var(--ease);
+}
+html.liubai-active body.nav-show[data-nav='left'] #app .stage,
+html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage {
+  left: min(272px, 84vw);
+  right: 0;
+  width: calc(100% - min(272px, 84vw));
+}
+html.liubai-active body.nav-show[data-nav='right'] #app .stage,
+html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
+  left: 0;
+  right: min(272px, 84vw);
+  width: calc(100% - min(272px, 84vw));
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .dots,
+  html.liubai-active body[data-nav='left'] #app .dots,
+  html.liubai-active body[data-nav='right'] #app .dots,
+  html.liubai-active body.desk-home #app .dots,
+  html.liubai-active body.desk-home[data-nav='left'] #app .dots,
+  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: min(42dvh, 360px);
+    max-width: none;
+    max-height: min(42dvh, 360px);
+    padding: max(14px, env(safe-area-inset-top)) 14px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .12);
+    transform: translateY(-100%) !important;
+  }
+  html.liubai-active body[data-nav='right'] #app .dots {
+    right: 0;
+    left: 0;
+    border-left: 0;
+  }
+  html.liubai-active body.nav-show #app .dots,
+  html.liubai-active body.desk-nav-open #app .dots {
+    transform: translateY(0) !important;
+  }
+  html.liubai-active body.nav-show[data-nav='left'] #app .stage,
+  html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage,
+  html.liubai-active body.nav-show[data-nav='right'] #app .stage,
+  html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
+    top: min(42dvh, 360px);
+    right: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+/* Previous desk-only overlay defaults remain here for compatibility; the final
+ * shared rules below now reserve space beside the navigation. */
+html.liubai-active body.desk-home.desk-nav-open[data-nav='left'] #app .stage,
+html.liubai-active body.desk-home.desk-nav-open[data-nav='right'] #app .stage {
+  right: 0;
+  left: 0;
+  width: 100%;
+}
+html.liubai-active body.desk-home #app .dots {
+  width: min(272px, 84vw);
+  max-width: 84vw;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+}
+html.liubai-active body.desk-home[data-nav='right'] #app .dots {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+
+/* One navigation surface across the app: edge handle + the same grouped rail.
+ * The final open-state rules below reflow the active page around this rail. */
+html.liubai-active body #app .dots,
+html.liubai-active body[data-nav='left'] #app .dots,
+html.liubai-active body[data-nav='right'] #app .dots {
+  position: fixed;
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  translate: 0 0;
+  display: flex;
+  width: min(272px, 84vw);
+  max-width: 84vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: 12px 0 36px rgba(0, 0, 0, .12);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-100%);
+  transition: opacity .22s var(--ease), transform .28s var(--ease), visibility .28s;
+}
+html.liubai-active body[data-nav='right'] #app .dots {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+  box-shadow: -12px 0 36px rgba(0, 0, 0, .12);
+  transform: translateX(100%);
+}
+html.liubai-active body.nav-show #app .dots,
+html.liubai-active body.desk-nav-open #app .dots {
+  opacity: 1 !important;
+  visibility: visible;
+  pointer-events: auto !important;
+  transform: translateX(0) !important;
+}
+html.liubai-active body.desk-home.desk-nav-open #app .stage {
+  right: 0;
+  left: 0;
+  width: 100%;
+}
+html.liubai-active body #app .module-nav-handle {
+  position: fixed;
+  z-index: 91;
+  top: 50%;
+  left: 0;
+  display: grid;
+  min-width: 34px;
+  min-height: 58px;
+  place-items: center;
+  padding: 7px 5px;
+  border: 1px solid var(--line-strong);
+  border-left: 0;
+  border-radius: 0 9px 9px 0;
+  background: var(--panel);
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: .06em;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+html.liubai-active body[data-nav='right'] #app .module-nav-handle {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--line-strong);
+  border-radius: 9px 0 0 9px;
+}
+html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-events: none; }
+html.liubai-active body #app .desk-nav-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 42px;
+  padding: 0 4px 13px;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+html.liubai-active body #app .desk-nav-close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+html.liubai-active body #app .desk-nav-close:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .desk-nav-actions {
+  display: grid;
+  flex: none;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+html.liubai-active body #app .desk-nav-actions button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+html.liubai-active body #app .desk-nav-actions button:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .desk-nav-actions kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 10px;
+}
+
+/* Shared page rhythm: each archetype keeps its own content model, while title,
+ * action alignment and vertical spacing follow one app-wide baseline. */
+html.liubai-active body #app .stage .slide.active[data-archetype] .inner > * + * {
+  margin-top: clamp(14px, 1.8vh, 22px);
+}
+html.liubai-active body #app .stage .slide.active[data-archetype] .slide-head {
+  align-items: flex-end;
+  gap: clamp(12px, 2vw, 28px);
+  padding-bottom: clamp(10px, 1.5vh, 16px);
+}
+html.liubai-active body #app .stage .slide.active[data-archetype] .slide-head > :not(.head-main) {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+html.liubai-active body #app .stage .slide.active[data-archetype='board'] .inner { min-width: 0; }
+html.liubai-active body #app .stage .slide.active[data-archetype='list-detail'] .inner,
+html.liubai-active body #app .stage .slide.active[data-archetype='content'] .inner,
+html.liubai-active body #app .stage .slide.active[data-archetype='settings'] .inner {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+@media (max-width: 760px) {
+  /* The mobile base stylesheet narrows slides to 12px gutters. Keep the shared
+     edge tab outside page content so it cannot cover titles or full-width cards. */
+  html.liubai-active body[data-nav='left'] #app .stage .slide { padding-left: clamp(40px, 10vw, 60px); }
+  html.liubai-active body[data-nav='right'] #app .stage .slide { padding-right: clamp(40px, 10vw, 60px); }
+
+  html.liubai-active body #app .dots,
+  html.liubai-active body[data-nav='left'] #app .dots,
+  html.liubai-active body[data-nav='right'] #app .dots {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    translate: 0 0;
+    width: min(300px, 84vw);
+    height: 100dvh;
+    max-width: 84vw;
+    max-height: 100dvh;
+    flex-direction: column;
+    align-items: stretch;
+    padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-radius: 0;
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none !important;
+    transform: translateX(-100%) !important;
+  }
+  html.liubai-active body[data-nav='right'] #app .dots {
+    right: 0;
+    left: auto;
+    border-right: 0;
+    border-left: 1px solid var(--line);
+    transform: translateX(100%) !important;
+  }
+  html.liubai-active body.nav-show #app .dots,
+  html.liubai-active body.desk-nav-open #app .dots {
+    opacity: 1 !important;
+    visibility: visible;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* Final navigation layout override: reserve space for the open navigation. */
+html.liubai-active body #app .stage {
+  transition: left .28s var(--ease), right .28s var(--ease), top .28s var(--ease), width .28s var(--ease);
+}
+html.liubai-active body.nav-show[data-nav='left'] #app .stage,
+html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage {
+  left: min(272px, 84vw);
+  right: 0;
+  width: calc(100% - min(272px, 84vw));
+}
+html.liubai-active body.nav-show[data-nav='right'] #app .stage,
+html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
+  left: 0;
+  right: min(272px, 84vw);
+  width: calc(100% - min(272px, 84vw));
+}
+html.liubai-active body.nav-show[data-nav='left'] #app .desk-home,
+html.liubai-active body.desk-nav-open[data-nav='left'] #app .desk-home {
+  left: min(272px, 84vw);
+  right: 0;
+  width: auto;
+}
+html.liubai-active body.nav-show[data-nav='right'] #app .desk-home,
+html.liubai-active body.desk-nav-open[data-nav='right'] #app .desk-home {
+  left: 0;
+  right: min(272px, 84vw);
+  width: auto;
+}
+@media (max-width: 760px) {
+  html.liubai-active body #app .dots,
+  html.liubai-active body[data-nav='left'] #app .dots,
+  html.liubai-active body[data-nav='right'] #app .dots {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: min(42dvh, 360px);
+    max-width: none;
+    max-height: min(42dvh, 360px);
+    padding: max(14px, env(safe-area-inset-top)) 14px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .12);
+    transform: translateY(-100%) !important;
+  }
+  html.liubai-active body[data-nav='right'] #app .dots { right: 0; left: 0; border-left: 0; }
+  html.liubai-active body.nav-show #app .dots,
+  html.liubai-active body.desk-nav-open #app .dots,
+  html.liubai-active body.desk-home.nav-show #app .dots,
+  html.liubai-active body.desk-home.desk-nav-open #app .dots { transform: translateY(0) !important; }
+  html.liubai-active body.nav-show[data-nav='left'] #app .stage,
+  html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage,
+  html.liubai-active body.nav-show[data-nav='right'] #app .stage,
+  html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
+    top: min(42dvh, 360px);
+    right: 0;
+    left: 0;
+    width: 100%;
+  }
+  html.liubai-active body.nav-show[data-nav='left'] #app .desk-home,
+  html.liubai-active body.desk-nav-open[data-nav='left'] #app .desk-home,
+  html.liubai-active body.nav-show[data-nav='right'] #app .desk-home,
+  html.liubai-active body.desk-nav-open[data-nav='right'] #app .desk-home {
+    top: min(42dvh, 360px);
+    right: 0;
+    left: 0;
+    width: auto;
+  }
+}

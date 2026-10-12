@@ -1,9 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified/repository'
 import { matterRepository } from '@/domain/matter/repository'
+import { setActiveAccount } from '@/core/account-context'
+import { resetStoreCache } from '@/core/storage'
 
 describe('Scene and SceneParticipant', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('scene-participant-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => setActiveAccount(null))
 
   it('stores real scenes separately from static scene configuration and does not grant access to participants', () => {
     const person = unifiedRepository.create(unifiedFactories.person({ displayName: '尚未绑定账号' }))

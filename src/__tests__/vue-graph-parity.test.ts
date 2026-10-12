@@ -5,6 +5,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { matterRepository } from '@/domain/matter/repository'
 import { actionRepository } from '@/domain/action/repository'
 import * as graph from '@/domain/graph'
@@ -36,8 +37,8 @@ async function choose(page: VueWrapper, label: string, value: string) {
 }
 
 describe('Vue GraphPage parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('graph-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
 
   it('shows existing nodes and a generated reference edge, and follows a node into its existing route', async () => {
     const matter = matterRepository.create({ title: '供应商交付' })
@@ -49,6 +50,7 @@ describe('Vue GraphPage parity', () => {
     expect(page.text()).toContain('联系人甲')
     expect(page.get('.edge-list').text()).toContain('确认时间')
     expect(page.get('.edge-list').text()).toContain('属于')
+    expect(page.findAll('[aria-label="所属领域（可选）"]').length).toBeGreaterThan(0)
     expect(page.get('[aria-label="图谱统计"]').text()).toContain('节点')
     await page.findAll('.graph-node-list button').find(button => button.text().includes('供应商交付'))!.trigger('click')
     await flushPromises()
@@ -66,7 +68,7 @@ describe('Vue GraphPage parity', () => {
     window.addEventListener('beryl-toast', listener)
     try {
     await choose(page, '关系起点', matter.calmyId)
-    await choose(page, '关系类型', 'supports')
+    await choose(page, '关系类型', 'related_to')
     await choose(page, '关系终点', person.calmyId)
     await page.findAll('button').find(button => button.text() === '建立连接')!.trigger('click')
     await flushPromises()
@@ -74,10 +76,10 @@ describe('Vue GraphPage parity', () => {
       expect.objectContaining({
         from: { entityType: 'matter', calmyId: matter.calmyId },
         to: { entityType: 'person', calmyId: person.calmyId },
-        relationType: 'supports', directed: true,
+        relationType: 'related_to', directed: false,
       }),
     ])
-    expect(page.get('.edge-list').text()).toContain('支持')
+    expect(page.get('.edge-list').text()).toContain('相关')
     expect(messages).toContain('关系已加入图谱')
     expect(page.get('[aria-label="关系起点"]').text()).toContain('起点节点')
     expect(page.get('[aria-label="关系终点"]').text()).toContain('终点节点')
@@ -114,13 +116,17 @@ describe('Vue GraphPage parity', () => {
     for (const label of ['关系起点', '关系类型', '关系终点', '筛选节点类型']) {
       expect(page.get(`[aria-label="${label}"]`).element.tagName).toBe('SELECT')
     }
-    await page.get('[aria-label="关系类型"]').setValue('supports')
-    expect((page.get('[aria-label="关系类型"]').element as HTMLSelectElement).value).toBe('supports')
+    await page.get('[aria-label="关系类型"]').setValue('related_to')
+    expect((page.get('[aria-label="关系类型"]').element as HTMLSelectElement).value).toBe('related_to')
   })
 
   it('keeps graph selects on the React reference control surface', () => {
     const controlsCss = readFileSync(resolve(process.cwd(), 'src/styles/controls.css'), 'utf8')
-    expect(controlsCss).toMatch(/html\.tactile-ui #app \.page-container \.graph-page select\s*\{[^}]*min-width:\s*auto;[^}]*background:\s*#f8fafc;[^}]*appearance:\s*auto;/s)
+    // 原来断言 `html.tactile-ui … .graph-page select { min-width:auto; background:#f8fafc; appearance:auto }`——
+    // 那个作用域运行期从不添加（第 32 轮删除）。现在唯一生效的是全局 select 规则：min-width:0 + appearance:none
+    // + 自定义 chevron。
+    expect(controlsCss).toMatch(/html :where\(select:not\(\[multiple\]\):not\(\[size\]\):not\(\.matter-trajectory-select\)\)\s*\{[^}]*min-width:\s*0;[^}]*appearance:\s*none;/s)
+    expect(controlsCss).not.toMatch(/html\.tactile-ui[^{]*\{/)
   })
 
   it('keeps native graph select pointer and transition behavior aligned with React', () => {
@@ -166,7 +172,7 @@ describe('Vue GraphPage parity', () => {
       await page.findAll('button').find(button => button.text() === '建立连接')!.trigger('click')
       await flushPromises()
       expect(await unifiedAsyncRepository.list<Relation>('relation')).toHaveLength(0)
-      expect(messages).toContain('请选择两个不同的节点')
+      expect(page.text()).toContain('请选择关系两端的有效节点')
     } finally { window.removeEventListener('beryl-toast', listener) }
   })
 

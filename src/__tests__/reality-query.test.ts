@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { caseRepository } from '@/domain/case/repository'
 import { captureRepository } from '@/domain/capture'
@@ -8,9 +8,11 @@ import { todayRepository } from '@/domain/today/repository'
 import { store } from '@/core/storage'
 import { listRealityDocuments } from '@/domain/reality'
 import { unifiedFactories, unifiedRepository } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('unified reality query', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('reality-query-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('normalizes legacy and unified entities with source labels and stable IDs', () => {
     const matter = matterRepository.create({ title: '现实事项', why: '验证来源' })

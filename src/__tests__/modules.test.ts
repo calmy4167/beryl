@@ -1,8 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect } from 'vitest'
 import { maxStreak, statValue, catsFor, modsFor } from '../core/modules'
 import { store } from '../core/storage'
+import { setActiveAccount } from '../core/account-context'
 
 describe('modules', () => {
+  beforeEach(() => { setActiveAccount('modules-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
   it('maxStreak 最长连续天数', () => {
     expect(maxStreak(['2026-08-10', '2026-08-11', '2026-08-12', '2026-08-14'])).toBe(3)
     expect(maxStreak([])).toBe(0)

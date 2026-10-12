@@ -7,6 +7,11 @@ import { apiBaseUrl } from '@/core/api/base-url'
 import { store } from '@/core/storage'
 import { SCENES, currentSceneId } from '@/core/scenes'
 import { listRealityDocumentsAsync, type RealityDocument } from '@/domain/reality'
+import { useOwnSlideHead } from '@/vue/liubai/slide-head'
+import LbPanel from '@/vue/liubai/LbPanel.vue'
+
+// 页面自带头部（参考稿里 .slide-head 属于页面自身），外壳因此不再渲染第二行标题。
+useOwnSlideHead()
 
 function formatTimestamp(timestamp: number | undefined): string {
   if (!timestamp || timestamp <= 0) return '暂无记录'
@@ -58,14 +63,56 @@ onMounted(() => { void refreshDocuments() })
 </script>
 
 <template>
-  <div class="profile-page">
-    <header class="page-head profile-page-head"><div><p class="eyebrow">MY · ACCOUNT</p><h1 class="font-title">我的</h1><p>账号由 Calmy 管理员创建，业务数据保存在你的独立 Vault 中。</p></div><div class="profile-head-actions"><button class="app-button" type="button" @click="go('/scene')">切换场景</button><button class="app-button primary" type="button" @click="go('/app/admin')">设置</button><button class="app-button" type="button" @click="logout">退出登录</button></div></header>
-    <section v-if="error" class="beryl-card empty-state" role="alert"><b>概览数据暂时无法读取</b><p>{{ error }}</p><button class="app-button" type="button" @click="void refreshDocuments()">重试</button></section>
+  <header class="slide-head">
+    <div class="head-main">
+      <p class="hint">我的 · Account</p>
+      <div class="head-title-row">
+        <h2>{{ userName }}</h2>
+        <span class="info" tabindex="0" data-tip="账号由 Calmy 管理员创建，业务数据保存在你的独立 Vault 中。H 收起辅助信息。" aria-label="我的说明">i</span>
+      </div>
+    </div>
+    <div class="detail-chips head-actions"><button class="chip" type="button" @click="go('/scene')">切换场景</button><button class="chip on" type="button" @click="go('/app/admin')">设置</button><button class="chip" type="button" @click="logout">退出登录</button></div>
+  </header>
+    <section v-if="error" class="panel profile-error" role="alert"><b>概览数据暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="void refreshDocuments()">重试</button></section>
     <section class="profile-hero" aria-label="本地用户与当前场景">
-      <article class="beryl-card profile-identity-card"><div class="profile-avatar" aria-hidden="true">{{ userInitial }}</div><div class="profile-identity-copy"><p class="eyebrow">ACCOUNT · {{ session?.user?.role === 'admin' ? 'ADMIN' : 'USER' }}</p><h2 class="font-title">{{ userName }}</h2><p>账号 {{ session?.user?.username || session?.u }} · 此账号的数据与其他用户隔离</p></div><dl class="profile-identity-meta"><div><dt>会话验证</dt><dd>{{ formatTimestamp(session?.ts) }}</dd></div><div><dt>最近数据</dt><dd>{{ formatTimestamp(latestDocument?.updatedAt) }}</dd></div></dl><div class="profile-identity-actions"><button class="app-button" type="button" @click="go('/pass?mode=change')">修改登录密码</button></div></article>
-      <article class="beryl-card profile-scene-card"><div class="profile-scene-icon" aria-hidden="true" :style="{ backgroundColor: scene.color }">{{ scene.icon }}</div><div class="profile-scene-copy"><p class="eyebrow">CURRENT SCENE</p><h2 class="font-title">{{ scene.name }}</h2><p>{{ scene.desc }} · {{ scene.tagline }}</p></div><div class="profile-scene-summary" aria-label="当前场景模块数量"><b>{{ scene.mods.length }}</b><span>个原有模块</span></div><button class="app-button" type="button" @click="go('/scene')">管理场景 →</button></article>
+      <article class="panel profile-identity-card"><div class="profile-avatar" aria-hidden="true">{{ userInitial }}</div><div class="profile-identity-copy"><p class="eyebrow">ACCOUNT · {{ session?.user?.role === 'admin' ? 'ADMIN' : 'USER' }}</p><h2>{{ userName }}</h2><p class="dim">账号 {{ session?.user?.username || session?.u }} · 此账号的数据与其他用户隔离</p></div><dl class="profile-identity-meta"><div><dt>会话验证</dt><dd>{{ formatTimestamp(session?.ts) }}</dd></div><div><dt>最近数据</dt><dd>{{ formatTimestamp(latestDocument?.updatedAt) }}</dd></div></dl><div class="detail-chips"><button class="chip" type="button" @click="go('/pass?mode=change')">修改登录密码</button></div></article>
+      <article class="panel profile-scene-card"><div class="profile-scene-icon" aria-hidden="true" :style="{ backgroundColor: scene.color }">{{ scene.icon }}</div><div class="profile-scene-copy"><p class="eyebrow">CURRENT SCENE</p><h2>{{ scene.name }}</h2><p class="dim">{{ scene.desc }} · {{ scene.tagline }}</p></div><div class="profile-scene-summary" aria-label="当前场景模块数量"><b>{{ scene.mods.length }}</b><span>个原有模块</span></div><button class="chip" type="button" @click="go('/scene')">管理场景 →</button></article>
     </section>
-    <section class="beryl-card profile-person-binding" aria-labelledby="profile-person-binding-title"><div><p class="eyebrow">USER ↔ PERSON</p><h2 id="profile-person-binding-title" class="font-title">关联现实人物</h2><p>账号 User 与现实 Person 是不同对象。关联不会自动授权此 Person 的历史记录、场景或 Space。</p></div><label>选择与此账号对应的人物<select v-model="linkedPersonId" aria-label="选择与此账号对应的人物"><option value="">暂不关联</option><option v-for="person in people" :key="person.id" :value="person.id">{{ person.title }}</option></select></label><button class="app-button" type="button" @click="savePersonBinding">保存人物关联</button><small role="status">{{ bindingStatus }}</small></section>
-    <section class="profile-overview" aria-labelledby="profile-overview-title"><div class="profile-section-head"><div><p class="eyebrow">OVERVIEW</p><h2 id="profile-overview-title" class="font-title">现有数据概览</h2></div><span>统计来自 Reality 文档视图</span></div><div class="profile-stats-grid"><article class="beryl-card profile-stat-card"><small>事项</small><b>{{ loading ? '…' : matterCount }}</b><span>个课题</span></article><article class="beryl-card profile-stat-card"><small>专注时间</small><b>{{ loading ? '…' : focusTime.value }}</b><span>{{ focusTime.unit }}</span></article><article class="beryl-card profile-stat-card"><small>习惯记录</small><b>{{ loading ? '…' : habitDays }}</b><span>天</span></article><article class="beryl-card profile-stat-card"><small>本地事实</small><b>{{ loading ? '…' : documents.length }}</b><span>条数据</span></article></div></section>
-  </div>
+    <LbPanel title="关联现实人物" note="账号 User 与现实 Person 是不同对象">
+      <div class="profile-person-binding" aria-labelledby="profile-person-binding-title"><div><p class="eyebrow">USER ↔ PERSON</p><h2 id="profile-person-binding-title">关联现实人物</h2><p class="dim">关联不会自动授权此 Person 的历史记录、场景或 Space。</p></div><label>选择与此账号对应的人物<select v-model="linkedPersonId" aria-label="选择与此账号对应的人物"><option value="">暂不关联</option><option v-for="person in people" :key="person.id" :value="person.id">{{ person.title }}</option></select></label><button class="chip" type="button" @click="savePersonBinding">保存人物关联</button><small role="status">{{ bindingStatus }}</small></div>
+    </LbPanel>
+    <LbPanel title="现有数据概览" note="统计来自 Reality 文档视图">
+      <div class="profile-stats-grid"><article class="profile-stat-card"><small>事项</small><b>{{ loading ? '…' : matterCount }}</b><span>个课题</span></article><article class="profile-stat-card"><small>专注时间</small><b>{{ loading ? '…' : focusTime.value }}</b><span>{{ focusTime.unit }}</span></article><article class="profile-stat-card"><small>习惯记录</small><b>{{ loading ? '…' : habitDays }}</b><span>天</span></article><article class="profile-stat-card"><small>本地事实</small><b>{{ loading ? '…' : documents.length }}</b><span>条数据</span></article></div>
+    </LbPanel>
 </template>
+
+<style scoped>
+/* 页面局部排版：颜色取「留白」令牌。.profile-* 类名沿用（页面语义钩子）。 */
+.slide-head .head-actions { align-self: flex-end; margin-left: auto; }
+.profile-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+.profile-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: clamp(10px, 1.2vw, 14px); }
+.profile-identity-card, .profile-scene-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px 14px; }
+.profile-avatar, .profile-scene-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--panel-2); font-size: 1.3rem; }
+.profile-identity-copy h2, .profile-scene-copy h2 { margin: 0 0 2px; font-size: 1rem; font-weight: 600; }
+.profile-identity-copy p, .profile-scene-copy p { margin: 0; font-size: .78rem; }
+.profile-identity-meta { display: grid; gap: 4px; grid-column: 1 / -1; margin: 0; }
+.profile-identity-meta div { display: flex; justify-content: space-between; gap: 10px; font-size: .72rem; }
+.profile-identity-meta dt { color: var(--muted); }
+.profile-identity-meta dd { margin: 0; color: var(--fg); }
+.profile-identity-card .detail-chips { grid-column: 1 / -1; }
+.profile-scene-card .chip { grid-column: 1 / -1; justify-self: start; }
+.profile-scene-summary { display: grid; justify-items: end; text-align: right; }
+.profile-scene-summary b { color: var(--accent); font-size: 1.2rem; }
+.profile-scene-summary span { color: var(--muted); font-size: .68rem; }
+.profile-person-binding { display: grid; gap: 10px; }
+.profile-person-binding h2 { margin: 0 0 2px; font-size: 1rem; font-weight: 600; }
+.profile-person-binding p { margin: 0; font-size: .78rem; }
+.profile-person-binding label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; }
+.profile-person-binding select { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.profile-person-binding small { color: var(--muted); font-size: .72rem; }
+.profile-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: clamp(10px, 1.2vw, 14px); }
+.profile-stat-card { display: grid; gap: 5px; padding: clamp(12px, 1.4vw, 16px); border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.profile-stat-card small { color: var(--muted); font-size: .7rem; }
+.profile-stat-card b { color: var(--fg); font-size: 1.5rem; font-weight: 700; }
+.profile-stat-card span { color: var(--muted); font-size: .68rem; }
+</style>

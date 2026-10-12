@@ -17,11 +17,20 @@ describe('Vue route parity with the current 迁移前界面基线 registry', () 
       .toEqual(appPageRegistry.map(page => ({ id: page.id, path: page.path, title: page.title, shell: page.shell })))
   })
 
+  it.each(['/app/desk/history', '/liubai-preview/desk/history'])('routes the homepage records control to the complete records page at %s', async path => {
+    const route = router.resolve(path)
+    expect(route.meta.title).toBe('记录')
+    const loader = route.matched.at(-1)?.components?.default
+    expect(loader).toBeTypeOf('function')
+    const page = await (loader as () => Promise<{ default: { __file?: string } }>)()
+    expect(page.default.__file).toContain('DeskRecordsPage.vue')
+  }, 10000)
+
   it.each([
-    ['/app/today', 'TodayPage.vue'],
-    ['/app/capture', 'CapturePage.vue'],
-    ['/app/review', 'ReviewPage.vue'],
-    ['/app/matters', 'MattersPage.vue'],
+    ['/app/today', 'LiubaiToday.vue'],
+    ['/app/capture', 'LiubaiCapture.vue'],
+    ['/app/review', 'LiubaiReview.vue'],
+    ['/app/matters', 'LiubaiMatters.vue'],
     ['/app/matters/:id', 'MatterDetailPage.vue'],
     ['/app/cycle', 'CyclePage.vue'],
     ['/app/flow', 'FlowPage.vue'],
@@ -33,15 +42,15 @@ describe('Vue route parity with the current 迁移前界面基线 registry', () 
     ['/app/library', 'LibraryPage.vue'],
     ['/app/graph', 'GraphPage.vue'],
     ['/app/module/inbox', 'InboxPage.vue'],
-    ['/app/module/diary', 'DiaryPage.vue'],
+    ['/app/module/diary', 'LiubaiDiary.vue'],
     ['/app/module/posts', 'PostsPage.vue'],
     ['/app/calendar', 'CalendarPage.vue'],
-    ['/app/module/tasks', 'TasksPage.vue'],
+    ['/app/module/tasks', 'LiubaiTasks.vue'],
     ['/app/task-board', 'TaskBoardPage.vue'],
     ['/app/module/goals', 'GoalsPage.vue'],
-    ['/app/module/habits', 'HabitsPage.vue'],
+    ['/app/module/habits', 'LiubaiHabits.vue'],
     ['/app/module/finance', 'FinancePage.vue'],
-    ['/app/module/pomo', 'PomoPage.vue'],
+    ['/app/module/pomo', 'LiubaiPomo.vue'],
     ['/app/feishu', 'FeishuPage.vue'],
     ['/app/admin', 'AdminPage.vue'],
     ['/app/admin/advanced', 'AdminPage.vue'],

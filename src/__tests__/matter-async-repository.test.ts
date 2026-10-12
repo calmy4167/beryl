@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const durable = vi.hoisted(() => {
   const values = new Map<string, string>()
@@ -63,6 +63,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 import { matterAsyncRepository } from '../domain/matter/repository'
 import { MatterDomainError, type Matter } from '../domain/matter/model'
 
@@ -84,13 +85,15 @@ function matter(calmyId: string, title: string, revision = 1, status: Matter['st
 
 describe('matterAsyncRepository', () => {
   beforeEach(() => {
+    setActiveAccount('matter-async-repository-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('prioritizes the durable snapshot over stale localStorage', async () => {
-    localStorage.setItem('b_matters', JSON.stringify([matter('stale', '旧缓存')]))
+    localStorage.setItem(accountStorageKey('b_matters'), JSON.stringify([matter('stale', '旧缓存')]))
     durable.values.set('b_matters', JSON.stringify([matter('durable', '持久快照')]))
 
     await expect(matterAsyncRepository.list()).resolves.toEqual([matter('durable', '持久快照')])

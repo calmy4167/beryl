@@ -7,10 +7,10 @@ import { recordLegacyD1Tombstones } from './legacy-local-migration'
 import { encryptEntityContent } from './vault-keys'
 
 const LEGACY_KEYS = new Set([
-  'b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases',
+  'b_tasks', 'b_inbox', 'b_inboxHistory', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases',
   'b_caseRelations', 'b_moments', 'b_pomoTotal', 'b_pomoCount', 'b_scene'
 ])
-const LEGACY_COLLECTIONS = new Set(['b_tasks', 'b_inbox', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
+const LEGACY_COLLECTIONS = new Set(['b_tasks', 'b_inbox', 'b_inboxHistory', 'b_habits', 'b_goals', 'b_finance', 'b_diary', 'b_chars', 'b_posts', 'b_cases', 'b_caseRelations', 'b_moments'])
 const MIGRATION_META_KEY = 'vault:legacy-d1-migration'
 const MIGRATION_PAGE_SIZE = 250
 

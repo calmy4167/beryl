@@ -134,7 +134,7 @@ Markdown 正文面向人类阅读；frontmatter 与 manifest 面向机器恢复�
 
 ### 6.1 Open Format v1 冻结契约
 
-本节冻结的是**v1 的兼容边界**，不是宣称 Portable Vault 已完成稳定版验收。2026-09-24 编写本节时，读写器均为 v1；自 2026-09-29 起写出 v2、同时读取 v1/v2，增量变化见 §6.2。v1 字段语义、身份和路径约定保持不变。
+本节冻结的是**v1 的兼容边界**，不是宣称 Portable Vault 已完成稳定版验收。2026-09-24 编写本节时，读写器均为 v1；2026-09-29 写出升级为 v2 并双读 v1/v2；2026-09-30 写出升级为 v3 并读取 v1/v2/v3，后续增量见 §6.2、§6.3。v1 字段语义、身份和路径约定保持不变。
 
 | 契约项 | v1 契约范围 |
 |---|---|
@@ -150,14 +150,22 @@ Markdown 正文面向人类阅读；frontmatter 与 manifest 面向机器恢复�
 
 1. v1 的字段含义、实体身份、路径语义及可读字段优先级保持稳定；修复不改变这些语义，也不改变现有存储键/实体 ID。
 2. v1 不承诺忽略后仍保留未知字段。因此，新增会丢失数据的必需字段、字段含义变化、实体身份或关系模型变化、二进制/Manifest 结构不兼容、目录约定变化，都不能冒充 v1 的安全扩展。
-3. 导入器不支持的 `format_version` 或 `b_version` 必须明确报不兼容，不得降级解析、静默丢字段或覆盖用户文件。v2 已按新版本双读策略实施，具体兼容范围见 §6.2。
+3. 导入器不支持的 `format_version` 或 `b_version` 必须明确报不兼容，不得降级解析、静默丢字段或覆盖用户文件。v2、v3 按新版本双读策略实施；格式增量与兼容范围见 §6.2、§6.3。
 4. 本次补入统一 Core `Asset` 的可读 YAML 字段往返测试，只证明该实体已纳入 v1 映射回归，不证明真实用户 Vault、IndexedDB 备份恢复或附件云同步已通过验收。
 
 ### 6.2 Open Format v2：现实社交模型增量
 
-2026-09-29 的多人现实数据模型实现需要表示规范 Thing、Scene、SceneParticipant、Space、Domain、Scope 与 Permission，因此新增 Open Format v2。导出使用 `format_version: 2` 与 `b_version: 2`；读取器继续接受 v1 Manifest 与实体文件，Matter 文件仍可导入，Thing 文件通过同一稳定 `calmy_id` 写回唯一 Matter 持久化仓库。v1 的字段语义和路径契约仍按 §6.1 保持；旧版读取器不保证理解 v2 新类型，不能把 v2 文件交给旧版读取器。
+2026-09-29 的多人现实数据模型实现需要表示规范 Thing、Scene、SceneParticipant、Space、Domain、Scope 与 Permission，因此当时新增 Open Format v2。v2 阶段写出 `format_version: 2` 与 `b_version: 2`；Matter 文件仍可导入，Thing 文件通过同一稳定 `calmy_id` 写回唯一 Matter 持久化仓库。之后写出版本已在 §6.3 升至 v3。v1 的字段语义和路径契约仍按 §6.1 保持；旧版读取器不保证理解 v2/v3 新类型，不能把新版文件交给旧版读取器写回。
 
 v2 为 Thing 与新增 Core 类型写出类型化可读字段和恢复载荷；新 Core 存储键纳入 JSON Backup 与实体级同步集合。Space 与旧 SharedSpace 的边界映射由显式 `SpaceCompatibilityProjection` 承载，转换不会创建额外事实副本或授予权限。新格式回归、旧 v1 文件读取、备份白名单和实体同步测试通过；这不是用户真实 Vault 目录迁移或多账号远端权限验收。
+
+### 6.3 Open Format v3：Diary 与原始 Capture
+
+OW-23 的首个便携范围切片将写出格式升级为 `format_version: 3`、实体 `b_version: 3`，读取器继续接受 v1/v2/v3；未知版本明确报不兼容。v3 新增 `diary` 和原始 `capture` 两种实体，并以 `(calmy_type, calmy_id)` 作为跨类型身份，因此不同类型可以使用相同 ID。Matter 与 Thing 仍是同一事实的两个表达，同 ID 同时出现时仍作为重复事实拒绝导出。TodayPlan 继续位于 `80 Daily/<date>.md`，Diary 使用 `80 Daily/Diary__diary_<YYYY-MM-DD>.md`，Capture 使用 `15 Captures/<calmy_id>.md`。
+
+Diary ID 固定为 `diary_<YYYY-MM-DD>`；日期必须是真实有效的 ISO 日历日期，二者不一致时导入报错。Diary 正文与 Capture 正文作为 Markdown 原始正文往返。Capture 只导出正文、固定状态码、创建/更新时间、revision 和可选来源素材稳定 ID；`suggestionIds`、Suggestion 记录及模型元数据不导出。导入 Capture 时保留设备本地已有的 Suggestion 关联；来源素材 ID 缺少对应 Resource 时给出非阻断提示，仍保留正文和 ID。
+
+Diary 与 Capture 继续写入原有 `diary`、`calmyCaptures` 持久集合，并通过现有 durable Repository 导入；不创建平行事实集合，也不级联删除衍生数据。缺失 revision 的旧 Diary 按 revision 0 读取；保存修改时递增。v3 改变新导出版本，旧版 Open Format 读取器不保证兼容 v3 文件，因此跨版本交换前应确认接收端支持 v3。此切片不覆盖 Suggestion、Finance 交易及其他遗留业务集合，不能据此宣称所有 Calmy 长期数据均可移植。实现级构建检查不等同于真实用户 Vault 目录往返验收。
 
 Manifest 的长期职责：
 

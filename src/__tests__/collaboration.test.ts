@@ -1,11 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { actionRepository } from '@/domain/action/repository'
 import { matterAsyncRepository, matterRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import { createCollaborativeRelationship, createCollaborativeRelationshipAsync, createCollaborativeSharedSpace, createSharedAction, createSharedActionAsync, createSharedRecord, createSharedRecordAsync, listSharedAudit, listSharedAuditAsync, reviseSharedRecord, reviseSharedRecordAsync, sharedWriteAccess, SharedPermissionError, transitionSharedAction, transitionSharedActionAsync, updateCollaborativeRelationship, updateCollaborativeSharedSpace, updateSharedMatter, updateSharedMatterAsync } from '@/domain/social/collaboration'
 import { listSharedContextForRelationship, listSharedContextForRelationshipAsync } from '@/domain/social/shared-context'
+import { setActiveAccount } from '@/core/account-context'
+import { resetStoreCache } from '@/core/storage'
 
 describe('Shared collaboration writes and audit', () => {
+  beforeEach(() => { setActiveAccount('collaboration-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => setActiveAccount(null))
+
   it('allows a relationship owner to update its boundary and records the actor in history', () => {
     const actorId = 'collab-owner-' + Date.now()
     const relationship = createCollaborativeRelationship({

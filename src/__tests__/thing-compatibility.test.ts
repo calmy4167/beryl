@@ -1,13 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Matter, MatterMutation } from '@/domain/matter/model'
 import { matterFromThing, thingFromMatter } from '@/domain/matter/model'
 import { matterRepository } from '@/domain/matter/repository'
 import { thingRepository } from '@/domain/thing/repository'
 import { unifiedFactories } from '@/domain/unified/repository'
-import { beforeEach } from 'vitest'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('Matter and Thing compatibility', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('thing-compatibility-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('projects every legacy Matter field into Thing and round-trips without loss', () => {
     const matter: Matter = {

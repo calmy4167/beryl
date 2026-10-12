@@ -1,4 +1,5 @@
 import { createAsyncCollectionRepository } from '@/core/repository'
+import { readServerSession } from '@/core/auth'
 import { caseAsyncRelationRepository, caseAsyncRepository } from '@/domain/case/repository'
 import type { CasePhase, CaseRelation, CaseItem } from '@/domain/case/model'
 
@@ -26,12 +27,25 @@ export interface LegacyInboxRemovalResult {
   index: number
 }
 
+export interface LegacyInboxHistoryEntry {
+  id: string
+  revision: number
+  operation: 'removed' | 'converted-to-task' | 'converted-to-case'
+  source: 'user'
+  occurredAt: number
+  actorUserId?: string
+  before: LegacyInboxItem
+  after: null
+  target?: { type: 'task' | 'case'; id: string }
+}
+
 export interface ConvertLegacyInboxResult extends LegacyInboxRemovalResult {
   task?: LegacyTaskItem
   case?: CaseItem
 }
 
 const legacyInboxRepository = createAsyncCollectionRepository<LegacyInboxItem>('inbox', item => item.id)
+const legacyInboxHistoryRepository = createAsyncCollectionRepository<LegacyInboxHistoryEntry>('inboxHistory', item => item.id)
 const legacyTasksRepository = createAsyncCollectionRepository<LegacyTaskItem>('tasks', item => item.id)
 const commandRepository = createAsyncCollectionRepository<{ id: string; result: unknown }>('applicationCommands', item => item.id)
 const financeLinkCommandPrefix = 'finance-link:'
@@ -65,6 +79,23 @@ async function removeLegacyInboxItem(target: LegacyInboxTarget): Promise<LegacyI
   return { removed, index }
 }
 
+async function recordLegacyInboxHistory(commandId: string, removed: LegacyInboxItem, operation: LegacyInboxHistoryEntry['operation'], target?: LegacyInboxHistoryEntry['target']): Promise<void> {
+  const historyId = `legacy-inbox-history:${commandId}`
+  if (await legacyInboxHistoryRepository.find(historyId)) return
+  const entry: LegacyInboxHistoryEntry = {
+    id: historyId,
+    revision: 1,
+    operation,
+    source: 'user',
+    occurredAt: Date.now(),
+    actorUserId: readServerSession()?.user.id,
+    before: { ...removed },
+    after: null,
+    ...(target ? { target } : {}),
+  }
+  await legacyInboxHistoryRepository.create(entry)
+}
+
 const conversionChains = new Map<string, Promise<unknown>>()
 
 function serial<T>(key: string, work: () => Promise<T>): Promise<T> {
@@ -79,7 +110,9 @@ export async function removeLegacyInbox(target: LegacyInboxTarget, commandId: st
   return serial(id, async () => {
     const duplicate = await commandResult<LegacyInboxRemovalResult>(id)
     if (duplicate) return duplicate
-    return saveCommand(id, await removeLegacyInboxItem(target))
+    const removed = await removeLegacyInboxItem(target)
+    await recordLegacyInboxHistory(id, removed.removed, 'removed')
+    return saveCommand(id, removed)
   })
 }
 
@@ -99,6 +132,7 @@ export async function convertLegacyInboxToTask(
       task = await legacyTasksRepository.create({ id: taskId, title: text, priority: taskInput.priority, date: taskInput.date, done: false })
     }
     const removed = await removeLegacyInboxItem(target)
+    await recordLegacyInboxHistory(id, removed.removed, 'converted-to-task', { type: 'task', id: taskId })
     return saveCommand(id, { ...removed, task })
   })
 }
@@ -120,6 +154,7 @@ export async function convertLegacyInboxToCase(
       throw new Error('legacy-inbox-case-command-conflict')
     }
     const removed = await removeLegacyInboxItem(target)
+    await recordLegacyInboxHistory(id, removed.removed, 'converted-to-case', { type: 'case', id: caseId })
     return saveCommand(id, { ...removed, case: createdCase })
   })
 }
@@ -154,6 +189,7 @@ export async function linkFinanceToCase(input: LinkFinanceToCaseInput): Promise<
 
 export const legacyInboxRepositories = {
   inbox: legacyInboxRepository,
+  history: legacyInboxHistoryRepository,
   tasks: legacyTasksRepository,
   commands: commandRepository,
 }

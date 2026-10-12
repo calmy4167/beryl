@@ -37,11 +37,14 @@ async function openFeishu() {
 describe('Vue Feishu parity', () => {
   it('uses the React native select treatment for project and status fields', () => {
     const css = readFileSync(resolve(process.cwd(), 'src/styles/controls.css'), 'utf8')
-    const match = css.match(/html\.tactile-ui #app \.page-container \.feishu-page select\s*\{([^}]+)\}/)
-    expect(match?.[1]).toContain('padding: 9px 11px;')
-    expect(match?.[1]).toContain('background-image: none;')
-    expect(match?.[1]).toContain('appearance: auto;')
-    expect(css).toMatch(/html\.tactile-ui #app \.page-container :is\([^)]*\.feishu-page[^)]*\) select:disabled\s*\{[^}]*opacity: \.7;/s)
+    // 迁移期那批 per-page select 规则挂在 `html.tactile-ui`（运行期从不添加）下、且写死了旧浅色
+    // `#f8fafc` / `appearance: auto`；第 32 轮删掉后，唯一的实现是这条全局规则：
+    // 自定义 chevron（background-image url）+ appearance:none + --calmy-control-* 令牌。
+    const match = css.match(/html :where\(select:not\(\[multiple\]\):not\(\[size\]\):not\(\.matter-trajectory-select\)\)\s*\{([^}]+)\}/)
+    expect(match?.[1]).toContain('appearance: none;')
+    expect(match?.[1]).toContain('background-image: url("data:image/svg+xml')
+    expect(css).toMatch(/html :where\(select:not\(\[multiple\]\):not\(\[size\]\):not\(\.matter-trajectory-select\)\):disabled\s*\{[^}]*opacity: \.72;/s)
+    expect(css).not.toMatch(/html\.tactile-ui[^{]*\{/)
   })
   beforeEach(() => { localStorage.clear(); sync.saved.cloud = null; fixtures.tasks.splice(0,fixtures.tasks.length,{record_id:'rec-task-1',fields:{'任务':'写迁移计划','状态':'未开始','截止时间':'','所属项目':['rec-project-1']}});fixtures.projects.splice(0,fixtures.projects.length,{record_id:'rec-project-1',fields:{'项目名称':'迁移项目','目标':'保持当前路线','状态':'进行中','项目截止时间':''}});fixtures.updates.length=0 })
   afterEach(() => { wrapper?.unmount(); wrapper = undefined })
@@ -78,7 +81,7 @@ describe('Vue Feishu parity', () => {
     expect(page.get('[role="alert"]').text()).toContain('Worker 地址与同步密码')
   })
   it('loads task records and writes a selected status through the Feishu workspace service', async () => {
-    sync.saved.cloud = { url:'https://worker.example',key:'test-key' }
+    localStorage.setItem('calmy:api-base-url', 'https://api.example.test')
     const page = await openFeishu()
     await flushPromises()
     expect(page.get('[aria-label="飞书任务看板"]').text()).toContain('写迁移计划')
@@ -90,7 +93,7 @@ describe('Vue Feishu parity', () => {
     expect(fixtures.updates).toContainEqual({id:'rec-task-1',fields:{'状态':'进行中'}})
   })
   it('expands and collapses the linked task card from a project action button', async () => {
-    sync.saved.cloud = { url:'https://worker.example',key:'test-key' }
+    localStorage.setItem('calmy:api-base-url', 'https://api.example.test')
     const page = await openFeishu()
     await page.findAll('[aria-label="飞书数据表"] [role="tab"]')[1].trigger('click')
     await flushPromises()

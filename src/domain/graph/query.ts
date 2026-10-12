@@ -2,10 +2,15 @@ import { actionRepository } from '@/domain/action/repository'
 import { matterRepository } from '@/domain/matter/repository'
 import { recordRepository } from '@/domain/record/repository'
 import { todayRepository } from '@/domain/today/repository'
+import { financeRepository } from '@/domain/finance/repository'
+import { diaryRepository } from '@/domain/diary/repository'
+import { createCollectionRepository } from '@/core/repository'
 import { CORE_ENTITY_TYPES, unifiedRepository, type CoreEntity, type CoreEntityType, type Cycle, type DailyState, type Insight, type Outcome, type Practice, type Relation, type Relationship, type Resource, type Seed, type SharedSpace, type Stage } from '@/domain/unified'
 
-export type GraphNodeType = Exclude<CoreEntityType, 'dictionary_option'> | 'thing' | 'matter' | 'action' | 'record' | 'today'
+export type GraphNodeType = Exclude<CoreEntityType, 'dictionary_option'> | 'thing' | 'matter' | 'action' | 'record' | 'today' | 'finance_entry' | 'diary_entry' | 'goal' | 'post' | 'time'
 const GRAPH_CORE_ENTITY_TYPES = CORE_ENTITY_TYPES.filter((type): type is Exclude<CoreEntityType, 'dictionary_option'> => type !== 'dictionary_option')
+const goalsRepository = createCollectionRepository<{ id: string; title: string; problem?: string; status?: string; progress?: number }>('goals', item => item.id)
+const postsRepository = createCollectionRepository<{ id: string; title: string; content: string; date: string; archivedAt?: number }>('posts', item => item.id)
 
 export interface GraphNode {
   id: string
@@ -15,6 +20,8 @@ export interface GraphNode {
   route: string
   updatedAt: number
   placeholder?: boolean
+  /** Value ID for virtual endpoints such as Time; `id` stays collision-safe for graph rendering. */
+  refId?: string
 }
 
 export interface GraphEdge {
@@ -43,8 +50,11 @@ interface GraphContext {
 }
 
 const TYPE_LABEL: Record<GraphNodeType, string> = {
-  matter: '处境', action: '行动', record: '记录', today: '今天',
-  person: '人物', relationship: '关系', shared_space: '空间',
+  matter: '处境', action: '行动', record: '记录', today: '今天', finance_entry: '财务记录', diary_entry: '日记', time: '时间',
+  goal: '目标',
+  post: '文章',
+  person: '人物', organization: '组织', relationship: '关系', shared_space: '空间',
+  important_date: '重要日期',
   scene: '情境', scene_participant: '参与者', space: '空间', domain: '领域',
   scope: '范围', permission: '权限', thing: '事项',
   cycle: '周期', stage: '阶段', resource: '资料', relation: '关系',
@@ -53,10 +63,15 @@ const TYPE_LABEL: Record<GraphNodeType, string> = {
 }
 
 function routeFor(type: GraphNodeType, id: string, context: GraphContext = {}): string {
+  if (type === 'time') return /^\d{4}-\d{2}-\d{2}$/.test(id) ? `/app/calendar?date=${encodeURIComponent(id)}` : '/app/calendar'
   if (type === 'matter' || type === 'thing') return `/app/matters/${id}`
   if (type === 'action' || type === 'record') return context.matterId ? `/app/matters/${context.matterId}` : '/app/today'
   if (type === 'today' || type === 'daily_state') return '/app/today'
-  if (type === 'person' || type === 'relationship' || type === 'shared_space' || type === 'space' || type === 'scene' || type === 'scene_participant') return '/app/people'
+  if (type === 'finance_entry') return '/app/finance'
+  if (type === 'diary_entry') return `/app/module/diary?date=${encodeURIComponent(id)}`
+  if (type === 'goal') return '/app/module/goals'
+  if (type === 'post') return '/app/module/posts'
+  if (type === 'person' || type === 'important_date' || type === 'relationship' || type === 'shared_space' || type === 'space' || type === 'scene' || type === 'scene_participant') return '/app/people'
   if (type === 'cycle') return context.matterId ? `/app/matters/${context.matterId}` : '/app/library'
   if (type === 'stage') {
     const cycle = context.cycleId ? unifiedRepository.find<{ entityType: 'cycle' } & CoreEntity>('cycle', context.cycleId) as CoreEntity | undefined : undefined
@@ -83,6 +98,8 @@ function graphContext(entity: CoreEntity): GraphContext {
 function coreLabel(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return entity.displayName
+    case 'important_date': return entity.title
+    case 'organization': return entity.title
     case 'scene': return entity.title
     case 'scene_participant': return `${entity.personId} participates in ${entity.sceneId}`
     case 'space': return entity.title
@@ -108,6 +125,8 @@ function coreLabel(entity: CoreEntity): string {
 function coreSummary(entity: CoreEntity): string {
   switch (entity.entityType) {
     case 'person': return [entity.domain, entity.notes, ...entity.roles].filter(Boolean).join(' ')
+    case 'important_date': return [entity.kind, entity.monthDay, entity.year, entity.recurrence === 'yearly' ? '每年' : '仅一次', entity.notes].filter(Boolean).join(' · ')
+    case 'organization': return entity.status
     case 'scene': return [entity.status, entity.thingId, entity.spaceId].filter(Boolean).join(' · ')
     case 'scene_participant': return [entity.role, entity.joinedAt, entity.leftAt].filter(Boolean).join(' · ')
     case 'space': return [entity.purpose, entity.status].filter(Boolean).join(' · ')
@@ -135,7 +154,11 @@ function legacyNodes(): GraphNode[] {
     ...matterRepository.list().map(item => ({ id: item.calmyId, type: 'matter' as const, label: item.title, summary: item.why, route: routeFor('matter', item.calmyId), updatedAt: item.updatedAt })),
     ...actionRepository.list().map(item => ({ id: item.calmyId, type: 'action' as const, label: item.title, summary: `${item.date} · ${item.status}`, route: routeFor('action', item.calmyId, item), updatedAt: item.updatedAt })),
     ...recordRepository.list().map(item => ({ id: item.calmyId, type: 'record' as const, label: item.body.split(/\r?\n/, 1)[0].slice(0, 100), summary: item.type, route: routeFor('record', item.calmyId, item), updatedAt: item.updatedAt })),
-    ...todayRepository.list().map(item => ({ id: item.date, type: 'today' as const, label: `Today ${item.date}`, summary: item.why || item.review.observation, route: '/app/today', updatedAt: item.updatedAt }))
+    ...todayRepository.list().map(item => ({ id: item.date, type: 'today' as const, label: `Today ${item.date}`, summary: item.why || item.review.observation, route: '/app/today', updatedAt: item.updatedAt })),
+    ...financeRepository.list().map(item => ({ id: item.id, type: 'finance_entry' as const, label: item.category || '其他', summary: `${item.type} · ${item.note || ''} · ${item.date || ''}`, route: routeFor('finance_entry', item.id), updatedAt: Date.parse(item.date || '') || 0 })),
+    ...diaryRepository.list().map(item => ({ id: `diary:${item.date}`, refId: item.date, type: 'diary_entry' as const, label: `日记 ${item.date}`, summary: item.content.slice(0, 120), route: routeFor('diary_entry', item.date), updatedAt: Date.parse(item.date) || 0 })),
+    ...goalsRepository.list().map(item => ({ id: item.id, type: 'goal' as const, label: item.title, summary: item.problem || item.status || '', route: routeFor('goal', item.id), updatedAt: 0 })),
+    ...postsRepository.list().map(item => ({ id: item.id, type: 'post' as const, label: item.title, summary: item.content.slice(0, 120), route: routeFor('post', item.id), updatedAt: Date.parse(item.date) || 0 }))
   ]
 }
 
@@ -156,13 +179,16 @@ export function buildGraphSnapshot(query = ''): GraphSnapshot {
   const edgeKeys = new Set<string>()
   for (const node of [...legacyNodes(), ...unifiedNodes()]) if (!nodeMap.has(node.id)) nodeMap.set(node.id, node)
 
-  const ensureNode = (id: string, type: GraphNodeType): void => {
+  const ensureNode = (id: string, type: GraphNodeType, refId?: string): void => {
     if (nodeMap.has(id)) return
-    nodeMap.set(id, { id, type, label: id, summary: '未解析引用', route: '/app/graph', updatedAt: 0, placeholder: true })
+    nodeMap.set(id, type === 'time'
+      ? { id, refId, type, label: refId || id, summary: '时间上下文', route: routeFor('time', refId || id), updatedAt: 0 }
+      : { id, type, label: id, summary: '未解析引用', route: '/app/graph', updatedAt: 0, placeholder: true })
   }
   const addEdge = (from: string, to: string, label: string, source: GraphEdge['source'], directed = true, confidence?: number, fromType: GraphNodeType = 'relation', toType: GraphNodeType = 'relation'): void => {
     if (!from || !to || from === to) return
-    ensureNode(from, fromType); ensureNode(to, toType)
+    ensureNode(from, fromType, fromType === 'time' && from.startsWith('time:') ? from.slice(5) : undefined)
+    ensureNode(to, toType, toType === 'time' && to.startsWith('time:') ? to.slice(5) : undefined)
     const key = `${from}|${to}|${label}`
     if (edgeKeys.has(key)) return
     edgeKeys.add(key)
@@ -172,10 +198,12 @@ export function buildGraphSnapshot(query = ''): GraphSnapshot {
     if (to) addEdge(from, to, label, 'reference', true, undefined, fromType, toType)
   }
 
-  for (const relation of unifiedRepository.list<Relation>('relation')) {
+  for (const relation of unifiedRepository.list<Relation>('relation').filter(item => !item.archivedAt)) {
     const fromType = relation.from.entityType === 'dictionary_option' ? 'relation' : relation.from.entityType
     const toType = relation.to.entityType === 'dictionary_option' ? 'relation' : relation.to.entityType
-    addEdge(relation.from.calmyId, relation.to.calmyId, relation.relationType, 'relation', relation.directed, relation.confidence, fromType, toType)
+    const fromId = fromType === 'time' ? `time:${relation.from.calmyId}` : fromType === 'diary_entry' ? `diary:${relation.from.calmyId}` : relation.from.calmyId
+    const toId = toType === 'time' ? `time:${relation.to.calmyId}` : toType === 'diary_entry' ? `diary:${relation.to.calmyId}` : relation.to.calmyId
+    addEdge(fromId, toId, relation.relationType, 'relation', relation.directed, relation.confidence, fromType, toType)
   }
   for (const cycle of unifiedRepository.list<Cycle>('cycle')) addRef(cycle.calmyId, cycle.matterId, 'belongs_to', 'cycle')
   for (const action of actionRepository.list()) { addRef(action.calmyId, action.matterId, 'belongs_to', 'action'); addRef(action.calmyId, action.cycleId, 'part_of', 'action', 'cycle') }

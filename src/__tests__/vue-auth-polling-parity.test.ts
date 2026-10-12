@@ -3,19 +3,16 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const authFixture = vi.hoisted(() => ({
-  session: null as { u: string; ts: number } | null,
-  record: { u: 'fixture-user', _d: false },
-  ensureAuth: vi.fn(),
+  serverSession: null as null | { token: string; apiOrigin: string; expiresAt: number; user: { id: string; username: string; displayName: string; role: 'admin' | 'user' }; mustChangePassword: boolean; validatedAt: number },
 }))
 const syncFixture = vi.hoisted(() => ({
-  restoreSync: vi.fn(), startPolling: vi.fn(), stopPolling: vi.fn(), pollCheck: vi.fn(),
+  syncVaultEntityData: vi.fn(),
 }))
 
 vi.mock('@/core/auth', () => ({
-  readSession: () => authFixture.session,
-  ensureAuth: authFixture.ensureAuth,
+  readServerSession: () => authFixture.serverSession,
 }))
-vi.mock('@/core/sync', () => syncFixture)
+vi.mock('@/core/entity-sync', () => syncFixture)
 
 import App from '@/App.vue'
 
@@ -27,51 +24,36 @@ function makeRouter() {
 }
 
 beforeEach(() => {
-  authFixture.session = null
-  authFixture.record = { u: 'fixture-user', _d: false }
-  authFixture.ensureAuth.mockReset().mockImplementation(async () => authFixture.record)
-  syncFixture.restoreSync.mockReset().mockResolvedValue(undefined)
-  syncFixture.startPolling.mockReset()
-  syncFixture.stopPolling.mockReset()
-  syncFixture.pollCheck.mockReset().mockResolvedValue(undefined)
+  authFixture.serverSession = null
+  localStorage.setItem('calmy:api-base-url', 'https://api.example.test')
+  syncFixture.syncVaultEntityData.mockReset().mockResolvedValue(undefined)
 })
 afterEach(() => vi.restoreAllMocks())
 
-describe('Vue protected route polling parity', () => {
-  it('starts session restore and polling when login finishes after App first mounted', async () => {
+describe('Vue protected route sync parity', () => {
+  it('starts account sync when a server session becomes active and stops it after logout', async () => {
     const router = makeRouter()
     await router.push('/login')
     await router.isReady()
     const wrapper = mount(App, { global: { plugins: [router] } })
     await flushPromises()
-    expect(syncFixture.restoreSync).not.toHaveBeenCalled()
-    expect(syncFixture.startPolling).not.toHaveBeenCalled()
+    expect(syncFixture.syncVaultEntityData).not.toHaveBeenCalled()
 
-    authFixture.session = { u: 'fixture-user', ts: Date.now() }
+    authFixture.serverSession = { token: 'server-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000, user: { id: 'user-1', username: 'fixture-user', displayName: 'Fixture', role: 'user' }, mustChangePassword: false, validatedAt: Date.now() }
     await router.push('/app/today')
     await flushPromises()
-    expect(authFixture.ensureAuth).toHaveBeenCalledOnce()
-    expect(syncFixture.restoreSync).toHaveBeenCalledOnce()
-    expect(syncFixture.startPolling).toHaveBeenCalledOnce()
+    expect(syncFixture.syncVaultEntityData).toHaveBeenCalledOnce()
 
     window.dispatchEvent(new Event('focus'))
-    expect(syncFixture.startPolling).toHaveBeenCalledTimes(2)
-    expect(syncFixture.pollCheck).toHaveBeenCalledOnce()
-    const hidden = vi.spyOn(document, 'hidden', 'get')
-    hidden.mockReturnValue(true)
-    document.dispatchEvent(new Event('visibilitychange'))
-    expect(syncFixture.stopPolling).toHaveBeenCalledOnce()
-    hidden.mockReturnValue(false)
-    document.dispatchEvent(new Event('visibilitychange'))
-    expect(syncFixture.startPolling).toHaveBeenCalledTimes(3)
-    expect(syncFixture.pollCheck).toHaveBeenCalledTimes(2)
+    await flushPromises()
+    expect(syncFixture.syncVaultEntityData).toHaveBeenCalledTimes(2)
 
-    authFixture.session = null
+    authFixture.serverSession = null
     await router.push('/login')
     await flushPromises()
-    expect(syncFixture.stopPolling).toHaveBeenCalledTimes(2)
     window.dispatchEvent(new Event('focus'))
-    expect(syncFixture.startPolling).toHaveBeenCalledTimes(3)
+    await flushPromises()
+    expect(syncFixture.syncVaultEntityData).toHaveBeenCalledTimes(2)
     wrapper.unmount()
   })
 
@@ -80,19 +62,16 @@ describe('Vue protected route polling parity', () => {
     await router.push('/login')
     await router.isReady()
     const wrapper = mount(App, { global: { plugins: [router] } })
-    authFixture.session = { u: 'fixture-user', ts: Date.now() }
-    authFixture.record = { u: 'other-user', _d: false }
+    authFixture.serverSession = null
     await router.push('/app/today')
     await flushPromises()
-    expect(syncFixture.restoreSync).not.toHaveBeenCalled()
-    expect(syncFixture.startPolling).not.toHaveBeenCalled()
+    expect(syncFixture.syncVaultEntityData).not.toHaveBeenCalled()
 
     await router.push('/login')
-    authFixture.record = { u: 'fixture-user', _d: true }
+    authFixture.serverSession = null
     await router.push('/app/today')
     await flushPromises()
-    expect(syncFixture.restoreSync).not.toHaveBeenCalled()
-    expect(syncFixture.startPolling).not.toHaveBeenCalled()
+    expect(syncFixture.syncVaultEntityData).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 })

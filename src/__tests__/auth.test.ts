@@ -1,18 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   createAuthRecord, ensureAuth, verifyPassword,
-  writeSession, readSession, clearSession,
+  writeSession, writeServerSession, readServerSession, readSession, clearSession,
   isLocked, registerFail, resetFails
 } from '../core/auth'
 
 describe('auth', () => {
   beforeEach(() => { localStorage.clear(); resetFails() })
 
-  it('ensureAuth 创建默认凭据（_d 标记）', async () => {
-    const rec = await ensureAuth()
-    expect(rec.u).toBe('calmy')
-    expect(rec._d).toBe(true)
-    expect(rec.hash).toMatch(/^[0-9a-f]{64}$/)
+  it('does not create local credentials when authentication must come from the server', async () => {
+    await expect(ensureAuth()).rejects.toThrow('server-auth-required')
   })
 
   it('verifyPassword：正确密码通过、错误拒绝', async () => {
@@ -23,21 +20,27 @@ describe('auth', () => {
     expect(JSON.stringify(rec)).not.toContain('secret123')
   })
 
-  it('旧版明文 b_auth 惰性升级', async () => {
+  it('does not treat legacy local credentials as server authentication', async () => {
     localStorage.setItem('b_auth', '{"u":"calmy","p":"cy2024"}')
-    const rec = await ensureAuth()
-    expect(rec.hash).toBeTruthy()
-    expect(localStorage.getItem('b_auth')).not.toContain('"p"')
+    await expect(ensureAuth()).rejects.toThrow('server-auth-required')
+    expect(readSession()).toBeNull()
+    expect(localStorage.getItem('b_auth')).toContain('"p"')
   })
 
-  it('会话：写入/读取/过期清除', () => {
+  it('accepts only a server-issued session and clears it from the current tab', () => {
     writeSession('me')
+    expect(readSession()).toBeNull()
+    writeServerSession({
+      token: 'server-token', apiOrigin: 'https://api.example.test', expiresAt: Date.now() + 60_000,
+      user: { id: 'user-1', username: 'me', displayName: 'Me', role: 'user' }, mustChangePassword: false
+    })
+    expect(readServerSession()?.user.id).toBe('user-1')
     expect(readSession()?.u).toBe('me')
     clearSession()
     expect(readSession()).toBeNull()
     localStorage.setItem('b_session', JSON.stringify({ u: 'me', ts: Date.now() - 31 * 86400000 }))
     expect(readSession()).toBeNull()
-    expect(localStorage.getItem('b_session')).toBe('')
+    expect(localStorage.getItem('b_session')).toBeNull()
   })
 
   it('失败锁定：5 次后锁定', () => {

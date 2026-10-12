@@ -1,5 +1,7 @@
 # Calmy Personal OS 完整实现总档案
 
+> ⚠️ **已过期（2026-10-05 标注）**：第 15–19 节以 React 为生产主语（`src/react/*`、`LegacyAdminHost`），该代码已不存在；另有两处结论与当前代码不符——「IndexedDB 为权威主存储」实为 localStorage 先行双写，「local-first 离线可用」被 `sessionStorage` 会话门控否证。当前事实以 [`docs/PROJECT_STRUCTURE.md`](../PROJECT_STRUCTURE.md)、[`OPEN_WORK.md`](../product/OPEN_WORK.md) 和 [`DOCUMENT_CONSOLIDATION_2026-10-05.md`](../DOCUMENT_CONSOLIDATION_2026-10-05.md) 为准。
+
 版本：v1.0
 原始建档/评审日期：2026-08-22（文件名保留原始建档日期）
 当前事实校准：2026-09-19

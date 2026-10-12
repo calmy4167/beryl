@@ -2,13 +2,21 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const tactileCss = () => readFileSync(resolve(process.cwd(), 'src/styles/shared/tactile-ui.css'), 'utf8')
-const productCss = () => readFileSync(resolve(process.cwd(), 'src/styles/shared/product-ui.css'), 'utf8')
+/**
+ * 动效契约。
+ *
+ * 原文件同时读 `tactile-ui.css`，但那一层 599/603 条规则挂在运行期从不添加的 `html.tactile-ui` 上，
+ * 已随四层死 CSS 一起移除；`.route-motion` 包装器也只存在于旧壳里。
+ * 现在守的是仍然生效的层：`product-ui.css`（按下反馈）与 `liubai-v11.css`（减弱动效）。
+ */
+const readStyle = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
+const productCss = () => readStyle('src/styles/shared/product-ui.css')
+const liubaiCss = () => readStyle('src/styles/liubai/liubai-v11.css')
 
 describe('workspace motion feedback', () => {
   it('gives pressed controls a compress-and-release response instead of only shifting them', () => {
     const style = document.createElement('style')
-    style.textContent = productCss() + tactileCss()
+    style.textContent = productCss()
     document.head.append(style)
     const activeRule = Array.from(style.sheet?.cssRules ?? []).find(rule =>
       rule instanceof CSSStyleRule && rule.selectorText.includes(':where(button') && rule.selectorText.includes(':active'),
@@ -20,34 +28,9 @@ describe('workspace motion feedback', () => {
     style.remove()
   })
 
-  it('disables workspace route animation when reduced motion is requested', () => {
-    const style = document.createElement('style')
-    style.textContent = tactileCss()
-    document.head.append(style)
-    const motionRules = Array.from(style.sheet?.cssRules ?? []).filter(rule =>
-      rule instanceof CSSMediaRule && rule.conditionText.includes('prefers-reduced-motion'),
-    ) as CSSMediaRule[]
-    const routeRule = motionRules.flatMap(rule => Array.from(rule.cssRules)).find(rule =>
-      rule instanceof CSSStyleRule && rule.selectorText.includes('.route-motion'),
-    ) as CSSStyleRule | undefined
-
-    expect(routeRule?.style.animation).toBe('none')
-
-    style.remove()
-  })
-
-  it('keeps the Vue route wrapper visually identical to the React page without entrance animation', () => {
-    const style = document.createElement('style')
-    style.textContent = tactileCss()
-    document.head.append(style)
-    const routeRule = Array.from(style.sheet?.cssRules ?? []).find(rule =>
-      rule instanceof CSSStyleRule && rule.selectorText === 'html.tactile-ui .route-motion',
-    ) as CSSStyleRule | undefined
-
-    expect(routeRule?.style.animation).toBe('none')
-    expect(routeRule?.style.animationFillMode).toBe('')
-    expect(routeRule?.style.willChange).toBe('')
-
-    style.remove()
+  it('neutralizes animation and transition in the 留白 layer when reduced motion is requested', () => {
+    expect(liubaiCss()).toMatch(
+      /prefers-reduced-motion:reduce\)\{[\s\S]{0,80}animation-duration:\.01ms !important[\s\S]{0,80}transition-duration:\.01ms !important/,
+    )
   })
 })

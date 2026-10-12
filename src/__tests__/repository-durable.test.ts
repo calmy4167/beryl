@@ -76,15 +76,18 @@ vi.mock('../core/db.ts', () => ({
 
 import { createAsyncCollectionRepository, createCollectionRepository, flushRepositoryWrites, readAsyncStorageValue, writeAsyncStorageValue } from '../core/repository'
 import { resetStoreCache } from '../core/storage'
+import { accountStorageKey, setActiveAccount } from '../core/account-context'
 
 describe('Repository durable boundary', () => {
   beforeEach(() => {
+    setActiveAccount('repository-durable-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
 
   afterEach(() => {
+    setActiveAccount(null)
     resetStoreCache()
     localStorage.clear()
   })
@@ -143,7 +146,7 @@ describe('Repository durable boundary', () => {
   })
 
   it('reads from the durable snapshot instead of stale localStorage', async () => {
-    localStorage.setItem('b_tasks', '[{"id":"stale"}]')
+    localStorage.setItem(accountStorageKey('b_tasks'), '[{"id":"stale"}]')
     durable.values.set('b_tasks', '[{"id":"durable"}]')
     const repository = createAsyncCollectionRepository<{ id: string }>('tasks')
 
@@ -156,7 +159,7 @@ describe('Repository durable boundary', () => {
 
     await expect(repository.list()).resolves.toEqual([])
     durable.setAvailable(false)
-    localStorage.setItem('b_tasks', '[{"id":"fallback"}]')
+    localStorage.setItem(accountStorageKey('b_tasks'), '[{"id":"fallback"}]')
     await expect(repository.list()).resolves.toEqual([{ id: 'fallback' }])
   })
 

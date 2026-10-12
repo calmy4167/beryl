@@ -1,0 +1,48 @@
+<h2>模块栏被唤出后，什么时候收起？</h2>
+<p class="subtitle">你已选“边缘悬停 + 快捷键”。下面比较面板展开后的停留方式；快捷键先以 Ctrl / ⌘ + K 示意，最终名称可再结合现有按键调整。</p>
+
+<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr));gap:14px">
+  <div class="card" data-choice="leave" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:280px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:174px;padding:18px 14px;background:#f4f3ed;border-right:1px solid #e5e4dd;color:#62635b;box-shadow:5px 0 20px #25251b10">
+          <div style="color:#718578;margin-bottom:16px">Calmy　×</div><div style="padding:5px 7px;background:#e8e9e2;border-radius:5px">桌面</div><div style="padding:5px 7px">今天</div><div style="padding:5px 7px">处境</div><div style="padding:5px 7px">回顾</div><div style="padding:5px 7px">任务　·</div><div style="padding:5px 7px">日记　资料</div>
+        </div>
+        <div style="position:absolute;left:198px;right:20px;top:27%;color:#c0c0b7">回车记录 · 连按两次回车建任务<br>Alt+回车换行</div>
+        <div style="position:absolute;left:195px;top:53%;font-size:10px;color:#9a9b92">指针移开面板 → 延迟片刻后自动收起</div>
+        <div style="position:absolute;right:14px;top:12px;color:#9c9c92;font-size:11px">· 设置</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A · 指针离开后自动收起</h3><p>边缘悬停展开；移入面板可继续操作，指针离开后稍等再收起。Ctrl / ⌘ + K 可固定开关，Esc 关闭。输入面自动恢复干净。</p></div>
+  </div>
+
+  <div class="card" data-choice="outside" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:280px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:174px;padding:18px 14px;background:#f4f3ed;border-right:1px solid #e5e4dd;color:#62635b;box-shadow:5px 0 20px #25251b10">
+          <div style="color:#718578;margin-bottom:16px">Calmy　×</div><div style="padding:5px 7px;background:#e8e9e2;border-radius:5px">桌面</div><div style="padding:5px 7px">今天</div><div style="padding:5px 7px">处境</div><div style="padding:5px 7px">回顾</div><div style="padding:5px 7px">任务　·</div><div style="padding:5px 7px">日记　资料</div>
+        </div>
+        <div style="position:absolute;left:198px;right:20px;top:27%;color:#c0c0b7">回车记录 · 连按两次回车建任务<br>Alt+回车换行</div>
+        <div style="position:absolute;left:192px;top:53%;padding:5px 8px;border:1px solid #e6e5de;border-radius:6px;color:#8c8d84;font-size:10px">已展开　Esc 关闭</div>
+        <div style="position:absolute;right:14px;top:12px;color:#9c9c92;font-size:11px">· 设置</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B · 点外侧或按 Esc 收起</h3><p>悬停或快捷键打开后保持展开；点击面板外区域或按 Esc 才关闭。方便连续切换模块，但面板会多停留一会儿。</p></div>
+  </div>
+
+  <div class="card" data-choice="pinned" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="card-image" style="padding:0;background:#efeee8">
+      <div style="height:280px;position:relative;background:#fbfbf8;color:#22221f;border:1px solid #dddcd4;overflow:hidden;font:13px/1.8 system-ui,sans-serif">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:174px;padding:18px 14px;background:#f4f3ed;border-right:1px solid #e5e4dd;color:#62635b;box-shadow:5px 0 20px #25251b10">
+          <div style="color:#718578;margin-bottom:16px">Calmy <span style="float:right;color:#9b9c93">×</span></div><div style="padding:5px 7px;background:#e8e9e2;border-radius:5px">桌面</div><div style="padding:5px 7px">今天</div><div style="padding:5px 7px">处境</div><div style="padding:5px 7px">回顾</div><div style="padding:5px 7px">任务　·</div><div style="padding:5px 7px">日记　资料</div>
+        </div>
+        <div style="position:absolute;left:198px;right:20px;top:27%;color:#c0c0b7">回车记录 · 连按两次回车建任务<br>Alt+回车换行</div>
+        <div style="position:absolute;left:192px;top:53%;color:#8c8d84;font-size:10px">模块栏保持展开，直到点 × 关闭</div>
+        <div style="position:absolute;right:14px;top:12px;color:#9c9c92;font-size:11px">· 设置</div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C · 明确关闭才收起</h3><p>打开后固定显示，只有点关闭按钮或再按快捷键才收起。适合高频浏览模块；会持续占用输入面的左侧区域。</p></div>
+  </div>
+</div>
+
+<div class="section"><p class="subtitle">点击一个偏好的收起方式；也可以直接说你希望自动收起的等待时间或快捷键行为。</p></div>

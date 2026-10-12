@@ -2,64 +2,86 @@ import { h } from 'vue'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resetStoreCache } from '@/core/storage'
+import { resetStoreCache, todayKey } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import { recordAsyncRepository } from '@/domain/record/repository'
 import { todayAsyncRepository } from '@/domain/today/repository'
-import TodayPage from '@/vue/pages/TodayPage.vue'
+import LiubaiToday from '@/vue/pages/LiubaiToday.vue'
+
+/**
+ * 「总览」页（v11）的行为覆盖。
+ *
+ * 迁移说明（第 26 轮）：本文件原来测的是旧页面 `TodayPage.vue`（已删除）。旧页面把"今天"做成了
+ * 全能工作台（就地新建行动、写日记记录、勾身体状态、切飞书来源）；v11 的总览按参考稿把信息架构
+ * 拆开了（记录 → 记录页/日记页，来源切换 → 看板页），所以这里断言总览**真实承担的**行为：
+ * 读取并展示当日重点/统计/记录、**快速新增行动（含关联处境）**、完成行动、点标题设为当日重点。
+ * 新增行动走的就是旧页面的同一条仓储路径（useReferenceWorkspace.addTask），没有新存储。
+ */
 
 let wrapper: VueWrapper | undefined
-async function openTodayPage() {
+async function openToday() {
   const router = createRouter({ history: createMemoryHistory(), routes: [
-    { path: '/app/today', component: TodayPage },
-    { path: '/app/review', component: { template: '<h1>回顾</h1>' } },
-    { path: '/app/flow', component: { template: '<h1>探索</h1>' } },
-    { path: '/app/matters/:id', component: { template: '<h1>处境</h1>' } },
+    { path: '/app/today', component: LiubaiToday },
   ] })
   await router.push('/app/today'); await router.isReady()
   wrapper = mount({ render: () => h(RouterView) }, { global: { plugins: [router] } })
   await flushPromises()
   return wrapper
 }
-describe('Vue Today parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks() })
-  it('loads the record-first workspace and adds an action to today', async () => {
+describe('Vue LiubaiToday (v11) parity', () => {
+  beforeEach(() => { setActiveAccount('vue-today-parity-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { wrapper?.unmount(); wrapper = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
+
+  it('renders the day focus list, stats and records from the repositories', async () => {
+    await actionAsyncRepository.create({ title: '准备面试', date: todayKey() })
+    await recordAsyncRepository.create({ type: 'fact', body: '今天把边界说清楚了', occurredAt: Date.now(), source: 'user' })
+    const page = await openToday()
+
+    expect(page.text()).toContain('准备面试')
+    expect(page.text()).toContain('当日重点')
+    expect(page.text()).toContain('当日数据')
+    // 记录块（HUD rank 3）在 DOM 里始终存在，内容来自 Repository
+    expect(page.text()).toContain('今天把边界说清楚了')
+  })
+
+  it('adds an action to today with its matter through the reference-style composer', async () => {
     const matter = await matterAsyncRepository.create({ title: '准备面试' })
-    const page = await openTodayPage()
-    expect(page.find('[aria-label="今天的记录"]').exists()).toBe(true)
-    expect(page.find('.recent-records-heading button.quiet-link').exists()).toBe(true)
-    expect(page.get('[aria-label="行动关联事项"]').attributes('role')).toBe('combobox')
-    await page.get('[aria-label="行动关联事项"]').trigger('click')
-    await page.get(`[role="option"][data-value="${matter.calmyId}"]`).trigger('click')
+    const page = await openToday()
+
+    await page.get('[aria-label="行动关联事项"]').setValue(matter.calmyId)
     await page.get('[aria-label="新增现实行动"]').setValue('发送项目提案')
     await page.get('[aria-label="新增现实行动"]').trigger('keydown.enter')
     await flushPromises()
-    expect((await actionAsyncRepository.list()).some(item => item.title === '发送项目提案' && item.matterId === matter.calmyId)).toBe(true)
+
+    const created = (await actionAsyncRepository.list()).find(item => item.title === '发送项目提案')
+    expect(created?.matterId).toBe(matter.calmyId)
+    expect(created?.date).toBe(todayKey())
+    // 提交成功后输入框清空
+    expect((page.get('[aria-label="新增现实行动"]').element as HTMLInputElement).value).toBe('')
   })
-  it('saves a journal record with the selected 心/事实 category and persists body state', async () => {
-    const page = await openTodayPage()
-    await page.get('[aria-label="记录原文"]').setValue('今天把边界说清楚了')
-    await page.get('[aria-label="记录类别"] button').trigger('click')
-    await page.get('[aria-label="记录"]',).trigger('click')
+
+  it('completes an action and records it as done', async () => {
+    await actionAsyncRepository.create({ title: '发送项目提案', date: todayKey() })
+    const page = await openToday()
+
+    const done = page.findAll('.ov-list [role="button"]').find(node => node.text() === '完成')!
+    await done.trigger('click')
     await flushPromises()
-    expect((await recordAsyncRepository.list()).some(item => item.body === '今天把边界说清楚了' && item.journalCategory === 'mind')).toBe(true)
-    await page.findAll('[aria-label="身体状态"] button').find(item => item.text() === '疲惫')!.trigger('click')
-    await flushPromises()
-    const plan = await todayAsyncRepository.get((await import('@/core/storage')).todayKey())
-    expect(plan?.load).toBe('tired')
+
+    expect((await actionAsyncRepository.list()).find(item => item.title === '发送项目提案')?.status).toBe('done')
   })
-  it('switches between local Today and the Feishu task-selection view', async () => {
-    const page = await openTodayPage()
-    expect(page.find('[aria-label="选择数据来源"]').exists()).toBe(true)
-    await page.get('[aria-label="选择数据来源"] button:nth-child(2)').trigger('click')
+
+  it('sets the clicked action as the day focus', async () => {
+    const action = await actionAsyncRepository.create({ title: '陪爸爸复诊', date: todayKey() })
+    await todayAsyncRepository.get(todayKey())
+    const page = await openToday()
+
+    await page.get('.ov-list li b').trigger('click')
     await flushPromises()
-    expect(localStorage.getItem('calmy:workspace:source')).toBe('feishu')
-    expect(page.text()).toContain('今天，先做一件事')
-    expect(page.get('[aria-label="飞书任务关联项目"]').attributes('role')).toBe('combobox')
-    await page.get('[aria-label="选择数据来源"] button:nth-child(1)').trigger('click')
-    await flushPromises()
-    expect(page.find('[aria-label="记录原文"]').exists()).toBe(true)
+
+    const plan = await todayAsyncRepository.get(todayKey())
+    expect(plan.focusActionIds).toContain(action.calmyId)
   })
 })

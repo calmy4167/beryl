@@ -2,17 +2,56 @@ import type { ActionItem } from '@/domain/action/model'
 import { matterFromThing, type Matter, type Thing } from '@/domain/matter/model'
 import type { RealityRecord } from '@/domain/record/model'
 import type { TodayPlan } from '@/domain/today/model'
-import { CORE_ENTITY_TYPES, type CoreEntity, type CoreEntitySource, type CoreEntityType, type EntityRef, type RelationType } from '@/domain/unified/model'
+import type { FinanceEntry, FinanceMutation } from '@/domain/finance/repository'
+import { CAPTURE_STATUSES, type CaptureItem } from '@/domain/capture/model'
+import { isValidDiaryDate, type DiaryEntry } from '@/domain/diary/model'
+import { CORE_ENTITY_TYPES, type CoreEntity, type CoreEntitySource, type CoreEntityType, type EntityRef, type Ownership, type RelationType } from '@/domain/unified/model'
 import type { OpenAsset } from './assets'
 import { hashOpenBytes } from './assets'
 
 export type { OpenAsset } from './assets'
 
-export const OPEN_FORMAT_VERSION = 2
+export const OPEN_FORMAT_VERSION = 3
 export const OPEN_MANIFEST_PATH = '_calmy/manifest.json'
 
-export type OpenEntity = Matter | Thing | ActionItem | RealityRecord | TodayPlan | CoreEntity
-export type OpenEntityType = 'matter' | 'thing' | 'action' | 'record' | 'daily' | CoreEntity['entityType']
+export type OpenFinanceEntry = FinanceEntry & { entityType: 'finance_entry' }
+export interface OpenHabitSnapshot { name: string; color: string; days: number; dates: string[] }
+export interface OpenHabitHistorySnapshot {
+  revision: number
+  operation: 'created' | 'updated'
+  source: 'user' | 'system'
+  occurredAt: number
+  actorUserId?: string
+  before?: OpenHabitSnapshot
+  after: OpenHabitSnapshot
+}
+export interface OpenHabit {
+  entityType: 'habit_entry'
+  id: string
+  name: string
+  color: string
+  days: number
+  dates: string[]
+  revision?: number
+  history?: OpenHabitHistorySnapshot[]
+}
+export interface OpenGoal { id: string; title: string; done?: boolean; status?: string; progress?: number; problem?: string; evidence?: string; nextAction?: string; matterId?: string; ownership?: Ownership; revision?: number; history?: Array<{ revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; done: boolean; status: string; progress: number; problem?: string; evidence?: string; nextAction?: string; matterId?: string; ownership?: Ownership }> }
+export interface OpenPostHistorySnapshot { revision: number; operation: 'created' | 'updated'; occurredAt: number; actorUserId?: string; title: string; content: string; date: string; archivedAt?: number; ownership?: Ownership }
+export interface OpenPost { entityType: 'post'; id: string; title: string; content: string; date: string; archivedAt?: number; revision?: number; ownership?: Ownership; history?: OpenPostHistorySnapshot[] }
+export interface OpenLegacyInboxHistory {
+  entityType: 'inbox_history'
+  id: string
+  revision: number
+  operation: 'removed' | 'converted-to-task' | 'converted-to-case'
+  source: 'user'
+  occurredAt: number
+  actorUserId?: string
+  before: { id?: string; text?: string; date?: string }
+  after: null
+  target?: { type: 'task' | 'case'; id: string }
+}
+export type OpenEntity = Matter | Thing | ActionItem | RealityRecord | TodayPlan | DiaryEntry | CaptureItem | CoreEntity | OpenFinanceEntry | OpenHabit | OpenGoal | OpenPost | OpenLegacyInboxHistory
+export type OpenEntityType = 'matter' | 'thing' | 'action' | 'record' | 'daily' | 'diary' | 'capture' | 'finance_entry' | 'habit_entry' | 'goal' | 'post' | 'inbox_history' | CoreEntity['entityType']
 type OpenScalar = string | number | boolean | null | string[]
 type OpenFrontmatter = Record<string, OpenScalar>
 
@@ -53,6 +92,8 @@ export interface OpenManifest {
   assets: OpenManifestAsset[]
   asset_references: OpenAssetReference[]
   tombstones?: OpenTombstone[]
+  /** Append-only Finance ownership audit; separate from the Finance Entity payload. */
+  finance_mutations?: FinanceMutation[]
 }
 
 export interface OpenWorkspace {
@@ -67,19 +108,29 @@ export interface OpenWorkspaceInput {
   actions?: ActionItem[]
   records?: RealityRecord[]
   dailies?: TodayPlan[]
+  diaries?: DiaryEntry[]
+  captures?: CaptureItem[]
+  finance?: OpenFinanceEntry[]
+  habits?: OpenHabit[]
+  goals?: OpenGoal[]
+  posts?: OpenPost[]
+  inboxHistory?: OpenLegacyInboxHistory[]
+  financeMutations?: FinanceMutation[]
   unified?: CoreEntity[]
   assets?: OpenAsset[]
 }
 
 export interface OpenImportIssue {
   path: string
-  code: 'invalid-frontmatter' | 'invalid-entity' | 'duplicate-id' | 'manifest-hash-mismatch' | 'manifest-asset-missing' | 'asset-hash-mismatch' | 'missing-asset-reference' | 'unsupported-file'
+  code: 'invalid-frontmatter' | 'invalid-entity' | 'duplicate-id' | 'manifest-identity-mismatch' | 'manifest-hash-mismatch' | 'manifest-asset-missing' | 'asset-hash-mismatch' | 'missing-asset-reference' | 'unsupported-file'
   message: string
 }
 
 export interface OpenImportConflict {
   path: string
   calmyId: string
+  calmyType: OpenEntityType
+  identityKey: string
   reason: 'duplicate-id' | 'existing-entity'
   message: string
 }
@@ -91,6 +142,7 @@ export interface OpenImportResult {
   missingAssetReferences: OpenAssetReference[]
   orphanAssets: OpenAsset[]
   tombstones: OpenTombstone[]
+  financeMutations: FinanceMutation[]
   manifest?: OpenManifest
   issues: OpenImportIssue[]
   conflicts: OpenImportConflict[]
@@ -113,6 +165,22 @@ function normalizeBody(body: string): string {
   return body.replace(/^\s+|\s+$/g, '')
 }
 
+function isFinanceMutation(value: unknown): value is FinanceMutation {
+  if (!value || typeof value !== 'object') return false
+  const item = value as Partial<FinanceMutation>
+  const validBase = typeof item.id === 'string' && !!item.id && typeof item.entityId === 'string' && !!item.entityId
+    && (item.operation === 'created' || item.operation === 'updated' || item.operation === 'ownership-updated') && typeof item.commandId === 'string' && typeof item.actorId === 'string'
+    && Number.isFinite(item.occurredAt) && Number.isInteger(item.fromRevision) && Number.isInteger(item.toRevision)
+    && (item.toRevision as number) > (item.fromRevision as number)
+  if (!validBase) return false
+  if (item.operation === 'created') return item.fromRevision === 0 && !!item.snapshot && typeof item.snapshot === 'object'
+    && item.snapshot.id === item.entityId && item.snapshot.revision === item.toRevision
+  if (item.operation === 'updated') return !!item.snapshot && !!item.previousSnapshot
+    && item.snapshot.id === item.entityId && item.snapshot.revision === item.toRevision
+    && item.previousSnapshot.id === item.entityId && item.previousSnapshot.revision === item.fromRevision
+  return true
+}
+
 export function isUnifiedOpenEntity(entity: OpenEntity): entity is CoreEntity {
   return 'entityType' in entity && (CORE_ENTITY_TYPES as readonly string[]).includes(entity.entityType)
 }
@@ -121,24 +189,46 @@ function isThing(entity: OpenEntity): entity is Thing { return 'entityType' in e
 function isMatter(entity: OpenEntity): entity is Matter { return !('entityType' in entity) && 'currentStage' in entity }
 function isAction(entity: OpenEntity): entity is ActionItem { return 'title' in entity && 'status' in entity && !('currentStage' in entity) }
 function isRecord(entity: OpenEntity): entity is RealityRecord { return 'occurredAt' in entity }
+function isCapture(entity: OpenEntity): entity is CaptureItem { return 'suggestionIds' in entity && 'body' in entity && 'createdAt' in entity }
+function isDiary(entity: OpenEntity): entity is DiaryEntry { return !('entityType' in entity) && 'date' in entity && 'content' in entity }
+function isFinanceEntry(entity: OpenEntity): entity is OpenFinanceEntry { return 'entityType' in entity && entity.entityType === 'finance_entry' }
+export function isHabit(entity: OpenEntity): entity is OpenHabit { return 'entityType' in entity && entity.entityType === 'habit_entry' }
+function isPost(entity: OpenEntity): entity is OpenPost { return 'entityType' in entity && entity.entityType === 'post' }
+function isInboxHistory(entity: OpenEntity): entity is OpenLegacyInboxHistory { return 'entityType' in entity && entity.entityType === 'inbox_history' }
+export function isGoal(entity: OpenEntity): entity is OpenGoal { return !('entityType' in entity) && 'id' in entity && 'title' in entity }
 
 function entityType(entity: OpenEntity): OpenEntityType {
   if (isUnifiedOpenEntity(entity)) return entity.entityType
+  if (isFinanceEntry(entity)) return 'finance_entry'
+  if (isHabit(entity)) return 'habit_entry'
+  if (isPost(entity)) return 'post'
+  if (isInboxHistory(entity)) return 'inbox_history'
+  if (isGoal(entity)) return 'goal'
   if (isThing(entity)) return 'thing'
   if (isMatter(entity)) return 'matter'
   if (isAction(entity)) return 'action'
   if (isRecord(entity)) return 'record'
+  if (isDiary(entity)) return 'diary'
+  if (isCapture(entity)) return 'capture'
   return 'daily'
 }
 
 function entityId(entity: OpenEntity): string {
+  if (isDiary(entity)) return `diary_${entity.date}`
+  if (isFinanceEntry(entity)) return entity.id
+  if (isHabit(entity)) return entity.id
+  if (isPost(entity)) return entity.id
+  if (isInboxHistory(entity)) return entity.id
+  if (isGoal(entity)) return entity.id
   return 'calmyId' in entity ? entity.calmyId : `daily_${entity.date}`
 }
 
 export function openEntityType(entity: OpenEntity): OpenEntityType { return entityType(entity) }
 export function openEntityId(entity: OpenEntity): string { return entityId(entity) }
+export function openEntityKey(entity: OpenEntity): string { return `${entityType(entity)}:${entityId(entity)}` }
 
-function entityRevision(entity: OpenEntity): number { return entity.revision }
+function entityRevision(entity: OpenEntity): number { return 'revision' in entity ? entity.revision ?? 0 : 0 }
+export function openEntityRevision(entity: OpenEntity): number { return entityRevision(entity) }
 
 function safeName(value: string, fallback: string): string {
   const cleaned = value.replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_').replace(/[. ]+$/g, '').trim()
@@ -182,7 +272,7 @@ function pathFor(entity: OpenEntity): string {
   const id = entityId(entity)
   if (isUnifiedOpenEntity(entity)) {
     const folders: Record<CoreEntity['entityType'], string> = {
-      person: '10 People', relationship: '10 People', shared_space: '10 People', cycle: '30 Cycles',
+      person: '10 People', important_date: '10 People', organization: '10 People', relationship: '10 People', shared_space: '10 People', cycle: '30 Cycles',
       stage: '30 Cycles', resource: '60 Resources', relation: '60 Resources', seed: '70 Insights',
       insight: '70 Insights', outcome: '50 Records', practice: '70 Insights', daily_state: '80 Daily', asset: '60 Resources',
       scene: '20 Scenes', scene_participant: '20 Scenes', space: '10 People', domain: '10 Domains', scope: '10 Sharing', permission: '10 Sharing', dictionary_option: '90 System Dictionary'
@@ -195,16 +285,45 @@ function pathFor(entity: OpenEntity): string {
   if (isMatter(entity)) return `20 Matters/${safeName(entity.title, id)}__${id}.md`
   if (isAction(entity)) return `40 Actions/${entity.date}__${safeName(entity.title, id)}__${id}.md`
   if (isRecord(entity)) return `50 Records/${new Date(entity.occurredAt).toISOString().slice(0, 10)}__${id}.md`
+  if (isCapture(entity)) return `15 Captures/${safeName(id, 'capture')}.md`
+  if (isDiary(entity)) return `80 Daily/Diary__${id}.md`
+  if (isFinanceEntry(entity)) return '45 Finance/' + safeName(entity.category || 'entry', 'entry') + '__' + safeName(id, 'finance-entry') + '.md'
+  if (isHabit(entity)) return `60 Habits/${safeName(entity.name, id)}__${safeName(id, 'habit')}.md`
+  if (isInboxHistory(entity)) return `90 History/Inbox/${safeName(id, 'inbox-history')}.md`
+  if (isPost(entity)) return `55 Posts/${safeName(entity.title, id)}__${safeName(id, 'post')}.md`
+  if (isGoal(entity)) return `55 Goals/${safeName(entity.title, id)}__${safeName(id, 'goal')}.md`
   return `80 Daily/${entity.date}.md`
 }
 
 function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
   const common = { calmy_id: entityId(entity), calmy_type: entityType(entity), b_version: OPEN_FORMAT_VERSION, revision: entityRevision(entity) }
+  if (isFinanceEntry(entity)) return {
+    ...common, finance_type: entity.type, amount: entity.amount ?? null, amount_cents: entity.amountCents ?? null,
+    category: entity.category, category_option_id: entity.categoryOptionId || null, date: entity.date,
+    ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null, payload_json: JSON.stringify(entity)
+  }
+  if (isInboxHistory(entity)) return { ...common, operation: entity.operation, source: entity.source, occurred_at: entity.occurredAt, actor_user_id: entity.actorUserId || null, payload_json: JSON.stringify(entity) }
+  if (isHabit(entity)) return {
+    ...common, title: entity.name, color: entity.color, days: entity.days, dates: entity.dates,
+    payload_json: JSON.stringify(entity)
+  }
+  if (isPost(entity)) return {
+    ...common, title: entity.title, date: entity.date, archived_at: entity.archivedAt ?? null,
+    ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null, payload_json: JSON.stringify(entity)
+  }
+  if (isGoal(entity)) return {
+    ...common, title: entity.title, status: entity.status || (entity.done ? 'done' : 'open'), progress: entity.progress ?? (entity.done ? 100 : 0),
+    problem: entity.problem || null, evidence: entity.evidence || null, next_action: entity.nextAction || null, matter_id: entity.matterId || null,
+    ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null,
+    payload_json: JSON.stringify(entity)
+  }
   if (isUnifiedOpenEntity(entity)) {
     const readable: OpenFrontmatter = { ...common, source: entity.source, created_at: entity.createdAt, updated_at: entity.updatedAt, ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null, payload_json: JSON.stringify(entity) }
     switch (entity.entityType) {
       case 'person': return { ...readable, display_name: entity.displayName, status: entity.status, roles: entity.roles, domain: entity.domain || null, notes: entity.notes || null, tags: entity.tags, linked_user_id: entity.linkedUserId || null }
-      case 'scene': return { ...readable, title: entity.title, thing_id: entity.thingId || null, space_id: entity.spaceId || null, started_at: entity.startedAt ?? null, ended_at: entity.endedAt ?? null, status: entity.status }
+      case 'important_date': return { ...readable, title: entity.title, kind: entity.kind, person_id: entity.personId || null, month_day: entity.monthDay, year: entity.year ?? null, recurrence: entity.recurrence, notes: entity.notes || null }
+      case 'organization': return { ...readable, title: entity.title, status: entity.status }
+      case 'scene': return { ...readable, title: entity.title, thing_id: entity.thingId || null, space_id: entity.spaceId || null, started_at: entity.startedAt ?? null, ended_at: entity.endedAt ?? null, order: entity.order ?? null, settlements_json: entity.settlements ? JSON.stringify(entity.settlements) : null, status: entity.status }
       case 'scene_participant': return { ...readable, scene_id: entity.sceneId, person_id: entity.personId, role: entity.role || null, joined_at: entity.joinedAt, left_at: entity.leftAt ?? null }
       case 'space': return { ...readable, title: entity.title, purpose: entity.purpose || null, boundary: entity.boundary || null, member_person_ids: entity.memberPersonIds, relationship_ids: entity.relationshipIds, thing_ids: entity.thingIds, scene_ids: entity.sceneIds, owner_ref_json: entity.ownerRef ? JSON.stringify(entity.ownerRef) : null, legacy_boundary_json: entity.legacyBoundary ? JSON.stringify(entity.legacyBoundary) : null, status: entity.status }
       case 'domain': return { ...readable, key: entity.key, display_name: entity.displayName, status: entity.status }
@@ -234,6 +353,7 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
       stop_condition: entity.stopCondition || null, current_stage: entity.currentStage, trajectory: entity.trajectory,
       current_cycle_id: entity.currentCycleId || null, evidence_ids: entity.evidenceIds,
       subject_person_ids: entity.subjectPersonIds || [], created_at: entity.createdAt, updated_at: entity.updatedAt,
+      ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null,
       payload_json: JSON.stringify({ ...entity, ...legacyMatter, entityType: 'thing', source: entity.source, subjectPersonIds: entity.subjectPersonIds })
     }
   }
@@ -244,14 +364,17 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
       progress_evidence: entity.progressEvidence || null, current_gap: entity.currentGap || null, next_test: entity.nextTest || null, stop_condition: entity.stopCondition || null,
       current_stage: entity.currentStage,
       trajectory: entity.trajectory, current_cycle_id: entity.currentCycleId || null,
-      evidence_ids: entity.evidenceIds, created_at: entity.createdAt, updated_at: entity.updatedAt
+      evidence_ids: entity.evidenceIds, created_at: entity.createdAt, updated_at: entity.updatedAt,
+      ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null,
+      settlements_json: entity.settlements ? JSON.stringify(entity.settlements) : null
     }
   }
   if (isAction(entity)) {
     return {
       ...common, title: entity.title, date: entity.date, status: entity.status,
       matter_id: entity.matterId || null, person_id: entity.personId || null, cycle_id: entity.cycleId || null,
-      result_note: entity.resultNote || null, created_at: entity.createdAt, updated_at: entity.updatedAt
+      result_note: entity.resultNote || null, created_at: entity.createdAt, updated_at: entity.updatedAt,
+      ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null
     }
   }
   if (isRecord(entity)) {
@@ -259,7 +382,28 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
       ...common, record_type: entity.type, occurred_at: entity.occurredAt, created_at: entity.createdAt,
       updated_at: entity.updatedAt, matter_id: entity.matterId || null, cycle_id: entity.cycleId || null,
       stage_id: entity.stageId || null, action_id: entity.actionId || null,
-      source: entity.source, evidence_ids: entity.evidenceIds, impact: entity.impact || null, redacted_at: entity.redactedAt || null
+      source: entity.source, evidence_ids: entity.evidenceIds, impact: entity.impact || null, redacted_at: entity.redactedAt || null,
+      ownership_json: entity.ownership ? JSON.stringify(entity.ownership) : null
+    }
+  }
+  if (isCapture(entity)) {
+    const portable = {
+      calmyId: entity.calmyId, body: entity.body, status: entity.status,
+      createdAt: entity.createdAt, updatedAt: entity.updatedAt, revision: entity.revision,
+      ...(entity.sourceMaterialIds?.length ? { sourceMaterialIds: [...entity.sourceMaterialIds] } : {}),
+      ...(entity.history?.length ? { history: entity.history } : {})
+    }
+    return {
+      ...common, status: entity.status, created_at: entity.createdAt, updated_at: entity.updatedAt,
+      source_material_ids: entity.sourceMaterialIds || [], payload_json: JSON.stringify(portable)
+    }
+  }
+  if (isDiary(entity)) {
+    const portable = { date: entity.date, content: entity.content, revision: entityRevision(entity), ownership: entity.ownership, history: entity.history?.map(item => ({ ...item, sourceMaterialIds: item.sourceMaterialIds && [...item.sourceMaterialIds] })), ...(entity.sourceMaterialIds?.length ? { sourceMaterialIds: [...entity.sourceMaterialIds] } : {}) }
+    return {
+      ...common, date: entity.date, ...(entity.sourceMaterialIds?.length ? { source_material_ids: entity.sourceMaterialIds } : {}),
+      ...(entity.ownership ? { ownership_json: JSON.stringify(entity.ownership) } : {}),
+      payload_json: JSON.stringify(portable)
     }
   }
   return {
@@ -275,6 +419,7 @@ function frontmatterFor(entity: OpenEntity): OpenFrontmatter {
 }
 
 function bodyFor(entity: OpenEntity): string {
+  if (isInboxHistory(entity)) return `# Inbox 历史 ${entity.id}\n\n操作：${entity.operation}\n\n原始内容：${entity.before.text || '（无文本）'}`
   if (isUnifiedOpenEntity(entity)) {
     if (entity.entityType === 'resource' || entity.entityType === 'seed' || entity.entityType === 'insight') return `# ${entity.title}\n\n${entity.body || '尚未填写正文。'}`
     if (entity.entityType === 'dictionary_option') return `# ${entity.value}\n\n模块：${entity.module}\n\n字段：${entity.field}\n\n状态：${entity.status}`
@@ -297,11 +442,18 @@ function bodyFor(entity: OpenEntity): string {
   if (isThing(entity)) return bodyFor(matterFromThing(entity))
   if (isAction(entity)) return `# ${entity.title}\n\n${entity.resultNote || '尚未记录结果。'}`
   if (isRecord(entity)) return entity.body
+  if (isCapture(entity)) return entity.body
+  if (isDiary(entity)) return entity.content
+  if (isPost(entity)) return entity.content
+  if (isFinanceEntry(entity)) return '# ' + (entity.category || '其他') + String.fromCharCode(10, 10) + (entity.note || '没有备注。')
+  if (isHabit(entity)) return `# ${entity.name}\n\n已记录 ${entity.days} 天。`
+  if (isGoal(entity)) return `# ${entity.title}\n\n${entity.problem ? `问题：${entity.problem}\n\n` : ''}${entity.evidence ? `证据：${entity.evidence}\n\n` : ''}${entity.nextAction ? `下一步：${entity.nextAction}` : '尚未填写下一步行动。'}`
   return `# ${entity.date}\n\n## 今日保护\n${entity.mustProtect.map(item => `- ${item}`).join('\n') || '- 暂无'}\n\n## 今日放下\n${entity.letGo.map(item => `- ${item}`).join('\n') || '- 暂无'}`
 }
 
 export function serializeOpenEntity(entity: OpenEntity): string {
-  return `---\n${yaml(frontmatterFor(entity))}\n---\n\n${bodyFor(entity)}\n`
+  const serialized = `---\n${yaml(frontmatterFor(entity))}\n---\n\n${bodyFor(entity)}`
+  return isDiary(entity) || isCapture(entity) ? serialized : `${serialized}\n`
 }
 
 function parseScalar(value: string): OpenScalar {
@@ -320,19 +472,18 @@ function parseScalar(value: string): OpenScalar {
 }
 
 function parseMarkdown(input: string): { frontmatter: OpenFrontmatter; body: string } {
-  const lines = input.replace(/^\ufeff/, '').split(/\r?\n/)
-  if (lines[0]?.trim() !== '---') throw new Error('frontmatter-start-missing')
-  const end = lines.indexOf('---', 1)
-  if (end < 0) throw new Error('frontmatter-end-missing')
+  const source = input.replace(/^\ufeff/, '')
+  const header = source.match(/^[ \t]*---[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*---[ \t]*\r?\n(?:\r?\n)?/)
+  if (!header) throw new Error(/^[ \t]*---[ \t]*(?:\r?\n)/.test(source) ? 'frontmatter-end-missing' : 'frontmatter-start-missing')
   const frontmatter: OpenFrontmatter = {}
-  for (const line of lines.slice(1, end)) {
+  for (const line of header[1].split(/\r?\n/)) {
     if (!line.trim()) continue
     const match = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/)
     if (!match) throw new Error(`frontmatter-line-invalid:${line}`)
     if (match[1] in frontmatter) throw new Error(`frontmatter-duplicate:${match[1]}`)
     frontmatter[match[1]] = parseScalar(match[2])
   }
-  return { frontmatter, body: lines.slice(end + 1).join('\n').replace(/^\n/, '') }
+  return { frontmatter, body: source.slice(header[0].length) }
 }
 
 function requiredString(frontmatter: OpenFrontmatter, key: string): string {
@@ -398,7 +549,7 @@ function unifiedPayload(frontmatter: OpenFrontmatter, id: string, type: string):
 
 function hasReadableUnifiedFields(frontmatter: OpenFrontmatter, type: CoreEntityType): boolean {
   const markers: Record<CoreEntityType, string> = {
-    person: 'display_name', scene: 'thing_id', scene_participant: 'scene_id', space: 'member_person_ids', domain: 'key', scope: 'person_id', permission: 'principal_user_id', relationship: 'person_a_id', shared_space: 'member_ids', cycle: 'matter_id', stage: 'cycle_id',
+    person: 'display_name', important_date: 'month_day', organization: 'title', scene: 'thing_id', scene_participant: 'scene_id', space: 'member_person_ids', domain: 'key', scope: 'person_id', permission: 'principal_user_id', relationship: 'person_a_id', shared_space: 'member_ids', cycle: 'matter_id', stage: 'cycle_id',
     resource: 'kind', relation: 'from_entity_type', seed: 'status', insight: 'status', outcome: 'action_id', practice: 'title',
     daily_state: 'body_state', asset: 'path', dictionary_option: 'field'
   }
@@ -407,10 +558,15 @@ function hasReadableUnifiedFields(frontmatter: OpenFrontmatter, type: CoreEntity
 
 function parseUnifiedEntity(frontmatter: OpenFrontmatter, body: string, id: string, type: CoreEntityType, revision: number): CoreEntity {
   if (!hasReadableUnifiedFields(frontmatter, type)) return unifiedPayload(frontmatter, id, type)
-  const meta = unifiedMeta(frontmatter, id, type, revision)
+  // Keep canonical fields that have no separate readable column (for example
+  // durable revision snapshots) while letting edited readable fields win.
+  const payload = unifiedPayload(frontmatter, id, type)
+  const meta = { ...payload, ...unifiedMeta(frontmatter, id, type, revision) }
   switch (type) {
     case 'person': return { ...meta, entityType: 'person', displayName: requiredString(frontmatter, 'display_name'), status: requiredString(frontmatter, 'status') as 'active' | 'archived', roles: stringArray(frontmatter, 'roles'), domain: optionalString(frontmatter, 'domain'), notes: optionalString(frontmatter, 'notes'), tags: stringArray(frontmatter, 'tags'), linkedUserId: optionalString(frontmatter, 'linked_user_id') }
-    case 'scene': return { ...meta, entityType: 'scene', title: requiredString(frontmatter, 'title'), thingId: optionalString(frontmatter, 'thing_id'), spaceId: optionalString(frontmatter, 'space_id'), startedAt: optionalNumber(frontmatter, 'started_at'), endedAt: optionalNumber(frontmatter, 'ended_at'), status: requiredString(frontmatter, 'status') as 'draft' | 'active' | 'paused' | 'completed' | 'archived' }
+    case 'important_date': return { ...meta, entityType: 'important_date', title: requiredString(frontmatter, 'title'), kind: requiredString(frontmatter, 'kind') as 'birthday' | 'anniversary' | 'memorial' | 'other', personId: optionalString(frontmatter, 'person_id'), monthDay: requiredString(frontmatter, 'month_day'), year: optionalNumber(frontmatter, 'year'), recurrence: requiredString(frontmatter, 'recurrence') as 'yearly' | 'once', notes: optionalString(frontmatter, 'notes') }
+    case 'organization': return { ...meta, entityType: 'organization', title: requiredString(frontmatter, 'title'), status: requiredString(frontmatter, 'status') as 'active' | 'archived' }
+    case 'scene': return { ...meta, entityType: 'scene', title: requiredString(frontmatter, 'title'), thingId: optionalString(frontmatter, 'thing_id'), spaceId: optionalString(frontmatter, 'space_id'), startedAt: optionalNumber(frontmatter, 'started_at'), endedAt: optionalNumber(frontmatter, 'ended_at'), order: optionalNumber(frontmatter, 'order'), settlements: optionalString(frontmatter, 'settlements_json') ? JSON.parse(requiredString(frontmatter, 'settlements_json')) : undefined, status: requiredString(frontmatter, 'status') as 'draft' | 'active' | 'paused' | 'completed' | 'archived' }
     case 'scene_participant': return { ...meta, entityType: 'scene_participant', sceneId: requiredString(frontmatter, 'scene_id'), personId: requiredString(frontmatter, 'person_id'), role: optionalString(frontmatter, 'role'), joinedAt: requiredNumber(frontmatter, 'joined_at'), leftAt: optionalNumber(frontmatter, 'left_at') }
     case 'space': return { ...meta, entityType: 'space', title: requiredString(frontmatter, 'title'), purpose: optionalString(frontmatter, 'purpose'), boundary: optionalString(frontmatter, 'boundary'), memberPersonIds: stringArray(frontmatter, 'member_person_ids'), relationshipIds: stringArray(frontmatter, 'relationship_ids'), thingIds: stringArray(frontmatter, 'thing_ids'), sceneIds: stringArray(frontmatter, 'scene_ids'), ownerRef: optionalString(frontmatter, 'owner_ref_json') ? JSON.parse(requiredString(frontmatter, 'owner_ref_json')) : undefined, legacyBoundary: optionalString(frontmatter, 'legacy_boundary_json') ? JSON.parse(requiredString(frontmatter, 'legacy_boundary_json')) : undefined, status: requiredString(frontmatter, 'status') as 'active' | 'closed' | 'archived' }
     case 'domain': return { ...meta, entityType: 'domain', key: requiredString(frontmatter, 'key'), displayName: requiredString(frontmatter, 'display_name'), status: requiredString(frontmatter, 'status') as 'active' | 'retired' }
@@ -432,12 +588,83 @@ function parseUnifiedEntity(frontmatter: OpenFrontmatter, body: string, id: stri
   }
 }
 
+function isOpenHabitSnapshot(value: unknown): value is OpenHabitSnapshot {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const item = value as Partial<OpenHabitSnapshot>
+  return typeof item.name === 'string' && typeof item.color === 'string'
+    && Number.isInteger(item.days) && (item.days as number) >= 0
+    && Array.isArray(item.dates) && item.dates.every(date => typeof date === 'string')
+}
+
 function parseEntity(input: string): OpenEntity {
   const { frontmatter, body } = parseMarkdown(input)
-  if (frontmatter.b_version !== 1 && frontmatter.b_version !== OPEN_FORMAT_VERSION) throw new Error('unsupported-format-version')
+  if (![1, 2, OPEN_FORMAT_VERSION].includes(Number(frontmatter.b_version))) throw new Error('unsupported-format-version')
   const id = requiredString(frontmatter, 'calmy_id')
   const type = requiredString(frontmatter, 'calmy_type')
-  const revision = requiredNumber(frontmatter, 'revision')
+  const revision = optionalNumber(frontmatter, 'revision') ?? 0
+  if (type === 'habit_entry') {
+    const payload = JSON.parse(requiredString(frontmatter, 'payload_json')) as Partial<OpenHabit>
+    const name = requiredString(frontmatter, 'title')
+    const color = requiredString(frontmatter, 'color')
+    const days = requiredNumber(frontmatter, 'days')
+    const dates = stringArray(frontmatter, 'dates')
+    if (payload.id !== id || typeof payload.name !== 'string' || typeof payload.color !== 'string'
+      || !Number.isInteger(days) || days < 0 || !Array.isArray(payload.dates) || payload.dates.some(date => typeof date !== 'string')) throw new Error('habit-payload-invalid')
+    if (payload.history !== undefined && (!Array.isArray(payload.history) || payload.history.some(item => !item
+      || !Number.isInteger(item.revision) || item.revision < 1 || !['created', 'updated'].includes(item.operation)
+      || !['user', 'system'].includes(item.source) || !Number.isFinite(item.occurredAt)
+      || (item.actorUserId !== undefined && typeof item.actorUserId !== 'string')
+      || !isOpenHabitSnapshot(item.after)
+      || (item.operation === 'created' && item.before !== undefined)
+      || (item.operation === 'updated' && !isOpenHabitSnapshot(item.before))))) throw new Error('habit-history-invalid')
+    return { ...payload, entityType: 'habit_entry', id, name, color, days, dates, revision, ...(payload.history ? { history: payload.history } : {}) } as OpenHabit
+  }
+  if (type === 'inbox_history') {
+    const payload = JSON.parse(requiredString(frontmatter, 'payload_json')) as Partial<OpenLegacyInboxHistory>
+    const before = payload.before
+    const target = payload.target
+    if (payload.entityType !== 'inbox_history' || payload.id !== id || payload.revision !== revision
+      || !['removed', 'converted-to-task', 'converted-to-case'].includes(String(payload.operation))
+      || payload.source !== 'user' || !Number.isFinite(payload.occurredAt)
+      || (payload.actorUserId !== undefined && typeof payload.actorUserId !== 'string')
+      || !before || typeof before !== 'object' || Array.isArray(before)
+      || (before.id !== undefined && typeof before.id !== 'string')
+      || (before.text !== undefined && typeof before.text !== 'string')
+      || (before.date !== undefined && typeof before.date !== 'string')
+      || payload.after !== null
+      || (target !== undefined && (!target || !['task', 'case'].includes(target.type) || typeof target.id !== 'string'))) throw new Error('inbox-history-payload-invalid')
+    if ((payload.operation === 'converted-to-task' && target?.type !== 'task') || (payload.operation === 'converted-to-case' && target?.type !== 'case') || (payload.operation === 'removed' && target !== undefined)) throw new Error('inbox-history-target-invalid')
+    return payload as OpenLegacyInboxHistory
+  }
+  if (type === 'post') {
+    const raw = optionalString(frontmatter, 'payload_json')
+    const payload = raw ? JSON.parse(raw) as Partial<OpenPost> : {}
+    if (payload.id !== undefined && payload.id !== id) throw new Error('post-payload-invalid')
+    if (payload.history !== undefined && (!Array.isArray(payload.history) || payload.history.some(item => !item || !Number.isInteger(item.revision) || item.revision < 1 || !['created', 'updated'].includes(item.operation) || !Number.isFinite(item.occurredAt) || typeof item.title !== 'string' || typeof item.content !== 'string' || typeof item.date !== 'string'))) throw new Error('post-history-invalid')
+    return {
+      ...payload, entityType: 'post', id, title: requiredString(frontmatter, 'title'), content: typeof payload.content === 'string' ? payload.content : body,
+      date: optionalString(frontmatter, 'date') ?? payload.date ?? '', archivedAt: optionalNumber(frontmatter, 'archived_at') ?? payload.archivedAt,
+      revision, ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) as Ownership : payload.ownership
+    }
+  }
+  if (type === 'goal') {
+    const raw = optionalString(frontmatter, 'payload_json')
+    const payload = raw ? JSON.parse(raw) as Partial<OpenGoal> : {}
+    const title = requiredString(frontmatter, 'title')
+    const progress = optionalNumber(frontmatter, 'progress') ?? payload.progress ?? (payload.done ? 100 : 0)
+    if (payload.id !== undefined && payload.id !== id) throw new Error('goal-payload-invalid')
+    if (!Number.isFinite(progress) || progress < 0 || progress > 100) throw new Error('goal-progress-invalid')
+    return {
+      ...payload, id, title, progress,
+      done: optionalString(frontmatter, 'status') === 'done' || payload.done,
+      status: optionalString(frontmatter, 'status') || payload.status,
+      problem: optionalString(frontmatter, 'problem') ?? payload.problem,
+      evidence: optionalString(frontmatter, 'evidence') ?? payload.evidence,
+      nextAction: optionalString(frontmatter, 'next_action') ?? payload.nextAction,
+      matterId: optionalString(frontmatter, 'matter_id') ?? payload.matterId,
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) as Ownership : payload.ownership
+    }
+  }
   if (type === 'matter') {
     return {
       calmyId: id, title: requiredString(frontmatter, 'title'), why: requiredString(frontmatter, 'why'),
@@ -446,7 +673,9 @@ function parseEntity(input: string): OpenEntity {
       status: requiredString(frontmatter, 'status') as Matter['status'],
       currentStage: requiredString(frontmatter, 'current_stage') as Matter['currentStage'], trajectory: requiredString(frontmatter, 'trajectory') as Matter['trajectory'],
       currentCycleId: optionalString(frontmatter, 'current_cycle_id'), evidenceIds: stringArray(frontmatter, 'evidence_ids'),
-      createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision
+      createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision,
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) : undefined,
+      settlements: optionalString(frontmatter, 'settlements_json') ? JSON.parse(requiredString(frontmatter, 'settlements_json')) : undefined
     }
   }
   if (type === 'thing') {
@@ -462,7 +691,8 @@ function parseEntity(input: string): OpenEntity {
       currentStage: requiredString(frontmatter, 'current_stage') as Matter['currentStage'], trajectory: requiredString(frontmatter, 'trajectory') as Matter['trajectory'],
       currentCycleId: optionalString(frontmatter, 'current_cycle_id'), evidenceIds: stringArray(frontmatter, 'evidence_ids'),
       createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision,
-      source: optionalString(frontmatter, 'source') as Thing['source'], subjectPersonIds: stringArray(frontmatter, 'subject_person_ids')
+      source: optionalString(frontmatter, 'source') as Thing['source'], subjectPersonIds: stringArray(frontmatter, 'subject_person_ids'),
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) : payload.ownership
     }
   }
   if (type === 'action') {
@@ -470,7 +700,8 @@ function parseEntity(input: string): OpenEntity {
       calmyId: id, title: requiredString(frontmatter, 'title'), date: requiredString(frontmatter, 'date'),
       status: requiredString(frontmatter, 'status') as ActionItem['status'], matterId: optionalString(frontmatter, 'matter_id'),
       personId: optionalString(frontmatter, 'person_id'), cycleId: optionalString(frontmatter, 'cycle_id'), resultNote: optionalString(frontmatter, 'result_note'),
-      createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision
+      createdAt: requiredNumber(frontmatter, 'created_at'), updatedAt: requiredNumber(frontmatter, 'updated_at'), revision,
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) : undefined
     }
   }
   if (type === 'record') {
@@ -480,7 +711,8 @@ function parseEntity(input: string): OpenEntity {
       updatedAt: requiredNumber(frontmatter, 'updated_at'), matterId: optionalString(frontmatter, 'matter_id'),
       cycleId: optionalString(frontmatter, 'cycle_id'), stageId: optionalString(frontmatter, 'stage_id'),
       actionId: optionalString(frontmatter, 'action_id'), source: requiredString(frontmatter, 'source') as RealityRecord['source'],
-      evidenceIds: stringArray(frontmatter, 'evidence_ids'), revision, impact: optionalString(frontmatter, 'impact') as RealityRecord['impact'], redactedAt: optionalNumber(frontmatter, 'redacted_at')
+      evidenceIds: stringArray(frontmatter, 'evidence_ids'), revision, impact: optionalString(frontmatter, 'impact') as RealityRecord['impact'], redactedAt: optionalNumber(frontmatter, 'redacted_at'),
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) : undefined
     }
   }
   if (type === 'daily') {
@@ -501,6 +733,58 @@ function parseEntity(input: string): OpenEntity {
       }, revision, updatedAt: requiredNumber(frontmatter, 'updated_at')
     }
   }
+  if (type === 'diary') {
+    const date = requiredString(frontmatter, 'date')
+    if (!isValidDiaryDate(date)) throw new Error('diary-date-invalid')
+    if (id !== `diary_${date}`) throw new Error('diary-id-date-mismatch')
+    const revision = optionalNumber(frontmatter, 'revision') ?? 0
+    if (!Number.isInteger(revision) || revision < 0) throw new Error('diary-revision-invalid')
+    const sourceMaterialIds = stringArray(frontmatter, 'source_material_ids')
+    const payload = optionalString(frontmatter, 'payload_json') ? JSON.parse(requiredString(frontmatter, 'payload_json')) as Partial<DiaryEntry> : {}
+    const history = payload.history
+    if (history !== undefined && (!Array.isArray(history) || history.some(item => !item || !Number.isInteger(item.revision) || item.revision < 1
+      || !['created', 'content_updated', 'ownership_updated'].includes(item.operation) || !Number.isFinite(item.occurredAt) || typeof item.content !== 'string'
+      || (item.sourceMaterialIds !== undefined && (!Array.isArray(item.sourceMaterialIds) || item.sourceMaterialIds.some(id => typeof id !== 'string')))))) throw new Error('diary-history-invalid')
+    return { date, content: body, ...(sourceMaterialIds.length ? { sourceMaterialIds } : {}), revision,
+      ...(optionalString(frontmatter, 'ownership_json') ? { ownership: JSON.parse(requiredString(frontmatter, 'ownership_json')) } : payload.ownership ? { ownership: payload.ownership } : {}),
+      ...(history ? { history } : {}) }
+  }
+  if (type === 'capture') {
+    const status = requiredString(frontmatter, 'status')
+    if (!(CAPTURE_STATUSES as readonly string[]).includes(status)) throw new Error('capture-status-invalid')
+    const revision = requiredNumber(frontmatter, 'revision')
+    if (!Number.isInteger(revision) || revision < 0) throw new Error('capture-revision-invalid')
+    const createdAt = requiredNumber(frontmatter, 'created_at')
+    const updatedAt = requiredNumber(frontmatter, 'updated_at')
+    const sourceMaterialIds = stringArray(frontmatter, 'source_material_ids')
+    const payload = optionalString(frontmatter, 'payload_json') ? JSON.parse(requiredString(frontmatter, 'payload_json')) as Partial<CaptureItem> : {}
+    const history = payload.history
+    if (history !== undefined && (!Array.isArray(history) || history.some(item => !item || !Number.isInteger(item.revision) || item.revision < 1
+      || !['created', 'updated', 'suggested', 'accepted', 'modified', 'rejected', 'expired'].includes(item.operation)
+      || !['user', 'ai_assisted', 'system', 'import', 'sync'].includes(item.source)
+      || !Number.isFinite(item.occurredAt) || !Number.isInteger(item.fromRevision) || !Number.isInteger(item.toRevision)
+      || !item.snapshot || typeof item.snapshot !== 'object' || Array.isArray(item.snapshot)
+      || (item.previousSnapshot !== undefined && (!item.previousSnapshot || typeof item.previousSnapshot !== 'object' || Array.isArray(item.previousSnapshot)))
+      || !Array.isArray(item.sourceIds) || item.sourceIds.some(id => typeof id !== 'string')))) throw new Error('capture-history-invalid')
+    return {
+      calmyId: id, body, status: status as CaptureItem['status'], suggestionIds: [], createdAt, updatedAt, revision,
+      ...(sourceMaterialIds.length ? { sourceMaterialIds } : {}), ...(history ? { history } : {})
+    }
+  }
+  if (type === 'finance_entry') {
+    const payload = JSON.parse(requiredString(frontmatter, 'payload_json')) as Partial<OpenFinanceEntry>
+    const category = requiredString(frontmatter, 'category')
+    const amount = optionalNumber(frontmatter, 'amount')
+    const amountCents = optionalNumber(frontmatter, 'amount_cents')
+    if (payload.id !== id || payload.entityType !== 'finance_entry') throw new Error('finance-entry-payload-invalid')
+    return {
+      ...payload, id, entityType: 'finance_entry', type: requiredString(frontmatter, 'finance_type'),
+      ...(amount !== undefined ? { amount } : {}), ...(amountCents !== undefined ? { amountCents } : {}),
+      category, ...(optionalString(frontmatter, 'category_option_id') ? { categoryOptionId: optionalString(frontmatter, 'category_option_id') } : {}),
+      note: readableBody(body, category), date: requiredString(frontmatter, 'date'), revision,
+      ownership: optionalString(frontmatter, 'ownership_json') ? JSON.parse(requiredString(frontmatter, 'ownership_json')) : payload.ownership
+    } as OpenFinanceEntry
+  }
   if ((CORE_ENTITY_TYPES as readonly string[]).includes(type)) {
     return parseUnifiedEntity(frontmatter, body, id, type as CoreEntityType, revision)
   }
@@ -519,6 +803,7 @@ export function hashOpenText(value: string): string {
 export interface OpenEntityConflict {
   calmyId: string
   calmyType: OpenEntityType
+  identityKey: string
   localRevision: number
   incomingRevision: number
   reason: 'content-changed'
@@ -541,10 +826,19 @@ export interface OpenEntityComparison {
 }
 
 export function compareOpenEntityFields(local: OpenEntity, incoming: OpenEntity): OpenFieldConflict[] {
-  const keys = new Set([...Object.keys(local), ...Object.keys(incoming)])
-  return [...keys].sort().filter(key => JSON.stringify((local as unknown as Record<string, unknown>)[key]) !== JSON.stringify((incoming as unknown as Record<string, unknown>)[key])).map(key => ({
-    key, localValue: (local as unknown as Record<string, unknown>)[key], incomingValue: (incoming as unknown as Record<string, unknown>)[key]
+  const localValues = portableComparisonValues(local)
+  const incomingValues = portableComparisonValues(incoming)
+  const keys = new Set([...Object.keys(localValues), ...Object.keys(incomingValues)])
+  return [...keys].sort().filter(key => JSON.stringify(localValues[key]) !== JSON.stringify(incomingValues[key])).map(key => ({
+    key, localValue: localValues[key], incomingValue: incomingValues[key]
   }))
+}
+
+function portableComparisonValues(entity: OpenEntity): Record<string, unknown> {
+  const values = { ...(entity as unknown as Record<string, unknown>) }
+  if (isCapture(entity)) delete values.suggestionIds
+  if (isDiary(entity)) values.revision = entity.revision ?? 0
+  return values
 }
 
 export function mergeOpenEntity(local: OpenEntity, incoming: OpenEntity, decisions: Record<string, OpenFieldDecision>): OpenEntity {
@@ -557,21 +851,22 @@ export function mergeOpenEntity(local: OpenEntity, incoming: OpenEntity, decisio
 }
 
 export function compareOpenEntities(local: OpenEntity[], incoming: OpenEntity[]): OpenEntityComparison {
-  const localById = new Map(local.map(entity => [openEntityId(entity), entity]))
+  const localById = new Map(local.map(entity => [openEntityKey(entity), entity]))
   const comparison: OpenEntityComparison = { added: [], unchanged: [], conflicts: [] }
   for (const entity of incoming) {
-    const current = localById.get(openEntityId(entity))
+    const key = openEntityKey(entity)
+    const current = localById.get(key)
     if (!current) {
       comparison.added.push(entity)
       continue
     }
-    if (JSON.stringify(current) === JSON.stringify(entity)) {
+    if (JSON.stringify(portableComparisonValues(current)) === JSON.stringify(portableComparisonValues(entity))) {
       comparison.unchanged.push(entity)
       continue
     }
     comparison.conflicts.push({
       calmyId: openEntityId(entity), calmyType: openEntityType(entity),
-      localRevision: current.revision, incomingRevision: entity.revision, reason: 'content-changed',
+      identityKey: key, localRevision: entityRevision(current), incomingRevision: entityRevision(entity), reason: 'content-changed',
       local: current, incoming: entity
     })
   }
@@ -608,15 +903,19 @@ export function compareOpenAssets(local: OpenAsset[], incoming: OpenAsset[]): Op
 }
 
 export function exportOpenWorkspace(input: OpenWorkspaceInput): OpenWorkspace {
-  const entities: OpenEntity[] = [...(input.matters || []), ...(input.things || []), ...(input.actions || []), ...(input.records || []), ...(input.dailies || []), ...(input.unified || [])]
+  const entities: OpenEntity[] = [...(input.matters || []), ...(input.things || []), ...(input.actions || []), ...(input.records || []), ...(input.dailies || []), ...(input.diaries || []), ...(input.captures || []), ...(input.finance || []), ...(input.habits || []), ...(input.goals || []), ...(input.posts || []), ...(input.inboxHistory || []), ...(input.unified || [])]
   const assets = (input.assets || []).map(asset => ({ ...asset, path: assetPath(asset.path) }))
   const files: Record<string, string> = {}
   const manifestEntries: OpenManifestEntry[] = []
   const seenEntityIds = new Set<string>()
+  const mattersById = new Set((input.matters || []).map(entity => entity.calmyId))
+  const thingsById = new Set((input.things || []).map(entity => entity.calmyId))
   for (const entity of entities) {
     const id = entityId(entity)
-    if (seenEntityIds.has(id)) throw new Error(`duplicate-entity-id:${id}`)
-    seenEntityIds.add(id)
+    const key = openEntityKey(entity)
+    if (seenEntityIds.has(key)) throw new Error(`duplicate-entity-identity:${key}`)
+    if ((isMatter(entity) && thingsById.has(id)) || (isThing(entity) && mattersById.has(id))) throw new Error(`duplicate-entity-id:${id}`)
+    seenEntityIds.add(key)
     const path = pathFor(entity)
     const content = serializeOpenEntity(entity)
     if (files[path]) throw new Error(`duplicate-path:${path}`)
@@ -634,6 +933,17 @@ export function exportOpenWorkspace(input: OpenWorkspaceInput): OpenWorkspace {
   manifestEntries.sort((a, b) => a.path.localeCompare(b.path))
   manifestAssets.sort((a, b) => a.path.localeCompare(b.path))
   const manifest: OpenManifest = { format: 'calmy-open', format_version: OPEN_FORMAT_VERSION, generated_at: new Date().toISOString(), entities: manifestEntries, assets: manifestAssets, asset_references: assetReferences }
+  const financeMutations = (input.financeMutations || []).slice().sort((a, b) => a.occurredAt - b.occurredAt || a.fromRevision - b.fromRevision || a.id.localeCompare(b.id))
+  if (financeMutations.length) {
+    const seenMutations = new Map<string, FinanceMutation>()
+    for (const mutation of financeMutations) {
+      if (!isFinanceMutation(mutation)) throw new Error(`finance-mutation-invalid:${(mutation as Partial<FinanceMutation> | null)?.id || 'unknown'}`)
+      const previous = seenMutations.get(mutation.id)
+      if (previous && JSON.stringify(previous) !== JSON.stringify(mutation)) throw new Error(`finance-mutation-conflict:${mutation.id}`)
+      seenMutations.set(mutation.id, mutation)
+    }
+    manifest.finance_mutations = [...seenMutations.values()]
+  }
   files[OPEN_MANIFEST_PATH] = `${JSON.stringify(manifest, null, 2)}\n`
   return { files, assets, manifest }
 }
@@ -642,9 +952,16 @@ function parseManifest(files: Record<string, string>, issues: OpenImportIssue[])
   const raw = files[OPEN_MANIFEST_PATH]
   if (raw === undefined) return undefined
   try {
-    const parsed = JSON.parse(raw) as OpenManifest
-    if (parsed.format !== 'calmy-open' || ![1, OPEN_FORMAT_VERSION].includes(parsed.format_version) || !Array.isArray(parsed.entities)) throw new Error('manifest-shape-invalid')
-    return { ...parsed, assets: Array.isArray(parsed.assets) ? parsed.assets : [], asset_references: Array.isArray(parsed.asset_references) ? parsed.asset_references : [], tombstones: Array.isArray(parsed.tombstones) ? parsed.tombstones : [] }
+    const parsed = JSON.parse(raw) as OpenManifest & { finance_mutations?: unknown }
+    if (parsed.format !== 'calmy-open' || ![1, 2, OPEN_FORMAT_VERSION].includes(parsed.format_version) || !Array.isArray(parsed.entities)) throw new Error(parsed.format === 'calmy-open' && typeof parsed.format_version === 'number' ? `unsupported-format-version:${parsed.format_version}` : 'manifest-shape-invalid')
+    const rawFinanceMutations = Array.isArray(parsed.finance_mutations) ? parsed.finance_mutations as unknown[] : []
+    if (parsed.finance_mutations !== undefined && (!Array.isArray(parsed.finance_mutations) || rawFinanceMutations.some(item => !isFinanceMutation(item)))) {
+      issues.push({ path: OPEN_MANIFEST_PATH, code: 'invalid-entity', message: 'finance_mutations contains an invalid audit record' })
+    }
+    return {
+      ...parsed, assets: Array.isArray(parsed.assets) ? parsed.assets : [], asset_references: Array.isArray(parsed.asset_references) ? parsed.asset_references : [],
+      tombstones: Array.isArray(parsed.tombstones) ? parsed.tombstones : [], finance_mutations: rawFinanceMutations.filter(isFinanceMutation)
+    }
   } catch (error) {
     issues.push({ path: OPEN_MANIFEST_PATH, code: 'invalid-entity', message: error instanceof Error ? error.message : 'manifest-invalid' })
     return undefined
@@ -665,8 +982,9 @@ export function importOpenWorkspace(files: Record<string, string>, incomingAsset
       issues.push({ path: asset.path, code: 'unsupported-file', message: error instanceof Error ? error.message : 'asset-path-invalid' })
     }
   }
-  const seen = new Map<string, string>()
+  const seen = new Map<string, { path: string; entity: OpenEntity }>()
   const markdownPathsByHash = new Map<string, string[]>()
+  const parsedEntitiesByPath = new Map<string, OpenEntity>()
   for (const [path, content] of Object.entries(files)) {
     if (!path.toLowerCase().endsWith('.md')) continue
     const paths = markdownPathsByHash.get(hashOpenText(content)) || []
@@ -681,12 +999,15 @@ export function importOpenWorkspace(files: Record<string, string>, incomingAsset
     }
     try {
       const entity = parseEntity(content)
+      parsedEntitiesByPath.set(path, entity)
       const id = entityId(entity)
-      if (seen.has(id)) {
-        conflicts.push({ path, calmyId: id, reason: 'duplicate-id', message: `ID 已在 ${seen.get(id)} 出现，拒绝静默覆盖` })
+      const key = openEntityKey(entity)
+      if (seen.has(key)) {
+        const previous = seen.get(key)!
+        conflicts.push({ path, calmyId: id, calmyType: entityType(entity), identityKey: key, reason: 'duplicate-id', message: `类型化身份已在 ${previous.path} 出现，拒绝静默覆盖` })
         continue
       }
-      seen.set(id, path)
+      seen.set(key, { path, entity })
       entities.push(entity)
     } catch (error) {
       issues.push({ path, code: 'invalid-entity', message: error instanceof Error ? error.message : 'markdown-invalid' })
@@ -701,16 +1022,28 @@ export function importOpenWorkspace(files: Record<string, string>, incomingAsset
   const referencedAssetPaths = new Set(assetReferences.map(reference => reference.asset_path))
   const orphanAssets = assets.filter(asset => !referencedAssetPaths.has(asset.path))
   if (manifest) {
+    const seenManifestIdentities = new Set<string>()
     for (const entry of manifest.entities) {
+      const identity = `${entry.calmy_type}:${entry.calmy_id}`
+      if (seenManifestIdentities.has(identity)) {
+        issues.push({ path: entry.path, code: 'duplicate-id', message: `manifest 中重复声明类型化身份 ${identity}` })
+        continue
+      }
+      seenManifestIdentities.add(identity)
       const content = files[entry.path]
-      const movedPath = markdownPathsByHash.get(entry.hash)?.find(path => path !== entry.path)
+      const expectedIdentity = `${entry.calmy_type}:${entry.calmy_id}`
+      const movedPath = markdownPathsByHash.get(entry.hash)?.find(path => path !== entry.path && parsedEntitiesByPath.get(path) && openEntityKey(parsedEntitiesByPath.get(path)!) === expectedIdentity)
       if (content === undefined) {
         if (!movedPath) {
-          const declared = manifest.tombstones?.find(tombstone => tombstone.calmy_id === entry.calmy_id)
+          const declared = manifest.tombstones?.find(tombstone => tombstone.calmy_id === entry.calmy_id && tombstone.calmy_type === entry.calmy_type)
           const tombstone = declared || { calmy_id: entry.calmy_id, calmy_type: entry.calmy_type, path: entry.path, revision: entry.revision, deleted_at: new Date().toISOString() }
-          if (!tombstones.some(item => item.calmy_id === tombstone.calmy_id)) tombstones.push(tombstone)
+          if (!tombstones.some(item => item.calmy_id === tombstone.calmy_id && item.calmy_type === tombstone.calmy_type)) tombstones.push(tombstone)
         }
         continue
+      }
+      const parsedEntity = parsedEntitiesByPath.get(entry.path)
+      if (!parsedEntity || openEntityKey(parsedEntity) !== identity) {
+        issues.push({ path: entry.path, code: 'manifest-identity-mismatch', message: '文件中的类型或稳定 ID 与 manifest 声明不一致' })
       }
       if (hashOpenText(content) !== entry.hash) issues.push({ path: entry.path, code: 'manifest-hash-mismatch', message: '文件内容与 manifest hash 不一致' })
     }
@@ -725,5 +1058,5 @@ export function importOpenWorkspace(files: Record<string, string>, incomingAsset
       }
     }
   }
-  return { entities, assets, assetReferences, missingAssetReferences, orphanAssets, tombstones, manifest, issues, conflicts }
+  return { entities, assets, assetReferences, missingAssetReferences, orphanAssets, tombstones, financeMutations: manifest?.finance_mutations || [], manifest, issues, conflicts }
 }

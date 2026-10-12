@@ -1,4 +1,6 @@
 import { createAsyncCollectionRepository, createCollectionRepository, createEntityId } from '@/core/repository'
+import { readServerSession } from '@/core/auth'
+import { ownershipForSignedInUser } from '@/domain/unified/ownership'
 import {
   canTransitionMatter,
   MatterDomainError,
@@ -36,10 +38,13 @@ function assertRevision(matter: Matter, expectedRevision?: number): void {
   }
 }
 
-function appendMutation(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): void {
+function snapshotMatter(matter: Matter): Record<string, unknown> { return JSON.parse(JSON.stringify(matter)) as Record<string, unknown> }
+
+function appendMutation(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown, previous?: Matter): void {
   mutations.create({
     id: createEntityId(), entity: 'matter', entityId: matter.calmyId, operation, commandId, actor, sourceIds,
-    actorId, fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch
+    actorId, fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch,
+    ...(previous ? { previousSnapshot: snapshotMatter(previous) } : {}), snapshot: snapshotMatter(matter)
   })
 }
 
@@ -52,10 +57,11 @@ async function duplicateResultAsync(commandId: string): Promise<Matter | undefin
   return (await asyncCommands.find(commandId))?.result
 }
 
-async function appendMutationAsync(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown): Promise<void> {
+async function appendMutationAsync(matter: Matter, operation: MatterMutation['operation'], commandId: string, actor: MatterMutation['actor'], actorId: string, sourceIds: string[], fromRevision: number, patch?: unknown, previous?: Matter): Promise<void> {
   await asyncMutations.create({
     id: createEntityId(), entity: 'matter', entityId: matter.calmyId, operation, commandId, actor, sourceIds,
-    actorId, fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch
+    actorId, fromRevision, toRevision: matter.revision, occurredAt: Date.now(), patch,
+    ...(previous ? { previousSnapshot: snapshotMatter(previous) } : {}), snapshot: snapshotMatter(matter)
   })
 }
 
@@ -101,17 +107,21 @@ export const matterRepository = {
     if (!current) return this.importEntity(item) === 'created' ? 'replaced' : 'unchanged'
     if (JSON.stringify(current) === JSON.stringify(item)) return 'unchanged'
     if (!matters.update(item.calmyId, () => item)) throw new MatterDomainError('NOT_FOUND', 'Matter import target disappeared')
-    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item)
+    appendMutation(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item, current)
     return 'replaced'
   },
   mutations(calmyId?: string): MatterMutation[] {
     return mutations.list().filter(item => !calmyId || item.entityId === calmyId).sort((a, b) => a.occurredAt - b.occurredAt)
   },
   create(input: MatterCreateInput, meta: MatterCommandMeta = {}): Matter {
-    const command = metaOf(meta)
+    const session = readServerSession()
+    const actor = meta.actor || 'user'
+    const command = metaOf({ ...meta, actorId: meta.actorId || (actor === 'user' ? session?.user.id : undefined) })
     const duplicate = duplicateResult(command.commandId)
     if (duplicate) return duplicate
     const now = Date.now()
+    const ownership = session && command.actor === 'user' && command.actorId === session.user.id
+      ? ownershipForSignedInUser(input.ownership, session.user.id) : input.ownership
     const matter: Matter = {
       calmyId: createEntityId(), title: assertTitle(input.title), why: input.why?.trim() || '',
       primaryContradiction: input.primaryContradiction?.trim() || '', status: 'active',
@@ -119,7 +129,7 @@ export const matterRepository = {
       progressEvidence: input.progressEvidence?.trim() || undefined, currentGap: input.currentGap?.trim() || undefined,
       nextTest: input.nextTest?.trim() || undefined, stopCondition: input.stopCondition?.trim() || undefined,
       currentStage: input.currentStage || 'wood', trajectory: input.trajectory || 'stable', evidenceIds: [],
-      createdAt: now, updatedAt: now, revision: 1
+      createdAt: now, updatedAt: now, revision: 1, ownership
     }
     matters.create(matter)
     appendMutation(matter, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, matter)
@@ -136,7 +146,7 @@ export const matterRepository = {
     if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
     const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+    appendMutation(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch, current)
     return saveCommand(command.commandId, next)
   },
   bindCycle(calmyId: string, cycleId: string, meta: MatterCommandMeta = {}): Matter {
@@ -154,7 +164,7 @@ export const matterRepository = {
     }
     const next: Matter = { ...current, status, updatedAt: Date.now(), revision: current.revision + 1 }
     if (!matters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-    appendMutation(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status })
+    appendMutation(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status }, current)
     return saveCommand(command.commandId, next)
   },
   pause(calmyId: string, meta?: MatterCommandMeta): Matter { return this.transition(calmyId, 'paused', meta) },
@@ -178,7 +188,7 @@ async function asyncUpdateMatter(calmyId: string, patch: MatterUpdatePatch, meta
   if (patch.title !== undefined) patch = { ...patch, title: assertTitle(patch.title) }
   const next: Matter = { ...current, ...patch, updatedAt: Date.now(), revision: current.revision + 1 }
   if (!await asyncMatters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-  await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch)
+  await appendMutationAsync(next, 'update', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, patch, current)
   return saveCommandAsync(command.commandId, next)
 }
 
@@ -194,7 +204,7 @@ async function asyncTransitionMatter(calmyId: string, status: MatterStatus, meta
   }
   const next: Matter = { ...current, status, updatedAt: Date.now(), revision: current.revision + 1 }
   if (!await asyncMatters.update(calmyId, () => next)) throw new MatterDomainError('NOT_FOUND', `Matter ${calmyId} not found`)
-  await appendMutationAsync(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status })
+  await appendMutationAsync(next, 'transition', command.commandId, command.actor, command.actorId, command.sourceIds, current.revision, { status }, current)
   return saveCommandAsync(command.commandId, next)
 }
 
@@ -209,10 +219,14 @@ export const matterAsyncRepository = {
     return asyncMatters.remove(calmyId)
   },
   async create(input: MatterCreateInput, meta: MatterCommandMeta = {}): Promise<Matter> {
-    const command = metaOf(meta)
+    const session = readServerSession()
+    const actor = meta.actor || 'user'
+    const command = metaOf({ ...meta, actorId: meta.actorId || (actor === 'user' ? session?.user.id : undefined) })
     const duplicate = await duplicateResultAsync(command.commandId)
     if (duplicate) return duplicate
     const now = Date.now()
+    const ownership = session && command.actor === 'user' && command.actorId === session.user.id
+      ? ownershipForSignedInUser(input.ownership, session.user.id) : input.ownership
     const matter: Matter = {
       calmyId: createEntityId(), title: assertTitle(input.title), why: input.why?.trim() || '',
       primaryContradiction: input.primaryContradiction?.trim() || '', status: 'active',
@@ -220,7 +234,7 @@ export const matterAsyncRepository = {
       progressEvidence: input.progressEvidence?.trim() || undefined, currentGap: input.currentGap?.trim() || undefined,
       nextTest: input.nextTest?.trim() || undefined, stopCondition: input.stopCondition?.trim() || undefined,
       currentStage: input.currentStage || 'wood', trajectory: input.trajectory || 'stable', evidenceIds: [],
-      createdAt: now, updatedAt: now, revision: 1
+      createdAt: now, updatedAt: now, revision: 1, ownership
     }
     await asyncMatters.create(matter)
     await appendMutationAsync(matter, 'create', command.commandId, command.actor, command.actorId, command.sourceIds, 0, matter)
@@ -244,7 +258,7 @@ export const matterAsyncRepository = {
     if (!current) return (await this.importEntity(item)) === 'created' ? 'replaced' : 'unchanged'
     if (sameMatter(current, item)) return 'unchanged'
     if (!await asyncMatters.update(item.calmyId, () => item)) throw new MatterDomainError('NOT_FOUND', 'Matter import target disappeared')
-    await appendMutationAsync(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item)
+    await appendMutationAsync(item, 'update', 'import-replace:' + item.calmyId + ':' + item.revision, 'import', 'import', [], current.revision, item, current)
     return 'replaced'
   },
   bindCycle(calmyId: string, cycleId: string, meta: MatterCommandMeta = {}): Promise<Matter> {

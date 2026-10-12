@@ -1,9 +1,11 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { afterEach, describe, expect, it, beforeEach } from 'vitest'
 import { store } from '@/core/storage'
 import { registerUndo, undoLast } from '@/core/undo'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('undo delete', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('undo-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
   it('restores one deleted entity at its original position', () => {
     store.set('tasks', [{ id: 'a', title: 'A' }, { id: 'b', title: 'B' }])
     const current = store.get<any[]>('tasks', [])

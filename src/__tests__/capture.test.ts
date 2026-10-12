@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { captureRepository, DEFAULT_SUGGESTION_EXPIRY_MS } from '@/domain/capture'
 import { actionRepository } from '@/domain/action/repository'
 import { unifiedRepository } from '@/domain/unified'
+import { setActiveAccount } from '@/core/account-context'
 
 describe('Capture and local Suggestion pipeline', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => { setActiveAccount('capture-test-user'); localStorage.clear() })
+  afterEach(() => setActiveAccount(null))
 
   it('keeps the original text and creates a reviewable local Action suggestion', () => {
     const capture = captureRepository.create('完成供应商确认邮件')

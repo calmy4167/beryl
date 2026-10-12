@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createBackup, parseBackup } from '@/core/backup'
 import { legacyMigrationSample } from './fixtures/legacy-migration-sample'
 
@@ -29,6 +29,7 @@ vi.mock('../core/db.ts', () => ({
 }))
 
 import { resetStoreCache } from '@/core/storage'
+import { accountStorageKey, setActiveAccount } from '@/core/account-context'
 import { actionAsyncRepository } from '@/domain/action/repository'
 import { captureAsyncRepository } from '@/domain/capture'
 import { ensureLegacyMigration, legacyMapping, legacyTargetId, rollbackLegacyMigration } from '@/domain/legacy/migration'
@@ -36,10 +37,12 @@ import { matterAsyncRepository } from '@/domain/matter/repository'
 
 describe('legacy Case/Task/inbox migration', () => {
   beforeEach(() => {
+    setActiveAccount('legacy-migration-test-user')
     durable.reset()
     localStorage.clear()
     resetStoreCache()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('copies legacy records to Matter/Action/Capture without changing the source collections', async () => {
     const oldCase = {
@@ -52,10 +55,10 @@ describe('legacy Case/Task/inbox migration', () => {
     for (const [key, value] of Object.entries({
       b_cases: [oldCase], b_tasks: [oldTask], b_inbox: [oldInbox], b_caseRelations: oldRelations
     })) durable.values.set(key, JSON.stringify(value))
-    localStorage.setItem('b_cases', JSON.stringify([oldCase]))
-    localStorage.setItem('b_tasks', JSON.stringify([oldTask]))
-    localStorage.setItem('b_inbox', JSON.stringify([oldInbox]))
-    localStorage.setItem('b_caseRelations', JSON.stringify(oldRelations))
+    localStorage.setItem(accountStorageKey('b_cases'), JSON.stringify([oldCase]))
+    localStorage.setItem(accountStorageKey('b_tasks'), JSON.stringify([oldTask]))
+    localStorage.setItem(accountStorageKey('b_inbox'), JSON.stringify([oldInbox]))
+    localStorage.setItem(accountStorageKey('b_caseRelations'), JSON.stringify(oldRelations))
     resetStoreCache()
 
     const report = await ensureLegacyMigration()
@@ -68,9 +71,9 @@ describe('legacy Case/Task/inbox migration', () => {
     expect(legacyMapping('case', 'case-1')).toMatchObject({ targetType: 'matter', targetId: legacyTargetId('case', 'case-1') })
     expect(legacyMapping('task', 'task-1')).toMatchObject({ targetType: 'action', targetId: legacyTargetId('task', 'task-1') })
     expect(legacyMapping('inbox', 'inbox-1')).toMatchObject({ targetType: 'capture', targetId: legacyTargetId('inbox', 'inbox-1') })
-    expect(localStorage.getItem('b_cases')).toBe(JSON.stringify([oldCase]))
-    expect(localStorage.getItem('b_tasks')).toBe(JSON.stringify([oldTask]))
-    expect(localStorage.getItem('b_inbox')).toBe(JSON.stringify([oldInbox]))
+    expect(localStorage.getItem(accountStorageKey('b_cases'))).toBe(JSON.stringify([oldCase]))
+    expect(localStorage.getItem(accountStorageKey('b_tasks'))).toBe(JSON.stringify([oldTask]))
+    expect(localStorage.getItem(accountStorageKey('b_inbox'))).toBe(JSON.stringify([oldInbox]))
 
     await actionAsyncRepository.update(legacyTargetId('task', 'task-1'), { resultNote: '用户已补充结果' })
     const rollback = await rollbackLegacyMigration()
@@ -94,25 +97,25 @@ describe('legacy Case/Task/inbox migration', () => {
     }
     for (const [key, value] of Object.entries(source)) {
       durable.values.set(key, JSON.stringify(value))
-      localStorage.setItem(key, JSON.stringify(value))
+      localStorage.setItem(accountStorageKey(key), JSON.stringify(value))
     }
     resetStoreCache()
 
     const exported = createBackup(localStorage)
     expect(Object.keys(exported)).toEqual(expect.arrayContaining(['b_cases', 'b_tasks', 'b_inbox', 'b_caseRelations']))
 
-    Object.keys(source).forEach(key => localStorage.removeItem(key))
+    Object.keys(source).forEach(key => localStorage.removeItem(accountStorageKey(key)))
     resetStoreCache()
-    expect(localStorage.getItem('b_cases')).toBeNull()
+    expect(localStorage.getItem(accountStorageKey('b_cases'))).toBeNull()
     const imported = parseBackup(JSON.parse(JSON.stringify(exported)))
-    Object.entries(imported).forEach(([key, value]) => localStorage.setItem(key, value))
+    Object.entries(imported).forEach(([key, value]) => localStorage.setItem(accountStorageKey(key), value))
     resetStoreCache()
 
     const report = await ensureLegacyMigration()
     expect(report).toMatchObject({ status: 'completed', migrated: { cases: 1, tasks: 1, inbox: 1 } })
-    expect(JSON.parse(localStorage.getItem('b_cases') || 'null')).toEqual(cases)
-    expect(JSON.parse(localStorage.getItem('b_tasks') || 'null')).toEqual(tasks)
-    expect(JSON.parse(localStorage.getItem('b_inbox') || 'null')).toEqual(inbox)
+    expect(JSON.parse(localStorage.getItem(accountStorageKey('b_cases')) || 'null')).toEqual(cases)
+    expect(JSON.parse(localStorage.getItem(accountStorageKey('b_tasks')) || 'null')).toEqual(tasks)
+    expect(JSON.parse(localStorage.getItem(accountStorageKey('b_inbox')) || 'null')).toEqual(inbox)
     await expect(actionAsyncRepository.find(legacyTargetId('task', 'task-migration-sample'))).resolves.toMatchObject({
       matterId: legacyTargetId('case', 'case-migration-sample'),
       title: '整理本周最重要的三件事'

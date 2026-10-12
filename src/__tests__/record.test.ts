@@ -1,12 +1,15 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { setActiveAccount } from '@/core/account-context'
 import { RecordDomainError } from '@/domain/record/model'
 import { recordRepository } from '@/domain/record/repository'
 import { unifiedRepository } from '@/domain/unified'
 
 describe('recordRepository', () => {
   beforeEach(() => {
+    setActiveAccount('record-test-user')
     localStorage.clear()
   })
+  afterEach(() => setActiveAccount(null))
 
   it('stores a reality fact with occurredAt separate from createdAt', () => {
     const occurredAt = Date.now() - 60_000

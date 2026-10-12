@@ -3,6 +3,8 @@ import type { ActionItem } from '@/domain/action/model'
 import type { Matter } from '@/domain/matter/model'
 import type { RealityRecord } from '@/domain/record/model'
 import type { TodayPlan } from '@/domain/today/model'
+import type { CaptureItem } from '@/domain/capture/model'
+import type { OpenLegacyInboxHistory } from '@/core/content/open-format'
 import { compareOpenEntities, compareOpenEntityFields, exportOpenWorkspace, importOpenWorkspace, mergeOpenEntity, OPEN_MANIFEST_PATH, scanOpenAssetReferences, serializeOpenEntity } from '@/core/content/open-format'
 
 const matter: Matter = {
@@ -31,6 +33,19 @@ const daily: TodayPlan = {
 const asset = { path: 'assets/evidence.bin', data: new Uint8Array([0, 1, 2, 255]), mimeType: 'application/octet-stream' }
 
 describe('Calmy Open Format', () => {
+  it('round-trips legacy Inbox removal history with its original source snapshot', () => {
+    const history: OpenLegacyInboxHistory = {
+      entityType: 'inbox_history', id: 'legacy-inbox-history:cmd-1', revision: 1, operation: 'converted-to-task',
+      source: 'user', occurredAt: 42, actorUserId: 'person-1', before: { id: 'inbox-1', text: '原始内容', date: '2026-10-01' },
+      after: null, target: { type: 'task', id: 'legacy-task:cmd-1' }
+    }
+    const imported = importOpenWorkspace(exportOpenWorkspace({ inboxHistory: [history] }).files)
+
+    expect(imported.issues).toEqual([])
+    expect(imported.entities).toEqual([history])
+    expect(imported.manifest?.entities).toContainEqual(expect.objectContaining({ calmy_id: history.id, calmy_type: 'inbox_history', revision: 1 }))
+  })
+
   it('round-trips all MVP entity types without losing stable IDs', () => {
     const workspace = exportOpenWorkspace({ matters: [matter], actions: [action], records: [record], dailies: [daily] })
     const result = importOpenWorkspace(workspace.files)
@@ -39,6 +54,52 @@ describe('Calmy Open Format', () => {
     expect(result.conflicts).toEqual([])
     expect(result.entities).toEqual(expect.arrayContaining([matter, action, record, daily]))
     expect(workspace.files[OPEN_MANIFEST_PATH]).toContain('calmy-open')
+  })
+
+  it('preserves Capture provenance snapshots in Portable Open Format', () => {
+    const capture: CaptureItem = {
+      calmyId: 'capture-history-1', body: '确认复诊时间', status: 'accepted', suggestionIds: [],
+      createdAt: 10, updatedAt: 20, revision: 2,
+      history: [{ revision: 2, operation: 'accepted', source: 'user', actorUserId: 'user-1', sourceIds: ['suggestion-1'],
+        occurredAt: 20, fromRevision: 1, toRevision: 2,
+        previousSnapshot: { status: 'suggested', revision: 1 }, snapshot: { status: 'accepted', revision: 2 } }]
+    }
+    const workspace = exportOpenWorkspace({ captures: [capture] })
+    const imported = importOpenWorkspace(workspace.files)
+
+    expect(imported.issues).toEqual([])
+    expect(imported.entities[0]).toMatchObject({ calmyId: capture.calmyId, history: capture.history })
+  })
+
+  it('round-trips legacy Habit history and stable IDs in Portable Open Format', () => {
+    const habit = {
+      entityType: 'habit_entry' as const, id: 'habit-portable-1', name: '散步', color: '#123456', days: 1,
+      dates: ['2026-10-02'], revision: 2, history: [
+        { revision: 1, operation: 'created' as const, source: 'user' as const, occurredAt: 10, after: { name: '散步', color: '#123456', days: 0, dates: [] } },
+        { revision: 2, operation: 'updated' as const, source: 'user' as const, occurredAt: 20, before: { name: '散步', color: '#123456', days: 0, dates: [] }, after: { name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'] } }
+      ]
+    }
+    const workspace = exportOpenWorkspace({ habits: [habit] })
+    const imported = importOpenWorkspace(workspace.files)
+
+    expect(imported.issues).toEqual([])
+    expect(imported.entities).toEqual([habit])
+    expect(imported.manifest?.entities).toMatchObject([{ calmy_id: habit.id, calmy_type: 'habit_entry', revision: 2 }])
+  })
+
+  it('rejects a Habit update history entry without its prior snapshot', () => {
+    const habit = {
+      entityType: 'habit_entry' as const, id: 'habit-invalid-history', name: '散步', color: '#123456', days: 1,
+      dates: ['2026-10-02'], revision: 2, history: [{
+        revision: 2, operation: 'updated' as const, source: 'user' as const, occurredAt: 20,
+        after: { name: '散步', color: '#123456', days: 1, dates: ['2026-10-02'] }
+      }]
+    }
+    const workspace = exportOpenWorkspace({ habits: [habit] })
+    const imported = importOpenWorkspace(workspace.files)
+
+    expect(imported.entities).toEqual([])
+    expect(imported.issues).toEqual(expect.arrayContaining([expect.objectContaining({ code: 'invalid-entity', message: 'habit-history-invalid' })]))
   })
 
   it('keeps the stable ID when a human renames or moves the Markdown file', () => {

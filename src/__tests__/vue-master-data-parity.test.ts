@@ -3,9 +3,10 @@ import { nextTick } from 'vue'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetStoreCache } from '@/core/storage'
+import { setActiveAccount } from '@/core/account-context'
 import { unifiedAsyncRepository, unifiedFactories, type Resource } from '@/domain/unified'
 import MasterDataPage from '@/vue/pages/MasterDataPage.vue'
-import CapturePage from '@/vue/pages/CapturePage.vue'
+import LiubaiCapture from '@/vue/pages/LiubaiCapture.vue'
 
 let page: VueWrapper | undefined
 const masterDataStyles = readFileSync('src/styles/modules/master-data.css', 'utf8')
@@ -14,11 +15,15 @@ const resource = (title: string, body: string, status: Resource['status'] = 'act
 const button = (label: string) => page!.findAll('button').find(item => item.text() === label)!
 
 describe('Vue Master Data parity', () => {
-  beforeEach(() => { localStorage.clear(); resetStoreCache() })
-  afterEach(() => { page?.unmount(); page = undefined; vi.restoreAllMocks() })
+  beforeEach(() => { setActiveAccount('master-data-test-user'); localStorage.clear(); resetStoreCache() })
+  afterEach(() => { page?.unmount(); page = undefined; vi.restoreAllMocks(); setActiveAccount(null) })
 
-  it('keeps resource actions on the React native button baseline', () => {
-    expect(masterDataStyles).toMatch(/\.master-data-item-actions \.app-button\s*\{[^}]*all:\s*revert;[^}]*font:\s*inherit;[^}]*cursor:\s*pointer;[^}]*min-height:\s*32px/s)
+  it('keeps resource actions on the 「留白」 chip baseline instead of the legacy revert rule', () => {
+    // 迁移前这条基线挂在 `html.tactile-ui #app .page-container …` 上，而 html.tactile-ui 运行期从不添加，
+    // 所以它其实是一条死规则。迁到 v11 后动作按钮统一用设计层的 .chip，页面不再需要 revert 补丁。
+    expect(masterDataStyles).not.toMatch(/html\.tactile-ui/)
+    expect(readFileSync('src/vue/pages/MasterDataPage.vue', 'utf8'))
+      .toMatch(/master-data-item-actions[\s\S]{0,200}class="chip"/)
   })
 
   it('shows loading until the real resource read finishes', async () => {
@@ -75,6 +80,15 @@ describe('Vue Master Data parity', () => {
     expect(page.text()).toContain('林老师')
     expect(page.find('.people-page-embedded').exists()).toBe(true)
     expect(page.text()).not.toContain('关系 · 人物')
+  })
+
+  it('opens Domain management from the existing master data route', async () => {
+    page = mount(MasterDataPage)
+    await flushPromises()
+    await button('生活领域').trigger('click')
+    await flushPromises()
+    expect(page.get('#domain-manager-title').text()).toBe('生活领域')
+    expect(page.text()).toContain('领域用于整理同一份资料')
   })
 
   it('creates, searches, edits, archives and restores a sentence in the real repository', async () => {
@@ -137,7 +151,7 @@ describe('Vue Master Data parity', () => {
     expect(sentence).toMatchObject({ title: '常用句', body: '插入内容', kind: 'template', status: 'active' })
     page.unmount()
     page = undefined
-    page = mount(CapturePage, { attachTo: document.body, global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } } })
+    page = mount(LiubaiCapture, { attachTo: document.body, global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } } })
     await flushPromises()
     const editor = page.get<HTMLTextAreaElement>('[aria-label="记录原文"]')
     await editor.setValue('前面后面')

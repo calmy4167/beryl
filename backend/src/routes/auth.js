@@ -5,7 +5,7 @@ import { writeLoginAudit, writeOperationAudit } from '../lib/system-audit.js';
 import { getSecuritySettings, publicPasswordPolicy } from '../lib/system-security-settings.js';
 
 const encoder = new TextEncoder();
-const DUMMY_HASH = `pbkdf2$210000$${'00'.repeat(16)}$${'00'.repeat(32)}`;
+const DUMMY_HASH = `pbkdf2$100000$${'00'.repeat(16)}$${'00'.repeat(32)}`;
 const normalizeUsername = value => String(value || '').trim().toLowerCase();
 const validUsername = value => /^[a-zA-Z0-9][a-zA-Z0-9._-]{2,63}$/.test(value);
 

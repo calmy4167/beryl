@@ -7,6 +7,22 @@ export type SuggestionStatus = typeof SUGGESTION_STATUSES[number]
 export const SUGGESTION_ENTITY_TYPES = ['matter', 'action', 'record', 'resource', 'seed'] as const
 export type SuggestionEntityType = typeof SUGGESTION_ENTITY_TYPES[number]
 
+export type CaptureHistorySource = 'user' | 'ai_assisted' | 'system' | 'import' | 'sync'
+export type CaptureHistoryOperation = 'created' | 'updated' | 'suggested' | 'accepted' | 'modified' | 'rejected' | 'expired'
+
+export interface CaptureHistoryEntry {
+  revision: number
+  operation: CaptureHistoryOperation
+  source: CaptureHistorySource
+  actorUserId?: string
+  sourceIds: string[]
+  occurredAt: number
+  fromRevision: number
+  toRevision: number
+  previousSnapshot?: Record<string, unknown>
+  snapshot: Record<string, unknown>
+}
+
 export interface CaptureItem {
   calmyId: string
   body: string
@@ -17,6 +33,7 @@ export interface CaptureItem {
   createdAt: number
   updatedAt: number
   revision: number
+  history?: CaptureHistoryEntry[]
 }
 
 export interface SuggestionCandidate {
@@ -41,6 +58,7 @@ export interface AiSuggestion {
   createdAt: number
   updatedAt: number
   revision: number
+  history?: CaptureHistoryEntry[]
 }
 
 export class CaptureDomainError extends Error {

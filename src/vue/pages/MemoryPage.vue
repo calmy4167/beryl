@@ -7,6 +7,10 @@ import type { RealityRecord } from '@/domain/record/model'
 import { unifiedAsyncRepository, unifiedFactories } from '@/domain/unified'
 import type { Insight } from '@/domain/unified'
 import { useSeedInsightStatusDictionary } from '@/vue/composables/useSeedInsightStatusDictionary'
+import { useOwnSlideHead } from '@/vue/liubai/slide-head'
+
+// 页面自带头部（参考稿里 .slide-head 属于页面自身），外壳因此不再渲染第二行标题。
+useOwnSlideHead()
 
 type MemoryLayer = 'fact' | 'reflection' | 'ai_inference' | 'preference' | 'principle'
 const layers: Array<{ value: MemoryLayer; label: string; hint: string }> = [
@@ -112,17 +116,65 @@ function selectLayer(value: MemoryLayer): void { layer.value = value; composerOp
 </script>
 
 <template>
-  <div class="memory-page">
-    <header class="page-head memory-page-head"><div><p class="eyebrow">个人 · 记忆</p><h1 class="font-title">记忆</h1><p>把发生过的事、你的反思和 AI 的推断分开。你始终拥有确认、修改、否认和删除的权利。</p></div><div class="memory-head-note"><b>不替你下结论</b><small>AI 推断不会自动变成事实</small><button class="quiet-link" type="button" @click="router.push('/app/flow')">带着问题进探索 →</button></div></header>
+  <header class="slide-head">
+    <div class="head-main">
+      <p class="hint">个人 · 记忆</p>
+      <div class="head-title-row">
+        <h2>{{ currentLayer.label }}，由你决定。</h2>
+        <span class="info" tabindex="0" data-tip="把发生过的事、你的反思和 AI 的推断分开；你始终拥有确认、修改、否认和删除的权利。H 收起辅助信息。" aria-label="记忆说明">i</span>
+      </div>
+    </div>
+    <div class="memory-head-note"><b>不替你下结论</b><small>AI 推断不会自动变成事实</small><button class="chip" type="button" @click="router.push('/app/flow')">带着问题进探索 →</button></div>
+  </header>
     <section class="memory-layer-tabs" aria-label="记忆层级"><button v-for="item in layers" :key="item.value" type="button" :class="{ on: layer === item.value }" :aria-pressed="layer === item.value" @click="selectLayer(item.value)"><b>{{ item.label }}</b><small>{{ item.hint }}</small></button></section>
-    <section v-if="error" class="beryl-card empty-state memory-error" role="alert"><b>记忆数据暂时无法读取</b><p>{{ error }}</p><button class="app-button" type="button" @click="retry">重试</button></section>
-    <section v-if="layer === 'preference' || layer === 'principle'" class="beryl-card memory-compose-card"><div><p class="eyebrow">USER CONTROLLED</p><h2 class="font-title">写下一条{{ currentLayer.label }}</h2><p>这是你的明确表达，不是系统从行为中猜出来的。</p></div><button class="primary" type="button" @click="composerOpen = !composerOpen">{{ composerOpen ? '收起' : `添加${currentLayer.label}` }}</button><div v-if="composerOpen" class="memory-composer"><textarea v-model="composerBody" :aria-label="`${currentLayer.label}内容`" :placeholder="`例如：我希望${layer === 'preference' ? '先看到今天真正要做的一件事' : '每次只承诺自己能在现实中完成的一步'}`"/><div><button class="primary" type="button" :disabled="busyId === 'new-memory'" @click="void addUserMemory()">保存并确认</button><button type="button" @click="composerOpen = false">取消</button></div></div></section>
-    <section class="memory-list-section"><p v-if="statusDictionaryError" class="form-error" role="alert">洞察状态字典读取失败，当前使用内置名称。<button type="button" class="app-button" @click="refreshStatusDictionary">重试</button></p><div class="section-title"><div><p class="eyebrow">{{ currentLayer.label.toUpperCase() }}</p><h2 class="font-title">{{ currentLayer.label }}</h2></div><span>{{ loading ? '读取中…' : layer === 'fact' ? `${factRecords.length} 条` : layer === 'reflection' ? `${reflectionRecords.length} 条` : layer === 'ai_inference' ? `${aiInsights.length} 条` : `${userMemory.length} 条` }}</span></div><div v-if="loading" class="empty-state" role="status">正在读取你的记录…</div><template v-else-if="layer === 'fact' || layer === 'reflection'"><article v-for="item in (layer === 'fact' ? factRecords : reflectionRecords)" :key="item.calmyId" class="beryl-card memory-card"><div class="memory-card-head"><span class="memory-kind">{{ recordKind(item) }}</span><time>{{ dateLabel(item.occurredAt) }}</time></div><p class="memory-card-body">{{ item.body }}</p><div class="memory-card-foot"><span>{{ item.source === 'ai' ? 'AI 辅助记录' : '你记录的内容' }}</span><span>{{ item.evidenceIds.length ? `证据 ${item.evidenceIds.length} 条` : '无额外证据' }}</span></div></article><div v-if="!(layer === 'fact' ? factRecords : reflectionRecords).length" class="empty-state">{{ emptyCopy }}</div></template><template v-else-if="layer === 'ai_inference' ? aiInsights.length > 0 : userMemory.length > 0"><article v-for="item in (layer === 'ai_inference' ? aiInsights : userMemory)" :key="item.calmyId" :class="['beryl-card','memory-card','memory-insight-card', { 'is-confirmed': item.status === 'confirmed' }]"><div class="memory-card-head"><span :class="['memory-kind', item.status === 'confirmed' ? 'confirmed' : 'pending']">{{ insightStatus(item) }}</span><time>{{ dateLabel(item.updatedAt) }}</time></div><div v-if="editingId === item.calmyId" class="memory-edit-form"><input v-model="editTitle" aria-label="记忆标题"><textarea v-model="editBody" aria-label="记忆内容"/><div class="memory-actions"><button class="primary" type="button" :disabled="busyId === item.calmyId" @click="void saveEdit(item)">保存修改</button><button type="button" @click="editingId = undefined">取消</button></div></div><template v-else><h3>{{ item.title }}</h3><p class="memory-card-body">{{ item.body }}</p></template><template v-if="editingId !== item.calmyId"><div class="memory-insight-meta"><span>{{ item.confidence === undefined ? '未设置置信度' : `置信度 ${Math.round(item.confidence * 100)}%` }}</span><span>{{ item.sourceRecordIds.filter(id => recordById.has(id)).length ? `来自 ${item.sourceRecordIds.filter(id => recordById.has(id)).length} 条记录` : '暂无已关联记录' }}</span></div><details v-if="item.sourceRecordIds.some(id => recordById.has(id))" class="memory-evidence"><summary>查看依据</summary><p v-for="recordId in item.sourceRecordIds.filter(id => recordById.has(id)).slice(0,3)" :key="recordId">“{{ recordById.get(recordId)?.body }}”</p></details><div class="memory-actions"><button type="button" :disabled="busyId === item.calmyId" @click="void confirmInsight(item)">确认</button><button type="button" :disabled="busyId === item.calmyId" @click="startEditing(item)">修改</button><button type="button" :disabled="busyId === item.calmyId" @click="void deny(item)">否认</button><button class="danger" type="button" :disabled="busyId === item.calmyId" @click="void remove(item)">删除</button></div></template></article></template><template v-else-if="layer === 'ai_inference'"><div class="beryl-card memory-empty"><span>✦</span><p>{{ emptyCopy }}</p><small>当未来有 AI 辅助洞察时，它会先以“待确认”状态出现在这里。</small></div></template><template v-else><div class="beryl-card memory-empty"><span>◌</span><p>{{ emptyCopy }}</p><small>偏好和原则只来自你的主动确认。</small></div></template></section>
+    <section v-if="error" class="panel memory-error" role="alert"><b>记忆数据暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="retry">重试</button></section>
+    <section v-if="layer === 'preference' || layer === 'principle'" class="memory-compose-card panel"><div><p class="eyebrow">USER CONTROLLED</p><h2>写下一条{{ currentLayer.label }}</h2><p class="dim">这是你的明确表达，不是系统从行为中猜出来的。</p></div><button class="chip on" type="button" @click="composerOpen = !composerOpen">{{ composerOpen ? '收起' : `添加${currentLayer.label}` }}</button><div v-if="composerOpen" class="memory-composer"><textarea v-model="composerBody" :aria-label="`${currentLayer.label}内容`" :placeholder="`例如：我希望${layer === 'preference' ? '先看到今天真正要做的一件事' : '每次只承诺自己能在现实中完成的一步'}`"/><div><button class="primary" type="button" :disabled="busyId === 'new-memory'" @click="void addUserMemory()">保存并确认</button><button class="chip" type="button" @click="composerOpen = false">取消</button></div></div></section>
+    <section class="memory-list-section panel"><p v-if="statusDictionaryError" class="dim memory-error" role="alert">洞察状态字典读取失败，当前使用内置名称。<button type="button" class="chip" @click="refreshStatusDictionary">重试</button></p><div class="section-title"><div><p class="eyebrow">{{ currentLayer.label.toUpperCase() }}</p><h2 class="font-title">{{ currentLayer.label }}</h2></div><span>{{ loading ? '读取中…' : layer === 'fact' ? `${factRecords.length} 条` : layer === 'reflection' ? `${reflectionRecords.length} 条` : layer === 'ai_inference' ? `${aiInsights.length} 条` : `${userMemory.length} 条` }}</span></div><div v-if="loading" class="dim" role="status">正在读取你的记录…</div><template v-else-if="layer === 'fact' || layer === 'reflection'"><article v-for="item in (layer === 'fact' ? factRecords : reflectionRecords)" :key="item.calmyId" class="memory-card"><div class="memory-card-head"><span class="memory-kind">{{ recordKind(item) }}</span><time>{{ dateLabel(item.occurredAt) }}</time></div><p class="memory-card-body">{{ item.body }}</p><div class="memory-card-foot"><span>{{ item.source === 'ai' ? 'AI 辅助记录' : '你记录的内容' }}</span><span>{{ item.evidenceIds.length ? `证据 ${item.evidenceIds.length} 条` : '无额外证据' }}</span></div></article><div v-if="!(layer === 'fact' ? factRecords : reflectionRecords).length" class="dim">{{ emptyCopy }}</div></template><template v-else-if="layer === 'ai_inference' ? aiInsights.length > 0 : userMemory.length > 0"><article v-for="item in (layer === 'ai_inference' ? aiInsights : userMemory)" :key="item.calmyId" :class="['memory-card','memory-insight-card','panel', { 'is-confirmed': item.status === 'confirmed' }]"><div class="memory-card-head"><span :class="['memory-kind', item.status === 'confirmed' ? 'confirmed' : 'pending']">{{ insightStatus(item) }}</span><time>{{ dateLabel(item.updatedAt) }}</time></div><div v-if="editingId === item.calmyId" class="memory-edit-form"><input v-model="editTitle" aria-label="记忆标题"><textarea v-model="editBody" aria-label="记忆内容"/><div class="memory-actions"><button class="primary" type="button" :disabled="busyId === item.calmyId" @click="void saveEdit(item)">保存修改</button><button type="button" @click="editingId = undefined">取消</button></div></div><template v-else><h3>{{ item.title }}</h3><p class="memory-card-body">{{ item.body }}</p></template><template v-if="editingId !== item.calmyId"><div class="memory-insight-meta"><span>{{ item.confidence === undefined ? '未设置置信度' : `置信度 ${Math.round(item.confidence * 100)}%` }}</span><span>{{ item.sourceRecordIds.filter(id => recordById.has(id)).length ? `来自 ${item.sourceRecordIds.filter(id => recordById.has(id)).length} 条记录` : '暂无已关联记录' }}</span></div><details v-if="item.sourceRecordIds.some(id => recordById.has(id))" class="memory-evidence"><summary>查看依据</summary><p v-for="recordId in item.sourceRecordIds.filter(id => recordById.has(id)).slice(0,3)" :key="recordId">“{{ recordById.get(recordId)?.body }}”</p></details><div class="memory-actions"><button type="button" :disabled="busyId === item.calmyId" @click="void confirmInsight(item)">确认</button><button type="button" :disabled="busyId === item.calmyId" @click="startEditing(item)">修改</button><button type="button" :disabled="busyId === item.calmyId" @click="void deny(item)">否认</button><button class="danger" type="button" :disabled="busyId === item.calmyId" @click="void remove(item)">删除</button></div></template></article></template><template v-else-if="layer === 'ai_inference'"><div class="beryl-card memory-empty"><span>✦</span><p>{{ emptyCopy }}</p><small>当未来有 AI 辅助洞察时，它会先以“待确认”状态出现在这里。</small></div></template><template v-else><div class="beryl-card memory-empty"><span>◌</span><p>{{ emptyCopy }}</p><small>偏好和原则只来自你的主动确认。</small></div></template></section>
     <footer class="memory-boundary-note"><span>边界</span><p>事实来自记录；反思来自复盘；AI 推断保留来源和状态。确认 AI 推断，也不会改写原始记录。</p></footer>
-  </div>
 </template>
 <style scoped>
-.memory-page {
-  max-width: none;
-}
+/* 页面局部排版：颜色一律取「留白」令牌。
+   .memory-insight-card / .memory-compose-card（直接子 button）/ .memory-composer button.primary /
+   .memory-head-note button / [aria-label="记忆层级"] 都是 parity 测试的钩子，类名与按钮顺序不能动
+   （所以「保存并确认」保留了 .primary 类，只在本文件的 scoped 样式里把它画成 v11 主按钮）。 */
+/* 旧 app.css 会给 .memory-head-note 一个浅色卡片底，在外壳的深色主题里很突兀；这里显式复位。 */
+.slide-head .memory-head-note { align-self: flex-end; margin-left: auto; display: grid; gap: 2px; justify-items: end; background: none; border: 0; padding: 0; border-radius: 0; box-shadow: none; }
+.memory-head-note b { color: var(--fg); font-size: .8rem; font-weight: 600; }
+.memory-head-note small { color: var(--muted); font-size: .7rem; }
+.memory-head-note .chip { margin-top: 6px; }
+
+.memory-layer-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.memory-layer-tabs button { display: grid; gap: 2px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--muted); text-align: left; cursor: pointer; }
+.memory-layer-tabs button.on { border-color: var(--accent); background: var(--panel-2); color: var(--fg); }
+.memory-layer-tabs b { font-size: .8rem; font-weight: 600; }
+.memory-layer-tabs small { font-size: .66rem; }
+
+.memory-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+.memory-compose-card { gap: 10px; }
+.memory-compose-card h2 { margin: 0 0 2px; font-size: 1rem; font-weight: 600; }
+.memory-compose-card p { margin: 0; font-size: .78rem; }
+.memory-compose-card > .chip { justify-self: start; }
+.memory-composer { display: grid; gap: 8px; }
+.memory-composer textarea { min-height: 72px; padding: 8px 10px; font: inherit; font-size: .82rem; line-height: 1.7; resize: vertical; }
+.memory-composer > div { display: flex; gap: 6px; }
+.memory-composer .primary { padding: 5px 12px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--accent-fg); font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
+.memory-composer .primary:disabled { opacity: .5; cursor: not-allowed; }
+
+.memory-list-section { gap: 8px; margin: 0; border: 1px solid var(--line); border-radius: 14px; padding: clamp(14px, 1.5vw, 18px); background: var(--panel); }
+.memory-list-section .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.memory-list-section .section-title h2 { margin: 0; font-size: 1rem; font-weight: 600; }
+.memory-list-section .section-title span { color: var(--muted); font-size: .72rem; }
+.memory-card { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.memory-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.memory-kind { padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .66rem; }
+.memory-kind.confirmed { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.memory-card-head time { color: var(--muted); font-size: .68rem; }
+.memory-card-body { margin: 0; color: var(--fg); font-size: .84rem; line-height: 1.7; }
+.memory-card-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .68rem; }
+.memory-insight-card.is-confirmed { border-color: color-mix(in srgb, var(--accent) 34%, transparent); }
+.memory-edit-form { display: grid; gap: 8px; }
+.memory-edit-form input, .memory-edit-form textarea { padding: 7px 9px; font: inherit; font-size: .8rem; }
+.memory-boundary-note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; }
+.memory-boundary-note span { color: var(--muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+.memory-boundary-note p { margin: 0; color: var(--muted); font-size: .74rem; line-height: 1.7; }
 </style>

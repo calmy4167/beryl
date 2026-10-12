@@ -1,5 +1,7 @@
 import { createAsyncCollectionRepository, createCollectionRepository, createEntityId, type RepositoryReadyStatus } from '@/core/repository'
+import { readServerSession } from '@/core/auth'
 import { unifiedAsyncRepository, unifiedRepository, type Cycle, type Stage } from '@/domain/unified'
+import { ownershipForSignedInUser } from '@/domain/unified/ownership'
 import { RecordDomainError, type RealityRecord, type RecordCommandMeta, type RecordCreateInput, type RecordRevision, type RecordSource } from './model'
 
 const records = createCollectionRepository<RealityRecord>('realityRecords', item => item.calmyId)
@@ -78,7 +80,7 @@ function appendRevision(record: RealityRecord, reason: string, actor: RecordSour
   revisions.create({
     id: createEntityId(), recordId: record.calmyId, revision: record.revision, body: record.body,
     matterId: record.matterId, cycleId: record.cycleId, stageId: record.stageId, actionId: record.actionId,
-    reason, actor, actorId, changedAt
+    reason, actor, actorId, changedAt, ownership: record.ownership
   })
 }
 
@@ -104,7 +106,7 @@ async function appendRevisionAsync(record: RealityRecord, reason: string, actor:
   await asyncRevisions.create({
     id: createEntityId(), recordId: record.calmyId, revision: record.revision, body: record.body,
     matterId: record.matterId, cycleId: record.cycleId, stageId: record.stageId, actionId: record.actionId,
-    reason, actor, actorId, changedAt
+    reason, actor, actorId, changedAt, ownership: record.ownership
   })
 }
 
@@ -147,6 +149,17 @@ export const recordRepository = {
     return this.list().filter(item => item.stageId === stageId || !!stage?.recordIds.includes(item.calmyId))
   },
   find(calmyId: string): RealityRecord | undefined { return records.find(calmyId) },
+  setOwnership(calmyId: string, ownership: RealityRecord['ownership'], expectedRevision?: number, actorId = 'local-user'): RealityRecord {
+    const current = records.find(calmyId)
+    if (!current) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} not found`)
+    assertRevision(current, expectedRevision)
+    if (JSON.stringify(current.ownership) === JSON.stringify(ownership)) return current
+    const now = Date.now()
+    const next: RealityRecord = { ...current, ownership, updatedAt: now, revision: current.revision + 1 }
+    if (!records.update(calmyId, () => next)) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} disappeared`)
+    appendRevision(next, ownership ? 'ownership-updated' : 'ownership-cleared', 'user', now, actorId)
+    return next
+  },
   importEntity(item: RealityRecord): 'created' | 'unchanged' {
     const current = records.find(item.calmyId)
     if (current) {
@@ -182,14 +195,19 @@ export const recordRepository = {
       throw new RecordDomainError('VALIDATION_FAILED', 'AI observations require evidenceIds')
     }
     const sourceContextValue = sourceContext(input)
+    const session = readServerSession()
+    const actor = meta.actor || source
+    const actorId = meta.actorId || (session && actor === 'user' ? session.user.id : undefined)
+    const ownership = session && source === 'user' && actor === 'user' && (!meta.actorId || meta.actorId === session.user.id)
+      ? ownershipForSignedInUser(input.ownership, session.user.id) : input.ownership
     const record: RealityRecord = {
       calmyId: createEntityId(), type, body: assertBody(input.body), occurredAt: input.occurredAt || now,
       createdAt: now, updatedAt: now, ...sourceContextValue, actionId: input.actionId,
       source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined,
-      journalCategory: input.journalCategory
+      journalCategory: input.journalCategory, ownership
     }
     records.create(record)
-    appendRevision(record, 'created', source, now, meta.actorId)
+    appendRevision(record, 'created', source, now, actorId)
     attachRecordToStage(record)
     return record
   },
@@ -228,6 +246,17 @@ export const recordAsyncRepository = {
   async get(calmyId: string): Promise<RealityRecord | undefined> {
     return asyncRecords.find(calmyId)
   },
+  async setOwnership(calmyId: string, ownership: RealityRecord['ownership'], expectedRevision?: number, actorId = 'local-user'): Promise<RealityRecord> {
+    const current = await asyncRecords.find(calmyId)
+    if (!current) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} not found`)
+    assertRevision(current, expectedRevision)
+    if (JSON.stringify(current.ownership) === JSON.stringify(ownership)) return current
+    const now = Date.now()
+    const next: RealityRecord = { ...current, ownership, updatedAt: now, revision: current.revision + 1 }
+    if (!await asyncRecords.update(calmyId, () => next)) throw new RecordDomainError('NOT_FOUND', `Record ${calmyId} disappeared`)
+    await appendRevisionAsync(next, ownership ? 'ownership-updated' : 'ownership-cleared', 'user', now, actorId)
+    return next
+  },
   async importEntity(item: RealityRecord): Promise<'created' | 'unchanged'> {
     const current = await asyncRecords.find(item.calmyId)
     if (current) {
@@ -262,14 +291,19 @@ export const recordAsyncRepository = {
       throw new RecordDomainError('VALIDATION_FAILED', 'AI observations require evidenceIds')
     }
     const sourceContextValue = await sourceContextAsync(input)
+    const session = readServerSession()
+    const actor = meta.actor || source
+    const actorId = meta.actorId || (session && actor === 'user' ? session.user.id : undefined)
+    const ownership = session && source === 'user' && actor === 'user' && (!meta.actorId || meta.actorId === session.user.id)
+      ? ownershipForSignedInUser(input.ownership, session.user.id) : input.ownership
     const record: RealityRecord = {
       calmyId: createEntityId(), type, body: assertBody(input.body), occurredAt: input.occurredAt || now,
       createdAt: now, updatedAt: now, ...sourceContextValue, actionId: input.actionId,
       source, evidenceIds, revision: 1, impact: type === 'negative' ? input.impact || 'other' : undefined,
-      journalCategory: input.journalCategory
+      journalCategory: input.journalCategory, ownership
     }
     await asyncRecords.create(record)
-    await appendRevisionAsync(record, 'created', source, now, meta.actorId)
+    await appendRevisionAsync(record, 'created', source, now, actorId)
     await attachRecordToStageAsync(record)
     if (meta.commandId) await asyncCommands.create({ id: meta.commandId, result: record })
     return record

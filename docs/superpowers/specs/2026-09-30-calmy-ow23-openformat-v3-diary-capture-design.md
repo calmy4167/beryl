@@ -1,7 +1,7 @@
 # Calmy Open Format v3：Diary 与 Capture 设计
 
 > 日期：2026-09-30  
-> 状态：待产品负责人审阅  
+> 状态：Accepted（用户确认按 Diary + Capture 范围继续；Suggestion 与 Finance 暂不纳入）
 > 关联：OW-23 Portable Vault；[开放数据与 Portable Vault 架构设计](../../product/CALMY_OPEN_DATA_AND_PORTABLE_VAULT_2026-09-24.md)
 
 ## 1. 目标

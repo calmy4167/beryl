@@ -1,5 +1,6 @@
-export { captureText, type CaptureTextResult } from './capture-text'
-export { decideCapture, type CaptureDecision, type DecideCaptureInput, type DecideCaptureResult } from './decide-capture'
+export { captureText, type CaptureTextResult, type CaptureTextOptions } from './capture-text'
+export { decideCapture, findCaptureDecision, listCaptureDecisionTargets, type CaptureDecision, type CaptureDecisionTarget, type DecideCaptureInput, type DecideCaptureResult } from './decide-capture'
+export { saveDesktopEntry, upgradeDesktopEntry, undoDesktopEntry, listDesktopCaptureHistory, type SaveDesktopEntryInput, type UpgradeDesktopEntryInput, type UndoDesktopEntryInput, type DesktopCaptureHistoryItem } from './desktop-entry'
 export { addActionToToday, type AddActionToTodayInput, type AddActionToTodayResult } from './add-action-to-today'
 export { openToday, type OpenTodayResult } from './open-today'
 export { recordActionResult, type RecordActionResultInput, type RecordActionResultResult } from './record-action-result'

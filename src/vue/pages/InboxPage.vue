@@ -8,6 +8,12 @@ import { registerUndo } from '@/core/undo'
 import { withSaveState } from '@/core/save-state'
 import { CAPTURE_STATUSES, type CaptureStatus } from '@/domain/capture/model'
 import { useCaptureStatusDictionary } from '@/vue/composables/useCaptureStatusDictionary'
+import { useOwnSlideHead } from '@/vue/liubai/slide-head'
+import LbPanel from '@/vue/liubai/LbPanel.vue'
+import LbCollapsible from '@/vue/liubai/LbCollapsible.vue'
+
+// 页面自带头部（参考稿里 .slide-head 属于页面自身），外壳因此不再渲染第二行标题。
+useOwnSlideHead()
 
 type Filter = 'all' | 'open' | 'suggested' | 'accepted' | 'rejected' | 'archived'
 interface InboxEntry {
@@ -179,41 +185,71 @@ function archiveUnavailable() {
 </script>
 
 <template>
-  <div class="inbox-page">
-    <header class="page-head">
-      <div><p class="eyebrow">收集 · 原文优先</p><h1 class="font-title">收集</h1><p>先保留原文，再把它处理成行动或现实处境。</p></div>
-      <span class="load-pill">{{ loading ? '正在读取…' : `${captureCount} 条 · ${pendingCount} 条待确认建议` }}</span>
-    </header>
-    <p v-if="captureStatusError" class="info" role="alert">收集状态字典读取失败，{{ captureStatusHasLoaded ? '仍使用上次成功读取的名称。' : '当前使用内置名称。' }}<button type="button" class="app-button" @click="refreshCaptureStatusDictionary">重试</button></p>
-    <section class="capture-box beryl-card">
-      <textarea v-model="body" aria-label="新增收件内容" placeholder="脑中闪过什么？先放在这里…" @keydown="onEditorKeydown" />
-      <div class="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button class="app-button primary" :disabled="loading" @click="addCapture">收入收件箱</button></div>
-    </section>
-    <section class="beryl-card" :style="{ padding: '14px', marginTop: '16px' }">
-      <div class="create-row" :style="{ margin: 0 }"><input v-model="query" aria-label="搜索收集" placeholder="搜索原文或状态…" /><select v-model="filter" aria-label="收集筛选"><option v-for="option in filters" :key="option.id" :value="option.id">{{ option.label }}</option></select><span class="muted">{{ visible.length }} 条</span></div>
-    </section>
-    <section v-if="error" class="beryl-card empty-state" role="alert"><b>收集内容暂时无法读取</b><p>{{ error }}</p><button class="app-button" type="button" @click="refresh">重试</button></section>
-    <p v-if="message && !error" class="info" role="status">{{ message }}</p>
+  <header class="slide-head">
+    <div class="head-main">
+      <p class="hint">收集 · 原文优先</p>
+      <div class="head-title-row">
+        <h2 v-if="loading">正在读取…</h2>
+        <h2 v-else-if="!visible.length">收件箱是空的。</h2>
+        <h2 v-else>还有 <em>{{ visible.length }}</em> 条原文待处理。</h2>
+        <span class="info" tabindex="0" data-tip="先保留原文，再把它处理成行动或现实处境。H 收起辅助信息。" aria-label="收集说明">i</span>
+      </div>
+    </div>
+    <span class="panel-note">{{ loading ? '正在读取…' : `${captureCount} 条 · ${pendingCount} 条待确认建议` }}</span>
+  </header>
+    <p v-if="captureStatusError" class="panel dim" role="alert">收集状态字典读取失败，{{ captureStatusHasLoaded ? '仍使用上次成功读取的名称。' : '当前使用内置名称。' }}<button class="chip" type="button" @click="refreshCaptureStatusDictionary">重试</button></p>
+    <LbPanel title="收集原文" note="Ctrl / ⌘ + Enter 保存">
+      <div class="capture-box">
+        <textarea v-model="body" aria-label="新增收件内容" placeholder="脑中闪过什么？先放在这里…" @keydown="onEditorKeydown" />
+        <div class="capture-footer"><span>Ctrl / ⌘ + Enter 保存原文</span><button class="chip on" :disabled="loading" @click="addCapture">收入收件箱</button></div>
+      </div>
+    </LbPanel>
+    <LbCollapsible block="inboxFilters" :rank="2">
+      <LbPanel title="筛选">
+        <div class="create-row"><input v-model="query" aria-label="搜索收集" placeholder="搜索原文或状态…" /><select v-model="filter" aria-label="收集筛选"><option v-for="option in filters" :key="option.id" :value="option.id">{{ option.label }}</option></select><span class="dim">{{ visible.length }} 条</span></div>
+      </LbPanel>
+    </LbCollapsible>
+    <section v-if="error" class="panel inbox-error" role="alert"><b>收集内容暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="refresh">重试</button></section>
+    <p v-if="message && !error" class="dim" role="status">{{ message }}</p>
+    <LbPanel title="收件内容" :note="loading ? '正在读取…' : `${visible.length} 条`">
     <section class="history-list">
-      <div v-if="loading" class="empty-state" role="status">正在读取收件内容…</div>
+      <p v-if="loading" class="dim" role="status">正在读取收件内容…</p>
       <template v-else>
-        <article v-for="item in visible" :key="`${item.source}:${item.id}`" class="history-card beryl-card">
-          <div class="panel-head"><div><p class="eyebrow">{{ item.source === 'capture' ? 'CAPTURE' : 'LEGACY INBOX' }} · {{ statusLabel(item.status) }}</p><h2 class="font-title">{{ titleFor(item) }}</h2></div><small>{{ displayTime(item.updatedAt, item.date) }}</small></div>
+        <article v-for="item in visible" :key="`${item.source}:${item.id}`" class="history-card panel">
+          <div class="panel-head"><div><p class="eyebrow">{{ item.source === 'capture' ? 'CAPTURE' : 'LEGACY INBOX' }} · {{ statusLabel(item.status) }}</p><h2>{{ titleFor(item) }}</h2></div><small>{{ displayTime(item.updatedAt, item.date) }}</small></div>
           <div class="suggestion-actions">
-            <button class="app-button" @click="expandedId = expandedId === `${item.source}:${item.id}` ? '' : `${item.source}:${item.id}`">{{ expandedId === `${item.source}:${item.id}` ? '收起原文' : '查看原文' }}</button>
-            <template v-if="item.source === 'capture'"><button class="app-button" @click="archiveUnavailable">归档</button><button class="app-button danger" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="removeCapture(item)">删除</button></template>
-            <template v-else><button class="app-button" @click="convertLegacyToTask(item)">→ 行动</button><button class="app-button" @click="convertLegacyToCase(item)">→ 课题</button><button class="app-button" @click="removeLegacy(item)">移除</button></template>
+            <button class="chip" @click="expandedId = expandedId === `${item.source}:${item.id}` ? '' : `${item.source}:${item.id}`">{{ expandedId === `${item.source}:${item.id}` ? '收起原文' : '查看原文' }}</button>
+            <template v-if="item.source === 'capture'"><button class="chip" @click="archiveUnavailable">归档</button><button class="chip danger" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="removeCapture(item)">删除</button></template>
+            <template v-else><button class="chip" @click="convertLegacyToTask(item)">→ 行动</button><button class="chip" @click="convertLegacyToCase(item)">→ 课题</button><button class="chip" @click="removeLegacy(item)">移除</button></template>
           </div>
-          <div v-if="expandedId === `${item.source}:${item.id}`" class="opening-details"><p class="info" :style="{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }">{{ item.text }}</p><small v-if="item.source === 'capture' && item.capture" class="muted"><template v-for="(segment,index) in ['Capture ID：', item.capture.calmyId, ' · revision ', String(item.capture.revision)]" :key="index">{{segment}}</template></small></div>
-          <div v-if="item.source === 'capture' && suggestionByCapture.get(item.id)?.status === 'suggested'" class="suggestion-card beryl-card">
-            <div class="panel-head"><div><p class="eyebrow">SUGGESTION · {{ Math.round(suggestionByCapture.get(item.id)!.confidence * 100) }}%</p><h3 class="font-title">{{ suggestionByCapture.get(item.id)!.candidates[0]?.label || '建议' }}</h3></div><span class="muted">可拒绝</span></div>
-            <p>{{ suggestionByCapture.get(item.id)!.rationale }}</p>
+          <div v-if="expandedId === `${item.source}:${item.id}`" class="opening-details"><p class="dim opening-text">{{ item.text }}</p><small v-if="item.source === 'capture' && item.capture" class="dim"><template v-for="(segment,index) in ['Capture ID：', item.capture.calmyId, ' · revision ', String(item.capture.revision)]" :key="index">{{segment}}</template></small></div>
+          <div v-if="item.source === 'capture' && suggestionByCapture.get(item.id)?.status === 'suggested'" class="suggestion-card panel">
+            <div class="panel-head"><div><p class="eyebrow">SUGGESTION · {{ Math.round(suggestionByCapture.get(item.id)!.confidence * 100) }}%</p><h3>{{ suggestionByCapture.get(item.id)!.candidates[0]?.label || '建议' }}</h3></div><span class="dim">可拒绝</span></div>
+            <p class="dim">{{ suggestionByCapture.get(item.id)!.rationale }}</p>
             <input :aria-label="`${item.text.slice(0, 20)}处理内容`" :value="draftFor(suggestionByCapture.get(item.id)!)" @input="drafts[suggestionByCapture.get(item.id)!.calmyId] = ($event.target as HTMLInputElement).value" />
-            <div class="suggestion-actions"><button class="app-button primary" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="acceptSuggestion(suggestionByCapture.get(item.id)!)">采纳并处理</button><button class="app-button" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="rejectSuggestion(suggestionByCapture.get(item.id)!)">拒绝建议</button></div>
+            <div class="suggestion-actions"><button class="chip on" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="acceptSuggestion(suggestionByCapture.get(item.id)!)">采纳并处理</button><button class="chip" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="rejectSuggestion(suggestionByCapture.get(item.id)!)">拒绝建议</button></div>
           </div>
         </article>
-        <div v-if="!visible.length" class="empty-state">没有匹配的收件内容。</div>
+        <p v-if="!visible.length" class="dim">没有匹配的收件内容。</p>
       </template>
     </section>
-  </div>
+    </LbPanel>
 </template>
+
+<style scoped>
+/* 页面局部排版：颜色取「留白」令牌。.history-card / .opening-details / .suggestion-card 是 parity 测试的钩子。 */
+.inbox-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+.capture-box { display: grid; gap: 10px; }
+.capture-box textarea { width: 100%; min-height: 84px; padding: 10px 12px; font: inherit; font-size: .86rem; line-height: 1.7; resize: vertical; }
+.capture-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: .7rem; }
+.create-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.create-row input { flex: 1 1 200px; min-width: 0; min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.create-row select { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.history-list { display: grid; gap: 10px; }
+.history-card { display: grid; gap: 8px; }
+.opening-details { display: grid; gap: 6px; padding: 10px 0 0; border-top: 1px solid var(--line); }
+.opening-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.suggestion-card { background: var(--panel-2); gap: 8px; }
+.suggestion-card input { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.suggestion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+</style>

@@ -1,11 +1,11 @@
 export type AppRouteViewKey =
-  | 'today' | 'cycle' | 'flow' | 'profile' | 'memory' | 'capture' | 'matters'
+  | 'desk' | 'deskHistory' | 'today' | 'cycle' | 'flow' | 'profile' | 'memory' | 'capture' | 'matters'
   | 'caseRedirect' | 'matterDetail' | 'review' | 'future' | 'admin' | 'advancedAdmin'
   | 'calendar' | 'people' | 'library' | 'graph' | 'inbox' | 'tasks' | 'taskBoard'
   | 'feishu' | 'habits' | 'finance' | 'goals' | 'pomo' | 'diary' | 'posts'
-  | 'scene' | 'masterData' | 'systemAdmin' | 'moduleFallback' | 'fallback'
+  | 'scene' | 'realityScenes' | 'realityContext' | 'masterData' | 'systemAdmin' | 'moduleFallback' | 'fallback'
 
-export type PrimaryNavigationKey = 'today' | 'capture' | 'matters' | 'review'
+export type PrimaryNavigationKey = 'desk' | 'today' | 'capture' | 'matters' | 'review'
 export type FeatureNavigationGroupId = 'work' | 'records' | 'understanding' | 'daily-tools' | 'experiments' | 'personal' | 'data' | 'system'
 export type PageArchetype =
   | 'today' | 'capture' | 'list-detail' | 'timeline' | 'content' | 'board'
@@ -43,7 +43,7 @@ export type AppPageDescriptor = {
 
 export type AppRouteDefinition =
   | { kind: 'redirect'; path: string; redirectTo: string }
-  | { kind: 'view'; path: string; viewKey: AppRouteViewKey; lazyLabel?: string; pageId?: string }
+  | { kind: 'view'; path: string; viewKey: AppRouteViewKey; lazyLabel?: string; pageId?: string; title?: string; description?: string; archetype?: PageArchetype; shell?: 'app' | 'standalone' }
 
 export const featureNavigationGroupMeta: readonly { id: FeatureNavigationGroupId; label: string }[] = [
   { id: 'work', label: '工作' },
@@ -57,6 +57,10 @@ export const featureNavigationGroupMeta: readonly { id: FeatureNavigationGroupId
 ]
 
 export const appPageRegistry: readonly AppPageDescriptor[] = [
+  {
+    id: 'desk', path: '/app/desk', viewKey: 'desk', title: '桌面', description: '快速留下记录，回看最近的内容',
+    archetype: 'capture', shell: 'app', navigation: { kind: 'primary', key: 'desk', label: '桌面', icon: '▱', order: -1 },
+  },
   {
     id: 'today', path: '/app/today', viewKey: 'today', title: '今天', description: '现在关注的事与行动',
     archetype: 'today', shell: 'app', navigation: { kind: 'primary', key: 'today', label: '今天', icon: '⌂', order: 0 },
@@ -112,6 +116,14 @@ export const appPageRegistry: readonly AppPageDescriptor[] = [
   {
     id: 'people', path: '/app/people', viewKey: 'people', title: '人物',
     archetype: 'list-detail', shell: 'app', lazyLabel: '人物', navigation: { kind: 'feature', groupId: 'understanding', label: '人物', icon: '♙', order: 0 },
+  },
+  {
+    id: 'reality-scenes', path: '/app/reality-scenes', viewKey: 'realityScenes', title: '共同经历', description: '记录现实情境、参与者和经历状态',
+    archetype: 'list-detail', shell: 'app', lazyLabel: '共同经历', navigation: { kind: 'feature', groupId: 'understanding', label: '共同经历', icon: '◉', order: 2 },
+  },
+  {
+    id: 'reality-context', path: '/app/reality-context', viewKey: 'realityContext', title: '情境视图', description: '按当前账号权限查看同一批资料',
+    archetype: 'content', shell: 'app', lazyLabel: '情境视图', navigation: { kind: 'feature', groupId: 'understanding', label: '情境视图', icon: '◈', order: 3 },
   },
   {
     id: 'master-data', path: '/app/master-data', viewKey: 'masterData', title: '主数据管理', description: '管理可复用内容素材和系统字典',
@@ -182,7 +194,8 @@ export const appPageRegistry: readonly AppPageDescriptor[] = [
 ]
 
 export const appRouteDefinitions: readonly AppRouteDefinition[] = [
-  { kind: 'redirect', path: '', redirectTo: '/app/today' },
+  { kind: 'redirect', path: '', redirectTo: '/app/desk' },
+  { kind: 'view', path: 'desk/history', viewKey: 'deskHistory', title: '记录', description: '按时间回看你留在桌面的内容', archetype: 'list-detail', shell: 'app' },
   { kind: 'redirect', path: 'users', redirectTo: '/app/system/users' },
   ...appPageRegistry.filter(page => page.shell === 'app').map(page => ({
     kind: 'view' as const,

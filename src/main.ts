@@ -3,15 +3,23 @@ import { createPinia } from 'pinia'
 import { ElButton, ElDialog, ElDrawer, ElForm, ElFormItem, ElInput, ElOption, ElRadioGroup, ElRadioButton, ElSelect } from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+// ── 旧样式层（迁移期仍在服务未改版页面） ──────────────────────────────
 import './styles/main.css'
 import './styles/shared/app.css'
-import './styles/shared/mobile-nav.css'
 import './styles/shared/feishu-workspace.css'
 import './styles/shared/feishu-board.css'
 import './styles/shared/product-ui.css'
-import './styles/shared/ui-refresh.css'
-import './styles/shared/tactile-ui.css'
 import './styles/controls.css'
+// 2026-10-05 已删的四层（核实为死代码后移除）：
+//   ui-refresh.css      仅 html.ui-refresh（?ui=refresh）生效，实验层，无人使用
+//   tactile-ui.css      603 条规则里 599 条挂在 html.tactile-ui 上，而该 class 运行期从不添加；
+//                       仅 7 条活规则（.capture-composer-tools / .master-sentence-error）已搬入 liubai-app.css
+//   reference-stage.css 随旧壳 ReferenceAppShell / LegacyAppShell 一起作废（其 --stage-* 无其它引用）
+//   reference-native.css 全部规则作用域是 #app .reference-layout，该容器已无人渲染
+//   mobile-nav.css      只被 src/views/AppShell.vue（僵尸文件）引用
+import './styles/liubai/liubai-v11.css'
+// 「留白」应用层：外壳微调 + 旧类名映射 + 表单/第三方控件跟随主题（见文件头注释）
+import './styles/liubai/liubai-app.css'
 import App from './App.vue'
 import router from './router'
 import { initDb, readKvSnapshot, selectDbAccount } from './core/db'
@@ -40,9 +48,22 @@ for (const [name, component] of Object.entries({ ElButton, ElDialog, ElDrawer, E
 let savedTheme: string | null = null
 try { savedTheme = localStorage.getItem('b_theme') } catch { /* ignore */ }
 document.documentElement.classList.toggle('dark', savedTheme === 'dark')
-document.documentElement.classList.toggle('ui-refresh', new URLSearchParams(window.location.search).get('ui') === 'refresh')
-document.documentElement.classList.add('tactile-ui')
 applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
+
+// 「留白」外壳状态：theme / nav / 简洁 / 禅模式。
+// 放在 body 上（CSS 以 body[data-theme]、body.nav-show、body.mode-simple 等为选择器），
+// 在挂载前设置以避免主题闪烁；运行期切换由 LiubaiShell 负责。
+try {
+  // 默认主题 = 参考稿自己的默认「深夜」。
+  // （迁移早期曾临时用「纸白」，因为旧页面的浅色卡片在深色底上不可读；
+  //   liubai-bridge.css 把旧页面表面映射到「留白」令牌后，深色已可读，故切回。）
+  const liubaiTheme = localStorage.getItem('liubai-theme') || 'night'
+  const liubaiNav = localStorage.getItem('liubai-nav') === 'right' ? 'right' : 'left'
+  document.body.dataset.theme = ['night', 'ink', 'forest', 'sunset', 'paper', 'sand'].includes(liubaiTheme) ? liubaiTheme : 'night'
+  document.body.dataset.nav = liubaiNav
+  if (localStorage.getItem('liubai-mode') === 'simple') document.body.classList.add('mode-simple')
+  if (localStorage.getItem('liubai-zen') === '1') document.body.classList.add('zen-mode')
+} catch { /* 隐私模式：用默认值 */ }
 
 async function bootstrap() {
   let session = null

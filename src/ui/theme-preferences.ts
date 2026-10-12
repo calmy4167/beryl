@@ -22,7 +22,7 @@ const HEX_COLOR = /^#[\da-f]{6}$/i
 const MIN_TEXT_CONTRAST = 4.5
 const DARK_TEXT = '#1c2922'
 const LIGHT_TEXT = '#f1eee7'
-const DEFAULT_CANVAS: Readonly<Record<ThemeMode, string>> = { light: '#f7faf8', dark: '#1d211f' }
+const DEFAULT_CANVAS: Readonly<Record<ThemeMode, string>> = { light: '#f6f5f2', dark: '#0a0a0b' }
 
 export function getDefaultBackgroundColor(mode: ThemeMode): string {
   return DEFAULT_CANVAS[mode]

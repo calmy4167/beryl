@@ -1,3 +1,6 @@
+
+import type { RealitySettlement } from '@/domain/unified/model'
+
 export const MATTER_STATUSES = ['draft', 'active', 'paused', 'archived'] as const
 export type MatterStatus = typeof MATTER_STATUSES[number]
 
@@ -27,6 +30,8 @@ export interface Matter {
   createdAt: number
   updatedAt: number
   revision: number
+  ownership?: import('@/domain/unified/model').Ownership
+  settlements?: RealitySettlement[]
 }
 
 /** Canonical semantic view of a Matter. The Matter repository remains the sole fact store during migration. */
@@ -50,6 +55,8 @@ export interface Thing {
   createdAt: number
   updatedAt: number
   revision: number
+  ownership?: import('@/domain/unified/model').Ownership
+  settlements?: RealitySettlement[]
   subjectPersonIds?: string[]
   /** Absent for legacy Matters unless mutation history provides attribution. */
   source?: import('@/domain/unified/model').CoreEntitySource
@@ -67,6 +74,7 @@ export interface MatterCreateInput {
   stopCondition?: string
   currentStage?: MatterStage
   trajectory?: MatterTrajectory
+  ownership?: import('@/domain/unified/model').Ownership
 }
 
 export interface MatterUpdatePatch {
@@ -83,6 +91,8 @@ export interface MatterUpdatePatch {
   trajectory?: MatterTrajectory
   currentCycleId?: string
   evidenceIds?: string[]
+  ownership?: import('@/domain/unified/model').Ownership
+  settlements?: RealitySettlement[]
 }
 
 export interface MatterMutation {
@@ -98,6 +108,8 @@ export interface MatterMutation {
   toRevision: number
   occurredAt: number
   patch?: unknown
+  previousSnapshot?: Record<string, unknown>
+  snapshot?: Record<string, unknown>
 }
 
 export function thingFromMatter(matter: Matter, mutations: MatterMutation[] = []): Thing {
@@ -125,6 +137,8 @@ export function thingFromMatter(matter: Matter, mutations: MatterMutation[] = []
     createdAt: matter.createdAt,
     updatedAt: matter.updatedAt,
     revision: matter.revision,
+    ownership: matter.ownership,
+    settlements: matter.settlements,
     source
   }
 }
@@ -148,7 +162,9 @@ export function matterFromThing(thing: Thing): Matter {
     evidenceIds: thing.evidenceIds.slice(),
     createdAt: thing.createdAt,
     updatedAt: thing.updatedAt,
-    revision: thing.revision
+    revision: thing.revision,
+    ownership: thing.ownership,
+    settlements: thing.settlements
   }
 }
 
