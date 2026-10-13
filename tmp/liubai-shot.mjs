@@ -460,6 +460,68 @@ try {
 
   console.log('paper:', JSON.stringify(await openPreview('paper', '')))
   await shot('10-today-paper')
+
+  // ── 模块导航（侧边栏）──────────────────────────────────────────────
+  // 三种状态各截一张：桌面窄轨（默认）/ 桌面展开 / 窄屏抽屉。
+  const navProbe = `(() => {
+    const nav = document.querySelector('.dots')
+    if (!nav) return { found: false }
+    const r = nav.getBoundingClientRect()
+    const cs = getComputedStyle(nav)
+    const items = [...nav.querySelectorAll('.dot')]
+    const visible = items.filter(item => item.getBoundingClientRect().height > 0)
+    const labels = [...nav.querySelectorAll('.dot-label')].filter(el => el.getBoundingClientRect().width > 0)
+    const slide = document.querySelector('.stage .slide.active')
+    return {
+      x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height),
+      radius: cs.borderRadius, border: cs.borderRightWidth + '/' + cs.borderLeftWidth,
+      groups: nav.querySelectorAll('.dot-group').length, items: items.length, visibleItems: visible.length,
+      visibleLabels: labels.length, active: nav.querySelectorAll('.dot.active').length,
+      itemHeight: visible[0] ? Math.round(visible[0].getBoundingClientRect().height) : null,
+      scrim: (() => { const el = document.querySelector('.nav-scrim'); return el ? getComputedStyle(el).visibility + '/' + getComputedStyle(el).opacity : 'none' })(),
+      handle: (() => { const el = document.querySelector('.module-nav-handle'); return el ? getComputedStyle(el).opacity : 'none' })(),
+      actionsVisible: nav.querySelectorAll('.desk-nav-actions button').length > 0 && getComputedStyle(nav.querySelector('.desk-nav-actions')).display !== 'none',
+      brandNameVisible: (() => { const el = nav.querySelector('.desk-nav-brand-name'); return !!el && el.getBoundingClientRect().width > 0 })(),
+      slidePadLeft: slide ? Math.round(parseFloat(getComputedStyle(slide).paddingLeft)) : null,
+      brandOpacity: (() => { const el = document.querySelector('.brand'); return el ? getComputedStyle(el).opacity : null })()
+    }
+  })()`
+  await openPreview('night', '')
+  console.log('nav expanded:', JSON.stringify(await evaluate(navProbe)))
+  await shot('160-nav-night')
+  await evaluate(`(() => { const b = document.querySelector('.desk-nav-close'); if (b) b.click(); return true })()`)
+  await sleep(600)
+  console.log('nav rail:', JSON.stringify(await evaluate(navProbe)))
+  await shot('162-nav-rail-night')
+  await openPreview('paper', '')
+  // 展开态是持久化的用户偏好；上一步刚收起过，这里显式展开再截图
+  await evaluate(`(() => { if (!document.body.classList.contains('nav-show')) { const b = document.querySelector('.desk-nav-close') || document.querySelector('.module-nav-handle'); if (b) b.click() } return true })()`)
+  await sleep(500)
+  console.log('nav expanded paper:', JSON.stringify(await evaluate(navProbe)))
+  await shot('161-nav-paper')
+  await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
+  // 清掉桌面步骤写下的"侧边栏已展开"偏好，让窄屏走自己的默认（隐藏）
+  await evaluate(`localStorage.removeItem('liubai-nav-open')`)
+  await openPreview('night', '')
+  await sleep(300)
+  console.log('nav mobile diagnostics:', JSON.stringify(await evaluate(`(() => {
+    const all = [...document.querySelectorAll('.dots')]
+    return {
+      viewport: [window.innerWidth, window.innerHeight],
+      shell: !!document.querySelector('.liubai-shell'),
+      bodyClass: document.body.className,
+      dotsCount: all.length,
+      dots: all.map(el => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el)
+        return { cls: el.className, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), radius: cs.borderRadius, pos: cs.position } })
+    }
+  })()`)))
+  console.log('nav mobile closed:', JSON.stringify(await evaluate(navProbe)))
+  await shot('163-nav-mobile-closed')
+  await evaluate(`(() => { const h = document.querySelector('.module-nav-handle'); if (h) h.click(); return true })()`)
+  await sleep(600)
+  console.log('nav mobile open:', JSON.stringify(await evaluate(navProbe)))
+  await shot('164-nav-mobile-open')
+  await call('Emulation.clearDeviceMetricsOverride')
 } finally {
   try { socket?.close() } catch { /* ignore */ }
   try { chrome?.kill() } catch { /* ignore */ }

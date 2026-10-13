@@ -41,6 +41,68 @@
 
 ---
 
+## 侧边栏重做（2026-10-12 第 34–35 轮 · 定稿）
+
+**为什么要重做**：应用层里的侧边栏 CSS 是**四代覆盖叠在一起**的（约 490 行、大片 `!important` 互相打架），
+最后压成 60px 图标窄轨：分组标题 9px 折成两行、条目全折叠、没有选中态、还压住左上角品牌。
+34 个模块只给图标 = 用户找不到；展开成常驻 248px 又白占一条空白带。
+
+**依据（先查规范，不凭感觉配色/定形）**：
+- [NN/g《Left-Side Vertical Navigation on Desktop》](https://www.nngroup.com/articles/vertical-nav/)：
+  宽而长的一级导航就该用左侧竖排；条目必须**左对齐**（居中会破坏竖排扫描，Sunglass Hut 就是反例）；
+  **不要把桌面导航藏起来**——"导航一藏起来，用户就忘了去看"。
+- [GitLab Pajamas《Navigation sidebar》](https://design-gitlab-com-gitlab-org-gitlab-services-f6beaf2fb7fd4cad76.gitlab.io/review-mr-6247/patterns/navigation-sidebar/)：
+  两层结构（一级 = 图标 + 分组，二级 = 条目，不做第三层）；**≥1200px 默认常驻可见**；
+  ≤1199px 默认隐藏，但用**半透明遮罩浮层**唤出、可锁定；用户偏好持久化；条目名 1–2 个词。
+
+**定稿形态**：
+
+| 断点 | 形态 |
+|---|---|
+| ≥1101px | **常驻 252px 侧边栏**：品牌 + 9 个分组 + 34 条"图标 + 文字"条目 + 底部动作；内容整体右移（slide 内边距 252px），不遮挡 |
+| ≤1100px | **默认隐藏**；⌘K / 左边缘「模块」把手唤出 → 300px 浮层 + 半透明遮罩（点遮罩或 Esc 关闭），**不推挤内容** |
+| 收起（`body:not(.nav-show)`） | 整条滑出屏幕 + 把手召回。**不再有"只给图标"的窄轨** |
+
+- **一律带文字**：不存在需要猜图标的状态；左对齐（NN/g）。
+- **语言全部取设计层令牌**，不自创：浮面 `--panel` + 1px `--line`；分组标签同 `.eyebrow`（.68rem / muted / .1em）；
+  条目同 `.palette-item`/`.dm-item`（gap 10 / radius 9 / muted → hover `--hover` → 当前 `--accent`）；
+  分组之间 1px `--line` 分隔（同 `.settings-panel` 的段落感）；当前项 = accent 文字 + 10% accent 底。
+- 交互：⌘K 开合；Esc 关闭；遮罩点击关闭；窄屏选中模块后自动收起（桌面保持，方便连续切换）；
+  偏好写入 `liubai-nav-open`。
+- 钩子名全部保留（`nav.dots` / `.dot.active` / `.dot-group-title` / `.desk-nav-head` / `.desk-nav-close` /
+  `.desk-nav-actions button` / `.module-nav-handle` ），新增 `.nav-scrim`；外壳测试 **8/8** 通过。
+- 分组折叠从"手风琴·同时只开一个"改成**多分组独立折叠、默认全展开**（34 个模块下更好找），当前模块所在分组始终展开。
+
+**顺带修掉的三处旧账**：
+1. 外壳把 `⌘K`/把手/关闭都接到 `nav-hidden` 上，与"一个开关"的模型和外壳测试都不符 → 统一操作 `nav-show`；
+2. `controls.css` 之外，`liubai-app.css` 里还留着一段**更早的 `@media (max-width: 680px)` 移动端导航**
+   （`left/right:12px` + `max-height:min(58dvh,480px)` + `radius 12`）——窄屏量到"366×480 浮卡"就是它；已删；
+3. 参考稿窄屏给 `.dots` 写了 `transform: none !important`，收起动画必须同用 `!important` 才能滑出屏幕。
+
+**证据**：截图 `160-nav-night`（常驻）/ `161-nav-paper`（浅色）/ `162-nav-rail-night`（收起后滑出 + 把手）/
+`163-nav-mobile-closed` / `164-nav-mobile-open`；探针 `nav expanded|rail|mobile`：
+252px 常驻 · 34/34 条目标签 · 条目高 32 · 收起 x=-252（窄屏 -300）· 窄屏唤出时 `scrim visible`。
+
+> 注意：本轮同时发现的 13 条**既存失败**（`vue-people-parity` / `vue-finance-parity` / `vue-calendar-parity` /
+> `vue-auth-settings-parity` / `capture-text` / `domain-module-catalog`）来自**今天 09:28–16:37 的另一轮改造**
+> （新增 `CalmyField`/`CalmyInput`/`CalmyNativeSelect`/`CalmyButton` 等表单组件、重写若干页面、新增路由），
+> 与侧边栏无关，尚未处理。
+
+### 美化（第 36 轮，同一处实现）
+
+- **品牌统一**：面板头改成与外壳浮标同一套 `◆ Calmy`（去掉原来那块饱和的强调色方块），全站品牌只剩一种写法。
+- **底部动作去框 + 吸底**：三行从"三个描边方块"改成 `.dm-item` 那样的无框行；首行常显 `搜索或跳转… ⌘K`，
+  并用 `position: sticky` 吸底——34 条模块也不会把搜索入口挤出屏幕；上方加 18px 渐隐，避免硬切滚动中的条目，
+  再用一个等高的滚动占位保证最后一条能完全滚出来。
+- **节奏**：面板内边距 14 → 16/12px；分组之间 6 → 12px（分隔线降到 78% 不透明度）；条目 32 → 30px、圆角 9 → 8px；
+  分组标签 .68 → .7rem、字距 .1 → .06em（中文更稳）；折叠箭头平时 `opacity:.5`。
+- **状态**：选中 = accent 文字 + 8% accent 底 + `font-weight:500`（更克制）；hover 仍用 `--hover`。
+- **显式左对齐**：参考稿桌面是 `align-items:flex-end`、窄屏是 `center`，会把内容顶到一侧/中间——
+  应用层显式声明 `align-items: stretch`（基座/分组/窄屏三处），保证两级条目左对齐（NN/g 的要求）。
+- **窄屏浮层**：`--panel` 94% 透明 + `backdrop-filter: blur(18px) saturate(125%)`，内容透出但不影响读字。
+
+> 规模变化：应用层从 **1808 行 / 278 条规则**（四代叠加）降到 **857 行 / 124 条规则**（单一来源）。
+
 ## 0. 第 7–11 轮（2026-10-05）已完成
 
 1. **CSS 删层回归验证做完**（上一轮被中断的那一步）：新增截图 `40-purge-today / 41-purge-capture / 42-purge-mobile`，
