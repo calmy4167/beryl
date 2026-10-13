@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { listDesktopCaptureHistory, saveDesktopEntry, undoDesktopEntry, upgradeDesktopEntry } from '@/application'
+import { listDesktopCaptureHistory, saveDesktopEntry, undoDesktopEntry, upgradeDesktopEntry, type DesktopCaptureHistoryItem } from '@/application'
 import { useOwnSlideHead } from '@/vue/liubai/slide-head'
 import DeskAppearancePanel from './desk/DeskAppearancePanel.vue'
 import DeskComposer from './desk/DeskComposer.vue'
+import { readHiddenDesktopCaptureIds } from './desk/history-visibility'
 import { readDeskPreferences, resetDeskPreferences, saveDeskPreferences, type DeskPreferences } from './desk/preferences'
 
 useOwnSlideHead()
@@ -16,6 +17,14 @@ const busy = ref(false)
 const error = ref('')
 const notice = ref('')
 const historyCount = ref(0)
+const historyItems = ref<DesktopCaptureHistoryItem[]>([])
+const hiddenHistoryIds = ref(readHiddenDesktopCaptureIds())
+const historyLoading = ref(true)
+const historyError = ref('')
+const historyOpen = ref(false)
+const selectedRecentId = ref('')
+const historyTrigger = ref<HTMLButtonElement | null>(null)
+const historyCloseTrigger = ref<HTMLButtonElement | null>(null)
 const appearanceOpen = ref(false)
 const warm = ref(false)
 const composerRef = ref<{ focus: () => void; blur: () => void } | null>(null)
@@ -64,7 +73,18 @@ const composerStyle = computed(() => ({
 }))
 
 const canUndo = computed(() => !!lastOperation.value && Date.now() - lastOperation.value.completedAt <= 4000)
+const recentRecords = computed(() => historyItems.value
+  .filter(item => !hiddenHistoryIds.value.includes(item.capture.calmyId))
+  .sort((a, b) => b.capture.createdAt - a.capture.createdAt)
+  .slice(0, 6))
+const selectedRecentRecord = computed(() => recentRecords.value.find(item => item.capture.calmyId === selectedRecentId.value) || recentRecords.value[0])
 const previousTitle = typeof document === 'undefined' ? '' : document.title
+
+watch(recentRecords, records => {
+  if (!records.some(item => item.capture.calmyId === selectedRecentId.value)) {
+    selectedRecentId.value = records[0]?.capture.calmyId || ''
+  }
+}, { immediate: true })
 
 function makeOperationId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -93,17 +113,51 @@ function rememberOperation(operationId: string, kind: 'capture' | 'action') {
 }
 
 async function refreshHistory() {
+  historyLoading.value = true
+  historyError.value = ''
   try {
-    historyCount.value = (await listDesktopCaptureHistory()).length
-  } catch {
-    historyCount.value = 0
+    const [items, hiddenIds] = await Promise.all([listDesktopCaptureHistory(), Promise.resolve(readHiddenDesktopCaptureIds())])
+    historyItems.value = items
+    hiddenHistoryIds.value = hiddenIds
+    historyCount.value = items.filter(item => !hiddenIds.includes(item.capture.calmyId)).length
+  } catch (cause) {
+    historyError.value = cause instanceof Error ? cause.message : '记录暂时无法读取'
+  } finally {
+    historyLoading.value = false
   }
 }
 
-function openHistory() {
+function openHistoryDrawer() {
+  composerRef.value?.blur()
+  historyOpen.value = true
+  void nextTick(() => historyCloseTrigger.value?.focus())
+  void refreshHistory()
+}
+
+function closeHistoryDrawer() {
+  historyOpen.value = false
+  void nextTick(() => historyTrigger.value?.focus())
+}
+
+function openAllHistory() {
+  historyOpen.value = false
   composerRef.value?.blur()
   const historyPath = route.path.startsWith('/liubai-preview/') ? '/liubai-preview/desk/history' : '/app/desk/history'
   void router.push(historyPath)
+}
+
+function recordStatus(item: DesktopCaptureHistoryItem): string {
+  if (item.decision === 'action') return '今天的行动'
+  if (item.decision === 'matter') return '处境'
+  if (item.decision === 'record') return '记录'
+  if (item.decision === 'seed') return '稍后再看'
+  if (item.decision === 'let_go' || item.capture.status === 'archived' || item.capture.status === 'rejected') return '已放下'
+  if (item.capture.status === 'suggested') return '已有整理建议'
+  return '待处理'
+}
+
+function recordTime(timestamp: number): string {
+  return new Intl.DateTimeFormat('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(timestamp))
 }
 
 function openAppearance() {
@@ -205,6 +259,7 @@ function onKey(event: KeyboardEvent) {
     event.preventDefault()
     event.stopPropagation()
     if (appearanceOpen.value) closeAppearance()
+    else if (historyOpen.value) closeHistoryDrawer()
     return
   }
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z' && !draft.value && !appearanceOpen.value) {
@@ -240,9 +295,11 @@ watch(() => draft.value, value => {
 onMounted(() => {
   document.title = '桌面 — Calmy'
   void refreshHistory()
+  window.addEventListener('beryl-data-synced', refreshHistory)
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('beryl-data-synced', refreshHistory)
   if (undoTimer) window.clearTimeout(undoTimer)
   if (noticeTimer) window.clearTimeout(noticeTimer)
   if (warmTimer) window.clearTimeout(warmTimer)
@@ -264,9 +321,47 @@ onBeforeUnmount(() => {
       <button v-if="canUndo" type="button" :disabled="busy" aria-label="撤销最近操作" @click="undoLast">撤销</button>
     </div>
     <nav class="desk-home-corner" aria-label="桌面控制">
-      <button type="button" aria-label="打开完整记录页" title="查看全部记录" @click="openHistory">记录 <span>{{ historyCount }}</span></button>
+      <button ref="historyTrigger" type="button" aria-label="打开最近记录" title="查看最近记录" :aria-expanded="historyOpen" @click="openHistoryDrawer">记录 <span>{{ historyCount }}</span></button>
       <button type="button" aria-label="控制与外观" title="控制与外观设置" @click="openAppearance">控制</button>
     </nav>
+
+    <div v-if="historyOpen" class="desk-recent-backdrop" role="presentation" @click.self="closeHistoryDrawer">
+      <aside class="desk-recent-drawer" role="dialog" aria-modal="true" aria-labelledby="desk-recent-title" @keydown.esc.stop.prevent="closeHistoryDrawer">
+        <header class="desk-recent-head">
+          <div>
+            <h2 id="desk-recent-title">最近记录</h2>
+            <p>{{ historyCount }} 条 · 只属于你</p>
+          </div>
+          <button ref="historyCloseTrigger" type="button" class="desk-recent-close" aria-label="关闭最近记录" @click="closeHistoryDrawer">×</button>
+        </header>
+        <div class="desk-recent-list" aria-label="最近记录列表">
+          <p v-if="historyLoading" class="desk-recent-state" role="status">正在读取记录…</p>
+          <p v-else-if="historyError" class="desk-recent-state is-error" role="alert">{{ historyError }} <button type="button" @click="refreshHistory">重试</button></p>
+          <p v-else-if="!recentRecords.length" class="desk-recent-state">还没有记录。写下此刻正在想的事，它会出现在这里。</p>
+          <template v-else>
+            <button
+              v-for="item in recentRecords"
+              :key="item.capture.calmyId"
+              type="button"
+              class="desk-recent-item"
+              :class="{ 'is-selected': selectedRecentRecord?.capture.calmyId === item.capture.calmyId }"
+              :aria-pressed="selectedRecentRecord?.capture.calmyId === item.capture.calmyId"
+              @click="selectedRecentId = item.capture.calmyId"
+            >
+              <span class="desk-recent-item-body">{{ item.capture.body }}</span>
+              <span class="desk-recent-item-meta"><time :datetime="new Date(item.capture.createdAt).toISOString()">{{ recordTime(item.capture.createdAt) }}</time><span>{{ recordStatus(item) }}</span></span>
+            </button>
+          </template>
+        </div>
+        <article v-if="!historyLoading && !historyError && selectedRecentRecord" class="desk-recent-detail" aria-label="所选记录详情">
+          <p>{{ recordTime(selectedRecentRecord.capture.createdAt) }} · {{ recordStatus(selectedRecentRecord) }}</p>
+          <div>{{ selectedRecentRecord.capture.body }}</div>
+        </article>
+        <footer class="desk-recent-foot">
+          <button type="button" @click="openAllHistory">查看全部记录 <span aria-hidden="true">→</span></button>
+        </footer>
+      </aside>
+    </div>
 
     <DeskAppearancePanel v-if="appearanceOpen" :model-value="preferences" :save-error="preferenceSaveError" @update:model-value="updatePreferences" @reset="restorePreferences" @close="closeAppearance" />
   </main>
@@ -346,7 +441,8 @@ onBeforeUnmount(() => {
 .desk-home-hint button:hover { color: var(--desk-ink); }
 .desk-home-corner {
   position: fixed;
-  top: clamp(16px, 3vh, 26px);
+  /* Keep the desk actions below the shell's fixed HUD / mode / settings row. */
+  top: calc(clamp(16px, 3vh, 26px) + 40px);
   right: clamp(16px, 2vw, 32px);
   z-index: 5;
   display: flex;
@@ -371,11 +467,36 @@ onBeforeUnmount(() => {
 }
 .desk-home-corner button:hover, .desk-home-corner button:focus-visible { color: var(--desk-ink); background: color-mix(in srgb, var(--desk-ink) 7%, transparent); outline-color: var(--desk-accent); }
 .desk-home-corner button span { margin-left: 4px; color: var(--desk-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.desk-recent-backdrop { position: fixed; z-index: 70; inset: 0; display: flex; justify-content: flex-end; background: rgb(20 23 19 / 22%); animation: desk-recent-fade .16s ease-out; }
+.desk-recent-drawer { display: flex; width: min(420px, 100%); min-width: 0; height: 100%; flex-direction: column; padding: 26px 24px 18px; border-left: 1px solid var(--desk-line); background: var(--desk-bg); color: var(--desk-ink); box-shadow: -18px 0 50px rgb(31 35 29 / 10%); animation: desk-recent-enter .2s ease-out; }
+.desk-recent-head { display: flex; flex: none; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 19px; border-bottom: 1px solid var(--desk-line); }
+.desk-recent-head h2 { margin: 0; font-size: 20px; font-weight: 500; letter-spacing: -.04em; }
+.desk-recent-head p, .desk-recent-item-meta, .desk-recent-detail > p { margin: 6px 0 0; color: var(--desk-muted); font-size: 12px; }
+.desk-recent-close { display: grid; width: 32px; height: 32px; flex: none; place-items: center; border: 1px solid var(--desk-line); border-radius: 9px; background: transparent; color: var(--desk-muted); font-size: 18px; cursor: pointer; }
+.desk-recent-close:hover, .desk-recent-close:focus-visible { color: var(--desk-ink); background: var(--desk-faint); }
+.desk-recent-list { min-height: 0; flex: 1; overflow-y: auto; padding: 12px 0; }
+.desk-recent-item { display: block; width: 100%; margin: 2px 0 5px; padding: 13px 12px; border: 0; border-radius: 11px; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.desk-recent-item:hover { background: color-mix(in srgb, var(--desk-ink) 4%, transparent); }
+.desk-recent-item.is-selected { background: color-mix(in srgb, var(--desk-accent) 13%, transparent); }
+.desk-recent-item-body { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-wrap: anywhere; font-size: 13px; line-height: 1.55; }
+.desk-recent-item-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; }
+.desk-recent-state { margin: 18px 6px; color: var(--desk-muted); font-size: 13px; line-height: 1.7; }
+.desk-recent-state.is-error { color: #a64339; }
+.desk-recent-state button { border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
+.desk-recent-detail { flex: none; max-height: 32vh; overflow-y: auto; padding: 14px 12px; border-top: 1px solid var(--desk-line); }
+.desk-recent-detail > p { margin: 0 0 8px; font-size: 11px; }
+.desk-recent-detail > div { overflow-wrap: anywhere; font-family: Georgia, serif; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+.desk-recent-foot { flex: none; padding-top: 14px; border-top: 1px solid var(--desk-line); }
+.desk-recent-foot button { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 10px 4px; border: 0; background: transparent; color: var(--desk-muted); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.desk-recent-foot button:hover { color: var(--desk-ink); }
+@keyframes desk-recent-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes desk-recent-enter { from { transform: translateX(24px); opacity: .7; } to { transform: translateX(0); opacity: 1; } }
 @media (max-width: 620px) {
   .desk-home-corner { top: calc(10px + env(safe-area-inset-top)); right: 12px; }
   .desk-home-corner button { padding: 7px 9px; font-size: 12px; }
   .desk-home-error { max-width: calc(100vw - 32px); bottom: calc(52px + env(safe-area-inset-bottom)); }
   .desk-home-hint { max-width: 55vw; font-size: 10px; letter-spacing: .08em; }
+  .desk-recent-drawer { padding: calc(20px + env(safe-area-inset-top)) 18px calc(14px + env(safe-area-inset-bottom)); }
 }
-@media (prefers-reduced-motion: reduce) { .desk-home, .desk-home-hint, .desk-home-corner button { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .desk-home, .desk-home-hint, .desk-home-corner button { transition: none; } .desk-recent-backdrop, .desk-recent-drawer { animation-duration: 1ms; } }
 </style>

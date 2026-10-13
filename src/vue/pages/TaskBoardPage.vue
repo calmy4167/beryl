@@ -72,8 +72,6 @@ function drop(event: DragEvent, status: ActionStatus) { event.preventDefault(); 
     </FeishuTaskBoard>
 
     <template v-else>
-    <LbCollapsible block="boardFilters" :rank="2">
-      <LbPanel title="筛选">
         <div class="task-board-toolbar" aria-label="看板筛选">
           <div class="seg" role="tablist" aria-label="任务范围">
             <button v-for="[v,l] in [['all','全部'],['active','未结束'],['today','今天']]" :key="v" role="tab" :aria-selected="filter===v" :class="{on:filter===v}" @click="setFilter(v as Filter)">{{ l }}</button>
@@ -82,10 +80,8 @@ function drop(event: DragEvent, status: ActionStatus) { event.preventDefault(); 
           <select id="board-matter-filter" aria-label="按事项筛选" v-model="matterFilter"><option value="">全部事项</option><option v-for="matter in matters.filter(item => item.status !== 'archived')" :key="matter.calmyId" :value="matter.calmyId">{{ matter.title }}</option></select>
           <span class="task-board-count">{{ loading ? '正在读取…' : `${visible.length} 条任务` }}</span>
         </div>
-      </LbPanel>
-    </LbCollapsible>
     <section v-if="error" class="panel board-error" role="alert"><b>看板数据暂时无法读取</b><p class="dim">{{error}}</p><button class="chip" type="button" @click="refresh">重试</button></section><p v-if="loading" class="panel dim" role="status">正在读取任务看板…</p>
-    <section v-else class="task-board" aria-label="可拖动任务看板"><div v-for="column in columns" :key="column.status" class="task-board-column panel" :class="{'drop-active':over===column.status}" @dragover.prevent="over=column.status" @drop="drop($event,column.status)"><div class="panel-head task-board-column-head"><span class="panel-title">{{column.label}}</span><span class="panel-note">{{ visible.filter(x=>x.status===column.status).length }} · {{ column.hint }}</span></div><div class="task-board-column-body"><article v-for="item in visible.filter(x=>x.status===column.status)" :key="item.calmyId" class="task-board-card" draggable="true" @dragstart="dragged=item.calmyId; ($event.dataTransfer as DataTransfer).setData('text/plain',item.calmyId)"><div class="task-board-card-top"><span class="action-status" :class="item.status">{{statusLabel(item.status)}}</span><span class="task-drag-hint" aria-hidden="true">⋮⋮</span></div><h3>{{item.title}}</h3><small>{{dateLabel(item.date)}} · {{item.matterId && matterMap.get(item.matterId)?.title || '未关联事项'}}</small><div class="task-board-card-footer"><label>状态<select :aria-label="`${item.title}状态`" :value="item.status" :disabled="busy===item.calmyId" @change="move(item, ($event.target as HTMLSelectElement).value as ActionStatus)"><option v-for="option in columns" :key="option.status" :value="option.status">{{ option.label }}</option></select></label><button v-if="item.matterId" class="chip" type="button" @click="router.push(`/app/matters/${item.matterId}`)">查看事项</button></div></article><div v-if="!visible.filter(x=>x.status===column.status).length" class="task-board-empty">拖动任务到这里</div></div></div></section><LbCollapsible block="boardStats" :rank="3">
+    <section v-else class="task-board" aria-label="可拖动任务看板"><div v-for="column in columns" :key="column.status" class="task-board-column panel" :class="{'drop-active':over===column.status}" @dragover.prevent="over=column.status" @drop="drop($event,column.status)"><div class="panel-head task-board-column-head"><span class="panel-title">{{column.label}}</span><span class="panel-note">{{ visible.filter(x=>x.status===column.status).length }} · {{ column.hint }}</span></div><div class="task-board-column-body"><article v-for="item in visible.filter(x=>x.status===column.status)" :key="item.calmyId" class="task-board-card" draggable="true" @dragstart="dragged=item.calmyId; ($event.dataTransfer as DataTransfer).setData('text/plain',item.calmyId)"><div class="task-board-card-top"><span class="action-status" :class="item.status">{{statusLabel(item.status)}}</span><span class="task-drag-hint" aria-hidden="true">⋮⋮</span></div><h3>{{item.title}}</h3><small>{{dateLabel(item.date)}} · {{item.matterId && matterMap.get(item.matterId)?.title || '未关联事项'}}</small><div class="task-board-card-footer"><label>状态<select :aria-label="`${item.title}状态`" :value="item.status" :disabled="busy===item.calmyId" @change="move(item, ($event.target as HTMLSelectElement).value as ActionStatus)"><option v-for="option in columns" :key="option.status" :value="option.status">{{ option.label }}</option></select></label><button v-if="item.matterId" class="chip" type="button" @click="router.push(`/app/matters/${item.matterId}`)">查看事项</button></div></article><div v-if="!visible.filter(x=>x.status===column.status).length" class="task-board-empty">拖动任务到这里</div></div></div></section><LbCollapsible v-if="actions.length" block="boardStats" :rank="3">
       <LbPanel title="任务统计">
         <LbStatGrid :stats="stats" />
       </LbPanel>
@@ -120,8 +116,8 @@ function drop(event: DragEvent, status: ActionStatus) { event.preventDefault(); 
    类名必须保留（parity 测试按它们断言），所以这里显式复位，只让 v11 的 .panel-head 生效。 */
 .task-board-column-head { padding: 0; border-bottom: 0; align-items: baseline; }
 .task-board-column-head > span { display: inline; width: auto; min-width: 0; height: auto; padding: 0; border: 0; border-radius: 0; background: none; color: inherit; font-size: inherit; }
-.task-board-column-head .panel-title { font-size: .66rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
-.task-board-column-head .panel-note { max-width: 72%; font-size: .68rem; }
+.task-board-column-head .panel-title { font-size: .88rem; color: var(--fg); font-weight: 600; letter-spacing: -.01em; text-transform: none; }
+.task-board-column-head .panel-note { max-width: 100%; font-size: .74rem; }
 .task-board-column-body { display: grid; gap: 8px; padding-top: 0; min-height: 0; }
 .task-board-empty { border: 1px dashed var(--line); border-radius: 10px; padding: 14px 10px; text-align: center; color: var(--muted); font-size: .72rem; }
 

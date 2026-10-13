@@ -8,6 +8,10 @@ import { usePersonStatusDictionary } from '@/vue/composables/usePersonStatusDict
 import DomainPicker from '@/vue/components/DomainPicker.vue'
 import OwnershipEditor from '@/vue/components/OwnershipEditor.vue'
 import ContextRelationPicker from '@/vue/components/ContextRelationPicker.vue'
+import CalmyField from '@/vue/components/CalmyField.vue'
+import CalmyInput from '@/vue/components/CalmyInput.vue'
+import CalmyNativeSelect from '@/vue/components/CalmyNativeSelect.vue'
+import CalmyButton from '@/vue/components/CalmyButton.vue'
 import { useOwnSlideHead } from '@/vue/liubai/slide-head'
 import LbPanel from '@/vue/liubai/LbPanel.vue'
 import LbCollapsible from '@/vue/liubai/LbCollapsible.vue'
@@ -254,61 +258,27 @@ async function saveOwnership(person: Person, ownership: Ownership | undefined): 
   <div :class="['people-page', { 'people-page-embedded': embedded }]">
     <header v-if="!embedded" class="slide-head">
       <div class="head-main">
-        <p class="hint">关系 · People</p>
-        <div class="head-title-row">
-          <h2 v-if="loading">正在读取…</h2>
-          <h2 v-else-if="!visiblePeople.length">还没有可回看的人。</h2>
-          <h2 v-else>手上有 <em>{{ visiblePeople.length }}</em> 个人。</h2>
+          <p class="hint">关系</p>
+          <div class="head-title-row">
+          <h2>人物</h2>
           <span class="info" tabindex="0" data-tip="人物是关系的锚点：重要日期、归属与隐私、情境关联都挂在这里。H 收起辅助信息。" aria-label="人物说明">i</span>
         </div>
       </div>
       <span class="panel-note">{{ loading ? '正在读取…' : `${personStatusLabel('active')} ${activeCount}` }}</span>
     </header>
 
-    <LbCollapsible block="peopleDates" :rank="2">
-      <LbPanel title="人物重要日期" note="生日、纪念日和其他重要时间单独保存，可关联人物并设置隐私">
-      <form class="matter-create" @submit="createImportantDate">
-        <div class="two-col">
-          <label>日期名称<input v-model="dateForm.title" aria-label="日期名称" placeholder="例如：爸爸生日" required></label>
-          <label>相关人物<select v-model="dateForm.personId" aria-label="重要日期相关人物" required><option value="">选择人物</option><option v-for="person in people.filter(item => item.status === 'active')" :key="person.calmyId" :value="person.calmyId">{{ person.displayName }}</option></select></label>
-          <label>日期<input v-model="dateForm.date" type="date" aria-label="重要日期" required></label>
-          <label>日期类型<select v-model="dateForm.kind" aria-label="重要日期类型"><option value="birthday">生日</option><option value="anniversary">纪念日</option><option value="memorial">纪念日期</option><option value="other">其他</option></select></label>
-          <label>重复方式<select v-model="dateForm.recurrence" aria-label="重要日期重复方式"><option value="yearly">每年</option><option value="once">仅一次</option></select></label>
-          <label v-if="dateForm.recurrence === 'yearly'" class="date-year-choice"><input v-model="dateForm.keepYear" type="checkbox" aria-label="保留年份">保留年份（可能用于计算年数）</label>
-        </div>
-        <label>备注<textarea v-model="dateForm.notes" aria-label="重要日期备注" placeholder="补充纪念方式或需要记住的背景。" /></label>
-        <button class="chip on" type="submit" :disabled="saving || loading || !people.some(person => person.status === 'active')">{{ saving ? '保存中…' : '保存重要日期' }}</button>
-      </form>
-      <div class="people-toolbar"><button class="chip" type="button" @click="showArchivedImportantDates = !showArchivedImportantDates">{{ showArchivedImportantDates ? '隐藏已归档日期' : `查看已归档日期（${importantDates.filter(item => item.archivedAt).length}）` }}</button></div>
-      <div v-if="loading" class="dim" role="status">正在读取重要日期…</div>
-      <div v-else-if="importantDates.some(item => showArchivedImportantDates || !item.archivedAt)" class="matter-grid">
-        <article v-for="item in importantDates.filter(item => showArchivedImportantDates || !item.archivedAt)" :key="item.calmyId" class="matter-card">
-          <div class="matter-card-head"><span class="matter-status">{{ item.archivedAt ? '已归档' : ({ birthday: '生日', anniversary: '纪念日', memorial: '纪念日期', other: '其他' } as Record<string, string>)[item.kind] }}</span><small>{{ dateLabel(item) }}</small></div>
-          <h3>{{ item.title }}</h3><p>{{ item.personId ? people.find(person => person.calmyId === item.personId)?.displayName || '人物暂不可用' : '未关联人物' }}</p>
-          <p v-if="item.notes">{{ item.notes }}</p>
-          <DomainPicker :entity-ref="{ entityType: 'important_date', calmyId: item.calmyId }" />
-          <ContextRelationPicker :entity-ref="{ entityType: 'important_date', calmyId: item.calmyId }" :target-types="['thing', 'scene', 'space']" :disabled="saving || !!item.archivedAt" />
-          <OwnershipEditor :ownership="item.ownership" :people="people" :current-user-id="currentUserId" :disabled="saving" label="重要日期归属与隐私" @save="saveImportantDateOwnership(item, $event)" />
-          <button v-if="item.archivedAt" class="chip" type="button" :aria-label="`日期恢复 ${item.calmyId}`" :disabled="saving" @click="void restoreImportantDate(item)">恢复日期</button>
-          <button v-else class="chip danger" type="button" :aria-label="`日期归档 ${item.calmyId}`" :disabled="saving" @click="void archiveImportantDate(item)">归档日期</button>
-        </article>
-      </div>
-      <p v-else class="dim">还没有重要日期。保存后它仍是一个独立日期记录，可在事情或情境沉淀时再次关联。</p>
-      </LbPanel>
-    </LbCollapsible>
-
     <LbCollapsible block="peopleCreate" :rank="2">
-      <LbPanel title="新增人物" note="姓名必填，其余信息可以之后补充">
+      <LbPanel title="新增人物" note-tip="姓名必填，其余信息可以之后补充。">
       <form class="matter-create" @submit="createPerson">
         <div class="two-col">
-          <label>人物名称<input v-model="form.displayName" aria-label="人物名称" placeholder="例如：林老师" required></label>
-          <label>角色 / 关系<input v-model="form.roles" aria-label="人物角色" placeholder="用逗号分隔，例如：朋友、合作者"></label>
-          <label>标签<input v-model="form.tags" aria-label="人物标签" placeholder="用逗号分隔，例如：重要、长期"></label>
+          <CalmyField label="人物名称" required><CalmyInput v-model="form.displayName" placeholder="例如：林老师" required /></CalmyField>
+          <CalmyField label="角色 / 关系"><CalmyInput v-model="form.roles" placeholder="用逗号分隔，例如：朋友、合作者" /></CalmyField>
+          <CalmyField label="标签"><CalmyInput v-model="form.tags" placeholder="用逗号分隔，例如：重要、长期" /></CalmyField>
         </div>
-        <label>上下文备注<textarea v-model="form.notes" aria-label="人物备注" placeholder="记录你希望在行动、复盘或关系判断时记住的背景。" /></label>
+        <CalmyField label="上下文备注"><CalmyInput v-model="form.notes" multiline placeholder="记录你希望在行动、复盘或关系判断时记住的背景。" /></CalmyField>
         <div class="detail-chips">
-          <button class="chip on" type="submit" :disabled="saving || loading">{{ saving ? '保存中…' : '保存人物' }}</button>
-          <button class="chip" type="button" :disabled="saving" @click="form = emptyForm()">清空</button>
+          <CalmyButton variant="primary" type="submit" :disabled="saving || loading">{{ saving ? '保存中…' : '保存人物' }}</CalmyButton>
+          <CalmyButton type="button" :disabled="saving" @click="form = emptyForm()">清空</CalmyButton>
         </div>
       </form>
       </LbPanel>
@@ -316,14 +286,14 @@ async function saveOwnership(person: Person, ownership: Ownership | undefined): 
 
     <LbPanel title="人物列表" :note="`${archivedCount} 位${personStatusLabel('archived')}`">
       <div class="people-toolbar">
-        <input v-model="query" aria-label="搜索人物" placeholder="搜索姓名、角色、领域或备注">
+        <CalmyField class="people-search-field" label="搜索人物"><CalmyInput v-model="query" placeholder="搜索姓名、角色、领域或备注" /></CalmyField>
         <div class="seg" role="tablist" aria-label="人物筛选">
-          <button v-for="status in orderedStatuses" :key="status" type="button" :class="{ on: filter === status }" role="tab" :aria-selected="filter === status" @click="filter = status">{{ personStatusLabel(status) }}</button>
-          <button type="button" :class="{ on: filter === 'all' }" role="tab" :aria-selected="filter === 'all'" @click="filter = 'all'">全部</button>
+          <CalmyButton v-for="status in orderedStatuses" :key="status" type="button" :variant="filter === status ? 'active' : 'default'" role="tab" :aria-selected="filter === status" @click="filter = status">{{ personStatusLabel(status) }}</CalmyButton>
+          <CalmyButton type="button" :variant="filter === 'all' ? 'active' : 'default'" role="tab" :aria-selected="filter === 'all'" @click="filter = 'all'">全部</CalmyButton>
         </div>
       </div>
 
-      <section v-if="error" class="panel people-error" role="alert"><b>人物数据暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="void refresh()">重试</button></section>
+      <section v-if="error" class="panel people-error" role="alert"><b>人物数据暂时无法读取</b><p class="dim">{{ error }}</p><CalmyButton type="button" @click="void refresh()">重试</CalmyButton></section>
       <div v-if="loading" class="dim" role="status">正在加载人物…</div>
       <div v-else-if="visiblePeople.length" class="matter-grid">
         <article v-for="person in visiblePeople" :key="person.calmyId" class="matter-card">
@@ -335,20 +305,52 @@ async function saveOwnership(person: Person, ownership: Ownership | undefined): 
           <p v-if="person.tags.length" class="muted">#{{ person.tags.join('  #') }}</p>
           <div class="person-account-binding" aria-label="人物账号关联">
             <span>{{ personBindingLabel(person) }}</span>
-            <button v-if="canBindCurrentUser(person)" class="chip" type="button" aria-label="绑定此人物到当前账号" :disabled="saving" @click="void bindPersonToCurrentUser(person)">绑定到当前账号</button>
-            <button v-else-if="currentUserId && person.linkedUserId === currentUserId" class="chip" type="button" aria-label="解除此人物与当前账号的绑定" :disabled="saving" @click="void unbindPersonFromCurrentUser(person)">解除绑定</button>
+            <CalmyButton v-if="canBindCurrentUser(person)" aria-label="绑定此人物到当前账号" :disabled="saving" @click="void bindPersonToCurrentUser(person)">绑定到当前账号</CalmyButton>
+            <CalmyButton v-else-if="currentUserId && person.linkedUserId === currentUserId" aria-label="解除此人物与当前账号的绑定" :disabled="saving" @click="void unbindPersonFromCurrentUser(person)">解除绑定</CalmyButton>
           </div>
           <DomainPicker :entity-ref="{ entityType: 'person', calmyId: person.calmyId }" />
           <ContextRelationPicker :entity-ref="{ entityType: 'person', calmyId: person.calmyId }" />
           <OwnershipEditor :ownership="person.ownership" :people="people" :current-user-id="currentUserId" :disabled="saving" @save="saveOwnership(person, $event)" />
           <div class="detail-chips">
-            <button v-if="person.status === 'active'" class="chip danger" type="button" :disabled="saving" @click="void updateStatus(person, 'archived')">归档人物</button>
-            <button v-else class="chip" type="button" :disabled="saving" @click="void updateStatus(person, 'active')">恢复人物</button>
+            <CalmyButton v-if="person.status === 'active'" variant="danger" :disabled="saving" @click="void updateStatus(person, 'archived')">归档人物</CalmyButton>
+            <CalmyButton v-else :disabled="saving" @click="void updateStatus(person, 'active')">恢复人物</CalmyButton>
           </div>
         </article>
       </div>
       <p v-else class="dim">{{ query ? '没有匹配的人物。' : filter === 'archived' ? `还没有${personStatusLabel('archived')}人物。` : '还没有人物，先添加一个重要的人吧。' }}</p>
     </LbPanel>
+
+    <LbCollapsible block="peopleDates" :rank="2">
+      <LbPanel title="人物重要日期" note="生日、纪念日和其他重要时间单独保存，可关联人物并设置隐私">
+        <form class="matter-create" @submit="createImportantDate">
+          <div class="two-col">
+            <CalmyField label="日期名称" required><CalmyInput v-model="dateForm.title" placeholder="例如：爸爸生日" required /></CalmyField>
+            <CalmyField label="相关人物" required><CalmyNativeSelect v-model="dateForm.personId" required><option value="">选择人物</option><option v-for="person in people.filter(item => item.status === 'active')" :key="person.calmyId" :value="person.calmyId">{{ person.displayName }}</option></CalmyNativeSelect></CalmyField>
+            <CalmyField label="日期" required><CalmyInput v-model="dateForm.date" type="date" required /></CalmyField>
+            <CalmyField label="日期类型"><CalmyNativeSelect v-model="dateForm.kind"><option value="birthday">生日</option><option value="anniversary">纪念日</option><option value="memorial">纪念日期</option><option value="other">其他</option></CalmyNativeSelect></CalmyField>
+            <CalmyField label="重复方式"><CalmyNativeSelect v-model="dateForm.recurrence"><option value="yearly">每年</option><option value="once">仅一次</option></CalmyNativeSelect></CalmyField>
+            <label v-if="dateForm.recurrence === 'yearly'" class="date-year-choice"><input v-model="dateForm.keepYear" type="checkbox" aria-label="保留年份">保留年份（可能用于计算年数）</label>
+          </div>
+          <CalmyField label="备注"><CalmyInput v-model="dateForm.notes" multiline placeholder="补充纪念方式或需要记住的背景。" /></CalmyField>
+          <CalmyButton variant="primary" type="submit" :disabled="saving || loading || !people.some(person => person.status === 'active')">{{ saving ? '保存中…' : '保存重要日期' }}</CalmyButton>
+        </form>
+        <div class="people-toolbar"><CalmyButton type="button" @click="showArchivedImportantDates = !showArchivedImportantDates">{{ showArchivedImportantDates ? '隐藏已归档日期' : `查看已归档日期（${importantDates.filter(item => item.archivedAt).length}）` }}</CalmyButton></div>
+        <div v-if="loading" class="dim" role="status">正在读取重要日期…</div>
+        <div v-else-if="importantDates.some(item => showArchivedImportantDates || !item.archivedAt)" class="matter-grid">
+          <article v-for="item in importantDates.filter(item => showArchivedImportantDates || !item.archivedAt)" :key="item.calmyId" class="matter-card">
+            <div class="matter-card-head"><span class="matter-status">{{ item.archivedAt ? '已归档' : ({ birthday: '生日', anniversary: '纪念日', memorial: '纪念日期', other: '其他' } as Record<string, string>)[item.kind] }}</span><small>{{ dateLabel(item) }}</small></div>
+            <h3>{{ item.title }}</h3><p>{{ item.personId ? people.find(person => person.calmyId === item.personId)?.displayName || '人物暂不可用' : '未关联人物' }}</p>
+            <p v-if="item.notes">{{ item.notes }}</p>
+            <DomainPicker :entity-ref="{ entityType: 'important_date', calmyId: item.calmyId }" />
+            <ContextRelationPicker :entity-ref="{ entityType: 'important_date', calmyId: item.calmyId }" :target-types="['thing', 'scene', 'space']" :disabled="saving || !!item.archivedAt" />
+            <OwnershipEditor :ownership="item.ownership" :people="people" :current-user-id="currentUserId" :disabled="saving" label="重要日期归属与隐私" @save="saveImportantDateOwnership(item, $event)" />
+            <CalmyButton v-if="item.archivedAt" :aria-label="`日期恢复 ${item.calmyId}`" :disabled="saving" @click="void restoreImportantDate(item)">恢复日期</CalmyButton>
+            <CalmyButton v-else variant="danger" :aria-label="`日期归档 ${item.calmyId}`" :disabled="saving" @click="void archiveImportantDate(item)">归档日期</CalmyButton>
+          </article>
+        </div>
+        <p v-else class="dim">还没有重要日期。保存后它仍是一个独立日期记录，可在事情或情境沉淀时再次关联。</p>
+      </LbPanel>
+    </LbCollapsible>
 
     <LbCollapsible block="peopleStats" :rank="3">
       <LbPanel title="人物统计">
@@ -366,13 +368,14 @@ async function saveOwnership(person: Person, ownership: Ownership | undefined): 
 .people-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
 .people-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .people-toolbar .seg { width: min(320px, 100%); flex: none; }
-.people-toolbar input { flex: 1 1 200px; min-width: 0; min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.people-search-field { flex: 1 1 200px; min-width: 0; }
+.people-search-field :deep(.calmy-control) { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
 
 .matter-create { display: grid; gap: 12px; }
 .matter-create .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-.matter-create label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; }
-.matter-create input, .matter-create select { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
-.matter-create textarea { padding: 8px 10px; font: inherit; font-size: .8rem; min-height: 64px; }
+.matter-create .calmy-field { min-width: 0; }
+.matter-create :deep(.calmy-control), .matter-create :deep(.calmy-native-select) { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.matter-create :deep(textarea.calmy-control) { padding: 8px 10px; min-height: 64px; }
 .matter-create .date-year-choice { display: flex; align-items: center; gap: 8px; }
 /* 表单里的提交按钮按内容宽度，不要被 grid 拉满整行 */
 .matter-create > .chip { justify-self: start; }

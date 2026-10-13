@@ -109,11 +109,11 @@ function focusDay(at: number) {
 }
 
 const heading = computed(() => {
-  if (isAll.value) return entries.value.length ? `全部专注 ${hoursLabel(grandTotal.value)} 小时。` : '还没有专注记录。'
-  const [first, last] = [week.value[0], week.value[6]]
-  const label = (value: string) => `${Number(value.slice(5, 7))}月${Number(value.slice(8, 10))}日`
-  if (!weekTotal.value) return `${label(first)} – ${label(last)} 还没有专注记录。`
-  return `${label(first)} – ${label(last)} 专注 ${hoursLabel(weekTotal.value)} 小时。`
+  return '回顾'
+})
+const chartNote = computed(() => {
+  const total = isAll.value ? grandTotal.value : weekTotal.value
+  return total ? `共 ${hoursLabel(total)} h` : ''
 })
 
 /** 注意力流向：本周专注分钟按行动聚合 */
@@ -157,14 +157,15 @@ const stats = computed<LbStat[]>(() => [
     <button class="act" type="button" @click="refresh">重试</button>
   </p>
 
-  <LbPanel grow :title="isAll ? '逐周合计' : '专注分布'" :note="isAll ? `共 ${hoursLabel(grandTotal)} h` : `共 ${hoursLabel(weekTotal)} h`">
+  <LbPanel grow :title="isAll ? '逐周合计' : '专注分布'" :note="chartNote">
     <ul v-if="isAll" class="suggest">
-      <li v-if="!allWeeks.length" class="dim">还没有任何专注记录。</li>
+      <li v-if="loading" class="dim">正在读取…</li>
+      <li v-else-if="!allWeeks.length" class="dim">暂无专注记录。</li>
       <li v-for="item in allWeeks" :key="item.start">
         <b>{{ item.week[0].slice(5).replace('-', '/') }} – {{ item.week[6].slice(5).replace('-', '/') }}</b> —— 专注 {{ hoursLabel(item.minutes) }} 小时
       </li>
     </ul>
-    <div v-else class="bars">
+    <div v-else-if="weekTotal > 0" class="bars">
       <div
         v-for="(minutes, index) in weekMinutes"
         :key="week[index]"
@@ -179,25 +180,35 @@ const stats = computed<LbStat[]>(() => [
         <span class="d">{{ WEEK_CHARS[index] }}</span>
       </div>
     </div>
-    <p class="dim" style="font-size:.8rem;color:var(--muted);margin-top:1em">
-      {{ loading ? '正在读取…' : isAll ? (allWeeks.length ? `最近 ${allWeeks.length} 周` : '还没有记录。') : (weekTotal ? '最长的一条在' + WEEK_CHARS[weekMinutes.indexOf(Math.max(...weekMinutes))] + '。' : '这一周还没有记录。去「注意力」开一段专注。') }}
+    <p v-else-if="loading" class="review-empty">正在读取…</p>
+    <p v-else class="review-empty">这一周还没有专注记录。去「注意力」开一段专注。</p>
+    <p v-if="isAll ? allWeeks.length > 0 : weekTotal > 0" class="dim review-chart-note">
+      {{ isAll ? `最近 ${allWeeks.length} 周` : '最长的一条在' + WEEK_CHARS[weekMinutes.indexOf(Math.max(...weekMinutes))] + '。' }}
     </p>
   </LbPanel>
 
-  <LbPanel v-if="!isAll" title="今日复盘" :note="dirty ? '尚未保存' : (plan ? '已保存' : '—')">
+  <LbPanel v-if="!isAll" title="今日复盘" :note="dirty ? '尚未保存' : (plan ? '已保存' : '尚未建立当天计划')">
     <div class="review-form">
       <label>观 · 今天实际发生了什么<textarea v-model="form.observation" aria-label="今日复盘：观，今天实际发生了什么" @input="dirty = true" /></label>
-      <label>察 · 哪些条件影响了今天<textarea v-model="form.analysis" aria-label="今日复盘：察，哪些条件影响了今天" @input="dirty = true" /></label>
       <label>调 · 明天如何调整<textarea v-model="form.adjustment" aria-label="今日复盘：调，明天如何调整" @input="dirty = true" /></label>
-      <label>下一轮线索<textarea v-model="form.seed" aria-label="今日复盘：下一轮线索" @input="dirty = true" /></label>
-      <label>无需继续 / 主动放下（一行一条）<textarea v-model="letGoText" aria-label="复盘中无需继续或主动放下的事项" @input="dirty = true" /></label>
+      <details class="review-extra">
+        <summary>补充思考 <span>可选</span></summary>
+        <div class="review-extra-fields">
+          <label>察 · 哪些条件影响了今天<textarea v-model="form.analysis" aria-label="今日复盘：察，哪些条件影响了今天" @input="dirty = true" /></label>
+          <label>下一轮线索<textarea v-model="form.seed" aria-label="今日复盘：下一轮线索" @input="dirty = true" /></label>
+          <label>无需继续 / 主动放下（一行一条）<textarea v-model="letGoText" aria-label="复盘中无需继续或主动放下的事项" @input="dirty = true" /></label>
+        </div>
+      </details>
       <div class="detail-chips">
         <button class="chip on" type="button" :disabled="savingReview || !plan" @click="saveReview">保存复盘</button>
+        <small v-if="!plan" class="review-save-hint" role="status">当前日期还没有计划，创建当天行动后即可保存复盘。</small>
+        <small v-else-if="savingReview" class="review-save-hint" role="status">正在保存…</small>
+        <small v-else-if="!dirty" class="review-save-hint" role="status">填写上方内容后保存。</small>
       </div>
     </div>
   </LbPanel>
 
-  <LbCollapsible block="reviewMetrics" :rank="3">
+  <LbCollapsible v-if="weekActions.length || weekRecords.length || focusByAction.length" block="reviewMetrics" :rank="3">
     <div class="grid-2">
       <LbPanel title="过程指标">
         <LbStatGrid :stats="stats" />
@@ -221,12 +232,30 @@ const stats = computed<LbStat[]>(() => [
   display: grid;
   gap: 10px;
 }
+.review-empty { padding-block: 20px; color: var(--muted); font-size: .86rem; }
+.review-chart-note { margin-top: 1em; font-size: .8rem; color: var(--muted); }
 .review-form label {
   display: grid;
   gap: 6px;
   color: var(--muted);
   font-size: 0.72rem;
 }
+.review-extra {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.review-extra summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg);
+  font-size: .78rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+.review-extra summary span { color: var(--muted); font-size: .7rem; font-weight: 400; }
+.review-extra-fields { display: grid; gap: 10px; margin-top: 12px; }
+.review-save-hint { align-self: center; color: var(--muted); font-size: .72rem; }
 .review-form textarea {
   min-height: 62px;
   padding: 8px 10px;

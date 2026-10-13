@@ -46,7 +46,6 @@ const expandedId = ref('')
 const drafts = reactive<Record<string, string>>({})
 const loading = ref(true)
 const busyId = ref('')
-const message = ref('')
 const error = ref('')
 const suggestionByCapture = computed(() => new Map(suggestions.value.map(item => [item.captureId, item])))
 const entries = computed(() => [...legacy.value, ...captures.value.map(item => ({
@@ -86,7 +85,6 @@ async function refresh(): Promise<void> {
     captures.value = nextCaptures
     suggestions.value = nextSuggestions
     legacy.value = await legacyEntries()
-    message.value = ''
   } catch (cause) {
     const text = cause instanceof Error ? cause.message : '收集内容读取失败'
     error.value = text
@@ -178,10 +176,6 @@ async function convertLegacyToTask(item: InboxEntry): Promise<void> {
     toast(cause instanceof Error && cause.message === 'legacy-inbox-not-found' ? '任务可能已创建，但旧收件项已变化，请刷新后检查' : '转为行动任务失败，原文未确认移除', 'warning')
   }
 }
-function archiveUnavailable() {
-  message.value = '当前 inbox/capture API 没有 archive 操作，未执行删除或伪造归档；原文仍保持可读。'
-  toast('当前 API 未提供归档操作，原文未改变', 'warning')
-}
 </script>
 
 <template>
@@ -210,7 +204,6 @@ function archiveUnavailable() {
       </LbPanel>
     </LbCollapsible>
     <section v-if="error" class="panel inbox-error" role="alert"><b>收集内容暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="refresh">重试</button></section>
-    <p v-if="message && !error" class="dim" role="status">{{ message }}</p>
     <LbPanel title="收件内容" :note="loading ? '正在读取…' : `${visible.length} 条`">
     <section class="history-list">
       <p v-if="loading" class="dim" role="status">正在读取收件内容…</p>
@@ -219,7 +212,7 @@ function archiveUnavailable() {
           <div class="panel-head"><div><p class="eyebrow">{{ item.source === 'capture' ? 'CAPTURE' : 'LEGACY INBOX' }} · {{ statusLabel(item.status) }}</p><h2>{{ titleFor(item) }}</h2></div><small>{{ displayTime(item.updatedAt, item.date) }}</small></div>
           <div class="suggestion-actions">
             <button class="chip" @click="expandedId = expandedId === `${item.source}:${item.id}` ? '' : `${item.source}:${item.id}`">{{ expandedId === `${item.source}:${item.id}` ? '收起原文' : '查看原文' }}</button>
-            <template v-if="item.source === 'capture'"><button class="chip" @click="archiveUnavailable">归档</button><button class="chip danger" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="removeCapture(item)">删除</button></template>
+            <template v-if="item.source === 'capture'"><button class="chip danger" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="removeCapture(item)">删除</button></template>
             <template v-else><button class="chip" @click="convertLegacyToTask(item)">→ 行动</button><button class="chip" @click="convertLegacyToCase(item)">→ 课题</button><button class="chip" @click="removeLegacy(item)">移除</button></template>
           </div>
           <div v-if="expandedId === `${item.source}:${item.id}`" class="opening-details"><p class="dim opening-text">{{ item.text }}</p><small v-if="item.source === 'capture' && item.capture" class="dim"><template v-for="(segment,index) in ['Capture ID：', item.capture.calmyId, ' · revision ', String(item.capture.revision)]" :key="index">{{segment}}</template></small></div>
@@ -230,7 +223,7 @@ function archiveUnavailable() {
             <div class="suggestion-actions"><button class="chip on" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="acceptSuggestion(suggestionByCapture.get(item.id)!)">采纳并处理</button><button class="chip" :disabled="busyId === item.id || busyId === suggestionByCapture.get(item.id)?.calmyId" @click="rejectSuggestion(suggestionByCapture.get(item.id)!)">拒绝建议</button></div>
           </div>
         </article>
-        <p v-if="!visible.length" class="dim">没有匹配的收件内容。</p>
+        <p v-if="!visible.length" class="dim">{{ query ? '没有匹配的收件内容。' : filter !== 'all' ? '当前筛选下没有收件内容。' : '还没有收件内容，先记下想保留的原文。' }}</p>
       </template>
     </section>
     </LbPanel>

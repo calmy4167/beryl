@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { matterAsyncRepository } from '@/domain/matter/repository'
 import type { Matter } from '@/domain/matter/model'
@@ -13,8 +13,12 @@ import { unifiedAsyncRepository, type Person, type Scene } from '@/domain/unifie
 import { useOwnSlideHead } from '@/vue/liubai/slide-head'
 import LbPanel from '@/vue/liubai/LbPanel.vue'
 
-// 页面自带头部（参考稿里 .slide-head 属于页面自身），外壳因此不再渲染第二行标题。
-useOwnSlideHead()
+const props = defineProps<{ matterId?: string }>()
+const emit = defineEmits<{ close: [] }>()
+const closeButton = ref<HTMLButtonElement | null>(null)
+
+// Full-page route owns the shell heading. The contextual peek stays inside the list page.
+if (!props.matterId) useOwnSlideHead()
 
 const trajectoryLabels: Record<Matter['trajectory'], string> = {
   advancing: '推进',
@@ -32,6 +36,7 @@ const route = useRoute()
 const router = useRouter()
 const { labelFor: matterStatusLabel } = useMatterStatusDictionary()
 const routeMatterId = computed(() => {
+  if (props.matterId) return props.matterId
   const id = route.params.id
   return Array.isArray(id) ? id[id.length - 1] || '' : id || ''
 })
@@ -88,15 +93,36 @@ function openExploration(): void {
   if (!matter.value) return
   void router.push(`/app/flow?matter=${encodeURIComponent(matter.value.calmyId)}`)
 }
+function openFullDetail(): void {
+  if (matter.value) void router.push(`/app/matters/${encodeURIComponent(matter.value.calmyId)}`)
+}
+function onPeekKeydown(event: KeyboardEvent): void {
+  if (!props.matterId || event.key !== 'Escape') return
+  event.preventDefault()
+  event.stopPropagation()
+  emit('close')
+}
 
 function sceneStatusLabel(status: Scene['status']): string {
   return ({ draft: '准备中', active: '进行中', paused: '已暂停', completed: '已完成', archived: '已归档' })[status]
 }
 
 watch(routeMatterId, () => void refresh(), { immediate: true })
+onMounted(() => { if (props.matterId) nextTick(() => closeButton.value?.focus()) })
 </script>
 
 <template>
+  <aside
+    :class="{ 'matter-detail-peek': !!props.matterId }"
+    :role="props.matterId ? 'dialog' : undefined"
+    :aria-modal="props.matterId ? 'false' : undefined"
+    :aria-label="props.matterId ? '处境详情' : undefined"
+    @keydown="onPeekKeydown"
+  >
+    <div v-if="props.matterId" class="matter-peek-actions">
+      <button ref="closeButton" class="chip" type="button" @click="emit('close')">关闭详情</button>
+      <button class="chip" type="button" @click="openFullDetail">打开完整详情</button>
+    </div>
   <header class="slide-head">
     <div class="head-main">
       <p class="hint">处境 · 详情</p>
@@ -122,8 +148,8 @@ watch(routeMatterId, () => void refresh(), { immediate: true })
   <template v-else>
     <p class="dim">{{ matter.why || '这个处境还没有写下为什么重要。' }}</p>
     <LbPanel class="admin-block" title="当前状态" note="趋势可推翻，需要调整时在处境列表修改">
-      <p class="info dim"><template v-for="(segment, index) in statusSegments" :key="index">{{ segment }}</template></p>
-      <p class="info dim"><template v-for="(segment, index) in contradictionSegments" :key="index">{{ segment }}</template></p>
+      <p class="status-copy dim"><template v-for="(segment, index) in statusSegments" :key="index">{{ segment }}</template></p>
+      <p class="status-copy dim"><template v-for="(segment, index) in contradictionSegments" :key="index">{{ segment }}</template></p>
       <DomainPicker :entity-ref="{ entityType: 'matter', calmyId: matter.calmyId }" />
       <ContextRelationPicker :entity-ref="{ entityType: 'matter', calmyId: matter.calmyId }" :target-types="['person', 'space']" />
       <OwnershipEditor :ownership="matter.ownership" :people="people" :current-user-id="currentUserId" :disabled="loading" @save="saveOwnership" />
@@ -149,6 +175,7 @@ watch(routeMatterId, () => void refresh(), { immediate: true })
       </dl>
     </section>
   </template>
+  </aside>
 </template>
 
 <style scoped>
@@ -164,4 +191,26 @@ watch(routeMatterId, () => void refresh(), { immediate: true })
 .problem-driven-detail dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; margin: 0; }
 .problem-driven-detail dt { color: var(--muted); font-size: .72rem; }
 .problem-driven-detail dd { margin: 0; color: var(--fg); font-size: .82rem; line-height: 1.7; }
+.matter-detail-peek {
+  position: fixed;
+  z-index: 96;
+  inset: 24px 24px 24px auto;
+  display: flex;
+  width: min(440px, calc(100vw - 48px));
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 16px 48px rgba(16, 24, 40, .18);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+.matter-detail-peek .matter-peek-actions { position: sticky; top: -18px; z-index: 1; display: flex; justify-content: flex-end; gap: 8px; margin: -18px -18px 0; padding: 12px 16px; border-bottom: 1px solid #edf0f4; background: rgba(255, 255, 255, .92); }
+.matter-detail-peek .slide-head { padding: 4px 0 14px; }
+.matter-detail-peek > :deep(.panel), .matter-detail-peek > :deep(section.panel) { margin: 0; }
+@media (max-width: 760px) {
+  .matter-detail-peek { inset: 8px; width: auto; border-radius: 14px; }
+}
 </style>

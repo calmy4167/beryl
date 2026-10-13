@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, useId, watch } from 'vue'
+import { calmyFieldContextKey } from './calmy-field-context'
 
 export interface CalmySelectOption {
   value: string
@@ -8,8 +9,8 @@ export interface CalmySelectOption {
 }
 
 const props = withDefaults(defineProps<{
-  id: string
-  ariaLabel: string
+  id?: string
+  ariaLabel?: string
   modelValue: string
   options: CalmySelectOption[]
   disabled?: boolean
@@ -29,11 +30,18 @@ const emit = defineEmits<{
 }>()
 
 const root = ref<HTMLElement | null>(null)
+const field = inject(calmyFieldContextKey, null)
+const uid = useId()
 const open = ref(false)
 const activeValue = ref(props.modelValue)
 const typeahead = ref('')
 let typeaheadTimer: ReturnType<typeof setTimeout> | undefined
-const listboxId = computed(() => `${props.id}-listbox`)
+const resolvedId = computed(() => props.id || field?.controlId.value || `calmy-select-${uid}`)
+const resolvedLabelId = computed(() => field?.labelId.value)
+const resolvedDescribedBy = computed(() => field?.describedBy.value)
+const resolvedRequired = computed(() => props.required || field?.required.value || false)
+const resolvedInvalid = computed(() => field?.invalid.value || false)
+const listboxId = computed(() => `${resolvedId.value}-listbox`)
 const selectedOption = computed(() => props.options.find(option => option.value === props.modelValue) ?? props.options[0])
 const activeOption = computed(() => props.options.find(option => option.value === activeValue.value && !option.disabled))
 
@@ -130,17 +138,20 @@ onUnmounted(() => {
 <template>
   <div ref="root" :class="['calmy-select', { 'is-compact': compact }]" data-calmy-select>
     <button
-      :id="id"
+      :id="resolvedId"
       type="button"
       role="combobox"
       class="calmy-select__trigger"
       :aria-label="ariaLabel"
+      :aria-labelledby="resolvedLabelId"
+      :aria-describedby="resolvedDescribedBy"
+      :aria-invalid="resolvedInvalid || undefined"
       aria-haspopup="listbox"
       :aria-expanded="open"
       :aria-controls="listboxId"
       :aria-activedescendant="open && activeValue ? `${listboxId}-${encodeURIComponent(activeValue)}` : undefined"
       :aria-disabled="disabled || undefined"
-      :aria-required="required || undefined"
+      :aria-required="resolvedRequired || undefined"
       :disabled="disabled"
       @click="open ? (open = false) : openList()"
       @keydown="onKeydown"
@@ -154,7 +165,7 @@ onUnmounted(() => {
     </button>
     <input v-if="name" type="hidden" :name="name" :value="modelValue" :disabled="disabled">
     <div v-if="open" class="calmy-select__popup">
-      <div :id="listboxId" role="listbox" :aria-labelledby="id" class="calmy-select__listbox">
+      <div :id="listboxId" role="listbox" :aria-labelledby="resolvedLabelId || resolvedId" class="calmy-select__listbox">
         <div
           v-for="option in options"
           :id="`${listboxId}-${encodeURIComponent(option.value)}`"

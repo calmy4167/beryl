@@ -114,7 +114,7 @@ async function createRelation() {
     <p v-if="loading" class="dim" role="status">正在更新图谱…</p>
     <section v-if="error" class="panel graph-error" role="alert">最新图谱读取失败，当前仍展示上一次结果：{{ error }}<button class="chip" type="button" @click="tick += 1">重试</button></section>
     <LbCollapsible block="graphAdd" :rank="2">
-      <LbPanel title="添加关系" note="关系只新增事实，不改变两端实体">
+      <LbPanel title="添加关系" note-tip="关系只新增事实，不改变两端实体。">
         <div class="relation-form">
           <select aria-label="关系类型" v-model="relationType"><option v-for="type in relationTypes" :key="type" :value="type">{{ relationTypeLabels[type] }}</option></select>
           <select aria-label="关系起点" v-model="fromId"><option value="">起点节点</option><option v-for="node in fromNodes" :key="`from-${node.id}`" :value="node.id">{{ graph.graphTypeLabel(node.type) }} · {{ node.label }}</option></select>

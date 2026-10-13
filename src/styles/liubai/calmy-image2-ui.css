@@ -1,0 +1,1270 @@
+/* Calmy Image2 UI — visual layer only. Existing routes, repository calls and events stay in place. */
+
+html.liubai-active body[data-theme='paper'] {
+  --bg: #ffffff;
+  --fg: #111827;
+  --muted: #667085;
+  --line: #e4e8ef;
+  --line-strong: #cbd3df;
+  --accent: #0a6cff;
+  --accent-fg: #fff;
+  --hover: #f1f5fb;
+  --panel: #ffffff;
+  --panel-2: #f7f9fc;
+  --backdrop: rgba(18, 28, 45, .22);
+  background:
+    radial-gradient(ellipse 50vw 48vh at 8% 7%, rgba(126, 181, 255, .74), transparent 70%),
+    radial-gradient(ellipse 42vw 54vh at 92% 12%, rgba(206, 223, 255, .80), transparent 69%),
+    radial-gradient(ellipse 52vw 44vh at 76% 100%, rgba(247, 213, 177, .68), transparent 68%),
+    radial-gradient(ellipse 35vw 40vh at 5% 92%, rgba(153, 198, 175, .62), transparent 72%),
+    linear-gradient(135deg, #dce9f7, #f3f5f8 48%, #e6edf5);
+}
+
+html.liubai-active body[data-theme='paper']::before { opacity: .12; }
+
+html.liubai-active body {
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+
+html.liubai-active body ::selection {
+  background: color-mix(in srgb, var(--accent) 26%, white);
+  color: var(--fg);
+}
+
+/* Shared navigation: retain grouped links and route actions in the compact primary rail. */
+html.liubai-active body #app .dots {
+  top: 48px;
+  bottom: 32px;
+  left: 40px;
+  right: auto;
+  width: 112px;
+  max-width: 84vw;
+  height: auto;
+  max-height: none;
+  padding: 17px 10px 14px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 21px;
+  background:
+    linear-gradient(108deg, rgba(255, 255, 255, .74) 0%, rgba(255, 255, 255, .12) 13%, transparent 30%),
+    radial-gradient(120% 36% at 0% 0%, rgba(255, 255, 255, .66), transparent 72%),
+    linear-gradient(155deg, rgba(255, 255, 255, .48), rgba(231, 240, 253, .34) 55%, rgba(255, 255, 255, .40));
+  backdrop-filter: blur(38px) saturate(185%) brightness(1.12);
+  -webkit-backdrop-filter: blur(38px) saturate(185%) brightness(1.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), inset 1px 0 0 rgba(255, 255, 255, .76), inset -1px 0 0 rgba(255, 255, 255, .88), inset -3px 0 18px rgba(105, 145, 209, .18), 0 12px 38px rgba(43, 60, 84, .17);
+}
+
+html.liubai-active body[data-nav='right'] #app .dots { left: auto; right: 40px; }
+
+html.liubai-active body #app .dots .desk-nav-head {
+  top: 0;
+  min-height: 46px;
+  margin: 0 0 11px;
+  padding: 16px 5px 12px;
+  border: 1px solid rgba(255, 255, 255, .92);
+  border-bottom-color: rgba(117, 153, 213, .42);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .18);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+html.liubai-active body #app .desk-nav-brand {
+  gap: 6px;
+  font-size: .88rem;
+  letter-spacing: -.025em;
+}
+
+html.liubai-active body #app .desk-nav-brand-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  font-size: 0;
+}
+
+html.liubai-active body #app .dots .dot-group + .dot-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-color: var(--line);
+}
+
+html.liubai-active body #app .dots .dot-group-title {
+  min-height: 34px;
+  gap: 5px;
+  padding-inline: 5px;
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: .68rem;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+html.liubai-active body #app .dots .dot-group-icon { width: 14px; height: 14px; }
+html.liubai-active body #app .dots .dot-group-chevron { width: 10px; height: 10px; }
+
+html.liubai-active body #app .dots .dot-group-title.is-active {
+  color: var(--accent);
+}
+
+html.liubai-active body #app .dots .dot {
+  min-height: 36px;
+  gap: 7px;
+  padding-inline: 7px;
+  border-radius: 8px;
+  font-size: .8rem;
+}
+
+html.liubai-active body #app .dots .dot-icon { width: 14px; height: 14px; }
+
+html.liubai-active body #app .dots .dot.active {
+  background: color-mix(in srgb, var(--accent) 11%, white);
+  color: #075bd3;
+  font-weight: 600;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .dot,
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-actions button,
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-close {
+  opacity: 1;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .dot { color: #475467; }
+
+html.liubai-active body #app .dots .all-modules-trigger {
+  margin-top: 8px;
+  border: 1px solid rgba(117, 137, 166, .18);
+  background: rgba(255, 255, 255, .44);
+  color: #475467;
+  gap: 4px;
+  padding-inline: 5px;
+  font-size: .66rem;
+}
+
+html.liubai-active body #app .dots .all-modules-trigger .dot-icon { width: 12px; height: 12px; }
+html.liubai-active body #app .dots .all-modules-trigger .dot-label { white-space: nowrap; }
+html.liubai-active body #app .dots .all-modules-trigger .dot-group-chevron { width: 9px; height: 9px; margin-left: auto; }
+html.liubai-active body #app .dots .all-modules-trigger[aria-expanded='true'] { background: rgba(255, 255, 255, .78); color: #175cd3; }
+html.liubai-active body #app .dots .dot-daily-group { margin-bottom: 4px; }
+
+html.liubai-active body #app .dot-submenu-flyout {
+  width: min(380px, calc(100vw - 180px));
+}
+
+html.liubai-active body #app .dot-submenu-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 12px 18px;
+}
+
+html.liubai-active body #app .dot-submenu-group h3 {
+  margin: 0 0 4px;
+  padding: 0 9px 4px;
+  border-bottom: 1px solid rgba(111, 127, 151, .14);
+  color: #667085;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .025em;
+}
+
+html.liubai-active body #app .dot-submenu-group .dot-submenu-item { min-height: 32px; }
+html.liubai-active body #app .dot-submenu-item > span { text-wrap: nowrap; }
+html.liubai-active body #app .all-modules-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+@media (max-width: 1100px) {
+  html.liubai-active body #app .dot-submenu-items { grid-template-columns: minmax(0, 1fr); }
+  html.liubai-active body #app .dot-submenu-flyout {
+    display: flex !important;
+    inset: 12px !important;
+    z-index: 101;
+    width: auto;
+    max-height: none;
+    padding: 14px;
+    border-radius: 16px;
+  }
+}
+
+/* Keep the empty list compact; populated lists scroll without pushing the composer away. */
+html.liubai-active body #app .slide[data-page-path$='/matters'] .tasks.matters-list {
+  flex: none;
+  max-height: min(45vh, 420px);
+  overflow-y: auto;
+}
+html.liubai-active body #app .slide[data-page-path$='/matters'] .matter-list-panel {
+  height: max-content;
+  min-height: 0;
+  flex: none;
+}
+
+html.liubai-active body #app .dot-submenu-flyout {
+  left: 162px;
+  border-color: rgba(112, 146, 204, .34);
+  border-radius: 12px;
+  background: rgba(250, 252, 255, .78);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .96), 0 14px 36px rgba(34, 54, 86, .14);
+}
+
+html.liubai-active body[data-nav='right'] #app .dot-submenu-flyout { right: 162px; }
+
+html.liubai-active body #app .dots .desk-nav-actions {
+  border-top-color: rgba(255, 255, 255, .56);
+  background: linear-gradient(to bottom, rgba(246, 249, 255, .34), rgba(255, 255, 255, .66));
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+}
+
+html.liubai-active body #app .dots .desk-nav-actions::before {
+  background: linear-gradient(to top, rgba(255, 255, 255, .66), transparent);
+}
+
+html.liubai-active body #app .dots .desk-nav-actions button {
+  gap: 6px;
+  padding-inline: 6px;
+  font-size: .74rem;
+}
+
+html.liubai-active body #app .dots .desk-nav-action-icon { width: 13px; height: 13px; }
+html.liubai-active body #app .dots .desk-nav-action-count { font-size: .62rem; }
+
+html.liubai-active body.nav-persistent #app .counter,
+html.liubai-active body.nav-persistent #app .progress,
+html.liubai-active body.nav-persistent #app .tip { display: none; }
+
+@media (max-width: 1100px) {
+  html.liubai-active body #app .dots {
+    width: min(248px, 84vw);
+    max-width: 84vw;
+    padding: 17px 12px max(18px, env(safe-area-inset-bottom));
+    border-right: 1px solid rgba(255, 255, 255, .76);
+    border-radius: 0 20px 20px 0;
+    background:
+      linear-gradient(105deg, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, .28) 8%, transparent 24%),
+      radial-gradient(130% 44% at 4% 0%, rgba(119, 177, 255, .26), transparent 74%),
+      radial-gradient(95% 32% at 100% 42%, rgba(194, 179, 255, .20), transparent 76%),
+      linear-gradient(155deg, rgba(255, 255, 255, .70), rgba(228, 239, 255, .48) 48%, rgba(255, 255, 255, .62));
+    backdrop-filter: blur(42px) saturate(220%) contrast(1.04) brightness(1.06);
+    -webkit-backdrop-filter: blur(42px) saturate(220%) contrast(1.04) brightness(1.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), inset -1px 0 0 rgba(255, 255, 255, .96), inset -3px 0 18px rgba(95, 139, 216, .22), 18px 0 46px rgba(42, 68, 119, .18);
+  }
+  html.liubai-active body[data-nav='right'] #app .dots {
+    border-right: 0;
+    border-left: 1px solid rgba(255, 255, 255, .76);
+    border-radius: 20px 0 0 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), inset 1px 0 0 rgba(255, 255, 255, .86), -18px 0 44px rgba(42, 68, 119, .17);
+  }
+  html.liubai-active body.nav-show #app .nav-scrim { background: rgba(18, 28, 45, .18); }
+}
+
+/* Today: actions lead; counts and records stay available without competing card surfaces. */
+html.liubai-active body #app .today-home {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: clamp(16px, 2.6vh, 28px);
+  margin-inline: auto;
+  padding: clamp(18px, 3vh, 30px) clamp(18px, 4vw, 58px) clamp(24px, 4vh, 40px);
+}
+
+html.liubai-active body #app .today-home > .slide-head {
+  align-items: flex-end;
+  gap: 16px 28px;
+  padding: 0 0 clamp(16px, 2.6vh, 24px);
+  border-bottom: 1px solid var(--line);
+}
+
+html.liubai-active body #app .today-home .slide-head .hint {
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .03em;
+  text-transform: none;
+}
+
+html.liubai-active body #app .today-home .slide-head h1 {
+  font-size: clamp(1.8rem, 3vw, 2.25rem);
+  font-weight: 650;
+  letter-spacing: -.055em;
+  line-height: 1.12;
+}
+
+html.liubai-active body #app .today-home .slide-head h1 em { color: var(--accent); }
+
+html.liubai-active body #app .today-home .date-nav { align-self: flex-start; }
+
+html.liubai-active body #app .today-home .dn-trigger {
+  min-height: 40px;
+  padding: 8px 13px;
+  border-color: var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+}
+
+html.liubai-active body #app .today-home > .panel,
+html.liubai-active body #app .today-home .collapsible .panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.liubai-active body #app .today-home > .panel {
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 0 0 clamp(18px, 2.5vh, 26px);
+  border-bottom: 1px solid var(--line);
+  gap: 12px;
+}
+
+html.liubai-active body #app .today-home > .panel .panel-head {
+  align-items: center;
+  padding-bottom: 5px;
+}
+
+html.liubai-active body #app .today-home > .panel .panel-title,
+html.liubai-active body #app .today-home .collapsible .panel-title {
+  color: var(--fg);
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-transform: none;
+}
+
+html.liubai-active body #app .today-home > .panel .panel-note { color: var(--muted); }
+
+html.liubai-active body #app .today-home .ov-list li {
+  min-height: 42px;
+  align-items: center;
+  padding: 11px 2px;
+  border-color: color-mix(in srgb, var(--line) 75%, transparent);
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+html.liubai-active body #app .today-home .ov-list li b { color: var(--fg); font-weight: 500; }
+html.liubai-active body #app .today-home .ov-list li::before { background: var(--accent); }
+html.liubai-active body #app .today-home .ov-list li.dim::before { background: var(--line-strong); }
+
+html.liubai-active body #app .today-home .add-row {
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 2px;
+  padding-top: 0;
+}
+
+html.liubai-active body #app .today-home .add-input,
+html.liubai-active body #app .today-home .add-matter {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--fg);
+  font: inherit;
+  font-size: .9rem;
+  outline: none;
+}
+
+html.liubai-active body #app .today-home .add-input:focus,
+html.liubai-active body #app .today-home .add-matter:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+html.liubai-active body #app .today-home .add-input::placeholder { color: var(--muted); opacity: .8; }
+html.liubai-active body #app .today-home .add-matter { flex: 0 1 190px; min-width: 130px; }
+
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .panel {
+  padding: 0 0 clamp(22px, 3.5vh, 34px);
+  border-bottom: 1px solid var(--line);
+  gap: 15px;
+}
+
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat {
+  min-height: 0;
+  gap: 7px;
+  padding: 5px clamp(12px, 2.3vw, 32px);
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat:first-child { padding-left: 2px; }
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat:last-child { border-right: 0; }
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat-label { font-size: .77rem; letter-spacing: 0; }
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat-value { font-size: 1.5rem; font-weight: 600; }
+html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat-sub { font-size: .73rem; }
+
+html.liubai-active body #app .today-home .collapsible[data-block='records'] .panel {
+  padding: 0;
+  gap: 12px;
+}
+
+html.liubai-active body #app .today-home .collapsible[data-block='records'] .ov-list li { border-bottom: 0; }
+
+html.liubai-active body #app .today-home :focus-visible {
+  outline-color: var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .today-home {
+    gap: 20px;
+    padding: 14px 2px 36px;
+  }
+  html.liubai-active body #app .today-home > .slide-head { align-items: flex-start; padding-bottom: 22px; }
+  html.liubai-active body #app .today-home .slide-head h1 { font-size: clamp(1.75rem, 8vw, 2.1rem); }
+  html.liubai-active body #app .today-home .date-nav { order: -1; width: 100%; }
+  html.liubai-active body #app .today-home .add-row { flex-direction: column; }
+  html.liubai-active body #app .today-home .add-input,
+  html.liubai-active body #app .today-home .add-matter { width: 100%; max-width: none; flex-basis: 46px; }
+  html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 16px; }
+  html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat { padding: 4px 14px; }
+  html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat:nth-child(2) { border-right: 0; }
+  html.liubai-active body #app .today-home .collapsible[data-block='stats'] .stat:first-child { padding-left: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.liubai-active body #app .dots,
+  html.liubai-active body #app .today-home * { scroll-behavior: auto !important; }
+}
+
+/* Keep the shared work surface full-bleed so every route reveals the same
+   application backdrop; the glass navigation floats above it. */
+html.liubai-active body[data-theme='paper'] #app .stage {
+  inset: 0 !important;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 1101px) {
+  html.liubai-active body.nav-persistent[data-nav='left'] #app .stage .slide,
+  html.liubai-active body.nav-show[data-nav='left'] #app .stage .slide { padding-left: 168px; }
+  html.liubai-active body.nav-persistent[data-nav='right'] #app .stage .slide,
+  html.liubai-active body.nav-show[data-nav='right'] #app .stage .slide { padding-right: 168px; }
+  html.liubai-active body.desk-home.nav-show[data-nav='left'] #app .desk-home { inset-inline-start: 168px !important; }
+  html.liubai-active body.desk-home.nav-show[data-nav='right'] #app .desk-home { inset-inline-end: 168px !important; }
+  html.liubai-active body #app .dot-submenu-flyout { left: 154px; }
+  html.liubai-active body[data-nav='right'] #app .dot-submenu-flyout { right: 154px; }
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) {
+  --page-surface: #fff;
+  --page-soft: #f7f9fc;
+  --page-border: #e5eaf1;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .inner {
+  width: min(100%, 1220px);
+  margin-inline: auto;
+  padding-inline: clamp(18px, 2.6vw, 36px);
+  padding-block: clamp(10px, 2.2vh, 24px);
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head {
+  align-items: flex-end;
+  gap: 18px 28px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--page-border);
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head .hint {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-transform: none;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head h2 {
+  color: #111827;
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  font-weight: 650;
+  letter-spacing: -.045em;
+  line-height: 1.15;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .panel {
+  border: 1px solid var(--page-border);
+  border-radius: 16px;
+  background: var(--page-surface);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .025), 0 8px 24px rgba(16, 24, 40, .025);
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .panel-head { align-items: center; padding-bottom: 14px; }
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .panel-title {
+  color: var(--fg);
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-transform: none;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .panel-note { color: var(--muted); font-size: .74rem; }
+
+/* Records: airy rows, clear decision controls, and a comfortable writing surface. */
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item {
+  display: grid;
+  grid-template-columns: 52px 46px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 12px;
+  padding: 18px 2px;
+  border-bottom-color: var(--page-border);
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-time,
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-src { padding-top: 2px; }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-text {
+  color: #344054;
+  font-size: .94rem;
+  line-height: 1.65;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-left: 0;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: #f2f5f9;
+  color: #475467;
+  font-size: .78rem;
+  font-weight: 550;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act:nth-child(1) { background: #edf4ff; color: #0866d8; }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act:nth-child(2) { background: #e9f8f1; color: #13805b; }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act:nth-child(4) { background: #fff4e8; color: #b45b08; }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act.let-go-choice { background: #fff0f0; color: #c43636; }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts .act:hover { border-color: color-mix(in srgb, var(--accent) 22%, transparent); filter: brightness(.98); }
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-empty {
+  min-height: 150px;
+  justify-content: center;
+  color: var(--muted);
+  font-size: .92rem;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .capture-composer-tools {
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--page-border);
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .capture-composer-tools .add-input {
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--page-border);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--fg);
+  box-shadow: none;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .capture-composer-tools .add-input:focus {
+  border-color: color-mix(in srgb, var(--accent) 52%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+/* Matters: retain the original list workflow and only soften the surface. */
+html.liubai-active body #app .slide[data-page-path$='/matters'] .tasks .task {
+  min-height: 58px;
+  padding-block: 12px;
+  border-bottom-color: var(--page-border);
+}
+html.liubai-active body #app .slide[data-page-path$='/matters'] .tasks .task.is-focus { background: #f5f8fe; }
+html.liubai-active body #app .slide[data-page-path$='/matters'] .task .text { color: #1d2939; }
+html.liubai-active body #app .slide[data-page-path$='/matters'] .task .tag { color: var(--muted); }
+html.liubai-active body #app .slide[data-page-path$='/matters'] .matter-filter select,
+html.liubai-active body #app .slide[data-page-path$='/matters'] .matter-create .add-input,
+html.liubai-active body #app .slide[data-page-path$='/matters'] .problem-fields input {
+  border: 1px solid var(--page-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--fg);
+}
+
+/* Review: retain live chart data and fields, with a quiet chart surface. */
+html.liubai-active body #app .slide[data-page-path$='/review'] .bars {
+  min-height: 190px;
+  padding: 14px 8px 2px;
+  border-bottom: 1px solid var(--page-border);
+}
+html.liubai-active body #app .slide[data-page-path$='/review'] .bars .fill { background: #1683f8; }
+html.liubai-active body #app .slide[data-page-path$='/review'] .bars .bar.today .fill { background: #0866d8; }
+html.liubai-active body #app .slide[data-page-path$='/review'] .review-form textarea {
+  border: 1px solid var(--page-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--fg);
+  padding: 11px 12px;
+  line-height: 1.55;
+}
+html.liubai-active body #app .slide[data-page-path$='/review'] .review-form textarea:focus {
+  border-color: color-mix(in srgb, var(--accent) 52%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+  outline: 0;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) :focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 65%, white); outline-offset: 2px; }
+
+/* One material hierarchy for the whole app:
+   Liquid Glass belongs to navigation and floating controls. Module content
+   stays white, calm and full-width so information remains the focus. */
+html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger) {
+  border: 1px solid rgba(255, 255, 255, .92);
+  background: rgba(255, 255, 255, .56);
+  color: #223a61;
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), 0 6px 18px rgba(37, 56, 82, .12);
+}
+
+html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger):hover {
+  background: rgba(255, 255, 255, .78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 8px 20px rgba(37, 56, 82, .16);
+}
+
+html.liubai-active body[data-theme='paper'] #app :is(.settings-panel, .palette-box, .date-menu, .dot-submenu-flyout) {
+  border-color: rgba(255, 255, 255, .92);
+  background: rgba(248, 251, 255, .88);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  box-shadow: 0 18px 44px rgba(38, 56, 83, .16), inset 0 1px 0 rgba(255, 255, 255, .98);
+}
+
+/* Full-width, shared content surfaces across all 37 routes. */
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active .inner {
+  width: 100%;
+  max-width: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.panel, .beryl-card) {
+  border: 1px solid #e7ebf1;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 39, 61, .025);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.panel-title, .panel-note, .eyebrow, .dim) {
+  color: #667085;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.task-board-column, .task-board-toolbar, .posts-toolbar, .people-toolbar, .capture-composer-tools, .calendar-toolbar, .toolbar) {
+  border-color: #e7ebf1;
+  border-radius: 12px;
+  background: #f8fafd;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.task-board-card, .inbox-item, .task, .history-card, .memory-card) {
+  border-color: #e9edf3;
+  background: #fff;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.stat, .profile-stat-card) {
+  border-color: #e9edf3;
+  border-radius: 10px;
+  background: #f8fafd;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  border-color: #dce2eb;
+  border-radius: 9px;
+  background: var(--workspace-glass);
+  box-shadow: none;
+  color: #182230;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(input:not([type='checkbox']):not([type='radio']), select, textarea):focus {
+  border-color: #83aaf1;
+  box-shadow: 0 0 0 3px rgba(10, 108, 255, .12);
+  outline: 0;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.chip, .quiet, .memory-actions button, .detail-chips button):not(.danger):not(.on):not(:disabled) {
+  border-color: #dfe5ed;
+  border-radius: 9px;
+  background: var(--workspace-glass);
+  color: #344054;
+  box-shadow: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.chip, .quiet, .memory-actions button, .detail-chips button):not(.danger):not(.on):not(:disabled):hover {
+  border-color: #cbd7e8;
+  background: #f6f9fd;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.chip.on, .quiet.on, .memory-actions button.on, .detail-chips button.on) {
+  border-color: #1d4ed8;
+  background: #2563eb;
+  color: #fff;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.chip.on, .quiet.on, .memory-actions button.on, .detail-chips button.on):hover {
+  border-color: #1e40af;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.chip, .quiet, .memory-actions button, .detail-chips button):disabled {
+  border-color: #e4e7ec;
+  background: #f2f4f7;
+  color: #596579;
+  cursor: not-allowed;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.danger, .chip.danger) {
+  background: #fff5f5;
+  color: #b42318;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :focus-visible {
+  outline: 2px solid rgba(10, 108, 255, .62);
+  outline-offset: 2px;
+}
+
+html.liubai-active body[data-theme='paper'] #app .task-board-toolbar {
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px solid #edf0f4;
+  border-radius: 12px;
+  background: #fafbfd;
+}
+
+html.liubai-active body[data-theme='paper'] #app .today-home .ov-list > li.dim,
+html.liubai-active body[data-theme='paper'] #app .inbox-empty,
+html.liubai-active body[data-theme='paper'] #app .slide[data-page-path$='/matters'] .tasks > .empty {
+  min-height: 64px;
+  color: #667085;
+  font-size: .88rem;
+}
+
+html.liubai-active body[data-theme='paper'] #app .today-home .today-add-button,
+html.liubai-active body[data-theme='paper'] #app .capture-submit,
+html.liubai-active body[data-theme='paper'] #app .task-add-button { min-height: 40px; padding-inline: 14px; }
+
+html.liubai-active body[data-theme='paper'] #app .review-extra-fields { padding-top: 2px; }
+
+html.liubai-active body[data-theme='paper'] #app .today-home .slide-head h1 {
+  font-size: clamp(2.2rem, 3.2vw, 2.75rem);
+  line-height: 1.12;
+}
+
+@media (max-width: 1100px) {
+  html.liubai-active body[data-theme='paper'] #app .stage {
+    inset: 0 !important;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  html.liubai-active body[data-theme='paper'] #app .dots {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-left: 0;
+    border-radius: 0 20px 20px 0;
+    background: rgba(243, 248, 255, .72);
+    backdrop-filter: blur(32px) saturate(170%);
+    -webkit-backdrop-filter: blur(32px) saturate(170%);
+  }
+
+  html.liubai-active body[data-nav='right'] #app .dots {
+    left: auto;
+    right: 0;
+    border-right: 0;
+    border-left: 1px solid rgba(255, 255, 255, .72);
+    border-radius: 20px 0 0 20px;
+  }
+}
+
+@media (max-width: 680px) {
+  html.liubai-active body[data-theme='paper'] #app .today-home .slide-head h1 { font-size: clamp(1.85rem, 9vw, 2.5rem); }
+  html.liubai-active body[data-theme='paper'] #app .task-board-toolbar { align-items: stretch; }
+  html.liubai-active body[data-theme='paper'] #app .task-board-toolbar .seg,
+  html.liubai-active body[data-theme='paper'] #app .task-board-toolbar input,
+  html.liubai-active body[data-theme='paper'] #app .task-board-toolbar select { width: 100%; flex-basis: 100%; }
+}
+
+@media (max-width: 900px) {
+  html.liubai-active body #app .capture-composer-tools { flex-direction: column; align-items: stretch; }
+  html.liubai-active body #app .capture-composer-tools > * { min-width: 0; max-width: 100%; box-sizing: border-box; }
+  html.liubai-active body #app .capture-composer-tools .add-input,
+  html.liubai-active body #app .capture-composer-tools .capture-submit { width: 100%; }
+}
+
+@media (max-width: 680px) {
+  html.liubai-active body #app :is(.slide[data-page-path$='/capture'], .slide[data-page-path$='/matters'], .slide[data-page-path$='/review']) .inner {
+    padding-inline: 16px;
+    padding-block: 8px 18px;
+  }
+  html.liubai-active body #app :is(.slide[data-page-path$='/capture'], .slide[data-page-path$='/matters'], .slide[data-page-path$='/review']) .slide-head {
+    align-items: flex-start;
+    padding-bottom: 16px;
+  }
+  html.liubai-active body #app :is(.slide[data-page-path$='/capture'], .slide[data-page-path$='/matters'], .slide[data-page-path$='/review']) .slide-head h2 {
+    font-size: 1.8rem;
+  }
+  html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+  html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-text,
+  html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-item .acts {
+    grid-column: 1 / -1;
+  }
+  html.liubai-active body #app .slide[data-page-path$='/capture'] .capture-composer-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  html.liubai-active body #app .slide[data-page-path$='/capture'] .capture-composer-tools .add-input { width: 100%; }
+}
+
+/* Final restraint pass: keep the glass navigation, quiet the surrounding UI. */
+html.liubai-active body[data-theme='paper'] {
+  background:
+    radial-gradient(ellipse 42vw 42vh at 4% 8%, rgba(151, 190, 239, .30), transparent 72%),
+    radial-gradient(ellipse 40vw 44vh at 96% 92%, rgba(196, 207, 226, .25), transparent 72%),
+    #f5f7fa;
+}
+
+html.liubai-active body[data-theme='paper']::before { opacity: .04; }
+
+html.liubai-active body #app .dots {
+  border-color: rgba(255, 255, 255, .78);
+  background: rgba(248, 250, 253, .64);
+  backdrop-filter: blur(30px) saturate(145%);
+  -webkit-backdrop-filter: blur(30px) saturate(145%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 10px 28px rgba(41, 55, 76, .12);
+}
+
+html.liubai-active body #app .dots .desk-nav-head {
+  border: 0;
+  border-bottom: 1px solid rgba(108, 124, 147, .18);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body #app .dots .desk-nav-actions {
+  border-top-color: rgba(108, 124, 147, .16);
+  background: rgba(248, 250, 253, .68);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage {
+  border-color: rgba(255, 255, 255, .92);
+  box-shadow: 0 12px 36px rgba(40, 58, 83, .10), inset 0 1px 0 rgba(255, 255, 255, .98);
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.panel, .beryl-card) {
+  border-color: #edf0f4;
+  border-radius: 13px;
+  box-shadow: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(.task-board-column, .task-board-toolbar, .posts-toolbar, .people-toolbar, .capture-composer-tools, .calendar-toolbar, .toolbar, .stat, .profile-stat-card) {
+  border-color: #edf0f4;
+  background: #fafbfd;
+}
+
+html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger) {
+  border-color: rgba(222, 228, 236, .82);
+  background: rgba(255, 255, 255, .64);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 3px 10px rgba(37, 56, 82, .07);
+}
+
+html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger):hover {
+  background: rgba(255, 255, 255, .84);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .96), 0 4px 12px rgba(37, 56, 82, .09);
+}
+
+html.liubai-active body[data-theme='paper'] #app .today-home {
+  gap: clamp(16px, 2.4vh, 24px);
+  padding: clamp(16px, 2.4vh, 26px) clamp(18px, 3.2vw, 44px) clamp(22px, 3.5vh, 34px);
+}
+
+html.liubai-active body[data-theme='paper'] #app .today-home > .slide-head {
+  padding-bottom: clamp(14px, 2vh, 20px);
+}
+
+html.liubai-active body[data-theme='paper'] #app .today-home .slide-head h1 {
+  font-size: clamp(1.8rem, 3vw, 2.25rem);
+  line-height: 1.12;
+}
+
+@media (max-width: 1100px) {
+  html.liubai-active body #app .dots {
+    background: rgba(248, 250, 253, .80);
+    backdrop-filter: blur(30px) saturate(145%);
+    -webkit-backdrop-filter: blur(30px) saturate(145%);
+    box-shadow: 12px 0 32px rgba(42, 58, 83, .12), inset 0 1px 0 rgba(255, 255, 255, .96);
+  }
+  html.liubai-active body[data-nav='right'] #app .dots {
+    box-shadow: -12px 0 32px rgba(42, 58, 83, .12), inset 0 1px 0 rgba(255, 255, 255, .96);
+  }
+}
+
+/* Empty primary lists should fit their content instead of stretching into blank panels. */
+html.liubai-active body #app .slide[data-page-path$='/capture'] .panel.grow,
+html.liubai-active body #app .slide[data-page-path$='/review'] .panel.grow {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox {
+  flex: 0 0 auto;
+  max-height: min(48vh, 480px);
+  overflow-y: auto;
+}
+html.liubai-active body #app .slide[data-page-path$='/capture'] .inbox-empty {
+  min-height: 56px;
+  padding-block: 10px;
+  text-align: left;
+}
+html.liubai-active body #app .slide[data-page-path$='/review'] .bars { min-height: 138px; }
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools {
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid #edf0f4;
+  border-radius: 0;
+  background: transparent;
+}
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/matters'] .matter-filter {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/matters'] .matter-list-panel {
+  gap: 7px;
+  padding: 14px;
+}
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-create {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/matters'] .matter-list-panel .tasks > .empty {
+  min-height: 38px;
+  padding-block: 6px;
+}
+
+/* One page title is enough; dates and content sections carry the remaining context. */
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head .hint { display: none; }
+html.liubai-active body[data-theme='paper'] #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head h2 {
+  font-size: clamp(1.6rem, 2.3vw, 1.85rem);
+  letter-spacing: -.035em;
+}
+
+/* Shared 67%-transparent glass surface across the workspace. */
+html.liubai-active body[data-theme='paper'] {
+  --workspace-glass: rgba(255, 255, 255, .33);
+  background: #e4ebf4;
+}
+
+html.liubai-active body[data-theme='paper']::before {
+  opacity: 0;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage {
+  inset: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active :is(
+  .panel, .beryl-card, .task-board-column, .task-board-toolbar, .posts-toolbar,
+  .people-toolbar, .capture-composer-tools, .calendar-toolbar,
+  .toolbar, .stat, .profile-stat-card, .task-board-card, .inbox-item, .task,
+  .history-card, .memory-card
+) {
+  background: var(--workspace-glass) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots {
+  border-color: rgba(255, 255, 255, .58);
+  background: var(--workspace-glass);
+  backdrop-filter: blur(38px) saturate(165%);
+  -webkit-backdrop-filter: blur(38px) saturate(165%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 12px 38px rgba(43, 60, 84, .12);
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots :is(.desk-nav-head, .desk-nav-actions) {
+  border-color: rgba(255, 255, 255, .5);
+  background: var(--workspace-glass);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  box-shadow: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger) {
+  border-color: rgba(255, 255, 255, .58);
+  background: var(--workspace-glass);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 4px 12px rgba(37, 56, 82, .08);
+}
+
+/* All modules share the available workspace width; readable text blocks keep
+   their own measure limits inside the page roots. */
+html.liubai-active body #app .stage .slide.active .inner {
+  width: 100%;
+  max-width: none;
+}
+
+html.liubai-active body #app .stage .slide.active .inner > :not(.desk-home) {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+/* Desk uses the same site backdrop in paper mode instead of painting a
+   separate opaque canvas over it. */
+html.liubai-active body[data-theme='paper'] #app .desk-home,
+html.liubai-active body[data-theme='paper'] #app .desk-home.is-warm {
+  background: transparent !important;
+}
+
+/* Compact reading rhythm across every module without flattening page-specific
+   hierarchies or shrinking controls below a comfortable touch size. */
+html.liubai-active body #app .stage .slide.active .inner {
+  font-size: clamp(14px, .92rem, 15px);
+  line-height: 1.5;
+}
+
+html.liubai-active body #app .stage .slide.active[data-archetype] .inner > * + * {
+  margin-top: clamp(10px, 1.35vh, 16px);
+}
+
+html.liubai-active body #app .stage .slide.active[data-archetype] .slide-head {
+  gap: 10px clamp(12px, 1.6vw, 22px);
+  padding-bottom: clamp(8px, 1.1vh, 12px);
+}
+
+html.liubai-active body #app .stage .slide.active .slide-head :is(h1, h2) {
+  font-size: clamp(1.55rem, 2.15vw, 1.9rem);
+  line-height: 1.16;
+  letter-spacing: -.035em;
+}
+
+html.liubai-active body #app .stage .slide.active :is(.panel-head, .panel-title) {
+  line-height: 1.35;
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .inner {
+  padding-block: clamp(8px, 1.5vh, 16px);
+}
+
+html.liubai-active body #app :is(
+  .slide[data-page-path$='/capture'],
+  .slide[data-page-path$='/matters'],
+  .slide[data-page-path$='/review']
+) .slide-head {
+  padding-bottom: 12px;
+}
+
+html.liubai-active body #app .today-home .slide-head h1 {
+  font-size: clamp(1.8rem, 2.6vw, 2.2rem);
+}
+
+/* Give navigation selection a clear blue anchor against the translucent rail. */
+html.liubai-active body[data-theme='paper'] #app .dots .dot.active,
+html.liubai-active body[data-theme='paper'] #app .dot-submenu-item.active {
+  border: 1px solid rgba(37, 99, 190, .28);
+  background: #d5e5ff;
+  color: #084b9b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+  font-weight: 600;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .dot.active:hover,
+html.liubai-active body[data-theme='paper'] #app .dot-submenu-item.active:hover {
+  background: #c9ddff;
+  color: #063f88;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-actions button[aria-expanded='true'] {
+  border: 1px solid rgba(37, 99, 190, .3);
+  background: #d5e5ff;
+  color: #084b9b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+  font-weight: 600;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-actions button:hover {
+  background: #e5efff;
+  color: #174f99;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-actions button[aria-expanded='true']:hover {
+  background: #c9ddff;
+  color: #063f88;
+}
+
+/* Make the all-modules drawer quicker to scan without changing its groups or
+   destinations. Mid-size drawers use two columns; narrow phones stay linear. */
+html.liubai-active body #app .dot-submenu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-gutter: stable;
+}
+
+html.liubai-active body #app .dot-submenu-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+
+html.liubai-active body #app .dot-submenu-group h3 {
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+  padding: 0 8px 6px;
+  border-bottom-color: rgba(87, 108, 139, .22);
+  color: #475467;
+  font-size: .72rem;
+  letter-spacing: .01em;
+}
+
+html.liubai-active body #app .dot-submenu-item {
+  min-height: 34px;
+  gap: 8px;
+  padding: 4px 8px;
+  color: #46546a;
+}
+
+html.liubai-active body #app .dot-submenu-item:hover {
+  background: rgba(37, 99, 190, .09);
+  color: #174f99;
+}
+
+html.liubai-active body #app .dot-submenu-item.active {
+  border: 1px solid rgba(37, 99, 190, .28);
+  background: #d5e5ff;
+  color: #084b9b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
+  font-weight: 600;
+}
+
+html.liubai-active body #app .dot-submenu-item.active:hover {
+  background: #c9ddff;
+  color: #063f88;
+}
+
+html.liubai-active body #app .dot-submenu-item > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 559px) {
+  html.liubai-active body #app .dot-submenu-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

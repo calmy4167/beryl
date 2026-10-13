@@ -26,7 +26,8 @@
 .master-data-state.error { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--danger); }
 
 /* ── 句子素材表单 ─────────────────────────────────────────────── */
-.sentence-meta-form { display: grid; gap: 12px; }
+.sentence-meta-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sentence-field-body, .master-data-tag-options, .master-data-form-actions { grid-column: 1 / -1; }
 .sentence-meta-form label { display: grid; gap: 6px; color: var(--muted); font-size: .72rem; }
 .sentence-meta-form input, .sentence-meta-form select { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
 .sentence-meta-form textarea { padding: 8px 10px; font: inherit; font-size: .8rem; resize: vertical; min-height: 64px; }
@@ -36,6 +37,10 @@
 .master-data-tag-options input { width: auto; min-height: auto; }
 .master-data-tag-options span, .master-data-tag-options small { color: var(--muted); font-size: .7rem; }
 .master-data-form-actions { display: flex; gap: 8px; }
+@media (max-width: 700px) {
+  .sentence-meta-form { grid-template-columns: minmax(0, 1fr); }
+  .sentence-field-body, .master-data-tag-options, .master-data-form-actions { grid-column: auto; }
+}
 
 /* 人物页嵌在主数据页里的标记（parity 测试按它断言） */
 .people-page-embedded { margin-top: 2px; }

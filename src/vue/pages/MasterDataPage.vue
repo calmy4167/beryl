@@ -176,11 +176,11 @@ async function setArchived(item: Resource, archived: boolean): Promise<void> {
       <LbCollapsible block="masterComposer" :rank="2">
         <LbPanel :title="editing ? '编辑句子素材' : '保存一句可复用的话'" note="仅在你选择时插入，不会自动改变其他记录">
         <form class="sentence-meta-form" @submit="save">
-          <label>名称<input v-model="title" aria-label="句子素材名称" placeholder="例如：先写事实" maxlength="100"></label>
-          <label>内容<textarea v-model="body" aria-label="句子素材内容" placeholder="写下以后可能想再次使用的句子…" rows="3" maxlength="2000" /></label>
-          <label>类别<select v-model="categoryOptionId" aria-label="句子素材类别"><option value="">未设置类别</option><option v-if="retiredSelectedCategory" :value="retiredSelectedCategory.calmyId">{{ retiredSelectedCategory.value }}（已停用）</option><option v-for="option in activeCategories" :key="option.calmyId" :value="option.calmyId">{{ option.value }}</option></select></label>
+          <label class="sentence-field-title">名称<input v-model="title" aria-label="句子素材名称" placeholder="例如：先写事实" maxlength="100"></label>
+          <label class="sentence-field-category">类别<select v-model="categoryOptionId" aria-label="句子素材类别"><option value="">未设置类别</option><option v-if="retiredSelectedCategory" :value="retiredSelectedCategory.calmyId">{{ retiredSelectedCategory.value }}（已停用）</option><option v-for="option in activeCategories" :key="option.calmyId" :value="option.calmyId">{{ option.value }}</option></select></label>
+          <label class="sentence-field-source">来源<select v-model="sourceOptionId" aria-label="句子素材来源"><option value="">未设置来源</option><option v-if="retiredSelectedSource" :value="retiredSelectedSource.calmyId">{{ retiredSelectedSource.value }}（已停用）</option><option v-for="option in activeSources" :key="option.calmyId" :value="option.calmyId">{{ option.value }}</option></select></label>
+          <label class="sentence-field-body">内容<textarea v-model="body" aria-label="句子素材内容" placeholder="写下以后可能想再次使用的句子…" rows="3" maxlength="2000" /></label>
           <fieldset class="master-data-tag-options"><legend>标签</legend><label v-for="option in activeTags" :key="option.calmyId"><input v-model="tagOptionIds" type="checkbox" :value="option.calmyId">{{ option.value }}</label><span v-if="!activeTags.length">暂无标签选项，可到“系统字典”添加。</span><small v-for="option in retiredSelectedTags" :key="option.calmyId">{{ option.value }}（已停用） <button type="button" @click="tagOptionIds = tagOptionIds.filter(id => id !== option.calmyId)">移除</button></small></fieldset>
-          <label>来源<select v-model="sourceOptionId" aria-label="句子素材来源"><option value="">未设置来源</option><option v-if="retiredSelectedSource" :value="retiredSelectedSource.calmyId">{{ retiredSelectedSource.value }}（已停用）</option><option v-for="option in activeSources" :key="option.calmyId" :value="option.calmyId">{{ option.value }}</option></select></label>
           <div class="master-data-form-actions">
             <button v-if="editing" class="chip" type="button" :disabled="saving" @click="resetForm">取消</button>
             <button class="chip on" type="submit" :disabled="saving">{{ saving ? '保存中…' : editing ? '保存修改' : '保存素材' }}</button>

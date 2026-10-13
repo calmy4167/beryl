@@ -42,6 +42,11 @@ async function submitTask() {
     matterId.value = ''
   }
 }
+function onTaskComposerKeydown(event: KeyboardEvent) {
+  if (event.isComposing || event.keyCode === 229) return
+  event.preventDefault()
+  void submitTask()
+}
 
 function pad(value: number) { return String(value).padStart(2, '0') }
 function dayKey(at: number) {
@@ -92,20 +97,19 @@ const stats = computed<LbStat[]>(() => [
 
 const listNote = computed(() => {
   if (saving.value) return '保存中…'
-  if (!total.value) return '—'
+  if (!total.value) return ''
   if (!left.value) return '清空'
   return `还剩 ${left.value} 件`
 })
 </script>
 
 <template>
+  <div class="today-home">
   <header class="slide-head">
     <div class="head-main">
       <p class="hint">{{ heading }}</p>
       <div class="head-title-row">
-        <h1 v-if="total === 0">清单是空的。</h1>
-        <h1 v-else-if="left === 0">今天<em>全部完成</em>。</h1>
-        <h1 v-else>{{ isAll ? '全部还有' : '今天还有' }} <em>{{ left }}</em> 件事。</h1>
+        <h1>{{ isAll ? '全部行动' : date === todayKey() ? '今天' : '当天行动' }}</h1>
         <span class="info" tabindex="0" data-tip="当日重点按未完成事项排列。点标题设为重点，点右侧「完成」结束它。统计卡可用 H 键收起。" aria-label="总览说明">i</span>
       </div>
     </div>
@@ -125,18 +129,16 @@ const listNote = computed(() => {
         v-for="item in focusRows"
         :key="item.calmyId"
         :class="{ cog: focusIds.has(item.calmyId) }"
-        @click="focusTask(item)"
       >
-        <b>{{ item.title }}</b>
+        <button class="focus-task-title" type="button" :aria-pressed="focusIds.has(item.calmyId)" :aria-label="`${focusIds.has(item.calmyId) ? '当前重点' : '设为重点'}：${item.title}`" :title="focusIds.has(item.calmyId) ? '当前重点' : '设为重点'" :disabled="saving" @click="focusTask(item)">{{ item.title }}</button>
         <span v-if="matterTitle(item.matterId)" class="right">{{ matterTitle(item.matterId) }}</span>
-        <span
-          class="right"
-          role="button"
-          tabindex="0"
+        <button
+          class="right action-complete"
+          type="button"
           title="标记完成"
+          :disabled="saving"
           @click.stop="toggleTask(item)"
-          @keydown.enter.stop="toggleTask(item)"
-        >完成</span>
+        >完成</button>
       </li>
       <li v-for="habit in pendingHabits" :key="habit.id" class="dim">
         <b>习惯 · {{ habit.name }} 未打卡</b>
@@ -151,7 +153,7 @@ const listNote = computed(() => {
         placeholder="添加任务，回车确认…"
         aria-label="新增现实行动"
         @input="draft = ($event.target as HTMLInputElement).value"
-        @keydown.enter.prevent="submitTask"
+        @keydown.enter="onTaskComposerKeydown"
       >
       <select
         class="add-matter"
@@ -163,16 +165,17 @@ const listNote = computed(() => {
         <option value="">不关联事项</option>
         <option v-for="matter in matters" :key="matter.calmyId" :value="matter.calmyId">{{ matter.title }}</option>
       </select>
+      <button class="chip on today-add-button" type="button" :disabled="saving || !draft.trim()" @click="submitTask">添加</button>
     </div>
   </LbPanel>
 
-  <LbCollapsible block="stats" :rank="2">
+  <LbCollapsible v-if="total || habits.length || todayRecords.length || inbox.length" block="stats" :rank="2">
     <LbPanel title="当日数据">
       <LbStatGrid :stats="stats" />
     </LbPanel>
   </LbCollapsible>
 
-  <LbCollapsible block="records" :rank="3">
+  <LbCollapsible v-if="todayRecords.length" block="records" :rank="3">
     <LbPanel title="今天的记录" :note="todayRecords.length ? `${todayRecords.length} 条` : '—'">
       <ul class="ov-list">
         <li v-if="!todayRecords.length" class="dim">还没有留下记录。</li>
@@ -183,6 +186,7 @@ const listNote = computed(() => {
       </ul>
     </LbPanel>
   </LbCollapsible>
+  </div>
 </template>
 
 <style scoped>
@@ -199,5 +203,24 @@ const listNote = computed(() => {
   min-width: 8em;
   padding: 6px 8px;
   font-size: 0.75rem;
+}
+.focus-task-title {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.focus-task-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.action-complete {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
 }
 </style>

@@ -109,6 +109,12 @@ onBeforeUnmount(() => { editor.value = null })
   overflow-wrap: anywhere;
   caret-color: var(--desk-accent);
 }
+.desk-composer-editor:focus,
+.desk-composer-editor:focus-visible {
+  border: 0;
+  outline: none !important;
+  box-shadow: none !important;
+}
 .desk-composer-editor.is-empty::before {
   color: color-mix(in srgb, currentColor 34%, transparent);
   content: attr(data-placeholder);

@@ -285,103 +285,6 @@ html.liubai-active body #app {
   --el-color-primary: var(--accent);
 }
 
-/* Full module directory: grouped from the route manifest without changing the
- * reference shell's six-slide typography or its lightweight navigation style. */
-html.liubai-active body #app .dots {
-  width: clamp(190px, 18vw, 228px);
-  max-height: min(82dvh, 760px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  align-items: stretch;
-  gap: 10px;
-  padding: 12px 9px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: var(--panel);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, .2);
-  scrollbar-width: thin;
-}
-html.liubai-active body #app .dot-group {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 3px;
-}
-html.liubai-active body #app .dot-group + .dot-group {
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
-}
-html.liubai-active body #app .dot-group-title {
-  margin: 0 9px 3px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .08em;
-  line-height: 1.5;
-}
-html.liubai-active body #app .dot {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: 36px;
-  padding: 0 10px 0 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: .01em;
-  opacity: .76;
-  text-align: left;
-  transition: background-color .18s ease, color .18s ease, opacity .18s ease;
-}
-html.liubai-active body #app .dot::before {
-  position: absolute;
-  left: 5px;
-  width: 2px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--accent);
-  content: '';
-  opacity: 0;
-}
-html.liubai-active body #app .dot:hover {
-  background: var(--hover);
-  opacity: 1;
-}
-html.liubai-active body #app .dot.active {
-  background: var(--hover);
-  color: var(--accent);
-  opacity: 1;
-}
-html.liubai-active body #app .dot.active::before {
-  opacity: 1;
-}
-html.liubai-active body #app .module-nav-toggle {
-  position: fixed;
-  z-index: 92;
-  right: 24px;
-  bottom: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--fg);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-html.liubai-active body #app .module-nav-toggle:hover {
-  border-color: var(--accent);
-}
-html.liubai-active body #app .module-nav-toggle span {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
 html.liubai-active body #app .module-manager-backdrop {
   position: fixed;
   z-index: 120;
@@ -435,6 +338,7 @@ html.liubai-active body #app .module-manager-actions > span {
 }
 html.liubai-active body #app .module-manager-close,
 html.liubai-active body #app .module-manager-actions button,
+html.liubai-active body #app .module-manager-shortcut,
 html.liubai-active body #app .module-manager-open {
   min-height: 36px;
   padding: 0 10px;
@@ -460,6 +364,7 @@ html.liubai-active body #app .module-manager-actions > div {
   gap: 8px;
 }
 html.liubai-active body #app .module-manager-actions button:hover,
+html.liubai-active body #app .module-manager-shortcut:hover,
 html.liubai-active body #app .module-manager-open:hover,
 html.liubai-active body #app .module-manager-close:hover {
   border-color: var(--accent);
@@ -482,6 +387,7 @@ html.liubai-active body #app .module-manager-group h3 {
 }
 html.liubai-active body #app .module-manager-row {
   min-height: 40px;
+  gap: 8px;
   border-bottom: 1px solid var(--line);
 }
 html.liubai-active body #app .module-manager-row label {
@@ -513,8 +419,41 @@ html.liubai-active body #app .module-manager-open {
   color: var(--muted);
   font-size: 11px;
 }
-html.liubai-active body #app .module-manager :focus-visible,
-html.liubai-active body #app .module-nav-toggle:focus-visible {
+html.liubai-active body #app .module-manager-shortcut {
+  display: inline-flex;
+  flex: none;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+html.liubai-active body #app .module-manager-shortcut svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+html.liubai-active body #app .module-manager-shortcut[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+  background: color-mix(in srgb, var(--accent) 16%, var(--panel));
+  color: var(--accent);
+  font-weight: 600;
+}
+html.liubai-active body #app .module-manager-shortcut[aria-pressed='true'] svg {
+  fill: currentColor;
+}
+html.liubai-active body #app .module-manager-shortcut[aria-pressed='true']:hover {
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
+  background: color-mix(in srgb, var(--accent) 23%, var(--panel));
+  color: var(--accent);
+}
+html.liubai-active body #app .module-manager :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -524,61 +463,6 @@ html.liubai-active body #app .dot-empty {
 }
 
 @media (max-width: 680px) {
-  html.liubai-active body #app .module-nav-toggle {
-    left: 50%;
-    bottom: 12px;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-  html.liubai-active body #app .dots,
-  html.liubai-active body[data-nav="left"] #app .dots,
-  html.liubai-active body[data-nav="right"] #app .dots {
-    top: auto;
-    right: 12px;
-    bottom: 60px;
-    left: 12px;
-    width: auto;
-    max-width: none;
-    max-height: min(58dvh, 480px);
-    translate: 0 0;
-    align-items: stretch;
-    gap: 12px;
-    padding: 12px;
-    overflow-y: auto;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--panel);
-    opacity: 0 !important;
-    visibility: hidden;
-    pointer-events: none !important;
-    transform: translateY(8px) !important;
-  }
-  html.liubai-active body.nav-show #app .dots {
-    opacity: 1 !important;
-    visibility: visible;
-    pointer-events: auto !important;
-    transform: translateY(0) !important;
-  }
-  html.liubai-active body #app .dot-group {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: stretch;
-    gap: 4px 10px;
-  }
-  html.liubai-active body #app .dot-group-title {
-    grid-column: 1 / -1;
-  }
-  html.liubai-active body #app .dot {
-    min-height: 40px;
-    padding: 8px 4px;
-    text-align: left;
-    white-space: normal;
-    letter-spacing: .01em;
-  }
-  html.liubai-active body[data-nav="left"] #app .dot,
-  html.liubai-active body[data-nav="right"] #app .dot {
-    text-align: left;
-  }
   html.liubai-active body #app .module-manager-backdrop {
     align-items: end;
     padding: 12px;
@@ -598,426 +482,6 @@ html.liubai-active body #app .dot-empty {
   }
 }
 
-/* Desk is a focused capture surface. Keep the shared module directory available,
- * but present it as a pinned drawer only on /app/desk. */
-html.liubai-active body.desk-home #app .slide {
-  padding-left: clamp(14px, 2.2vw, 30px);
-  padding-right: clamp(14px, 2.2vw, 30px);
-}
-html.liubai-active body.desk-home #app .stage {
-  transition: left .32s cubic-bezier(.22,1,.36,1), right .32s cubic-bezier(.22,1,.36,1), width .32s cubic-bezier(.22,1,.36,1);
-}
-html.liubai-active body.desk-home.desk-nav-open[data-nav='left'] #app .stage {
-  left: 252px;
-  right: 0;
-  width: calc(100% - 252px);
-}
-html.liubai-active body.desk-home.desk-nav-open[data-nav='right'] #app .stage {
-  left: 0;
-  right: 252px;
-  width: calc(100% - 252px);
-}
-html.liubai-active body.desk-home #app .dots {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: auto;
-  translate: 0 0;
-  display: flex;
-  width: 252px;
-  max-width: min(82vw, 320px);
-  height: 100dvh;
-  max-height: none;
-  align-items: stretch;
-  gap: 10px;
-  padding: 18px 16px max(18px, env(safe-area-inset-bottom));
-  overflow-x: hidden;
-  overflow-y: auto;
-  border: 0;
-  border-right: 1px solid var(--line);
-  border-radius: 0;
-  background: var(--panel);
-  box-shadow: 12px 0 36px rgba(0, 0, 0, .12);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateX(-100%);
-  transition: opacity .26s var(--ease), transform .3s var(--ease), visibility .3s;
-}
-html.liubai-active body.desk-home[data-nav='right'] #app .dots {
-  right: 0;
-  left: auto;
-  border-right: 0;
-  border-left: 1px solid var(--line);
-  box-shadow: -12px 0 36px rgba(0, 0, 0, .12);
-  transform: translateX(100%);
-}
-html.liubai-active body.desk-home.desk-nav-open #app .dots {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateX(0);
-}
-html.liubai-active body.desk-home #app .desk-nav-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 40px;
-  padding: 0 4px 13px;
-  border-bottom: 1px solid var(--line);
-  color: var(--fg);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -.02em;
-}
-html.liubai-active body.desk-home #app .desk-nav-close {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 23px;
-  cursor: pointer;
-}
-html.liubai-active body.desk-home #app .desk-nav-close:hover {
-  background: var(--hover);
-  color: var(--fg);
-}
-html.liubai-active body.desk-home #app .desk-nav-actions {
-  display: grid;
-  gap: 5px;
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-html.liubai-active body.desk-home #app .desk-nav-actions button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-height: 38px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  text-align: left;
-  cursor: pointer;
-}
-html.liubai-active body.desk-home #app .desk-nav-actions button:hover {
-  background: var(--hover);
-  color: var(--fg);
-}
-html.liubai-active body.desk-home #app .desk-nav-actions kbd {
-  padding: 1px 5px;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  font: inherit;
-  font-size: 10px;
-}
-html.liubai-active body.desk-home #app .module-nav-toggle { display: none; }
-html.liubai-active body.desk-home #app .desk-nav-handle { display: none; }
-html.liubai-active body.desk-home #app :where(.brand, .progress, .counter, .tip, .gear, .hud-toggle, .mode-toggle) {
-  display: none;
-}
-
-@media (max-width: 760px) {
-  html.liubai-active body.desk-home.desk-nav-open #app .stage {
-    left: 0;
-    right: 0;
-    width: 100%;
-  }
-  html.liubai-active body.desk-home #app .dots,
-  html.liubai-active body.desk-home[data-nav='left'] #app .dots,
-  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
-    top: 0;
-    right: auto;
-    bottom: 0;
-    left: 0;
-    translate: 0 0;
-    width: min(300px, 84vw);
-    height: 100dvh;
-    max-width: 84vw;
-    max-height: none;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 18px 14px max(18px, env(safe-area-inset-bottom));
-    border: 0;
-    border-right: 1px solid var(--line);
-    border-radius: 0;
-    opacity: 0 !important;
-    visibility: hidden;
-    pointer-events: none !important;
-    transform: translateX(-100%) !important;
-  }
-  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
-    right: 0;
-    left: auto;
-    border-right: 0;
-    border-left: 1px solid var(--line);
-    transform: translateX(100%) !important;
-  }
-  html.liubai-active body.desk-home.desk-nav-open #app .dots {
-    opacity: 1 !important;
-    visibility: visible;
-    pointer-events: auto !important;
-    transform: translateX(0) !important;
-  }
-  html.liubai-active body.desk-home #app .desk-nav-handle {
-    position: fixed;
-    z-index: 91;
-    top: 50%;
-    left: 0;
-    display: grid;
-    width: 27px;
-    height: 54px;
-    place-items: center;
-    border: 1px solid var(--line-strong);
-    border-left: 0;
-    border-radius: 0 8px 8px 0;
-    background: var(--panel);
-    color: var(--muted);
-    font: inherit;
-    font-size: 20px;
-    transform: translateY(-50%);
-    cursor: pointer;
-  }
-  html.liubai-active body.desk-home[data-nav='right'] #app .desk-nav-handle {
-    right: 0;
-    left: auto;
-    border-right: 0;
-    border-left: 1px solid var(--line-strong);
-    border-radius: 8px 0 0 8px;
-  }
-}
-
-/* Expanded navigation occupies its own layout region. The stage moves beside
-   it on desktop and below it on narrow screens, so no page content sits under
-   the navigation surface. */
-html.liubai-active body #app .stage {
-  transition: left .28s var(--ease), right .28s var(--ease), top .28s var(--ease), width .28s var(--ease);
-}
-html.liubai-active body.nav-show[data-nav='left'] #app .stage,
-html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage {
-  left: min(272px, 84vw);
-  right: 0;
-  width: calc(100% - min(272px, 84vw));
-}
-html.liubai-active body.nav-show[data-nav='right'] #app .stage,
-html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
-  left: 0;
-  right: min(272px, 84vw);
-  width: calc(100% - min(272px, 84vw));
-}
-
-@media (max-width: 760px) {
-  html.liubai-active body #app .dots,
-  html.liubai-active body[data-nav='left'] #app .dots,
-  html.liubai-active body[data-nav='right'] #app .dots,
-  html.liubai-active body.desk-home #app .dots,
-  html.liubai-active body.desk-home[data-nav='left'] #app .dots,
-  html.liubai-active body.desk-home[data-nav='right'] #app .dots {
-    top: 0;
-    right: 0;
-    bottom: auto;
-    left: 0;
-    width: 100%;
-    height: min(42dvh, 360px);
-    max-width: none;
-    max-height: min(42dvh, 360px);
-    padding: max(14px, env(safe-area-inset-top)) 14px 14px;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, .12);
-    transform: translateY(-100%) !important;
-  }
-  html.liubai-active body[data-nav='right'] #app .dots {
-    right: 0;
-    left: 0;
-    border-left: 0;
-  }
-  html.liubai-active body.nav-show #app .dots,
-  html.liubai-active body.desk-nav-open #app .dots {
-    transform: translateY(0) !important;
-  }
-  html.liubai-active body.nav-show[data-nav='left'] #app .stage,
-  html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage,
-  html.liubai-active body.nav-show[data-nav='right'] #app .stage,
-  html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
-    top: min(42dvh, 360px);
-    right: 0;
-    left: 0;
-    width: 100%;
-  }
-}
-
-/* Previous desk-only overlay defaults remain here for compatibility; the final
- * shared rules below now reserve space beside the navigation. */
-html.liubai-active body.desk-home.desk-nav-open[data-nav='left'] #app .stage,
-html.liubai-active body.desk-home.desk-nav-open[data-nav='right'] #app .stage {
-  right: 0;
-  left: 0;
-  width: 100%;
-}
-html.liubai-active body.desk-home #app .dots {
-  width: min(272px, 84vw);
-  max-width: 84vw;
-  border: 0;
-  border-right: 1px solid var(--line);
-  border-radius: 0;
-}
-html.liubai-active body.desk-home[data-nav='right'] #app .dots {
-  right: 0;
-  left: auto;
-  border-right: 0;
-  border-left: 1px solid var(--line);
-}
-
-/* One navigation surface across the app: edge handle + the same grouped rail.
- * The final open-state rules below reflow the active page around this rail. */
-html.liubai-active body #app .dots,
-html.liubai-active body[data-nav='left'] #app .dots,
-html.liubai-active body[data-nav='right'] #app .dots {
-  position: fixed;
-  top: 0;
-  right: auto;
-  bottom: 0;
-  left: 0;
-  translate: 0 0;
-  display: flex;
-  width: min(272px, 84vw);
-  max-width: 84vw;
-  height: 100dvh;
-  max-height: 100dvh;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  padding: max(18px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
-  overflow-x: hidden;
-  overflow-y: auto;
-  border: 0;
-  border-right: 1px solid var(--line);
-  border-radius: 0;
-  background: var(--panel);
-  box-shadow: 12px 0 36px rgba(0, 0, 0, .12);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateX(-100%);
-  transition: opacity .22s var(--ease), transform .28s var(--ease), visibility .28s;
-}
-html.liubai-active body[data-nav='right'] #app .dots {
-  right: 0;
-  left: auto;
-  border-right: 0;
-  border-left: 1px solid var(--line);
-  box-shadow: -12px 0 36px rgba(0, 0, 0, .12);
-  transform: translateX(100%);
-}
-html.liubai-active body.nav-show #app .dots,
-html.liubai-active body.desk-nav-open #app .dots {
-  opacity: 1 !important;
-  visibility: visible;
-  pointer-events: auto !important;
-  transform: translateX(0) !important;
-}
-html.liubai-active body.desk-home.desk-nav-open #app .stage {
-  right: 0;
-  left: 0;
-  width: 100%;
-}
-html.liubai-active body #app .module-nav-handle {
-  position: fixed;
-  z-index: 91;
-  top: 50%;
-  left: 0;
-  display: grid;
-  min-width: 34px;
-  min-height: 58px;
-  place-items: center;
-  padding: 7px 5px;
-  border: 1px solid var(--line-strong);
-  border-left: 0;
-  border-radius: 0 9px 9px 0;
-  background: var(--panel);
-  color: var(--muted);
-  font: inherit;
-  font-size: 10px;
-  letter-spacing: .06em;
-  writing-mode: vertical-rl;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-html.liubai-active body[data-nav='right'] #app .module-nav-handle {
-  right: 0;
-  left: auto;
-  border-right: 0;
-  border-left: 1px solid var(--line-strong);
-  border-radius: 9px 0 0 9px;
-}
-html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-events: none; }
-html.liubai-active body #app .desk-nav-head {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 42px;
-  padding: 0 4px 13px;
-  border-bottom: 1px solid var(--line);
-  color: var(--fg);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -.02em;
-}
-html.liubai-active body #app .desk-nav-close {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 20px;
-  cursor: pointer;
-}
-html.liubai-active body #app .desk-nav-close:hover { background: var(--hover); color: var(--fg); }
-html.liubai-active body #app .desk-nav-actions {
-  display: grid;
-  flex: none;
-  gap: 5px;
-  margin-top: auto;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-html.liubai-active body #app .desk-nav-actions button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-height: 38px;
-  padding: 0 9px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  text-align: left;
-  cursor: pointer;
-}
-html.liubai-active body #app .desk-nav-actions button:hover { background: var(--hover); color: var(--fg); }
-html.liubai-active body #app .desk-nav-actions kbd {
-  padding: 1px 5px;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  font: inherit;
-  font-size: 10px;
-}
 
 /* Shared page rhythm: each archetype keeps its own content model, while title,
  * action alignment and vertical spacing follow one app-wide baseline. */
@@ -1046,119 +510,565 @@ html.liubai-active body #app .stage .slide.active[data-archetype='settings'] .in
   scrollbar-color: var(--line-strong) transparent;
 }
 
-@media (max-width: 760px) {
-  /* The mobile base stylesheet narrows slides to 12px gutters. Keep the shared
-     edge tab outside page content so it cannot cover titles or full-width cards. */
-  html.liubai-active body[data-nav='left'] #app .stage .slide { padding-left: clamp(40px, 10vw, 60px); }
-  html.liubai-active body[data-nav='right'] #app .stage .slide { padding-right: clamp(40px, 10vw, 60px); }
 
-  html.liubai-active body #app .dots,
-  html.liubai-active body[data-nav='left'] #app .dots,
-  html.liubai-active body[data-nav='right'] #app .dots {
+
+/* ══ 模块导航（侧边栏）═════════════════════════════════════════════════════
+ * 第 35 轮：按权威导航规范重做（不再自创形态/配色）。
+ *   · Nielsen Norman Group《Left-Side Vertical Navigation》: 宽而长的一级导航就该用左侧竖排；
+ *     条目必须**左对齐**（居中会破坏竖排扫描）；**不要把桌面导航藏起来**（藏了用户就忘了看）。
+ *   · GitLab Pajamas《Navigation sidebar》: 两层（一级 图标+分组 / 二级 条目）；
+ *     **≥1200px 默认常驻可见**，≤1199px 默认隐藏但用**遮罩浮层**唤出、可锁定；用户偏好持久化；名字 1–2 词。
+ *
+ * 因此：
+ *   · 一级分类在窄侧栏纵向排列；桌面二级模块点击后以相邻浮卡显示。
+ *   · 浮卡独立悬浮在页面上方，不参与模块布局、不改变内容宽度；小屏改为侧栏内展开。
+ *   · 所有页面一级侧栏都可手动开合；普通模块默认占位，收起时释放页面空间。
+ *   · 窄屏 Desk 以侧栏 + 遮罩显示；普通模块使用窄栏常驻并可收起。
+ *   · 语言全部取设计层令牌：浮面 --panel + 1px --line；分组标签同 .eyebrow（.68rem/muted/.1em）；
+ *     条目同 .palette-item/.dm-item（gap 10 / radius 9 / muted → --hover → 当前 --accent）；
+ *     分组之间用 1px --line 分隔（同 .settings-panel 的段落感）。
+ *
+ * 钩子名不变（外壳测试依赖）：nav.dots / .dot.active / .dot-group-title / .dot-group-items /
+ * .desk-nav-head / .desk-nav-brand / .desk-nav-close / .desk-nav-actions button / .module-nav-handle / .nav-scrim。
+ */
+
+/* ── 基座：固定侧栏面板 ─────────────────────────────────────────────── */
+html.liubai-active body #app .dots {
+  position: fixed;
+  z-index: 96;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1px;
+  width: 128px;
+  max-width: 84vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 16px 12px 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  box-shadow: none;
+  translate: none !important;
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform .24s var(--ease), box-shadow .24s var(--ease);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 26%, transparent) transparent;
+}
+html.liubai-active body[data-nav='right'] #app .dots {
+  left: auto;
+  right: 0;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+/* 收起 / 窄屏默认：整条滑出屏幕（不是变成图标轨）
+ * 参考稿在窄屏给 .dots 写了 `transform: none !important`，所以这里也必须 !important 才能滑出去 */
+html.liubai-active body:not(.nav-show) #app .dots {
+  transform: translateX(-100%) !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+html.liubai-active body[data-nav='right']:not(.nav-show) #app .dots { transform: translateX(100%) !important; }
+html.liubai-active body.nav-show #app .dots {
+  transform: none !important;
+  visibility: visible;
+  pointer-events: auto;
+}
+/* Non-Desk modules keep the rail in the page layout until the user collapses
+ * it. The collapsed state slides it fully away and returns that width to content. */
+html.liubai-active body.nav-persistent:not(.nav-show):not(.nav-collapsed) #app .dots {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible;
+  pointer-events: auto !important;
+}
+html.liubai-active body.zen-mode.nav-persistent:not(.nav-collapsed) #app .dots {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible;
+  pointer-events: auto !important;
+}
+html.liubai-active body.zen-mode #app .dots {
+  transform: translateX(-100%) !important;
+  pointer-events: none !important;
+}
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='left'] #app .dots {
+  transform: translateX(-100%) !important;
+  visibility: hidden;
+  pointer-events: none !important;
+}
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='right'] #app .dots {
+  transform: translateX(100%) !important;
+  visibility: hidden;
+  pointer-events: none !important;
+}
+/* 浮标品牌/计数与侧边栏同屏时让位（品牌这时在侧边栏头部） */
+html.liubai-active body.nav-show #app .brand { opacity: 0; pointer-events: none; }
+html.liubai-active body.nav-show[data-nav='left'] #app .counter { left: calc(128px + clamp(16px, 3vw, 32px)); }
+html.liubai-active body.nav-persistent #app .brand { opacity: 0; pointer-events: none; }
+html.liubai-active body.nav-persistent[data-nav='left'] #app .counter { left: calc(128px + clamp(16px, 3vw, 32px)); }
+html.liubai-active body.nav-persistent.nav-collapsed #app .brand { opacity: 1; pointer-events: auto; }
+
+/* ── 面板头 ─────────────────────────────────────────────────────── */
+html.liubai-active body #app .dots .desk-nav-head {
+  position: sticky;
+  z-index: 3;
+  top: -16px;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 34px;
+  margin: 0 0 6px;
+  padding: 16px 4px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+html.liubai-active body #app .desk-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  color: var(--fg);
+  font-size: .86rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+html.liubai-active body #app .desk-nav-brand-mark {
+  display: grid;
+  flex: none;
+  width: auto;
+  height: auto;
+  place-items: center;
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 400;
+  line-height: 1;
+}
+html.liubai-active body #app .desk-nav-brand-name { white-space: nowrap; }
+html.liubai-active body #app .desk-nav-close {
+  display: grid;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+html.liubai-active body #app .desk-nav-close:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .desk-nav-close svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── 两层结构：分组（一级）+ 条目（二级）────────────────────────── */
+html.liubai-active body #app .dots .dot-group { display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 1px; }
+html.liubai-active body #app .dots .dot-group + .dot-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+}
+html.liubai-active body #app .dots .dot-group-items { display: contents; }
+html.liubai-active body #app .dot-submenu-flyout {
+  position: fixed;
+  z-index: 98;
+  left: 138px;
+  display: flex;
+  width: 224px;
+  max-height: calc(100dvh - 24px);
+  flex-direction: column;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 10px 14px 32px rgba(0, 0, 0, .18);
+  color: var(--fg);
+  animation: nav-submenu-enter .16s cubic-bezier(.16, 1, .3, 1);
+}
+html.liubai-active body[data-nav='right'] #app .dot-submenu-flyout { right: 138px; left: auto; }
+html.liubai-active body[data-nav='right'] #app .dot-submenu-flyout { animation-name: nav-submenu-enter-right; }
+html.liubai-active body #app .dot-submenu-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px 10px 6px;
+  border-bottom: 1px solid var(--line);
+}
+html.liubai-active body #app .dot-submenu-head h2 { margin: 0; color: var(--fg); font-size: .92rem; font-weight: 600; letter-spacing: -.02em; }
+html.liubai-active body #app .dot-submenu-head p { margin: 3px 0 0; color: var(--muted); font-size: .68rem; }
+html.liubai-active body #app .dot-submenu-close {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+html.liubai-active body #app .dot-submenu-close:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .dot-submenu-close svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+html.liubai-active body #app .dot-submenu-items { min-height: 0; flex: 1; overflow-y: auto; padding: 8px 0 2px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 30%, transparent) transparent; }
+html.liubai-active body #app .dot-submenu-item {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: .82rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+html.liubai-active body #app .dot-submenu-item:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .dot-submenu-item.active { background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent); font-weight: 600; }
+html.liubai-active body #app .dot-submenu-item:focus-visible,
+html.liubai-active body #app .dot-submenu-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+html.liubai-active body #app .dot-submenu-icon { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+html.liubai-active body #app .dot-submenu-item > span { min-width: 0; text-wrap: balance; overflow-wrap: anywhere; }
+@keyframes nav-submenu-enter { from { opacity: 0; transform: translateX(-5px) scale(.99); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes nav-submenu-enter-right { from { opacity: 0; transform: translateX(5px) scale(.99); } to { opacity: 1; transform: translateX(0) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html.liubai-active body #app .dot-submenu-flyout { animation: none; }
+  html.liubai-active body #app .stage .slide,
+  html.liubai-active body #app .desk-home { transition-duration: .01ms !important; }
+}
+html.liubai-active body #app .dots .dot-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-align: left;
+  cursor: pointer;
+  transition: color .12s var(--ease);
+}
+html.liubai-active body #app .dots .dot-group-title:hover { color: var(--fg); }
+html.liubai-active body #app .dots .dot-group-title.is-active { color: var(--accent); }
+html.liubai-active body #app .dots .dot-group-title > span {
+  flex: 1;
+  min-width: 0;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+html.liubai-active body #app .dots .dot-group-icon,
+html.liubai-active body #app .dots .dot-icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+html.liubai-active body #app .dots .dot-group-chevron {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  opacity: .5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform .16s var(--ease);
+}
+html.liubai-active body #app .dots .dot-group-title.is-collapsed .dot-group-chevron { transform: rotate(-90deg); }
+html.liubai-active body #app .dots .dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 8px 0 13px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 400;
+  letter-spacing: .01em;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+html.liubai-active body #app .dots .dot:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .dots .dot.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); font-weight: 500; }
+html.liubai-active body #app .dots .dot-label {
+  min-width: 0;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+html.liubai-active body #app .dots .dot:focus-visible,
+html.liubai-active body #app .dots .dot-group-title:focus-visible,
+html.liubai-active body #app .desk-nav-close:focus-visible,
+html.liubai-active body #app .dots .desk-nav-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+html.liubai-active body #app .dots .dot-empty { padding: 6px 8px; }
+/* 底部动作是吸底的：留一块与它等高的滚动占位，避免压住最后一个模块 */
+html.liubai-active body #app .dots::after {
+  content: '';
+  display: block;
+  flex: none;
+  height: 112px;
+}
+
+/* ── 底部动作：同 .set-btn 语气 ───────────────────────────────────── */
+html.liubai-active body #app .dots .desk-nav-actions {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  display: grid;
+  flex: none;
+  gap: 1px;
+  margin-top: auto;
+  padding: 12px 0 6px;
+  background: var(--panel);
+  border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+}
+html.liubai-active body #app .dots .desk-nav-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .12s, color .12s;
+}
+html.liubai-active body #app .dots .desk-nav-actions button:hover { background: var(--hover); color: var(--fg); }
+html.liubai-active body #app .dots .desk-nav-action-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+html.liubai-active body #app .dots .desk-nav-action-label { flex: 1 0 auto; min-width: 0; white-space: nowrap; }
+html.liubai-active body #app .dots .desk-nav-action-count { color: var(--muted); font-size: .68rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* 吸底栏上方留一道渐隐，避免把滚动中的条目硬切 */
+html.liubai-active body #app .dots .desk-nav-actions::before {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: linear-gradient(to top, var(--panel), transparent);
+  content: '';
+  pointer-events: none;
+}html.liubai-active body #app .dots .desk-nav-actions kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--muted);
+  font: inherit;
+  font-size: .68rem;
+}
+
+/* ── 遮罩（窄屏唤出时的浮层背景；同参考稿 .palette 的 inset:0 遮罩）── */
+html.liubai-active body #app .nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  border: 0;
+  padding: 0;
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  cursor: default;
+  transition: opacity .2s var(--ease), visibility .2s;
+}
+
+/* ── 把手：侧边栏收起时贴在左/右边缘 ───────────────────────────────── */
+html.liubai-active body #app .module-nav-handle {
+  position: fixed;
+  z-index: 95;
+  top: 50%;
+  left: 0;
+  display: grid;
+  min-width: 30px;
+  min-height: 54px;
+  place-items: center;
+  padding: 6px 4px;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 9px 9px 0;
+  background: var(--panel);
+  color: var(--muted);
+  font: inherit;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: color .12s, border-color .12s, opacity .18s;
+}
+html.liubai-active body #app .module-nav-handle:hover { color: var(--fg); border-color: var(--line-strong); }
+html.liubai-active body[data-nav='right'] #app .module-nav-handle {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 9px 0 0 9px;
+}
+html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-events: none; }
+
+/* ── 桌面：常驻侧边栏让内容整体右移（Pajamas: 常驻，不遮挡）────────── */
+@media (min-width: 1101px) {
+  /* On desktop, level two lives in the floating card. Keep its inline copy
+   * available only for the narrow-screen fallback below. */
+  html.liubai-active body #app .dots .dot-group-items { display: none !important; }
+  html.liubai-active body #app .dot-submenu-flyout { display: flex; }
+  html.liubai-active body.nav-persistent[data-nav='left'] #app .stage .slide {
+    padding-left: 128px;
+    transition: padding-left .24s var(--ease);
+  }
+  html.liubai-active body.nav-persistent[data-nav='right'] #app .stage .slide {
+    padding-right: 128px;
+    transition: padding-right .24s var(--ease);
+  }
+  html.liubai-active body.nav-show[data-nav='left'] #app .stage .slide {
+    padding-left: 128px;
+    transition: padding-left .24s var(--ease);
+  }
+  html.liubai-active body.nav-show[data-nav='right'] #app .stage .slide {
+    padding-right: 128px;
+    transition: padding-right .24s var(--ease);
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='left'] #app .stage .slide {
+    padding-left: clamp(14px, 2.2vw, 30px);
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='right'] #app .stage .slide {
+    padding-right: clamp(14px, 2.2vw, 30px);
+  }
+  /* The secondary card floats over the page and never changes module geometry. */
+  /* Desk is a viewport-sized canvas; reserve space for the primary rail only. */
+  html.liubai-active body.desk-home.nav-show[data-nav='left'] #app .desk-home {
+    inset-inline-start: 128px !important;
+    transition: inset-inline-start .24s var(--ease), inset-inline-end .24s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
+  }
+  html.liubai-active body.desk-home.nav-show[data-nav='right'] #app .desk-home {
+    inset-inline-end: 128px !important;
+    transition: inset-inline-start .24s var(--ease), inset-inline-end .24s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
+  }
+  html.liubai-active body #app .nav-scrim { display: none; }
+}
+
+/* ── 窄屏：Desk 使用抽屉；常规模块仍固定在布局中 ──────────────────── */
+@media (max-width: 1100px) {
+  html.liubai-active body #app .dot-submenu-flyout { display: none !important; }
+  html.liubai-active body #app .dots .dot-group-items { display: contents; }
+  /* 窄屏把定位写全，避免旧层/参考稿的零散规则渗进来（曾经出现过 366×480 的浮卡） */
+  html.liubai-active body #app .dots {
     top: 0;
-    right: auto;
     bottom: 0;
     left: 0;
-    translate: 0 0;
-    width: min(300px, 84vw);
-    height: 100dvh;
+    right: auto;
+    width: min(248px, 84vw);
     max-width: 84vw;
+    height: 100dvh;
     max-height: 100dvh;
-    flex-direction: column;
     align-items: stretch;
-    padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
     border: 0;
     border-right: 1px solid var(--line);
     border-radius: 0;
-    opacity: 0 !important;
-    visibility: hidden;
-    pointer-events: none !important;
-    transform: translateX(-100%) !important;
+    /* 窄屏是浮层：半透明 + 毛玻璃，底下的内容透出来但不影响读字 */
+    background: color-mix(in srgb, var(--panel) 94%, transparent);
+    backdrop-filter: blur(18px) saturate(125%);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, .28);
   }
-  html.liubai-active body[data-nav='right'] #app .dots {
-    right: 0;
-    left: auto;
-    border-right: 0;
-    border-left: 1px solid var(--line);
-    transform: translateX(100%) !important;
+  html.liubai-active body[data-nav='right'] #app .dots { box-shadow: -12px 0 40px rgba(0, 0, 0, .28); }
+  html.liubai-active body.nav-show #app .nav-scrim { opacity: 1; visibility: visible; pointer-events: auto; }
+
+  /* Keep the module rail docked on small screens. Narrow it with its page
+   * gutter so it remains readable without covering the current module. */
+  html.liubai-active body.nav-persistent #app .dots {
+    width: min(112px, 32vw);
+    max-width: none;
+    padding-inline: 7px;
+    background: var(--panel);
+    backdrop-filter: none;
+    box-shadow: none;
   }
-  html.liubai-active body.nav-show #app .dots,
-  html.liubai-active body.desk-nav-open #app .dots {
-    opacity: 1 !important;
-    visibility: visible;
-    pointer-events: auto !important;
-    transform: translateX(0) !important;
+  html.liubai-active body.nav-persistent[data-nav='left'] #app .stage .slide {
+    padding-left: min(112px, 32vw);
+    transition: padding-left .24s var(--ease);
   }
+  html.liubai-active body.nav-persistent[data-nav='left'] #app .counter {
+    left: calc(min(112px, 32vw) + clamp(12px, 2vw, 22px));
+  }
+  html.liubai-active body.nav-persistent[data-nav='right'] #app .stage .slide {
+    padding-right: min(112px, 32vw);
+    transition: padding-right .24s var(--ease);
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='left'] #app .stage .slide {
+    padding-left: 12px;
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='right'] #app .stage .slide {
+    padding-right: 12px;
+  }
+  html.liubai-active body.nav-persistent #app .dots .desk-nav-action-count { display: none; }
 }
 
-/* Final navigation layout override: reserve space for the open navigation. */
-html.liubai-active body #app .stage {
-  transition: left .28s var(--ease), right .28s var(--ease), top .28s var(--ease), width .28s var(--ease);
-}
-html.liubai-active body.nav-show[data-nav='left'] #app .stage,
-html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage {
-  left: min(272px, 84vw);
-  right: 0;
-  width: calc(100% - min(272px, 84vw));
-}
-html.liubai-active body.nav-show[data-nav='right'] #app .stage,
-html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
-  left: 0;
-  right: min(272px, 84vw);
-  width: calc(100% - min(272px, 84vw));
-}
-html.liubai-active body.nav-show[data-nav='left'] #app .desk-home,
-html.liubai-active body.desk-nav-open[data-nav='left'] #app .desk-home {
-  left: min(272px, 84vw);
-  right: 0;
-  width: auto;
-}
-html.liubai-active body.nav-show[data-nav='right'] #app .desk-home,
-html.liubai-active body.desk-nav-open[data-nav='right'] #app .desk-home {
-  left: 0;
-  right: min(272px, 84vw);
-  width: auto;
-}
-@media (max-width: 760px) {
-  html.liubai-active body #app .dots,
-  html.liubai-active body[data-nav='left'] #app .dots,
-  html.liubai-active body[data-nav='right'] #app .dots {
-    top: 0;
-    right: 0;
-    bottom: auto;
-    left: 0;
-    width: 100%;
-    height: min(42dvh, 360px);
-    max-width: none;
-    max-height: min(42dvh, 360px);
-    padding: max(14px, env(safe-area-inset-top)) 14px 14px;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, .12);
-    transform: translateY(-100%) !important;
-  }
-  html.liubai-active body[data-nav='right'] #app .dots { right: 0; left: 0; border-left: 0; }
-  html.liubai-active body.nav-show #app .dots,
-  html.liubai-active body.desk-nav-open #app .dots,
-  html.liubai-active body.desk-home.nav-show #app .dots,
-  html.liubai-active body.desk-home.desk-nav-open #app .dots { transform: translateY(0) !important; }
-  html.liubai-active body.nav-show[data-nav='left'] #app .stage,
-  html.liubai-active body.desk-nav-open[data-nav='left'] #app .stage,
-  html.liubai-active body.nav-show[data-nav='right'] #app .stage,
-  html.liubai-active body.desk-nav-open[data-nav='right'] #app .stage {
-    top: min(42dvh, 360px);
-    right: 0;
-    left: 0;
-    width: 100%;
-  }
-  html.liubai-active body.nav-show[data-nav='left'] #app .desk-home,
-  html.liubai-active body.desk-nav-open[data-nav='left'] #app .desk-home,
-  html.liubai-active body.nav-show[data-nav='right'] #app .desk-home,
-  html.liubai-active body.desk-nav-open[data-nav='right'] #app .desk-home {
-    top: min(42dvh, 360px);
-    right: 0;
-    left: 0;
-    width: auto;
-  }
-}
+/* /desk 专注页：保留侧边栏，隐藏浮标式外壳装饰 */
+html.liubai-active body.desk-home #app :where(.brand, .progress, .counter, .tip) { display: none; }

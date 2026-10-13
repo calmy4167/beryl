@@ -77,6 +77,11 @@ async function submit() {
   draft.value = ''
   await addTask(title, targetDate.value, matterId.value || undefined)
 }
+function onTaskComposerKeydown(event: KeyboardEvent) {
+  if (event.isComposing || event.keyCode === 229) return
+  event.preventDefault()
+  void submit()
+}
 </script>
 
 <template>
@@ -99,7 +104,7 @@ async function submit() {
   <LbPanel grow title="任务清单" :note="saving ? '保存中…' : `${dayActions.length} 条`">
     <ul class="tasks">
       <li v-if="loading" class="empty">正在读取…</li>
-      <li v-else-if="!dayActions.length" class="empty">还没有任务。</li>
+      <li v-else-if="!dayActions.length" class="empty">从下方写下下一件想做的事。</li>
       <li
         v-for="item in dayActions"
         :key="item.calmyId"
@@ -109,21 +114,25 @@ async function submit() {
         <button
           class="box"
           type="button"
+          :aria-pressed="item.status === 'done'"
           :aria-label="item.status === 'done' ? '标记未完成' : '标记完成'"
+          :disabled="saving"
           @click="toggleTask(item)"
         ></button>
         <span class="focus-flag" aria-hidden="true"></span>
-        <span class="text" title="设为重点" @click="focusTask(item)">{{ item.title }}</span>
+        <button class="text task-title-button" type="button" :aria-pressed="focusIds.has(item.calmyId)" :title="focusIds.has(item.calmyId) ? '当前重点' : '设为重点'" @click="focusTask(item)">{{ item.title }}</button>
         <span class="tag">{{ matterTitle(item.matterId) || '其他' }}</span>
         <div class="acts">
           <button
             class="act focus-btn"
             :class="{ on: focusIds.has(item.calmyId) }"
-            :disabled="focusIds.has(item.calmyId)"
+            :aria-label="focusIds.has(item.calmyId) ? '当前重点' : `设为当前重点：${item.title}`"
+            :aria-pressed="focusIds.has(item.calmyId)"
+            :disabled="saving || focusIds.has(item.calmyId)"
             :title="focusIds.has(item.calmyId) ? '当前重点' : '设为当前重点'"
             @click="focusTask(item)"
           >◎</button>
-          <button class="act del" title="取消这项" aria-label="取消" @click="cancelTask(item)">✕</button>
+          <button class="act del" type="button" title="取消这项" :aria-label="`取消任务：${item.title}`" :disabled="saving" @click="cancelTask(item)">✕</button>
         </div>
         <details class="task-detail">
           <summary>领域 · 关联 · 归属</summary>
@@ -140,16 +149,17 @@ async function submit() {
       </li>
     </ul>
     <div class="add-row">
-      <input v-model="draft" class="add-input" maxlength="80" aria-label="任务名称" placeholder="添加任务，回车确认…" @keydown.enter.prevent="submit">
+      <input v-model="draft" class="add-input" maxlength="80" aria-label="任务名称" placeholder="添加任务，回车确认…" @keydown.enter="onTaskComposerKeydown">
       <input v-model="draftDate" class="add-date" type="date" aria-label="任务日期" :disabled="saving">
       <select v-model="matterId" class="add-matter" aria-label="关联处境" :disabled="saving">
         <option value="">不关联处境</option>
         <option v-for="matter in activeMatters" :key="matter.calmyId" :value="matter.calmyId">{{ matter.title }}</option>
       </select>
+      <button class="chip on task-add-button" type="button" :disabled="saving || !draft.trim()" @click="submit">添加</button>
     </div>
   </LbPanel>
 
-  <LbCollapsible block="taskStats" :rank="3">
+  <LbCollapsible v-if="dayActions.length" block="taskStats" :rank="3">
     <LbPanel title="任务统计">
       <LbStatGrid :stats="stats" />
     </LbPanel>
@@ -166,6 +176,24 @@ async function submit() {
   font-size: 0.75rem;
 }
 .add-matter { min-width: 8em; }
+.task-title-button {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+}
+.task-title-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 680px) {
+  .add-row { flex-wrap: wrap; align-items: stretch; }
+  .add-row .add-input { width: 100%; flex: 1 1 100%; box-sizing: border-box; }
+  .add-row .add-date, .add-row .add-matter { min-width: 0; flex: 1 1 calc(50% - 5px); box-sizing: border-box; }
+  .add-row .task-add-button { min-height: 40px; flex: 1 1 100%; }
+}
 .task-detail {
   flex: 1 0 100%;
   margin-top: 6px;

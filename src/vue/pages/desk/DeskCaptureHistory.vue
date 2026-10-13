@@ -175,10 +175,10 @@ const groups = computed(() => {
 
 <style scoped>
 .desk-record-history {
-  --desk-bg: #fbfbf8;
-  --desk-ink: #25251f;
-  --desk-muted: rgba(37, 37, 31, .55);
-  --desk-line: rgba(37, 37, 31, .12);
+  --desk-bg: var(--workspace-glass, var(--panel));
+  --desk-ink: var(--fg);
+  --desk-muted: var(--muted);
+  --desk-line: var(--line);
   display: grid;
   flex: 1;
   grid-template-columns: minmax(220px, .7fr) minmax(0, 1.65fr);
@@ -192,39 +192,39 @@ const groups = computed(() => {
   color: var(--desk-ink);
 }
 .desk-record-list { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; border-right: 1px solid var(--desk-line); }
-.desk-record-list-head { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 24px 20px; border-bottom: 1px solid var(--desk-line); }
-.desk-record-list-head h1 { margin: 0; font-size: 21px; font-weight: 500; letter-spacing: -.04em; }
-.desk-record-list-head p { margin: 6px 0 0; color: var(--desk-muted); font-size: 12px; }
-.desk-record-back, .desk-record-list-tools button, .desk-history-related, .desk-history-detail-actions button { border: 1px solid var(--desk-line); border-radius: 8px; padding: 8px 10px; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
-.desk-record-back:hover, .desk-record-list-tools button:hover, .desk-history-related:hover, .desk-history-detail-actions button:hover { background: rgb(37 37 31 / 4%); }
+.desk-record-list-head { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid var(--desk-line); }
+.desk-record-list-head h1 { margin: 0; font-size: 1.18rem; font-weight: 600; letter-spacing: -.025em; }
+.desk-record-list-head p { margin: 5px 0 0; color: var(--desk-muted); font-size: .76rem; }
+.desk-record-back, .desk-record-list-tools button, .desk-history-related, .desk-history-detail-actions button { border: 1px solid var(--desk-line); border-radius: 8px; padding: 8px 10px; background: transparent; color: inherit; font: inherit; font-size: .8rem; cursor: pointer; }
+.desk-record-back:hover, .desk-record-list-tools button:hover, .desk-history-related:hover, .desk-history-detail-actions button:hover { background: var(--hover); }
 .desk-record-list-tools { display: flex; flex: none; justify-content: flex-end; padding: 9px 18px 2px; }
 .desk-record-list-tools button { border-color: transparent; padding: 6px; color: var(--desk-muted); }
 .desk-history-groups { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 4px 18px 20px; scrollbar-color: rgba(37, 37, 31, .22) transparent; scrollbar-width: thin; }
 .desk-history-day + .desk-history-day { margin-top: 16px; }
-.desk-history-day h2 { margin: 12px 8px 5px; color: var(--desk-muted); font-size: 11px; font-weight: 500; letter-spacing: .04em; }
+.desk-history-day h2 { margin: 12px 8px 5px; color: var(--desk-muted); font-size: .76rem; font-weight: 600; letter-spacing: .01em; }
 .desk-history-day ul { margin: 0; padding: 0; list-style: none; }
 .desk-history-row { display: grid; grid-template-columns: minmax(0, 1fr) 24px; gap: 4px; align-items: start; }
 .desk-history-select { display: block; min-width: 0; border: 0; border-radius: 10px; padding: 11px 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.desk-history-row.is-selected .desk-history-select { background: #edf0e9; }
+.desk-history-row.is-selected .desk-history-select { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--fg); }
 .desk-history-record-body { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
-.desk-history-meta { display: flex; flex-wrap: wrap; gap: 4px 9px; margin-top: 7px; color: var(--desk-muted); font-size: 10px; }
+.desk-history-meta { display: flex; flex-wrap: wrap; gap: 4px 9px; margin-top: 7px; color: var(--desk-muted); font-size: .72rem; }
 .desk-history-action { align-self: start; width: 24px; height: 32px; border: 0; padding: 0; background: transparent; color: var(--desk-muted); font: inherit; cursor: pointer; opacity: .45; }
 .desk-history-row:hover .desk-history-action, .desk-history-action:focus-visible { opacity: 1; }
 .desk-history-row.is-hidden { opacity: .68; }
 .desk-record-state, .desk-record-error { margin: 24px; color: var(--desk-muted); font-size: 13px; line-height: 1.75; }
-.desk-record-error { color: #a64339; }
+.desk-record-error { color: var(--danger); }
 .desk-record-error button { border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; }
-.desk-record-action-error { flex: none; margin: 0 22px 15px; color: #a64339; font-size: 12px; }
-.desk-history-detail { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: auto; padding: clamp(28px, 4vw, 62px) clamp(24px, 6vw, 82px); background: #fbfbf8; }
-.desk-history-detail-head { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 16px; color: var(--desk-muted); font-size: 12px; }
+.desk-record-action-error { flex: none; margin: 0 22px 15px; color: var(--danger); font-size: .76rem; }
+.desk-history-detail { display: flex; min-width: 0; min-height: 0; flex-direction: column; overflow: auto; padding: clamp(28px, 4vw, 62px) clamp(24px, 6vw, 82px); background: transparent; }
+.desk-history-detail-head { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 16px; color: var(--desk-muted); font-size: .76rem; }
 .desk-history-related { flex: none; }
-.desk-history-detail-status { flex: none; margin: clamp(28px, 7vh, 64px) 0 12px; color: var(--desk-muted); font-size: 12px; }
+.desk-history-detail-status { flex: none; margin: clamp(28px, 7vh, 64px) 0 12px; color: var(--desk-muted); font-size: .76rem; }
 .desk-history-detail-body { max-width: 68ch; overflow-wrap: anywhere; white-space: pre-wrap; font: 400 clamp(18px, 2vw, 24px)/1.85 Georgia, 'Songti SC', serif; }
 .desk-history-detail-actions { display: flex; flex: none; gap: 8px; margin-top: auto; padding-top: 30px; }
 .desk-history-detail-empty { justify-content: center; color: var(--desk-muted); text-align: center; }
 .desk-history-detail-empty p { margin: 0; }
 @media (max-width: 760px) {
-  .desk-record-history { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(215px, 43dvh) minmax(250px, 1fr); border-radius: 11px; }
+  .desk-record-history { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(155px, 35dvh) minmax(220px, 1fr); border-radius: 11px; }
   .desk-record-list { border-right: 0; border-bottom: 1px solid var(--desk-line); }
   .desk-record-list-head { padding: 16px 16px 13px; }
   .desk-record-list-tools { padding-right: 12px; }

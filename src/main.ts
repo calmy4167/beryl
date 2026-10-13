@@ -20,6 +20,8 @@ import './styles/controls.css'
 import './styles/liubai/liubai-v11.css'
 // 「留白」应用层：外壳微调 + 旧类名映射 + 表单/第三方控件跟随主题（见文件头注释）
 import './styles/liubai/liubai-app.css'
+// Calmy Image2 UI 首版：轻量全局导航与 Today 首页视觉层
+import './styles/liubai/calmy-image2-ui.css'
 import App from './App.vue'
 import router from './router'
 import { initDb, readKvSnapshot, selectDbAccount } from './core/db'
@@ -54,10 +56,8 @@ applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
 // 放在 body 上（CSS 以 body[data-theme]、body.nav-show、body.mode-simple 等为选择器），
 // 在挂载前设置以避免主题闪烁；运行期切换由 LiubaiShell 负责。
 try {
-  // 默认主题 = 参考稿自己的默认「深夜」。
-  // （迁移早期曾临时用「纸白」，因为旧页面的浅色卡片在深色底上不可读；
-  //   liubai-bridge.css 把旧页面表面映射到「留白」令牌后，深色已可读，故切回。）
-  const liubaiTheme = localStorage.getItem('liubai-theme') || 'night'
+  // 默认使用明亮的纸白主题；用户已保存的主题偏好继续生效。
+  const liubaiTheme = localStorage.getItem('liubai-theme') || 'paper'
   const liubaiNav = localStorage.getItem('liubai-nav') === 'right' ? 'right' : 'left'
   document.body.dataset.theme = ['night', 'ink', 'forest', 'sunset', 'paper', 'sand'].includes(liubaiTheme) ? liubaiTheme : 'night'
   document.body.dataset.nav = liubaiNav

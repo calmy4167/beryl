@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { fmtDate } from '@/core/storage'
 import { createAsyncCollectionRepository, createEntityId } from '@/core/repository'
 import { registerUndo } from '@/core/undo'
@@ -26,6 +26,9 @@ const people = ref<Person[]>([])
 const session = readServerSession()
 const filter = ref<PostFilter>('active')
 const editingId = ref<string>(), reading = ref<PostItem>()
+const drawerCloseButton = ref<HTMLButtonElement | null>(null)
+const drawerDialog = ref<HTMLElement | null>(null)
+let readingReturnFocus: HTMLElement | null = null
 const saving = ref(false), loading = ref(true)
 const filters: Array<{ value: PostFilter; label: string }> = [{ value: 'active', label: '在库' }, { value: 'archived', label: '已归档' }, { value: 'all', label: '全部' }]
 const activeCount = computed(() => posts.value.filter(post => !post.archivedAt).length)
@@ -49,6 +52,28 @@ function beginEdit(post: PostItem) {
   const scrollRoot = document.querySelector<HTMLElement>('.stage-scroll')
   if (scrollRoot) scrollRoot.scrollTo({ top: 0, behavior: 'smooth' })
   else window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+async function openReader(post: PostItem, event: Event): Promise<void> {
+  readingReturnFocus = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+  reading.value = post
+  await nextTick()
+  drawerCloseButton.value?.focus()
+}
+function closeReader(): void {
+  reading.value = undefined
+  const returnFocus = readingReturnFocus
+  readingReturnFocus = null
+  requestAnimationFrame(() => { if (returnFocus?.isConnected) returnFocus.focus() })
+}
+function onReaderKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') { event.preventDefault(); closeReader(); return }
+  if (event.key !== 'Tab') return
+  const focusables = drawerDialog.value?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')
+  const list = focusables ? [...focusables].filter(item => item.offsetParent !== null) : []
+  if (!list.length) { event.preventDefault(); return }
+  const first = list[0], last = list[list.length - 1]
+  if (event.shiftKey && (document.activeElement === first || !drawerDialog.value?.contains(document.activeElement))) { event.preventDefault(); last.focus() }
+  else if (!event.shiftKey && (document.activeElement === last || !drawerDialog.value?.contains(document.activeElement))) { event.preventDefault(); first.focus() }
 }
 function postSnapshot(post: StoredPost, revision: number, operation: PostSnapshot['operation'], actorUserId?: string): PostSnapshot {
   return { revision, operation, occurredAt: Date.now(), actorUserId, title: post.title || '', content: post.content || '', date: post.date || '', ...(post.archivedAt ? { archivedAt: post.archivedAt } : {}), ...(post.ownership ? { ownership: post.ownership } : {}) }
@@ -78,7 +103,7 @@ async function toggleArchive(post: PostItem) {
   saving.value = true
   try {
     await withSaveState(async () => { const patch = post.archivedAt ? { archivedAt: undefined } : { archivedAt: Date.now() }; await updatePost(post, patch) })
-    if (reading.value?.id === post.id) reading.value = undefined
+    if (reading.value?.id === post.id) closeReader()
     await refresh(); toast(post.archivedAt ? '文章已恢复' : '文章已归档')
   } catch (cause) { toast(cause instanceof Error ? cause.message : '文章归档失败', 'error') } finally { saving.value = false }
 }
@@ -93,7 +118,7 @@ async function removePost(post: PostItem) {
   saving.value = true
   try {
     await withSaveState(async () => { const raw = await readStoredPosts(); const index = raw.findIndex(item => item.id === post.id); const removed = index >= 0 ? raw[index] : undefined; if (!removed) throw new Error('文章不存在，可能已被其他设备删除'); if (!await postRepository.remove(post.id)) throw new Error('文章删除失败'); registerUndo('posts', removed, index, post.id) })
-    if (reading.value?.id === post.id) reading.value = undefined
+    if (reading.value?.id === post.id) closeReader()
     if (editingId.value === post.id) resetEditor()
     await refresh(); toast('文章已删除，可在提示消失前撤销')
   } catch (cause) { toast(cause instanceof Error ? cause.message : '文章删除失败', 'error') } finally { saving.value = false }
@@ -114,7 +139,7 @@ async function removePost(post: PostItem) {
     <!-- parity 测试按「数字与静态文案是两个文本节点」断言，所以保留 .posts-active-count 的 display:contents 结构 -->
     <span class="load-pill"><span class="posts-active-count" style="display: contents">{{ activeCount }}</span> 篇在库</span>
   </header>
-    <LbPanel :title="editingId ? '编辑文章' : '写一篇文章'" note="支持 Markdown 文本">
+    <LbPanel :title="editingId ? '编辑文章' : '写一篇文章'" note-tip="支持 Markdown 文本。">
       <form class="post-editor" @submit.prevent="savePost">
         <div v-if="editingId" class="detail-chips post-editor-actions"><button type="button" class="chip" :disabled="saving" @click="resetEditor">取消编辑</button></div>
         <input v-model="title" aria-label="文章标题" placeholder="文章标题" :disabled="saving" />
@@ -126,10 +151,10 @@ async function removePost(post: PostItem) {
       <div class="posts-toolbar"><input v-model="query" aria-label="搜索文章" placeholder="搜索标题或正文" /><div class="seg" role="tablist" aria-label="文章状态筛选"><button v-for="option in filters" :key="option.value" type="button" :class="filter === option.value ? 'on' : ''" role="tab" :aria-selected="filter === option.value" @click="filter = option.value">{{ option.label }}</button></div></div>
       <section v-if="error" class="panel posts-error" role="alert"><b>文章数据暂时无法读取</b><p class="dim">{{ error }}</p><button class="chip" type="button" @click="refresh">重试</button></section>
       <p v-if="loading" class="dim" role="status">正在读取文章…</p>
-      <div v-if="!loading && visiblePosts.length" class="history-list" aria-live="polite"><article v-for="post in visiblePosts" :key="post.id" class="history-card panel"><div class="panel-head"><button type="button" class="post-title-button" @click="reading = post"><h3>{{ post.title }}</h3></button><small>{{ formatDate(post.date) }}</small></div><p class="post-excerpt">{{ post.content }}</p><div class="detail-chips"><button type="button" class="chip" :disabled="saving" @click="reading = post">阅读全文</button><button type="button" class="chip" :disabled="saving" @click="beginEdit(post)">编辑</button><button type="button" class="chip" :disabled="saving" @click="toggleArchive(post)">{{ post.archivedAt ? '恢复' : '归档' }}</button><button type="button" class="chip danger" :disabled="saving" @click="removePost(post)">删除</button></div><DomainPicker :entity-ref="{ entityType: 'post', calmyId: post.id }" :disabled="saving" /><ContextRelationPicker :entity-ref="{ entityType: 'post', calmyId: post.id }" :disabled="saving" /><OwnershipEditor :ownership="post.ownership" :people="people" :current-user-id="session?.user.id" :disabled="saving" label="文章归属与可见范围" @save="ownership => saveOwnership(post, ownership)" /></article></div>
+      <div v-if="!loading && visiblePosts.length" class="history-list" aria-live="polite"><article v-for="post in visiblePosts" :key="post.id" class="history-card panel"><div class="panel-head"><button type="button" class="post-title-button" @click="openReader(post, $event)"><h3>{{ post.title }}</h3></button><small>{{ formatDate(post.date) }}</small></div><p class="post-excerpt">{{ post.content }}</p><div class="detail-chips"><button type="button" class="chip" :disabled="saving" @click="openReader(post, $event)">阅读全文</button><button type="button" class="chip" :disabled="saving" @click="beginEdit(post)">编辑</button><button type="button" class="chip" :disabled="saving" @click="toggleArchive(post)">{{ post.archivedAt ? '恢复' : '归档' }}</button><button type="button" class="chip danger" :disabled="saving" @click="removePost(post)">删除</button></div><DomainPicker :entity-ref="{ entityType: 'post', calmyId: post.id }" :disabled="saving" /><ContextRelationPicker :entity-ref="{ entityType: 'post', calmyId: post.id }" :disabled="saving" /><OwnershipEditor :ownership="post.ownership" :people="people" :current-user-id="session?.user.id" :disabled="saving" label="文章归属与可见范围" @save="ownership => saveOwnership(post, ownership)" /></article></div>
       <p v-if="!loading && !error && !visiblePosts.length" class="dim">{{ query ? '没有匹配的文章。' : filter === 'archived' ? '还没有归档文章。' : '还没有文章，把值得留下的经验写下来。' }}</p>
     </LbPanel>
-    <div v-if="reading" class="el-drawer-overlay" role="presentation" @click="reading = undefined"><aside class="el-drawer" role="dialog" aria-modal="true" :aria-label="reading.title" @click.stop><div class="drawer"><button type="button" class="drawer-close" aria-label="关闭文章阅读" @click="reading = undefined">×</button><p class="eyebrow">ARTICLE</p><h1 class="drawer-title">{{ reading.title }}</h1><p class="dim">{{ formatDate(reading.date) }}{{ reading.archivedAt ? ' · 已归档' : '' }}</p><hr class="drawer-rule" /><div class="drawer-body">{{ reading.content }}</div></div></aside></div>
+    <div v-if="reading" class="el-drawer-overlay" role="presentation" @click.self="closeReader"><aside ref="drawerDialog" class="el-drawer" role="dialog" aria-modal="true" :aria-labelledby="`post-reader-title-${reading.id}`" @keydown="onReaderKeydown"><div class="drawer"><button ref="drawerCloseButton" type="button" class="drawer-close" aria-label="关闭文章阅读" @click="closeReader">×</button><p class="eyebrow">ARTICLE</p><h1 :id="`post-reader-title-${reading.id}`" class="drawer-title">{{ reading.title }}</h1><p class="dim">{{ formatDate(reading.date) }}{{ reading.archivedAt ? ' · 已归档' : '' }}</p><hr class="drawer-rule" /><div class="drawer-body">{{ reading.content }}</div></div></aside></div>
 </template>
 
 <style scoped>

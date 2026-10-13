@@ -32,6 +32,7 @@ useOwnSlideHead()
 
 const router = useRouter()
 const currentSession = readServerSession()
+const settingsSection = ref<'appearance' | 'data' | 'sync'>('appearance')
 const scene = ref(currentSceneId())
 const appearanceMode = ref<ThemeMode>(getThemeMode())
 const appearanceColor = ref(readBackgroundPreferences()[appearanceMode.value] || getDefaultBackgroundColor(appearanceMode.value))
@@ -436,6 +437,13 @@ onUnmounted(() => {
     </div>
   </header>
 
+  <nav class="admin-section-nav" aria-label="设置分组">
+    <button type="button" class="chip" :class="{ on: settingsSection === 'appearance' }" :aria-pressed="settingsSection === 'appearance'" @click="settingsSection = 'appearance'">外观</button>
+    <button type="button" class="chip" :class="{ on: settingsSection === 'data' }" :aria-pressed="settingsSection === 'data'" @click="settingsSection = 'data'">数据与账户</button>
+    <button type="button" class="chip" :class="{ on: settingsSection === 'sync' }" :aria-pressed="settingsSection === 'sync'" @click="settingsSection = 'sync'">同步与迁移</button>
+  </nav>
+
+  <div v-show="settingsSection === 'appearance'" class="admin-section">
   <LbPanel title="外观" :note="appearanceMode === 'dark' ? '深色外观' : '浅色外观'">
     <div class="seg" role="group" aria-label="选择要编辑的外观">
       <button type="button" :class="{ on: appearanceMode === 'light' }" :aria-pressed="appearanceMode === 'light'" @click="switchAppearanceMode('light')">浅色</button>
@@ -469,7 +477,9 @@ onUnmounted(() => {
     </div>
     <p class="appearance-status" role="status" aria-live="polite">{{ appearanceStatus }}</p>
   </LbPanel>
+  </div>
 
+  <div v-show="settingsSection === 'data'" class="admin-section">
   <LbCollapsible block="adminStats" :rank="3">
     <LbPanel title="数据统计">
       <LbStatGrid :stats="stats" />
@@ -503,8 +513,8 @@ onUnmounted(() => {
       <button class="chip danger" type="button" @click="resetData">重置</button>
     </div>
     <div class="persistence-status" role="status" aria-live="polite" aria-atomic="false" :style="{ color: persistenceStatus.state === 'degraded' ? 'var(--danger)' : persistenceStatus.state === 'ready' ? 'var(--accent)' : 'var(--muted)' }">
-      <p id="persistence-status-text" class="info">{{ persistenceStatusText }}</p>
-      <p class="info">待重试写入：{{ persistenceStatus.pendingWrites }} · 最近镜像：{{ persistenceStatus.lastMirrorAt ? new Date(persistenceStatus.lastMirrorAt).toLocaleString() : '暂无' }}</p>
+      <p id="persistence-status-text" class="status-copy">{{ persistenceStatusText }}</p>
+      <p class="status-copy">待重试写入：{{ persistenceStatus.pendingWrites }} · 最近镜像：{{ persistenceStatus.lastMirrorAt ? new Date(persistenceStatus.lastMirrorAt).toLocaleString() : '暂无' }}</p>
       <button class="chip" type="button" :disabled="persistenceBusy" aria-describedby="persistence-status-text" @click="retryPersistence">{{ persistenceBusy ? '重试中…' : '重试持久化' }}</button>
     </div>
   </LbPanel>
@@ -523,10 +533,12 @@ onUnmounted(() => {
       </div>
     </LbPanel>
   </LbCollapsible>
+  </div>
 
+  <div v-show="settingsSection === 'sync'" class="admin-section">
   <LbCollapsible block="adminVaultSync" :rank="2">
     <LbPanel title="Vault 同步" :note="vaultSyncBusy ? '同步中…' : '登录后自动同步'">
-      <p class="info" role="status" aria-live="polite">{{ vaultSyncStatus }}</p>
+      <p class="status-copy" role="status" aria-live="polite">{{ vaultSyncStatus }}</p>
       <div class="detail-chips">
         <button class="chip" type="button" :disabled="vaultSyncBusy" @click="syncVaultNow">{{ vaultSyncBusy ? '同步中…' : '立即同步' }}</button>
       </div>
@@ -537,7 +549,7 @@ onUnmounted(() => {
   <!-- Obsidian Vault：显式差异预览与决策后写回 -->
   <LbCollapsible block="adminObsidian" :rank="2">
     <LbPanel title="Obsidian Vault" :note="vaultRestoreNeeded ? `已记住 Vault：${vaultName} · 需要重新授权` : vaultName ? `当前 Vault：${vaultName}` : '未连接 Vault'">
-      <p class="info">只扫描和写入 Calmy Open Format 文件；Vault 独有实体的删除必须明确选择，并会留下 tombstone。</p>
+      <p class="status-copy">只扫描和写入 Calmy Open Format 文件；Vault 独有实体的删除必须明确选择，并会留下 tombstone。</p>
       <div class="detail-chips">
         <button class="chip" type="button" @click="connectVault">选择 Vault</button>
         <button v-if="vaultRestoreNeeded" class="chip" type="button" @click="restoreVaultPermission">恢复 Vault 授权</button>
@@ -545,7 +557,7 @@ onUnmounted(() => {
         <button class="chip" type="button" :disabled="!vaultAdapter || vaultBusy" @click="scanVault">{{ vaultBusy ? '处理中…' : '扫描差异' }}</button>
         <button class="chip on" type="button" :disabled="!vaultPlan || vaultBusy" @click="applyVault">应用同步</button>
       </div>
-      <p v-if="vaultReport" class="info diag-raw" role="status" aria-live="polite" aria-atomic="true">{{ vaultReport }}</p>
+      <p v-if="vaultReport" class="status-copy diag-raw" role="status" aria-live="polite" aria-atomic="true">{{ vaultReport }}</p>
       <div v-if="vaultPlan && vaultPlan.conflicts.length" class="vault-list">
         <p class="mods-line">字段级冲突（可选择保留 Vault、本地版本，或逐字段合并）</p>
         <div v-for="conflict in vaultPlan.conflicts" :key="conflict.identityKey" class="vault-item">
@@ -619,6 +631,7 @@ onUnmounted(() => {
       <p class="mods-line">用户数据备份使用当前 Vault 密钥加密；恢复时需先在当前账号解锁 Vault。不要手动清理旧数据。</p>
     </LbPanel>
   </LbCollapsible>
+  </div>
 </template>
 
 <style scoped>
@@ -631,8 +644,11 @@ onUnmounted(() => {
 .chip.danger:hover { color: var(--danger); border-color: var(--danger); }
 /* .seg 的分段按钮在参考稿里 flex:1 铺满容器；设置页给它一个合理宽度，免得「浅色/深色」各占半屏 */
 .seg { max-width: min(360px, 100%); }
+.admin-section-nav { position: sticky; top: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; width: fit-content; max-width: 100%; padding: 5px; border: 1px solid var(--line); border-radius: 12px; background: var(--workspace-glass, var(--panel)); }
+.admin-section-nav .chip { min-width: 112px; }
+.admin-section { display: grid; gap: clamp(8px, 1.2vh, 14px); min-width: 0; }
 .mods-line { font-size: .7rem; color: var(--muted); margin-top: 12px; line-height: 1.7; }
-.info { font-size: .78rem; color: var(--muted); margin: 4px 0; }
+.status-copy { color: var(--muted); }
 .info span { color: var(--fg); }
 .persistence-status { margin-top: 12px; display: grid; gap: 4px; justify-items: start; }
 .appearance-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-top: 14px; }
@@ -655,5 +671,7 @@ onUnmounted(() => {
 .diag-raw { color: var(--fg); }
 @media (max-width: 620px) {
   .appearance-controls { align-items: stretch; flex-direction: column; }
+  .admin-section-nav { position: static; width: 100%; }
+  .admin-section-nav .chip { min-width: 0; flex: 1 1 auto; }
 }
 </style>

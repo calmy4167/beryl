@@ -97,6 +97,11 @@ async function submit() {
   draft.value = ''
   await capture(body)
 }
+function onCaptureComposerKeydown(event: KeyboardEvent) {
+  if (event.isComposing || event.keyCode === 229) return
+  event.preventDefault()
+  void submit()
+}
 
 /** 注意门：五路决定都走 decideCapture（内含幂等 commandId、revision 兜底与跨实体创建） */
 async function gate(item: CaptureItem, decision: CaptureDecision) {
@@ -132,10 +137,10 @@ async function gate(item: CaptureItem, decision: CaptureDecision) {
     <button class="act" type="button" @click="refresh">重试</button>
   </p>
 
-  <LbPanel grow title="待处理" :note="saving ? '保存中…' : `${pending.length} 条`">
+  <LbPanel grow title="待处理" :note="saving ? '保存中…' : (pending.length ? `${pending.length} 条` : '')">
     <ul class="inbox">
       <li v-if="loading" class="inbox-empty">正在读取…</li>
-      <li v-else-if="!pending.length" class="inbox-empty">收集箱是空的。</li>
+      <li v-else-if="!pending.length" class="inbox-empty">暂无记录。</li>
       <li v-for="item in pending" :key="item.calmyId" class="inbox-item">
         <span class="inbox-time">{{ timeOf(item.createdAt) }}</span>
         <span class="inbox-src">原文</span>
@@ -165,18 +170,19 @@ async function gate(item: CaptureItem, decision: CaptureDecision) {
         @select="rememberSelection"
         @keyup="rememberSelection"
         @click="rememberSelection"
-        @keydown.enter.prevent="submit"
+        @keydown.enter="onCaptureComposerKeydown"
       >
+      <button class="chip on capture-submit" type="button" :disabled="saving || !draft.trim()" @click="submit">记录</button>
     </div>
   </LbPanel>
 
-  <LbCollapsible block="captureStats" :rank="3">
+  <LbCollapsible v-if="inbox.length" block="captureStats" :rank="3">
     <LbPanel title="记录统计">
       <LbStatGrid :stats="stats" />
     </LbPanel>
   </LbCollapsible>
 
-  <LbCollapsible block="captureHistory" :rank="3">
+  <LbCollapsible v-if="handled.length" block="captureHistory" :rank="3">
     <LbPanel title="已处理" :note="handled.length ? `${handled.length} 条` : '—'">
       <ul class="ov-list">
         <li v-if="!handled.length" class="dim">还没有处理过的记录。</li>

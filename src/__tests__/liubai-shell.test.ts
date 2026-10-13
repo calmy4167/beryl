@@ -70,15 +70,59 @@ describe('「留白」统一外壳', () => {
     const router = await mountShell('/app/module/tasks')
     const dots = wrapper!.findAll('nav.dots .dot')
 
-    expect(dots.map(dot => dot.text())).toContain('任务')
-    expect(wrapper!.find('.dot.active').text()).toBe('任务')
+    expect(dots.map(dot => dot.text())).toContain('全部模块')
+    await wrapper!.find('[aria-label="管理模块"]').trigger('click')
+    expect(wrapper!.find('.module-manager-list').text()).toContain('任务')
     expect(wrapper!.find('.counter').text()).toMatch(/^\d{2} \/ \d{2}$/)
 
-    await dots.find(dot => dot.text() === '回顾')!.trigger('click')
+    await wrapper!.find('[aria-label="打开任务"]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/app/module/tasks')
+    await wrapper!.find('[data-quick-entry="/app/review"]').trigger('click')
     await flushPromises()
 
     expect(router.currentRoute.value.path).toBe('/app/review')
     expect(wrapper!.find('.dot.active').text()).toBe('回顾')
+  })
+
+  it('lets users choose and persist sidebar quick entries independently of module visibility', async () => {
+    const router = await mountShell('/app/today')
+    const taskPath = MODULES.find(([, label]) => label === '任务')![0]
+    const quickEntryPaths = () => wrapper!.findAll('nav.dots [data-quick-entry]').map(item => item.attributes('data-quick-entry'))
+
+    expect(quickEntryPaths()).toEqual(['/app/today', '/app/capture', '/app/matters', '/app/review'])
+
+    await wrapper!.find('[aria-label="管理模块"]').trigger('click')
+    const addTaskShortcut = wrapper!.find(`[data-quick-entry-toggle="${taskPath}"]`)
+    expect(addTaskShortcut.attributes('aria-pressed')).toBe('false')
+    await addTaskShortcut.trigger('click')
+    await nextTick()
+
+    expect(JSON.parse(localStorage.getItem('liubai-quick-entry-paths') || '[]')).toContain(taskPath)
+    expect(quickEntryPaths()).toContain(taskPath)
+
+    const taskRow = wrapper!.findAll('.module-manager-row').find(row => row.find('[data-quick-entry-toggle]').attributes('data-quick-entry-toggle') === taskPath)!
+    await taskRow.find('input[type="checkbox"]').setValue(false)
+    await nextTick()
+    expect(quickEntryPaths()).toContain(taskPath)
+
+    await wrapper!.find('.module-manager-close').trigger('click')
+    await wrapper!.find(`[data-quick-entry="${taskPath}"]`).trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe(taskPath)
+
+    wrapper!.unmount()
+    wrapper = undefined
+    await mountShell(taskPath)
+    expect(quickEntryPaths()).toContain(taskPath)
+
+    await wrapper!.find('[aria-label="管理模块"]').trigger('click')
+    const removeTaskShortcut = wrapper!.find(`[data-quick-entry-toggle="${taskPath}"]`)
+    expect(removeTaskShortcut.attributes('aria-pressed')).toBe('true')
+    await removeTaskShortcut.trigger('click')
+    await nextTick()
+    expect(quickEntryPaths()).not.toContain(taskPath)
+    expect(JSON.parse(localStorage.getItem('liubai-quick-entry-paths') || '[]')).not.toContain(taskPath)
   })
 
   it('does not open navigation on pointer hover or focus, and keeps it open across module changes', async () => {

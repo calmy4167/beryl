@@ -738,6 +738,10 @@ body[data-nav="left"] .slide{padding-left:clamp(60px,5vw,76px);}
 }
 .info:hover{color:var(--fg); border-color:var(--accent); background:var(--hover);}
 .info:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.status-copy{
+  display:block; width:100%; min-width:0; margin:4px 0;
+  font-size:.78rem; line-height:1.55; overflow-wrap:anywhere;
+}
 
 /* ============ 日期导航（下拉） ============ */
 .date-nav{display:flex; align-items:center; flex:none;}
@@ -799,11 +803,11 @@ body[data-nav="left"] .slide{padding-left:clamp(60px,5vw,76px);}
   display:flex; justify-content:space-between; align-items:baseline;
   gap:12px; flex:none; min-width:0;
 }
-.panel-title{font-size:.7rem; color:var(--muted);
-  letter-spacing:.14em; text-transform:uppercase;
+.panel-title{font-size:.88rem; color:var(--fg); font-weight:600;
+  letter-spacing:-.01em; text-transform:none;
   flex:none; white-space:nowrap;}
 .panel-note{font-size:.74rem; color:var(--muted);
-  max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  max-width:100%; white-space:normal; overflow-wrap:anywhere; text-align:right;}
 .panel-note b{color:var(--fg); font-weight:500;}
 .panel > .add-row{margin-top:auto; padding-top:clamp(8px,1.2vh,14px);}
 

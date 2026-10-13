@@ -12,6 +12,10 @@ import type { Ownership, Person } from '@/domain/unified/model'
 import DomainPicker from '@/vue/components/DomainPicker.vue'
 import OwnershipEditor from '@/vue/components/OwnershipEditor.vue'
 import ContextRelationPicker from '@/vue/components/ContextRelationPicker.vue'
+import CalmyField from '@/vue/components/CalmyField.vue'
+import CalmyInput from '@/vue/components/CalmyInput.vue'
+import CalmyNativeSelect from '@/vue/components/CalmyNativeSelect.vue'
+import CalmyButton from '@/vue/components/CalmyButton.vue'
 import { useOwnSlideHead } from '@/vue/liubai/slide-head'
 import LbPanel from '@/vue/liubai/LbPanel.vue'
 import LbCollapsible from '@/vue/liubai/LbCollapsible.vue'
@@ -67,7 +71,7 @@ onUnmounted(() => { window.removeEventListener('beryl-data-synced', onSync); win
     <span class="panel-note">{{ loading ? '正在读取…' : `${items.length} 条记录` }}</span>
   </header>
 
-    <section v-if="error" class="panel finance-error" role="alert"><b>财务数据暂时无法读取</b><p class="dim">{{error}}</p><button class="chip" type="button" @click="refresh">重试</button></section>
+    <section v-if="error" class="panel finance-error" role="alert"><b>财务数据暂时无法读取</b><p class="dim">{{error}}</p><CalmyButton type="button" @click="refresh">重试</CalmyButton></section>
 
     <LbCollapsible block="financeStats" :rank="3">
       <LbPanel title="收支汇总">
@@ -75,19 +79,23 @@ onUnmounted(() => { window.removeEventListener('beryl-data-synced', onSync); win
       </LbPanel>
     </LbCollapsible>
 
-    <LbPanel title="记一笔" note="金额以分为单位保存">
+    <LbPanel title="记一笔" note-tip="金额以分为单位保存。">
       <form class="finance-form" @submit.prevent="add">
-        <div class="create-row"><select aria-label="收支类型" v-model="type"><option value="expense">支出</option><option value="income">收入</option></select><input list="finance-categories" aria-label="财务分类" v-model="category" placeholder="分类，例如餐饮"><input aria-label="金额" inputmode="decimal" v-model="amount" placeholder="金额，例如 12.50"></div>
+        <div class="create-row">
+          <CalmyField class="finance-type-field" label="收支类型"><CalmyNativeSelect v-model="type"><option value="expense">支出</option><option value="income">收入</option></CalmyNativeSelect></CalmyField>
+          <CalmyField class="finance-category-field" label="财务分类"><CalmyInput v-model="category" list="finance-categories" placeholder="例如餐饮" /></CalmyField>
+          <CalmyField class="finance-amount-field" label="金额"><CalmyInput v-model="amount" inputmode="decimal" placeholder="例如 12.50" /></CalmyField>
+        </div>
         <p class="finance-dictionary-help">可用主数据中的“财务类别”匹配稳定选项；旧式自定义分类仍可直接填写。</p>
-        <div v-if="categoryOptionsError" class="finance-dictionary-error" role="alert">财务类别读取失败：{{categoryOptionsError}} <button class="chip" type="button" :disabled="categoryOptionsLoading" @click="refreshCategoryOptions">{{categoryOptionsLoading ? '正在重试…' : '重试'}}</button></div>
-        <div class="create-row finance-note-row"><input v-model="note" aria-label="财务备注" placeholder="备注（可选）"><button class="chip on" type="submit" :disabled="loading || categoryOptionsLoading || !!categoryOptionsError">添加记录</button></div>
+        <div v-if="categoryOptionsError" class="finance-dictionary-error" role="alert">财务类别读取失败：{{categoryOptionsError}} <CalmyButton type="button" :disabled="categoryOptionsLoading" @click="refreshCategoryOptions">{{categoryOptionsLoading ? '正在重试…' : '重试'}}</CalmyButton></div>
+        <div class="create-row finance-note-row"><CalmyField class="finance-note-field" label="备注"><CalmyInput v-model="note" placeholder="可选" /></CalmyField><CalmyButton variant="primary" type="submit" :disabled="loading || categoryOptionsLoading || !!categoryOptionsError">添加记录</CalmyButton></div>
         <datalist id="finance-categories"><option v-for="item in categorySuggestions" :key="item" :value="item" /></datalist>
       </form>
     </LbPanel>
 
     <LbPanel title="记录" :note="loading ? '正在读取…' : `${visibleItems.length} 条`">
-      <div class="finance-list-head"><select aria-label="财务记录筛选" v-model="filter"><option value="all">全部</option><option value="income">收入</option><option value="expense">支出</option></select></div>
-      <section class="history-list" aria-live="polite"><div v-if="loading" class="dim" role="status">正在读取财务记录…</div><template v-else><article v-for="item in visibleItems" :key="item.id" class="finance-item panel"><div class="finance-item-head"><div><p class="eyebrow">{{item.type === 'income' ? 'INCOME · 收入' : 'EXPENSE · 支出'}}</p><h3>{{displayCategory(item)}}</h3></div><time>{{item.date || '日期未知'}}</time></div><div class="finance-item-body"><p>{{item.note || '没有备注'}}</p><strong :class="item.type === 'income' ? 'finance-income' : 'finance-expense'">{{item.type === 'income' ? '+' : '-'}}{{formatCents(amountCents(item))}} 元</strong></div><div class="finance-item-actions"><select class="case-link" :aria-label="`关联${displayCategory(item)}课题`" :value="relationValues[item.id] || ''" @change="saveRelation(item, ($event.target as HTMLSelectElement).value)"><option value="">关联课题</option><option v-for="candidate in relationCases[item.id] || []" :key="candidate.id" :value="candidate.id">◈ {{candidate.title}}</option></select><button class="chip danger" :disabled="busyId === item.id || loading" @click="remove(item)" :aria-label="`删除${displayCategory(item)}财务记录`">{{busyId === item.id ? '删除中…' : '删除'}}</button></div><DomainPicker :entity-ref="{ entityType: 'finance_entry', calmyId: item.id }" /><ContextRelationPicker :entity-ref="{ entityType: 'finance_entry', calmyId: item.id }" /><OwnershipEditor :ownership="item.ownership" :people="people" :current-user-id="currentUserId" :disabled="ownershipBusyId === item.id || loading" label="财务记录归属与隐私" @save="saveOwnership(item, $event)" /></article><p v-if="!visibleItems.length" class="dim">还没有匹配的财务记录。记录第一笔收入或支出，开始看见现金流。</p></template></section>
+      <div class="finance-list-head"><CalmyField class="finance-filter-field" label="记录类型"><CalmyNativeSelect v-model="filter"><option value="all">全部</option><option value="income">收入</option><option value="expense">支出</option></CalmyNativeSelect></CalmyField></div>
+      <section class="history-list" aria-live="polite"><div v-if="loading" class="dim" role="status">正在读取财务记录…</div><template v-else><article v-for="item in visibleItems" :key="item.id" class="finance-item panel"><div class="finance-item-head"><div><p class="eyebrow">{{item.type === 'income' ? 'INCOME · 收入' : 'EXPENSE · 支出'}}</p><h3>{{displayCategory(item)}}</h3></div><time>{{item.date || '日期未知'}}</time></div><div class="finance-item-body"><p>{{item.note || '没有备注'}}</p><strong :class="item.type === 'income' ? 'finance-income' : 'finance-expense'">{{item.type === 'income' ? '+' : '-'}}{{formatCents(amountCents(item))}} 元</strong></div><div class="finance-item-actions"><CalmyNativeSelect class="case-link" :aria-label="`关联${displayCategory(item)}课题`" :model-value="relationValues[item.id] || ''" @change="saveRelation(item, $event)"><option value="">关联课题</option><option v-for="candidate in relationCases[item.id] || []" :key="candidate.id" :value="candidate.id">◈ {{candidate.title}}</option></CalmyNativeSelect><CalmyButton variant="danger" :disabled="busyId === item.id || loading" :aria-label="`删除${displayCategory(item)}财务记录`" @click="remove(item)">{{busyId === item.id ? '删除中…' : '删除'}}</CalmyButton></div><DomainPicker :entity-ref="{ entityType: 'finance_entry', calmyId: item.id }" /><ContextRelationPicker :entity-ref="{ entityType: 'finance_entry', calmyId: item.id }" /><OwnershipEditor :ownership="item.ownership" :people="people" :current-user-id="currentUserId" :disabled="ownershipBusyId === item.id || loading" label="财务记录归属与隐私" @save="saveOwnership(item, $event)" /></article><p v-if="!visibleItems.length" class="dim">还没有匹配的财务记录。记录第一笔收入或支出，开始看见现金流。</p></template></section>
     </LbPanel>
 </template>
 
@@ -96,12 +104,17 @@ onUnmounted(() => { window.removeEventListener('beryl-data-synced', onSync); win
 .finance-error { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
 .finance-form { display: grid; gap: 10px; }
 .create-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.create-row select, .create-row input { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
-.create-row input:not([list]) { flex: 1 1 160px; min-width: 0; }
+.create-row .calmy-field { min-width: 0; }
+.create-row :deep(.calmy-native-select), .create-row :deep(.calmy-control) { min-height: 34px; padding: 6px 10px; font: inherit; font-size: .8rem; }
+.finance-type-field { flex: 0 0 130px; }
+.finance-category-field { flex: 1 1 180px; }
+.finance-amount-field { flex: 1 1 150px; }
+.finance-note-field { flex: 1 1 200px; }
 .finance-dictionary-help { margin: 0; color: var(--muted); font-size: .72rem; line-height: 1.6; }
 .finance-dictionary-error { margin: 0; color: var(--danger); font-size: .72rem; line-height: 1.6; }
 .finance-list-head { display: flex; justify-content: flex-end; }
-.finance-list-head select { min-height: 32px; padding: 5px 9px; font: inherit; font-size: .78rem; }
+.finance-filter-field { width: min(180px, 100%); }
+.finance-filter-field :deep(.calmy-native-select) { min-height: 32px; padding: 5px 9px; font: inherit; font-size: .78rem; }
 .history-list { display: grid; gap: 10px; }
 .finance-item { display: grid; gap: 8px; }
 .finance-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
@@ -116,6 +129,6 @@ onUnmounted(() => { window.removeEventListener('beryl-data-synced', onSync); win
 .finance-item-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .finance-item-actions .case-link { flex: 1 1 180px; min-width: 0; min-height: 32px; padding: 5px 9px; font: inherit; font-size: .78rem; }
 @media (max-width: 620px) {
-  .create-row input:not([list]) { flex: 1 1 100%; }
+  .finance-amount-field, .finance-note-field { flex-basis: 100%; }
 }
 </style>
