@@ -18,6 +18,9 @@ import LiubaiToday from '@/vue/pages/LiubaiToday.vue'
  * 拆开了（记录 → 记录页/日记页，来源切换 → 看板页），所以这里断言总览**真实承担的**行为：
  * 读取并展示当日重点/统计/记录、**快速新增行动（含关联处境）**、完成行动、点标题设为当日重点。
  * 新增行动走的就是旧页面的同一条仓储路径（useReferenceWorkspace.addTask），没有新存储。
+ *
+ * 第 38 轮把页面改成参考稿布局（顶部指标条 + 双列：今日计划/今日时间线 + 当日数据/习惯打卡/收集箱），
+ * 行为与数据来源完全不变，仅同步了本文件的文案与选择器钩子（当日重点→今日计划、aria-label 与行内元素改名）。
  */
 
 let wrapper: VueWrapper | undefined
@@ -40,7 +43,7 @@ describe('Vue LiubaiToday (v11) parity', () => {
     const page = await openToday()
 
     expect(page.text()).toContain('准备面试')
-    expect(page.text()).toContain('当日重点')
+    expect(page.text()).toContain('今日计划')
     expect(page.text()).toContain('当日数据')
     // 记录块（HUD rank 3）在 DOM 里始终存在，内容来自 Repository
     expect(page.text()).toContain('今天把边界说清楚了')
@@ -50,23 +53,23 @@ describe('Vue LiubaiToday (v11) parity', () => {
     const matter = await matterAsyncRepository.create({ title: '准备面试' })
     const page = await openToday()
 
-    await page.get('[aria-label="行动关联事项"]').setValue(matter.calmyId)
-    await page.get('[aria-label="新增现实行动"]').setValue('发送项目提案')
-    await page.get('[aria-label="新增现实行动"]').trigger('keydown.enter')
+    await page.get('[aria-label="行动关联处境"]').setValue(matter.calmyId)
+    await page.get('[aria-label="添加今天要做的事"]').setValue('发送项目提案')
+    await page.get('[aria-label="添加今天要做的事"]').trigger('keydown.enter')
     await flushPromises()
 
     const created = (await actionAsyncRepository.list()).find(item => item.title === '发送项目提案')
     expect(created?.matterId).toBe(matter.calmyId)
     expect(created?.date).toBe(todayKey())
     // 提交成功后输入框清空
-    expect((page.get('[aria-label="新增现实行动"]').element as HTMLInputElement).value).toBe('')
+    expect((page.get('[aria-label="添加今天要做的事"]').element as HTMLInputElement).value).toBe('')
   })
 
   it('completes an action and records it as done', async () => {
     await actionAsyncRepository.create({ title: '发送项目提案', date: todayKey() })
     const page = await openToday()
 
-    const done = page.findAll('.ov-list [role="button"]').find(node => node.text() === '完成')!
+    const done = page.findAll('.today-list button').find(node => node.text() === '完成')!
     await done.trigger('click')
     await flushPromises()
 
@@ -78,7 +81,7 @@ describe('Vue LiubaiToday (v11) parity', () => {
     await todayAsyncRepository.get(todayKey())
     const page = await openToday()
 
-    await page.get('.ov-list li b').trigger('click')
+    await page.get('.today-title').trigger('click')
     await flushPromises()
 
     const plan = await todayAsyncRepository.get(todayKey())

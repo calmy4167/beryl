@@ -58,7 +58,8 @@ applyBackgroundPreferences(savedTheme === 'dark' ? 'dark' : 'light')
 try {
   // 默认使用明亮的纸白主题；用户已保存的主题偏好继续生效。
   const liubaiTheme = localStorage.getItem('liubai-theme') || 'paper'
-  const liubaiNav = localStorage.getItem('liubai-nav') === 'right' ? 'right' : 'left'
+  const storedNav = localStorage.getItem('liubai-nav') || 'left'
+  const liubaiNav = ['left', 'right', 'top', 'bottom'].includes(storedNav) ? storedNav : 'left'
   document.body.dataset.theme = ['night', 'ink', 'forest', 'sunset', 'paper', 'sand'].includes(liubaiTheme) ? liubaiTheme : 'night'
   document.body.dataset.nav = liubaiNav
   if (localStorage.getItem('liubai-mode') === 'simple') document.body.classList.add('mode-simple')

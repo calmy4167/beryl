@@ -174,7 +174,8 @@ html.liubai-active body #app .all-modules-trigger:focus-visible { outline: 2px s
 
 @media (max-width: 1100px) {
   html.liubai-active body #app .dot-submenu-items { grid-template-columns: minmax(0, 1fr); }
-  html.liubai-active body #app .dot-submenu-flyout {
+  html.liubai-active body[data-nav='left'] #app .dot-submenu-flyout,
+  html.liubai-active body[data-nav='right'] #app .dot-submenu-flyout {
     display: flex !important;
     inset: 12px !important;
     z-index: 101;
@@ -1089,12 +1090,45 @@ html.liubai-active body[data-theme='paper'] #app .dots {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 12px 38px rgba(43, 60, 84, .12);
 }
 
-html.liubai-active body[data-theme='paper'] #app .dots :is(.desk-nav-head, .desk-nav-actions) {
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-actions {
   border-color: rgba(255, 255, 255, .5);
   background: var(--workspace-glass);
   backdrop-filter: blur(24px) saturate(145%);
   -webkit-backdrop-filter: blur(24px) saturate(145%);
   box-shadow: none;
+}
+
+/* The brand row sits on the rail's glass instead of stacking a second white pane. */
+html.liubai-active body #app .dots .desk-nav-head {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .dots .desk-nav-head {
+  border-color: transparent;
+  border-bottom-color: color-mix(in srgb, var(--line) 76%, transparent);
+}
+
+/* Let the glass rail finish its slide before it becomes invisible. */
+html.liubai-active body #app .dots {
+  transition:
+    transform .36s var(--ease),
+    opacity .26s var(--ease),
+    box-shadow .36s var(--ease),
+    visibility 0s linear .36s;
+}
+
+html.liubai-active body.nav-show #app .dots {
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.liubai-active body #app .dots {
+    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
 }
 
 html.liubai-active body[data-theme='paper'] #app :is(.gear, .hud-toggle, .mode-toggle, .dn-trigger) {
@@ -1266,5 +1300,665 @@ html.liubai-active body #app .dot-submenu-item > span {
 @media (max-width: 559px) {
   html.liubai-active body #app .dot-submenu-group {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Today keeps the open canvas while grouping each action area into a clear module. */
+html.liubai-active body #app .stage .slide.active .today-home > .panel,
+html.liubai-active body #app .stage .slide.active .today-home .collapsible .panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(16px, 2vw, 22px);
+  background: var(--panel) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active .today-home > .panel,
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active .today-home .collapsible .panel {
+  border-color: var(--line);
+  background: var(--panel) !important;
+}
+
+html.liubai-active body #app .stage .slide.active .today-home > .panel .panel-head,
+html.liubai-active body #app .stage .slide.active .today-home .collapsible .panel .panel-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+}
+
+/* The login view owns its brand; use the shell's available height, not 100vh. */
+html.liubai-active body #app .login-wrap {
+  min-height: 100%;
+  grid-auto-rows: max-content;
+  align-content: safe center;
+}
+
+html.liubai-active body #app .today-home .add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 190px) auto;
+  align-items: stretch;
+  gap: 8px;
+}
+
+html.liubai-active body #app .today-home .add-input,
+html.liubai-active body #app .today-home .add-matter {
+  min-width: 0;
+  min-height: 42px;
+  border-radius: 10px;
+}
+
+html.liubai-active body #app .today-home .today-add-button {
+  min-height: 42px;
+  padding-inline: 16px;
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .today-home .add-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  html.liubai-active body #app .today-home .add-input {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  html.liubai-active body #app .today-home .add-matter {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+@media (max-width: 380px) {
+  html.liubai-active body #app .today-home .add-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  html.liubai-active body #app .today-home .add-input {
+    grid-column: 1 / -1;
+  }
+
+  html.liubai-active body #app .today-home .add-matter {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  html.liubai-active body #app .today-home .today-add-button {
+    grid-column: 2;
+  }
+}
+
+/* Capture groups the inbox and its secondary sections into distinct surfaces. */
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .panel.grow,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .collapsible .panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: clamp(16px, 2vw, 22px);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .panel-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools {
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  padding: 12px 0 0;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools .add-input {
+  min-height: 42px;
+  border-radius: 10px;
+  background: var(--workspace-glass);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools .add-input:focus {
+  border-color: color-mix(in srgb, var(--accent) 54%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-submit {
+  min-height: 42px;
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools {
+    gap: 8px;
+  }
+
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .capture-composer-tools .capture-submit {
+    align-self: flex-end;
+    width: auto;
+    min-width: 84px;
+    padding-inline: 16px;
+  }
+}
+
+/* Matters uses one outer module for the list and form, then separate cards for supporting data. */
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-list-panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: clamp(16px, 2vw, 22px);
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/matters'] .matter-list-panel {
+  border-color: var(--line);
+  background: var(--panel) !important;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .collapsible .panel-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-list-panel .tasks > .empty {
+  min-height: 72px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent !important;
+  color: var(--muted);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .tasks .task.is-focus {
+  background: color-mix(in srgb, var(--accent) 5%, transparent) !important;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-create {
+  border-top: 1px solid var(--line);
+  background: transparent !important;
+  padding-top: 12px;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-create .add-input,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .problem-fields input,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-filter select {
+  background: var(--workspace-glass);
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-create .add-row {
+    gap: 8px;
+  }
+
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .matter-create .add-row .chip {
+    min-height: 42px;
+    padding-inline: 14px;
+  }
+}
+
+/* Review keeps its chart and writing flow distinct, arranged on the same canvas. */
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) {
+  display: grid;
+  grid-template-columns: minmax(260px, .82fr) minmax(0, 1.18fr);
+  align-content: start;
+  align-items: start;
+  gap: clamp(20px, 3vw, 42px);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .slide-head,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .collapsible {
+  grid-column: 1 / -1;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .panel.grow {
+  grid-column: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .panel:not(.grow) {
+  grid-column: 2;
+  width: 100%;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] :is(.panel, .beryl-card) {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(16px, 2vw, 22px);
+  background: var(--panel) !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.liubai-active body[data-theme='paper'] #app .stage .slide.active[data-page-path$='/review'] :is(.panel, .beryl-card) {
+  border-color: var(--line);
+  background: var(--panel) !important;
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .panel-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+}
+
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .review-form textarea {
+  min-height: 72px;
+  border-radius: 10px;
+  background: var(--workspace-glass);
+}
+
+@media (max-width: 760px) {
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .panel.grow,
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] .inner:has(.review-form) > .panel:not(.grow) {
+    grid-column: 1;
+  }
+}
+
+/* Four-way navigation dock: horizontal positions keep the same grouped links
+   and actions while returning vertical space to the current page. */
+html.liubai-active body[data-nav='top'] #app .dots,
+html.liubai-active body[data-nav='bottom'] #app .dots {
+  z-index: 96;
+  top: 18px;
+  right: 40px;
+  bottom: auto;
+  left: 40px;
+  display: flex;
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: 88px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 18px;
+  scrollbar-width: thin;
+}
+/* Keep the fixed display controls clear of the top toolbar. */
+html.liubai-active body[data-nav='top'] #app .dots {
+  right: calc(clamp(16px, 3vw, 32px) + 48px + 72px + 8px);
+}
+html.liubai-active body[data-nav='bottom'] #app .dots { top: auto; bottom: 18px; }
+html.liubai-active body[data-nav='top'] #app .dots .desk-nav-head,
+html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-head {
+  position: relative;
+  top: auto;
+  min-height: 42px;
+  margin: 0 4px 0 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 11px;
+}
+html.liubai-active body[data-nav='top'] #app .dots .desk-nav-close,
+html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-close { min-width: 34px; min-height: 34px; }
+html.liubai-active body[data-nav='top'] #app .dots .dot-group,
+html.liubai-active body[data-nav='bottom'] #app .dots .dot-group {
+  width: auto;
+  flex: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+html.liubai-active body[data-nav='top'] #app .dots .dot-group + .dot-group,
+html.liubai-active body[data-nav='bottom'] #app .dots .dot-group + .dot-group {
+  margin: 0 0 0 4px;
+  padding: 0 0 0 8px;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+}
+html.liubai-active body[data-nav='top'] #app .dots .dot-daily-group,
+html.liubai-active body[data-nav='bottom'] #app .dots .dot-daily-group { margin: 0; }
+html.liubai-active body[data-nav='top'] #app .dots .dot,
+html.liubai-active body[data-nav='bottom'] #app .dots .dot {
+  width: auto;
+  min-height: 42px;
+  flex: none;
+  flex-direction: row;
+  gap: 7px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+html.liubai-active body[data-nav='top'] #app .dots .dot-label,
+html.liubai-active body[data-nav='bottom'] #app .dots .dot-label { white-space: nowrap; }
+html.liubai-active body[data-nav='top'] #app .dots .all-modules-trigger,
+html.liubai-active body[data-nav='bottom'] #app .dots .all-modules-trigger { min-width: max-content; margin: 0; }
+html.liubai-active body[data-nav='top'] #app .dots .desk-nav-actions,
+html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-actions {
+  position: static;
+  z-index: auto;
+  display: flex;
+  flex: none;
+  align-items: center;
+  flex-direction: row;
+  gap: 4px;
+  margin: 0 0 0 auto;
+  padding: 0 0 0 8px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+}
+html.liubai-active body[data-nav='top'] #app .dots .desk-nav-actions::before,
+html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-actions::before { display: none; }
+html.liubai-active body[data-nav='top'] #app .dots .desk-nav-actions button,
+html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-actions button {
+  width: auto;
+  min-height: 42px;
+  flex: none;
+  justify-content: center;
+  white-space: nowrap;
+}
+html.liubai-active body[data-nav='top'] #app .module-nav-handle,
+html.liubai-active body[data-nav='bottom'] #app .module-nav-handle {
+  top: 0;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: 76px;
+  min-width: 76px;
+  height: 30px;
+  min-height: 30px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  writing-mode: horizontal-tb;
+  transform: translateX(-50%);
+}
+html.liubai-active body[data-nav='bottom'] #app .module-nav-handle {
+  top: auto;
+  bottom: 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+}
+html.liubai-active body[data-nav='top']:not(.nav-show) #app .dots,
+html.liubai-active body.zen-mode[data-nav='top'] #app .dots { transform: translateY(-110%) !important; }
+html.liubai-active body[data-nav='bottom']:not(.nav-show) #app .dots,
+html.liubai-active body.zen-mode[data-nav='bottom'] #app .dots { transform: translateY(110%) !important; }
+html.liubai-active body.nav-show[data-nav='top'] #app .dots,
+html.liubai-active body.nav-show[data-nav='bottom'] #app .dots,
+html.liubai-active body.nav-persistent:not(.nav-collapsed)[data-nav='top'] #app .dots,
+html.liubai-active body.nav-persistent:not(.nav-collapsed)[data-nav='bottom'] #app .dots {
+  transform: none !important;
+  visibility: visible;
+  pointer-events: auto;
+}
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='top'] #app .dots { transform: translateY(-110%) !important; }
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='bottom'] #app .dots { transform: translateY(110%) !important; }
+html.liubai-active body.zen-mode.nav-persistent:not(.nav-collapsed)[data-nav='top'] #app .dots {
+  transform: translateY(-110%) !important;
+  visibility: hidden;
+  pointer-events: none !important;
+}
+html.liubai-active body.zen-mode.nav-persistent:not(.nav-collapsed)[data-nav='bottom'] #app .dots {
+  transform: translateY(110%) !important;
+  visibility: hidden;
+  pointer-events: none !important;
+}
+html.liubai-active body.nav-show[data-nav='top'] #app .stage .slide,
+html.liubai-active body.nav-persistent[data-nav='top'] #app .stage .slide { padding-top: 104px; }
+html.liubai-active body.nav-show[data-nav='bottom'] #app .stage .slide,
+html.liubai-active body.nav-persistent[data-nav='bottom'] #app .stage .slide { padding-bottom: 104px; }
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='top'] #app .stage .slide { padding-top: clamp(14px, 2.2vw, 30px); }
+html.liubai-active body.nav-persistent.nav-collapsed[data-nav='bottom'] #app .stage .slide { padding-bottom: clamp(14px, 2.2vw, 30px); }
+html.liubai-active body.desk-home.nav-show[data-nav='top'] #app .desk-home { inset-block-start: 104px !important; }
+html.liubai-active body.desk-home.nav-show[data-nav='bottom'] #app .desk-home { inset-block-end: 104px !important; }
+.nav-position-options { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.nav-position-options > button { min-width: 0; padding-inline: 4px; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  html.liubai-active body[data-nav='top'] #app .dots,
+  html.liubai-active body[data-nav='bottom'] #app .dots {
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    bottom: auto;
+    left: max(8px, env(safe-area-inset-left));
+    width: auto;
+    max-width: none;
+    height: 66px;
+    max-height: 78px;
+    gap: 6px;
+    padding: 6px 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid rgba(255, 255, 255, .78);
+    border-radius: 15px;
+    box-shadow: 0 10px 28px rgba(35, 55, 89, .16);
+  }
+  html.liubai-active body[data-nav='top'] #app .dots {
+    right: calc(max(env(safe-area-inset-right), clamp(16px, 3vw, 32px)) + 48px + 76px + 8px);
+  }
+  html.liubai-active body[data-nav='bottom'] #app .dots {
+    top: auto;
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  html.liubai-active body[data-nav='top'] #app .dots .desk-nav-head,
+  html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-head { min-height: 42px; margin-right: 2px; padding: 4px 6px; }
+  html.liubai-active body[data-nav='top'] #app .dots .dot,
+  html.liubai-active body[data-nav='bottom'] #app .dots .dot,
+  html.liubai-active body[data-nav='top'] #app .dots .desk-nav-actions button,
+  html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-actions button { min-height: 44px; }
+  html.liubai-active body.nav-persistent[data-nav='top'] #app .stage .slide { padding-top: calc(84px + env(safe-area-inset-top)); }
+  html.liubai-active body.nav-persistent[data-nav='bottom'] #app .stage .slide { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='top'] #app .stage .slide { padding-top: 12px; }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='bottom'] #app .stage .slide { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+  html.liubai-active body.desk-home.nav-show[data-nav='top'] #app .desk-home { inset-block-start: calc(84px + env(safe-area-inset-top)) !important; }
+  html.liubai-active body.desk-home.nav-show[data-nav='bottom'] #app .desk-home { inset-block-end: calc(84px + env(safe-area-inset-bottom)) !important; }
+  html.liubai-active body[data-nav='top'] #app .module-nav-handle,
+  html.liubai-active body[data-nav='bottom'] #app .module-nav-handle { width: 84px; min-width: 84px; height: 32px; min-height: 32px; }
+  html.liubai-active body[data-nav='top'] #app .module-nav-handle { top: max(0px, env(safe-area-inset-top)); }
+  html.liubai-active body[data-nav='bottom'] #app .module-nav-handle { bottom: max(0px, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 680px) {
+  /* The display button occupies the upper-right corner on phones. */
+  html.liubai-active body[data-nav='top'] #app .dots {
+    right: calc(max(68px, env(safe-area-inset-right) + 8px) + 76px + 8px);
+  }
+  /* The HUD and settings buttons occupy both lower corners on phones. */
+  html.liubai-active body[data-nav='bottom'] #app .dots {
+    right: max(64px, env(safe-area-inset-right) + 8px);
+    left: max(58px, env(safe-area-inset-left) + 8px);
+  }
+  html.liubai-active body #app .gear {
+    width: 44px;
+    height: 44px;
+    right: max(18px, calc(env(safe-area-inset-right) + 8px));
+    bottom: max(20px, calc(env(safe-area-inset-bottom) + 8px));
+  }
+}
+
+/* In short landscape viewports, keep the horizontal dock compact and let
+   settings use the available height instead of extending below the screen. */
+@media (max-height: 560px) and (orientation: landscape) {
+  html.liubai-active body[data-nav='top'] #app .dots,
+  html.liubai-active body[data-nav='bottom'] #app .dots {
+    height: 60px;
+    max-height: 64px;
+    padding-block: 4px;
+    gap: 5px;
+  }
+  html.liubai-active body[data-nav='top'] #app .dots .desk-nav-head,
+  html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-head,
+  html.liubai-active body[data-nav='top'] #app .dots .dot,
+  html.liubai-active body[data-nav='bottom'] #app .dots .dot,
+  html.liubai-active body[data-nav='top'] #app .dots .desk-nav-actions button,
+  html.liubai-active body[data-nav='bottom'] #app .dots .desk-nav-actions button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 560px) and (orientation: landscape) {
+  html.liubai-active body.nav-show[data-nav='top'] #app .stage .slide,
+  html.liubai-active body.nav-persistent[data-nav='top'] #app .stage .slide {
+    padding-top: calc(72px + env(safe-area-inset-top));
+  }
+  html.liubai-active body.nav-show[data-nav='bottom'] #app .stage .slide,
+  html.liubai-active body.nav-persistent[data-nav='bottom'] #app .stage .slide {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='top'] #app .stage .slide {
+    padding-top: calc(40px + env(safe-area-inset-top));
+  }
+  html.liubai-active body.nav-persistent.nav-collapsed[data-nav='bottom'] #app .stage .slide {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom));
+  }
+  html.liubai-active body.desk-home.nav-show[data-nav='top'] #app .desk-home {
+    inset-block-start: calc(72px + env(safe-area-inset-top)) !important;
+  }
+  html.liubai-active body.desk-home.nav-show[data-nav='bottom'] #app .desk-home {
+    inset-block-end: calc(72px + env(safe-area-inset-bottom)) !important;
+  }
+  html.liubai-active body #app .settings-panel {
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: max(8px, env(safe-area-inset-left));
+    width: auto;
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+    transform-origin: center;
+  }
+}
+
+/* Horizontal docks open a scrolling mega menu. Shrink the fixed workspace to
+   the side of the menu so module content never remains underneath it. */
+html.liubai-active body[data-nav='top'] #app .dot-submenu-flyout,
+html.liubai-active body[data-nav='bottom'] #app .dot-submenu-flyout {
+  z-index: 98;
+  width: min(760px, calc(100vw - 24px));
+  max-height: 44dvh;
+  border-radius: 14px;
+}
+html.liubai-active body[data-nav='top'] #app .dot-submenu-items,
+html.liubai-active body[data-nav='bottom'] #app .dot-submenu-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 14px 18px;
+}
+html.liubai-active body.nav-submenu-open[data-nav='top'] #app .stage {
+  inset: var(--nav-menu-inset, 0px) 0 0 !important;
+  transition: top .24s var(--ease), bottom .24s var(--ease);
+}
+html.liubai-active body.nav-submenu-open[data-nav='bottom'] #app .stage {
+  inset: 0 0 var(--nav-menu-inset, 0px) !important;
+  transition: top .24s var(--ease), bottom .24s var(--ease);
+}
+html.liubai-active body.nav-submenu-open[data-nav='top'] #app .stage .slide {
+  padding-top: clamp(48px, 5.6vh, 64px) !important;
+}
+html.liubai-active body.nav-submenu-open[data-nav='bottom'] #app .stage .slide {
+  padding-bottom: clamp(32px, 4.2vh, 48px) !important;
+}
+html.liubai-active body.desk-home.nav-submenu-open[data-nav='top'] #app .desk-home {
+  inset-block-start: var(--nav-menu-inset, 0px) !important;
+}
+html.liubai-active body.desk-home.nav-submenu-open[data-nav='bottom'] #app .desk-home {
+  inset-block-end: var(--nav-menu-inset, 0px) !important;
+}
+
+/* Make the module a control's context when someone is working inside it. */
+html.liubai-active body #app .stage .slide.active .today-home > .panel:focus-within,
+html.liubai-active body #app .stage .slide.active .today-home .collapsible .panel:focus-within,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] :is(.panel, .beryl-card):focus-within,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] :is(.matter-list-panel, .collapsible .panel):focus-within,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/review'] :is(.panel, .beryl-card):focus-within {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--line));
+}
+
+html.liubai-active body #app .stage .slide.active .today-home .ov-list li:has(.focus-task-title),
+html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .inbox-item,
+html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .tasks .task {
+  border-radius: 9px;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html.liubai-active body #app .stage .slide.active .today-home .ov-list li:has(.focus-task-title):hover,
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/capture'] .inbox-item:hover,
+  html.liubai-active body #app .stage .slide.active[data-page-path$='/matters'] .tasks .task:hover {
+    background-color: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+
+  html.liubai-active body #app .stage .slide.active .today-home .focus-task-title:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+html.liubai-active body #app .stage .slide.active .today-home .focus-task-title,
+html.liubai-active body #app .stage .slide.active .today-home .action-complete,
+html.liubai-active body #app .stage .slide.active button:not(:disabled) {
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease, transform .12s ease;
+}
+
+html.liubai-active body #app .stage .slide.active button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+html.liubai-active body #app .stage .slide.active .today-home .action-complete {
+  padding: 5px 8px;
+  border-radius: 7px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html.liubai-active body #app .stage .slide.active .today-home .action-complete:hover {
+    background: color-mix(in srgb, var(--accent) 9%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.liubai-active body #app .stage .slide.active :is(button, .inbox-item, .tasks .task, .ov-list li) {
+    transition: none !important;
+  }
+  html.liubai-active body #app .stage .slide.active button:not(:disabled):active {
+    transform: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  html.liubai-active body[data-nav='top'] #app .dot-submenu-flyout,
+  html.liubai-active body[data-nav='bottom'] #app .dot-submenu-flyout {
+    display: flex !important;
+    width: min(760px, calc(100vw - 24px));
+    max-height: 44dvh;
+    padding: 14px;
+  }
+  html.liubai-active body[data-nav='top'] #app .dot-submenu-items,
+  html.liubai-active body[data-nav='bottom'] #app .dot-submenu-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 559px) {
+  html.liubai-active body[data-nav='top'] #app .dot-submenu-items,
+  html.liubai-active body[data-nav='bottom'] #app .dot-submenu-items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+  html.liubai-active body[data-nav='top'] #app .dot-submenu-flyout,
+  html.liubai-active body[data-nav='bottom'] #app .dot-submenu-flyout {
+    max-height: 58dvh;
   }
 }

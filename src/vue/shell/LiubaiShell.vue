@@ -102,13 +102,30 @@ const router = useRouter()
 const isDeskHome = computed(() => route.meta.pageId === 'desk' || route.path === '/app/desk')
 
 const theme = ref('paper')
-const navPos = ref<'left' | 'right'>('left')
+type NavigationPosition = 'left' | 'right' | 'top' | 'bottom'
+const navPos = ref<NavigationPosition>('left')
+const navCloseIconPath = computed(() => ({
+  left: 'm14 5-7 7 7 7',
+  right: 'm10 5 7 7-7 7',
+  top: 'm5 14 7-7 7 7',
+  bottom: 'm5 10 7 7 7-7',
+}[navPos.value]))
 const simple = ref(false)
 const zen = ref(false)
 const hudLevel = ref(0)
+const displayMenuOpen = ref(false)
 const settingsOpen = ref(false)
 const paletteOpen = ref(false)
 const moduleManagerOpen = ref(false)
+const moduleManagerSearch = ref('')
+const moduleManagerGroups = computed(() => {
+  const query = moduleManagerSearch.value.trim().toLocaleLowerCase()
+  return moduleGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => !query || `${item.label} ${item.path}`.toLocaleLowerCase().includes(query)),
+  })).filter(group => group.items.length > 0)
+})
+const moduleManagerResultCount = computed(() => moduleManagerGroups.value.reduce((count, group) => count + group.items.length, 0))
 /* 普通模块默认显示侧栏；Desk 维持沉浸式默认收起。 */
 const navOpen = ref(!isDeskHome.value)
 const navHidden = ref(false)
@@ -117,6 +134,9 @@ const expandedNavigationGroup = ref<string | null>(null)
 const submenuFlyout = ref<HTMLElement | null>(null)
 const submenuAnchor = ref<HTMLElement | null>(null)
 const submenuFlyoutTop = ref(86)
+const submenuFlyoutLeft = ref(162)
+const submenuFlyoutBottom = ref<number | null>(null)
+const submenuFlyoutMaxHeight = ref('calc(100dvh - 24px)')
 const visibleModulePaths = ref(allModules.map(item => item.path))
 const quickEntryPaths = ref([...DEFAULT_QUICK_ENTRY_PATHS])
 const paletteQuery = ref('')
@@ -128,6 +148,8 @@ const paletteInput = ref<HTMLInputElement | null>(null)
 const palettePanel = ref<HTMLElement | null>(null)
 const settingsPanel = ref<HTMLElement | null>(null)
 const settingsTrigger = ref<HTMLElement | null>(null)
+const displayControls = ref<HTMLElement | null>(null)
+const displayTrigger = ref<HTMLButtonElement | null>(null)
 const settingsReturnFocus = ref<HTMLElement | null>(null)
 const paletteTrigger = ref<HTMLElement | null>(null)
 const moduleManagerTrigger = ref<HTMLButtonElement | null>(null)
@@ -183,20 +205,59 @@ const allNavigationGroups = computed(() => navigationGroups.value.map(group => (
 })).filter(group => group.items.length > 0))
 const allModulesOpen = computed(() => expandedNavigationGroup.value === 'all')
 const visibleModuleCount = computed(() => visibleModulePaths.value.length)
+const submenuFlyoutStyle = computed(() => navPos.value === 'top'
+  ? { top: `${submenuFlyoutTop.value}px`, left: `${submenuFlyoutLeft.value}px`, right: 'auto', bottom: 'auto', maxHeight: submenuFlyoutMaxHeight.value }
+  : navPos.value === 'bottom'
+    ? { top: 'auto', left: `${submenuFlyoutLeft.value}px`, right: 'auto', bottom: `${submenuFlyoutBottom.value ?? 12}px`, maxHeight: submenuFlyoutMaxHeight.value }
+    : { top: `${submenuFlyoutTop.value}px`, maxHeight: submenuFlyoutMaxHeight.value })
 function positionNavigationFlyout() {
   const anchor = submenuAnchor.value
-  if (!anchor || window.matchMedia('(max-width: 1100px)').matches) return
-  const anchorTop = anchor.getBoundingClientRect().top
+  if (!anchor) return
+  const horizontalPosition = navPos.value === 'top' || navPos.value === 'bottom'
+  if (!horizontalPosition && window.matchMedia('(max-width: 1100px)').matches) return
+  // Horizontal mega menus belong to the All Modules control. Aligning them
+  // to the whole dock's left edge puts the panel directly beneath quick links.
+  const rect = anchor.getBoundingClientRect()
   const panelHeight = submenuFlyout.value?.offsetHeight || 340
-  submenuFlyoutTop.value = Math.max(12, Math.min(anchorTop, window.innerHeight - panelHeight - 12))
+  if (horizontalPosition) {
+    const panelWidth = submenuFlyout.value?.offsetWidth || Math.min(760, window.innerWidth - 24)
+    submenuFlyoutLeft.value = Math.max(12, Math.min(rect.left, window.innerWidth - panelWidth - 12))
+    const maxPanelHeight = Math.round(window.innerHeight * 0.44)
+    if (navPos.value === 'top') {
+      submenuFlyoutTop.value = Math.max(12, Math.min(rect.bottom + 8, window.innerHeight - 12))
+      const availableHeight = Math.max(0, window.innerHeight - submenuFlyoutTop.value - 12)
+      submenuFlyoutMaxHeight.value = `${Math.min(maxPanelHeight, availableHeight)}px`
+      submenuFlyoutBottom.value = null
+    } else {
+      const panelBottom = Math.max(12, Math.min(window.innerHeight - 12, rect.top - 8))
+      submenuFlyoutBottom.value = window.innerHeight - panelBottom
+      submenuFlyoutMaxHeight.value = `${Math.min(maxPanelHeight, Math.max(0, panelBottom - 12))}px`
+    }
+    nextTick(() => {
+      const panelRect = submenuFlyout.value?.getBoundingClientRect()
+      if (!panelRect) return
+      const inset = navPos.value === 'top'
+        ? panelRect.bottom + 12
+        : window.innerHeight - panelRect.top + 12
+      document.body.style.setProperty('--nav-menu-inset', `${Math.ceil(inset)}px`)
+    })
+    return
+  }
+  document.body.style.removeProperty('--nav-menu-inset')
+  submenuFlyoutMaxHeight.value = 'calc(100dvh - 24px)'
+  submenuFlyoutTop.value = Math.max(12, Math.min(rect.top, window.innerHeight - panelHeight - 12))
 }
 function toggleAllModules(event: MouseEvent) {
   if (allModulesOpen.value) {
     expandedNavigationGroup.value = null
     submenuAnchor.value = null
+    document.body.classList.remove('nav-submenu-open')
+    document.body.style.removeProperty('--nav-menu-inset')
+    document.body.style.removeProperty('--nav-menu-height')
     return
   }
   expandedNavigationGroup.value = 'all'
+  document.body.classList.add('nav-submenu-open')
   submenuAnchor.value = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
   nextTick(() => {
     positionNavigationFlyout()
@@ -207,6 +268,9 @@ function closeNavigationSubmenu(restoreFocus = false) {
   const wasOpen = expandedNavigationGroup.value === 'all'
   expandedNavigationGroup.value = null
   submenuAnchor.value = null
+  document.body.classList.remove('nav-submenu-open')
+  document.body.style.removeProperty('--nav-menu-inset')
+  document.body.style.removeProperty('--nav-menu-height')
   if (restoreFocus && wasOpen) nextTick(() => dotsEl.value?.querySelector<HTMLButtonElement>('.all-modules-trigger')?.focus())
 }
 function onNavigationOutsidePointerDown(event: PointerEvent) {
@@ -214,6 +278,34 @@ function onNavigationOutsidePointerDown(event: PointerEvent) {
   if (!(target instanceof Node)) return
   if (dotsEl.value?.contains(target) || submenuFlyout.value?.contains(target)) return
   closeNavigationSubmenu()
+}
+function onDisplayOutsidePointerDown(event: PointerEvent) {
+  const target = event.target
+  if (!(target instanceof Node) || displayControls.value?.contains(target)) return
+  displayMenuOpen.value = false
+}
+function closeDisplayMenu(restoreFocus = false) {
+  displayMenuOpen.value = false
+  if (restoreFocus) nextTick(() => displayTrigger.value?.focus())
+}
+function toggleDisplayMenu() {
+  displayMenuOpen.value = !displayMenuOpen.value
+}
+function selectDisplayMode(next: boolean) {
+  if (zen.value) applyZen(false, true)
+  applyMode(next)
+}
+function selectHudLevel(level: number) {
+  applyHud(level)
+  announce(HUD_ANNOUNCE[level])
+}
+function restoreFullDisplay() {
+  applyZen(false, true)
+  applyMode(false, true)
+  applyHud(0)
+  document.querySelectorAll<HTMLElement>('section.slide').forEach(slide => { slide.dataset.hud = '0' })
+  closeDisplayMenu(false)
+  announce('已恢复完整显示')
 }
 function announce(message: string) {
   live.value = message
@@ -234,10 +326,11 @@ function applyTheme(id: string, animate = true) {
   document.body.dataset.theme = id
   write(THEME_KEY, id)
 }
-function applyNav(pos: 'left' | 'right') {
+function applyNav(pos: NavigationPosition) {
   navPos.value = pos
   document.body.dataset.nav = pos
   write(NAV_KEY, pos)
+  if (allModulesOpen.value) nextTick(positionNavigationFlyout)
 }
 function applyMode(next: boolean, silent = false) {
   simple.value = next
@@ -245,16 +338,15 @@ function applyMode(next: boolean, silent = false) {
   write(MODE_KEY, next ? 'simple' : 'full')
   if (!silent) announce(next ? '简洁模式：只保留核心内容' : '全量模式：显示全部信息')
 }
-function applyZen(on: boolean) {
+function applyZen(on: boolean, silent = false) {
   zen.value = on
   document.body.classList.toggle('zen-mode', on)
   write(ZEN_KEY, on ? '1' : '0')
-  if (on) announce('禅模式 · 按 Esc 退出')
+  if (on && !silent) announce('禅模式 · 按 Esc 退出')
 }
 
 /* ── HUD 分层：按 data-hud-rank 收起辅助块 ─────────────── */
 
-const HUD_LABEL = ['切换信息分层', '切换到核心视图', '切换到全部视图']
 const HUD_ANNOUNCE = ['全部信息已显示', '已隐藏部分辅助信息', '仅显示核心内容']
 
 function hudKey() { return `${HUD_KEY}:${route.path}` }
@@ -367,8 +459,9 @@ function setAllModulesVisible(visible: boolean) {
 }
 
 function openModuleManager() {
+  moduleManagerSearch.value = ''
   moduleManagerOpen.value = true
-  nextTick(() => moduleManagerPanel.value?.querySelector<HTMLElement>('button, input')?.focus())
+  nextTick(() => moduleManagerPanel.value?.querySelector<HTMLElement>('.module-manager-search-input')?.focus())
 }
 
 function focusableWithin(panel: HTMLElement | null): HTMLElement[] {
@@ -534,12 +627,15 @@ function onKey(event: KeyboardEvent) {
     else {
       const returnFocus = moduleManagerOpen.value
         ? moduleManagerTrigger.value
+        : displayMenuOpen.value
+          ? displayTrigger.value
         : expandedNavigationGroup.value
           ? submenuAnchor.value
           : settingsOpen.value ? settingsTrigger.value
           : target instanceof HTMLElement ? target : null
       if (settingsOpen.value) closeSettings(false)
       if (moduleManagerOpen.value) closeModuleManager(false)
+      if (displayMenuOpen.value) closeDisplayMenu(false)
       if (expandedNavigationGroup.value) closeNavigationSubmenu()
       openPalette(returnFocus)
     }
@@ -549,6 +645,7 @@ function onKey(event: KeyboardEvent) {
     if (paletteOpen.value) { closePalette(); return }
     if (settingsOpen.value) { closeSettings(); return }
     if (moduleManagerOpen.value) { closeModuleManager(); return }
+    if (displayMenuOpen.value) { closeDisplayMenu(true); return }
     if (expandedNavigationGroup.value) { closeNavigationSubmenu(true); return }
     if (navOpen.value) { setNavOpen(false); return }
     if (zen.value) { applyZen(false); return }
@@ -597,12 +694,13 @@ const showDots = computed(() => !route.path.startsWith('/login'))
  * 迁移期这里还有一个 `.page-head` 的 DOM 探针给旧页面兜底；30 个路由页与飞书分支
  * （FeishuTaskBoard）都改成 `.slide-head` 后，探针已在第 25 轮删除。
  */
-const showShellHead = computed(() => !pageOwnsHead.value)
+const showShellHead = computed(() => route.path !== '/login' && !pageOwnsHead.value)
 
 watch(() => route.path, () => {
   applyHud(Number(read(hudKey(), '0')))
   paletteOpen.value = false
   settingsOpen.value = false
+  displayMenuOpen.value = false
   document.body.classList.toggle('desk-home', isDeskHome.value)
   syncNavigationForRoute()
 })
@@ -614,16 +712,20 @@ onMounted(() => {
   document.documentElement.classList.add('liubai-active')
   document.body.classList.toggle('desk-home', isDeskHome.value)
   document.body.classList.remove('desk-nav-open', 'nav-show', 'nav-hidden', 'nav-persistent', 'nav-collapsed', 'nav-submenu-open')
+  document.body.style.removeProperty('--nav-menu-inset')
+  document.body.style.removeProperty('--nav-menu-height')
   syncNavigationForRoute()
   visibleModulePaths.value = loadVisibleModules()
   quickEntryPaths.value = loadQuickEntries()
   applyTheme(read(THEME_KEY, 'paper'), false)
-  applyNav(read(NAV_KEY, 'left') === 'right' ? 'right' : 'left')
+  const savedNav = read(NAV_KEY, 'left')
+  applyNav(savedNav === 'right' || savedNav === 'top' || savedNav === 'bottom' ? savedNav : 'left')
   applyMode(read(MODE_KEY, 'full') === 'simple', true)
   applyZen(read(ZEN_KEY, '0') === '1')
   applyHud(Number(read(hudKey(), '0')))
   window.addEventListener('keydown', onKey)
   document.addEventListener('pointerdown', onNavigationOutsidePointerDown)
+  document.addEventListener('pointerdown', onDisplayOutsidePointerDown)
   window.addEventListener('resize', positionNavigationFlyout)
   dotsEl.value?.addEventListener('scroll', positionNavigationFlyout)
   document.addEventListener('mouseover', onPointerOver)
@@ -637,6 +739,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKey)
   document.removeEventListener('pointerdown', onNavigationOutsidePointerDown)
+  document.removeEventListener('pointerdown', onDisplayOutsidePointerDown)
   window.removeEventListener('resize', positionNavigationFlyout)
   dotsEl.value?.removeEventListener('scroll', positionNavigationFlyout)
   document.removeEventListener('mouseover', onPointerOver)
@@ -648,6 +751,8 @@ onBeforeUnmount(() => {
   if (toastTimer) window.clearTimeout(toastTimer)
   if (themeTimer) window.clearTimeout(themeTimer)
   document.body.classList.remove('mode-simple', 'zen-mode', 'nav-show', 'nav-hidden', 'nav-persistent', 'nav-collapsed', 'nav-submenu-open', 'desk-home', 'desk-nav-open')
+  document.body.style.removeProperty('--nav-menu-inset')
+  document.body.style.removeProperty('--nav-menu-height')
   document.documentElement.classList.remove('liubai-active')
 })
 
@@ -662,39 +767,59 @@ defineExpose({ announce, applyMode, applyZen })
     <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ live }}</div>
     <div ref="tooltipEl" class="tooltip" />
 
-    <div class="zen-bar" role="status">
-      <span>禅模式</span>
-      <span>按 <kbd>Esc</kbd> 或 <kbd>Shift</kbd><kbd>Z</kbd> 退出</span>
+    <div class="zen-bar" role="group" aria-label="专注阅读模式">
+      <span>专注阅读</span>
+      <button class="zen-exit" type="button" @click="restoreFullDisplay">恢复完整显示</button>
+      <span class="zen-shortcut">按 <kbd>Esc</kbd> 退出专注</span>
     </div>
 
-    <button
-      class="hud-toggle"
-      :data-level="hudLevel"
-      :aria-label="HUD_LABEL[hudLevel]"
-      :aria-pressed="hudLevel !== 0 ? 'true' : 'false'"
-      @click="cycleHud()"
-    >
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <rect class="hud-1" x="3" y="4" width="18" height="4.5" rx="1.2" />
-        <rect class="hud-2" x="3" y="11.5" width="14" height="3" rx="1" />
-        <rect class="hud-3" x="3" y="17" width="9" height="3" rx="1" />
-      </svg>
-    </button>
+    <div ref="displayControls" class="display-controls">
+      <button
+        ref="displayTrigger"
+        class="display-trigger"
+        type="button"
+        aria-controls="calmy-display-menu"
+        :aria-expanded="displayMenuOpen ? 'true' : 'false'"
+        aria-label="显示设置"
+        @click="toggleDisplayMenu"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+          <circle cx="9" cy="6" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="8" cy="18" r="1.5" fill="currentColor" stroke="none" />
+        </svg>
+        <span>显示</span>
+      </button>
 
-    <button
-      class="mode-toggle"
-      :aria-pressed="simple ? 'true' : 'false'"
-      aria-label="切换简洁模式"
-      title="简洁模式 / 全量模式 (M)"
-      @click="applyMode(!simple)"
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
-        <rect x="3.5" y="4" width="17" height="16" rx="2" />
-        <line class="m-line" x1="7" y1="9" x2="17" y2="9" />
-        <line class="m-line" x1="7" y1="13" x2="17" y2="13" />
-        <line class="m-line" x1="7" y1="17" x2="13" y2="17" />
-      </svg>
-    </button>
+      <div v-show="displayMenuOpen" id="calmy-display-menu" class="display-menu" role="group" aria-label="显示设置">
+        <div class="display-menu-section">
+          <p class="display-menu-heading">页面内容</p>
+          <div class="display-mode-options">
+            <button type="button" class="display-mode-option" :aria-pressed="!simple ? 'true' : 'false'" @click="selectDisplayMode(false)">
+              <span>完整显示</span><small>显示页面的全部说明和辅助内容</small>
+            </button>
+            <button type="button" class="display-mode-option" :aria-pressed="simple ? 'true' : 'false'" @click="selectDisplayMode(true)">
+              <span>简洁显示</span><small>收起说明和次要区块，保留主要内容</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="display-menu-section">
+          <p class="display-menu-heading">辅助信息</p>
+          <div class="display-level-options" role="group" aria-label="辅助信息显示程度">
+            <button type="button" :aria-pressed="hudLevel === 0 ? 'true' : 'false'" @click="selectHudLevel(0)">全部</button>
+            <button type="button" :aria-pressed="hudLevel === 1 ? 'true' : 'false'" @click="selectHudLevel(1)">部分</button>
+            <button type="button" :aria-pressed="hudLevel === 2 ? 'true' : 'false'" @click="selectHudLevel(2)">仅核心</button>
+          </div>
+        </div>
+
+        <button class="display-focus-action" type="button" @click="closeDisplayMenu(false); applyZen(true)">
+          <span>进入专注阅读</span><kbd>Shift Z</kbd>
+        </button>
+        <p class="display-menu-hint">按 Esc 关闭此菜单 · M 切换简洁显示 · H 切换辅助信息</p>
+      </div>
+    </div>
 
     <button ref="settingsTrigger" class="gear" aria-label="打开设置" :aria-expanded="settingsOpen ? 'true' : 'false'" @click="openSettings()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
@@ -726,9 +851,11 @@ defineExpose({ announce, applyMode, applyZen })
         </div>
 
         <div class="set-title">导航位置</div>
-        <div class="seg" role="radiogroup" aria-label="导航位置">
+        <div class="seg nav-position-options" role="radiogroup" aria-label="导航位置">
           <button role="radio" :class="{ on: navPos === 'left' }" :aria-checked="navPos === 'left' ? 'true' : 'false'" @click="applyNav('left')">左侧</button>
           <button role="radio" :class="{ on: navPos === 'right' }" :aria-checked="navPos === 'right' ? 'true' : 'false'" @click="applyNav('right')">右侧</button>
+          <button role="radio" :class="{ on: navPos === 'top' }" :aria-checked="navPos === 'top' ? 'true' : 'false'" @click="applyNav('top')">顶部</button>
+          <button role="radio" :class="{ on: navPos === 'bottom' }" :aria-checked="navPos === 'bottom' ? 'true' : 'false'" @click="applyNav('bottom')">底部</button>
         </div>
 
         <div class="set-title">显示模式</div>
@@ -835,8 +962,7 @@ defineExpose({ announce, applyMode, applyZen })
           <span class="desk-nav-brand-name">Calmy</span>
         </span>
         <button type="button" class="desk-nav-close" aria-label="隐藏模块导航" title="隐藏模块导航" @click="hideNavigation()">
-          <svg v-if="navPos === 'right'" viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7" /></svg>
-          <svg v-else viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7" /></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path :d="navCloseIconPath" /></svg>
         </button>
       </header>
       <p v-if="modules.length === 0 && quickNavigationItems.length === 0" class="dot-empty">尚未选择显示模块</p>
@@ -891,7 +1017,7 @@ defineExpose({ announce, applyMode, applyZen })
       id="module-submenu-flyout"
       ref="submenuFlyout"
       class="dot-submenu-flyout"
-      :style="{ top: `${submenuFlyoutTop}px` }"
+      :style="submenuFlyoutStyle"
       role="region"
       aria-label="全部模块"
     >
@@ -939,8 +1065,14 @@ defineExpose({ announce, applyMode, applyZen })
             <button @click="setAllModulesVisible(false)">全部隐藏</button>
           </div>
         </div>
-        <div class="module-manager-list">
-          <section v-for="group in moduleGroups" :key="group.id" class="module-manager-group">
+        <div class="module-manager-search">
+          <label class="sr-only" for="module-manager-search-input">搜索模块名称或路径</label>
+          <input id="module-manager-search-input" v-model="moduleManagerSearch" class="module-manager-search-input" type="search" placeholder="搜索模块名称或路径">
+          <span v-if="moduleManagerSearch.trim()" class="module-manager-result-count" role="status">找到 {{ moduleManagerResultCount }} 个模块</span>
+        </div>
+        <p v-if="moduleManagerResultCount === 0" class="module-manager-empty">没有找到匹配的模块。</p>
+        <div v-else class="module-manager-list">
+          <section v-for="group in moduleManagerGroups" :key="group.id" class="module-manager-group">
             <h3>{{ group.label }}</h3>
             <div v-for="item in group.items" :key="item.path" class="module-manager-row">
               <label :for="`module-visible-${item.index}`">

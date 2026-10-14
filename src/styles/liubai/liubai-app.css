@@ -363,6 +363,39 @@ html.liubai-active body #app .module-manager-actions > div {
   display: flex;
   gap: 8px;
 }
+html.liubai-active body #app .module-manager-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  margin-bottom: 10px;
+}
+html.liubai-active body #app .module-manager-search-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+}
+html.liubai-active body #app .module-manager-search-input::placeholder { color: var(--muted); }
+html.liubai-active body #app .module-manager-result-count {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+html.liubai-active body #app .module-manager-empty {
+  margin: 0;
+  padding: 36px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
 html.liubai-active body #app .module-manager-actions button:hover,
 html.liubai-active body #app .module-manager-shortcut:hover,
 html.liubai-active body #app .module-manager-open:hover,
@@ -479,6 +512,10 @@ html.liubai-active body #app .dot-empty {
   }
   html.liubai-active body #app .module-manager-header p {
     max-width: 34ch;
+  }
+  html.liubai-active body #app .module-manager-search {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
   }
 }
 
@@ -981,19 +1018,19 @@ html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-e
   html.liubai-active body #app .dot-submenu-flyout { display: flex; }
   html.liubai-active body.nav-persistent[data-nav='left'] #app .stage .slide {
     padding-left: 128px;
-    transition: padding-left .24s var(--ease);
+    transition: padding-left .36s var(--ease);
   }
   html.liubai-active body.nav-persistent[data-nav='right'] #app .stage .slide {
     padding-right: 128px;
-    transition: padding-right .24s var(--ease);
+    transition: padding-right .36s var(--ease);
   }
   html.liubai-active body.nav-show[data-nav='left'] #app .stage .slide {
     padding-left: 128px;
-    transition: padding-left .24s var(--ease);
+    transition: padding-left .36s var(--ease);
   }
   html.liubai-active body.nav-show[data-nav='right'] #app .stage .slide {
     padding-right: 128px;
-    transition: padding-right .24s var(--ease);
+    transition: padding-right .36s var(--ease);
   }
   html.liubai-active body.nav-persistent.nav-collapsed[data-nav='left'] #app .stage .slide {
     padding-left: clamp(14px, 2.2vw, 30px);
@@ -1005,11 +1042,11 @@ html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-e
   /* Desk is a viewport-sized canvas; reserve space for the primary rail only. */
   html.liubai-active body.desk-home.nav-show[data-nav='left'] #app .desk-home {
     inset-inline-start: 128px !important;
-    transition: inset-inline-start .24s var(--ease), inset-inline-end .24s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
+    transition: inset-inline-start .36s var(--ease), inset-inline-end .36s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
   }
   html.liubai-active body.desk-home.nav-show[data-nav='right'] #app .desk-home {
     inset-inline-end: 128px !important;
-    transition: inset-inline-start .24s var(--ease), inset-inline-end .24s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
+    transition: inset-inline-start .36s var(--ease), inset-inline-end .36s var(--ease), background-color 1.4s cubic-bezier(.4, 0, .2, 1), color .5s cubic-bezier(.22, 1, .36, 1);
   }
   html.liubai-active body #app .nav-scrim { display: none; }
 }
@@ -1052,14 +1089,14 @@ html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-e
   }
   html.liubai-active body.nav-persistent[data-nav='left'] #app .stage .slide {
     padding-left: min(112px, 32vw);
-    transition: padding-left .24s var(--ease);
+    transition: padding-left .36s var(--ease);
   }
   html.liubai-active body.nav-persistent[data-nav='left'] #app .counter {
     left: calc(min(112px, 32vw) + clamp(12px, 2vw, 22px));
   }
   html.liubai-active body.nav-persistent[data-nav='right'] #app .stage .slide {
     padding-right: min(112px, 32vw);
-    transition: padding-right .24s var(--ease);
+    transition: padding-right .36s var(--ease);
   }
   html.liubai-active body.nav-persistent.nav-collapsed[data-nav='left'] #app .stage .slide {
     padding-left: 12px;
@@ -1072,3 +1109,139 @@ html.liubai-active body.nav-show #app .module-nav-handle { opacity: 0; pointer-e
 
 /* /desk 专注页：保留侧边栏，隐藏浮标式外壳装饰 */
 html.liubai-active body.desk-home #app :where(.brand, .progress, .counter, .tip) { display: none; }
+
+/* One labeled entry point for density, detail, and focus controls. */
+html.liubai-active body #app .display-controls {
+  position: fixed;
+  top: clamp(10px, 2vh, 18px);
+  right: calc(clamp(16px, 3vw, 32px) + 48px);
+  z-index: 130;
+}
+
+html.liubai-active body #app .display-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--fg);
+  font: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+html.liubai-active body #app .display-trigger svg { width: 16px; height: 16px; }
+html.liubai-active body #app .display-trigger:hover { background: var(--hover); border-color: var(--line-strong); }
+html.liubai-active body #app .display-trigger:focus-visible,
+html.liubai-active body #app .display-menu button:focus-visible,
+html.liubai-active body #app .zen-exit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+html.liubai-active body #app .display-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 14px;
+  width: min(320px, calc(100vw - 24px));
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--fg);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, .16);
+}
+
+html.liubai-active body #app .display-menu-section { display: grid; gap: 7px; }
+html.liubai-active body #app .display-menu-heading { margin: 0; color: var(--muted); font-size: .72rem; }
+html.liubai-active body #app .display-mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+html.liubai-active body #app .display-mode-option {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 66px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--fg);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+html.liubai-active body #app .display-mode-option[aria-pressed='true'],
+html.liubai-active body #app .display-level-options button[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+}
+
+html.liubai-active body #app .display-mode-option span { font-size: .8rem; font-weight: 600; }
+html.liubai-active body #app .display-mode-option small { color: var(--muted); font-size: .68rem; line-height: 1.45; }
+html.liubai-active body #app .display-level-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+html.liubai-active body #app .display-level-options button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: .75rem;
+  cursor: pointer;
+}
+
+html.liubai-active body #app .display-focus-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--hover);
+  color: var(--fg);
+  font: inherit;
+  font-size: .78rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+html.liubai-active body #app .display-focus-action kbd,
+html.liubai-active body #app .display-menu-hint { color: var(--muted); font-size: .68rem; }
+html.liubai-active body #app .display-menu-hint { margin: -7px 0 0; line-height: 1.5; }
+
+html.liubai-active body #app .zen-bar { gap: 10px; }
+html.liubai-active body #app .zen-exit {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--hover);
+  color: var(--fg);
+  font: inherit;
+  font-size: .75rem;
+  cursor: pointer;
+}
+
+html.liubai-active body.zen-mode #app .display-controls { visibility: hidden; opacity: 0; pointer-events: none; }
+
+@media (max-width: 680px) {
+  html.liubai-active body #app .display-controls { right: 68px; }
+  html.liubai-active body #app .display-trigger { min-width: 76px; }
+  html.liubai-active body #app .display-menu { width: min(320px, calc(100vw - 92px)); }
+  html.liubai-active body #app .zen-bar { gap: 6px; padding: 6px 10px; font-size: .7rem; }
+  html.liubai-active body #app .zen-shortcut { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.liubai-active body #app .display-trigger { transition-duration: 1ms; }
+}
