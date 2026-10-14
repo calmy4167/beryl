@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "appRoot": "D:\\dsharness",
+  "repoRoot": "D:\\dsharness",
+  "contextRoot": "D:\\dsharness",
+  "sessionRoot": "D:\\dsharness\\.impeccable\\live",
+  "productPath": "D:\\dsharness\\PRODUCT.md",
+  "designPath": "D:\\dsharness\\DESIGN.md",
+  "resolvedFrom": "target:src\\vue\\shell\\LiubaiShell.vue"
+}
