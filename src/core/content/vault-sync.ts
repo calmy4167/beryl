@@ -181,6 +181,8 @@ function generatedPathForEntity(entity: OpenEntity): string {
       ? exportOpenWorkspace({ finance: [entity] })
     : 'entityType' in entity && entity.entityType === 'thing'
       ? exportOpenWorkspace({ things: [entity] })
+    : 'entityType' in entity && entity.entityType === 'inbox_history'
+      ? exportOpenWorkspace({ inboxHistory: [entity] })
     : isGoal(entity)
       ? exportOpenWorkspace({ goals: [entity] })
       : 'currentStage' in entity
